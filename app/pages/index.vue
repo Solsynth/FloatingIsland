@@ -1,0 +1,141 @@
+<template>
+    <NuxtLayout name="app">
+        <div class="space-y-4">
+            <ConfuseSpinner
+                v-if="status === 'pending' && posts.length === 0"
+                message="Loading posts..."
+            />
+
+            <div v-else-if="error" class="alert alert-error">
+                <IconAlertCircle class="w-5 h-5" />
+                <span>Failed to load posts: {{ error }}</span>
+            </div>
+
+            <template v-if="posts.length > 0">
+                <PostCard
+                    v-for="post in posts"
+                    :key="post.id"
+                    :post="post"
+                    @boost="handleBoost"
+                    @share="handleShare"
+                />
+            </template>
+
+            <!-- Load More Trigger -->
+            <div
+                ref="loadMoreRef"
+                class="h-10 flex items-center justify-center"
+            >
+                <ConfuseSpinner v-if="fetchingMore" message="Loading more..." />
+                <p
+                    v-else-if="!hasMore && posts.length > 0"
+                    class="text-base-content/40 text-sm"
+                >
+                    No more posts to load
+                </p>
+            </div>
+        </div>
+    </NuxtLayout>
+</template>
+
+<script setup lang="ts">
+import type { Post } from "~/types/post";
+
+useHead({
+    title: "Explore",
+    meta: [{ name: "description", content: "Explore posts on Solar Network" }],
+});
+
+const posts = useState<Post[]>("home-posts", () => []);
+const total = ref(0);
+const offset = ref(0);
+const hasMore = ref(true);
+const fetchingMore = ref(false);
+const loadMoreRef = ref<HTMLElement | null>(null);
+
+// Initial fetch with useFetch
+const {
+    data: initialData,
+    status,
+    error,
+} = await useFetch<{ posts: Post[]; total: number }>("/api/posts", {
+    query: { take: 20, offset: 0, replies: "false" },
+    key: "home-posts-fetch",
+    default: () => ({ posts: [], total: 0 }),
+});
+
+watch(
+    initialData,
+    (data) => {
+        if (data?.posts) {
+            posts.value = data.posts;
+            total.value = data.total;
+            offset.value = data.posts.length;
+            hasMore.value = offset.value < data.total;
+        }
+    },
+    { immediate: true },
+);
+
+async function loadMore() {
+    if (!hasMore.value || fetchingMore.value) return;
+    fetchingMore.value = true;
+
+    try {
+        const result = await $fetch<{ posts: Post[]; total: number }>(
+            "/api/posts",
+            {
+                query: { take: 20, offset: offset.value },
+            },
+        );
+
+        if (result?.posts) {
+            posts.value = [...posts.value, ...result.posts];
+            offset.value += result.posts.length;
+            hasMore.value = offset.value < result.total;
+        }
+    } catch (e) {
+        console.error("Failed to load more posts:", e);
+    } finally {
+        fetchingMore.value = false;
+    }
+}
+
+function handleBoost(_post: Post) {}
+
+function handleShare(post: Post) {
+    if (navigator.share) {
+        navigator.share({
+            title: post.title || "Post on Floating Island",
+            text: post.content.slice(0, 100),
+            url: `${window.location.origin}/posts/${post.id}`,
+        });
+    }
+}
+
+// Intersection Observer for infinite scroll
+let observer: IntersectionObserver | null = null;
+
+onMounted(() => {
+    observer = new IntersectionObserver(
+        (entries) => {
+            if (
+                entries[0].isIntersecting &&
+                hasMore.value &&
+                !fetchingMore.value
+            ) {
+                loadMore();
+            }
+        },
+        { rootMargin: "200px" },
+    );
+
+    if (loadMoreRef.value) {
+        observer.observe(loadMoreRef.value);
+    }
+});
+
+onBeforeUnmount(() => {
+    observer?.disconnect();
+});
+</script>

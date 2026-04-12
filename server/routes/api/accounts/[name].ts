@@ -1,0 +1,19 @@
+import { defineEventHandler, getRouterParam } from 'h3'
+import { snakeToCamel } from '~/utils/case'
+
+export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig(event)
+  const name = getRouterParam(event, 'name')
+
+  try {
+    const response = await fetch(`${config.public.apiBaseUrl}/passport/accounts/${name}`)
+    if (!response.ok) {
+      throw new Error(`API returned ${response.status}`)
+    }
+    const data = await response.json()
+    return snakeToCamel(data)
+  } catch (e) {
+    event.node.res.statusCode = 502
+    return { error: 'Failed to fetch account from API' }
+  }
+})

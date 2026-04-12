@@ -1,0 +1,96 @@
+<template>
+    <NuxtLayout name="app">
+        <ConfuseSpinner
+            v-if="postStatus === 'pending'"
+            message="Loading post..."
+        />
+
+        <template v-else-if="post">
+            <!-- Original Post -->
+            <PostCard :post="post" @boost="handleBoost" @share="handleShare" />
+
+            <!-- Replies -->
+            <div class="mt-6">
+                <h2 class="text-lg font-bold mb-4 px-1">
+                    Replies ({{ replies.length }})
+                </h2>
+                <div class="space-y-4">
+                    <PostCard
+                        v-for="reply in replies"
+                        :key="reply.id"
+                        :post="reply"
+                        @boost="handleBoost"
+                        @share="handleShare"
+                    />
+                </div>
+                <p
+                    v-if="replies.length === 0"
+                    class="text-center text-base-content/40 py-8"
+                >
+                    No replies yet. Be the first to reply!
+                </p>
+            </div>
+        </template>
+
+        <div v-else class="alert alert-warning">
+            <IconAlertTriangle class="w-5 h-5" />
+            <span>Post not found</span>
+        </div>
+    </NuxtLayout>
+</template>
+
+<script setup lang="ts">
+import type { Post } from "~/types/post";
+
+const route = useRoute();
+const postId = computed(() => route.params.id as string);
+
+// Fetch post with useFetch
+const { data: post, status: postStatus } = await useFetch<Post>(
+    () => `/api/posts/${postId.value}`,
+    {
+        key: `post-${postId.value}`,
+    },
+);
+
+// Fetch replies with useFetch
+const { data: replies } = await useFetch<Post[]>(
+    () => `/api/posts/${postId.value}/replies`,
+    {
+        key: `post-replies-${postId.value}`,
+        default: () => [],
+    },
+);
+
+// SEO
+watch(
+    post,
+    (p) => {
+        if (p) {
+            useHead({
+                title:
+                    p.title ||
+                    `${p.publisher?.nick || p.publisher?.name}'s Post`,
+                meta: [
+                    {
+                        name: "description",
+                        content: p.description || p.content.slice(0, 160),
+                    },
+                ],
+            });
+        }
+    },
+    { immediate: true },
+);
+
+function handleBoost(_p: Post) {}
+function handleShare(p: Post) {
+    if (navigator.share) {
+        navigator.share({
+            title: p.title || "Post on Floating Island",
+            text: p.content.slice(0, 100),
+            url: window.location.href,
+        });
+    }
+}
+</script>
