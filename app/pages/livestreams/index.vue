@@ -60,22 +60,18 @@
 
 <script setup lang="ts">
 import type { LivestreamDetail } from '~/types/livestream'
+import { fetchLivestreams } from '~/utils/api'
 
 useHead({
   title: 'Livestreams',
   meta: [{ name: 'description', content: 'Watch livestreams on Solar Network' }],
 })
 
-const { data: streams, status: streamsStatus } = await useFetch<LivestreamDetail[]>(
-  '/api/livestreams',
+const { data: streams, status: streamsStatus } = await useAsyncData(
+  'livestreams',
+  () => fetchLivestreams(),
   {
-    key: 'livestreams',
     default: () => [],
   },
 )
-
-function getFileUrl(fileId: string | null | undefined): string | null {
-  if (!fileId) return null
-  return `https://api.solian.app/drive/files/${fileId}`
-}
 </script>

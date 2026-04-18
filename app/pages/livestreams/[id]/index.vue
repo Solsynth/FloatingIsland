@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="app">
-    <ConfuseSpinner v-if="loading" message="Loading livestream..." />
+    <ConfuseSpinner v-if="streamStatus === 'pending'" message="Loading livestream..." />
 
     <template v-else-if="stream">
       <!-- Video Player -->
@@ -62,16 +62,18 @@
 
 <script setup lang="ts">
 import type { LivestreamDetail } from '~/types/livestream'
+import { fetchLivestream } from '~/utils/api'
 
 const route = useRoute()
 const streamId = computed(() => route.params.id as string)
 
-const { data: stream, pending: loading } = await useFetch<LivestreamDetail>(
-  () => `/api/livestreams/${streamId.value}`,
+const { data: stream, status: streamStatus } = await useAsyncData(
+  () => `livestream-${streamId.value}`,
+  () => fetchLivestream(streamId.value),
   {
-    key: (id) => `livestream-${id}`,
+    watch: [streamId],
     default: () => null,
-  }
+  },
 )
 
 const publisherName = computed(() => stream.value?.publisher?.nick || stream.value?.publisher?.name || '')

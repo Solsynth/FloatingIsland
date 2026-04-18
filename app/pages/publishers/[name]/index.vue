@@ -58,26 +58,29 @@
 
 <script setup lang="ts">
 import type { Publisher, Post } from '~/types/post'
+import { fetchPublisher, fetchPublisherPosts } from '~/utils/api'
 
 const route = useRoute()
 const publisherName = computed(() => route.params.name as string)
 
-const { data: publisher, status: publisherStatus } = await useFetch<Publisher>(
-  () => `/api/publishers/${publisherName.value}-info`,
+const { data: publisher, status: publisherStatus } = await useAsyncData(
+  () => `publisher-${publisherName.value}`,
+  () => fetchPublisher(publisherName.value),
   {
-    key: `publisher-${publisherName.value}`,
+    watch: [publisherName],
   },
 )
 
-const { data: publisherPosts } = await useFetch<{ posts: Post[] }>(
-  () => `/api/publishers/${publisherName.value}`,
+const { data: publisherPostsData } = await useAsyncData(
+  () => `publisher-posts-${publisherName.value}`,
+  () => fetchPublisherPosts(publisherName.value, 20, 0),
   {
-    query: { take: 20, offset: 0 },
-    key: `publisher-posts-${publisherName.value}`,
-    default: () => ({ posts: [] }),
-    transform: (data) => data?.posts || [],
+    watch: [publisherName],
+    default: () => ({ posts: [], total: 0 }),
   },
 )
+
+const publisherPosts = computed(() => publisherPostsData.value?.posts || [])
 
 const displayName = computed(() => publisher.value?.nick || publisher.value?.name || '')
 const pictureUrl = computed(() => publisher.value?.picture?.url || null)

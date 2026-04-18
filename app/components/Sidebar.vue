@@ -3,7 +3,7 @@
         <!-- Logo -->
         <div class="mb-6 flex justify-end px-2">
             <NuxtLink to="/" class="text-2xl font-bold text-primary">
-                <img src="/favicon.ico" alt="Logo" class="h-12 w-12" />
+                <img src="/favicon.png" alt="Logo" class="h-12 w-12" />
             </NuxtLink>
         </div>
 
@@ -26,19 +26,20 @@
             </NuxtLink>
         </nav>
 
-        <!-- Compose Button -->
-        <div class="mt-4 px-2">
-            <button
-                class="btn btn-primary btn-lg w-full rounded-full shadow-lg transition-shadow hover:shadow-xl"
-                @click="$emit('compose')"
-            >
-                <IconPlus class="h-6 w-6" />
-                <span>New Post</span>
-            </button>
-        </div>
+        <!-- Bottom Section: Compose + User Profile -->
+        <div class="mt-auto flex flex-col gap-2 px-2">
+            <!-- Compose Button -->
+            <div>
+                <button
+                    class="btn btn-primary btn-lg w-full rounded-full shadow-lg transition-shadow hover:shadow-xl"
+                    @click="$emit('compose')"
+                >
+                    <IconPlus class="h-6 w-6" />
+                    <span>New Post</span>
+                </button>
+            </div>
 
-        <!-- User Profile Mini -->
-        <div class="mt-4 px-2">
+            <!-- User Profile Mini -->
             <div
                 v-if="isAuthenticated && user"
                 class="dropdown dropdown-end dropdown-top w-full"

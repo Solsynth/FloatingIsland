@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-base-200 flex items-center justify-center px-4">
     <div class="card bg-base-100 shadow-xl max-w-md w-full">
       <div class="card-body">
-        <ConfuseSpinner v-if="loading" message="Processing spell..." />
+        <ConfuseSpinner v-if="spellStatus === 'pending'" message="Processing spell..." />
 
         <template v-else-if="spell">
           <h2 class="card-title text-xl mb-2">Spell Activated</h2>
@@ -34,18 +34,21 @@
 </template>
 
 <script setup lang="ts">
+import { getSpell } from '~/utils/api'
+
 definePageMeta({ layout: false })
 
 const route = useRoute()
 const spellWord = computed(() => (route.params.slug as string[])?.join('/') || '')
 
-const { data: spell, pending: loading } = await useFetch(
-  () => `/api/spells/${spellWord.value}`,
+const { data: spell, status: spellStatus } = await useAsyncData(
+  () => `spell-${spellWord.value}`,
+  () => getSpell(spellWord.value),
   {
-    key: (word) => `spell-${word}`,
+    watch: [spellWord],
     default: () => null,
-  }
+  },
 )
 
-const applySuccess = computed(() => !loading.value && !spell.value)
+const applySuccess = computed(() => spellStatus.value !== 'pending' && !spell.value)
 </script>

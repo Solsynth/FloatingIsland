@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="app">
-    <ConfuseSpinner v-if="loading" message="Loading order..." />
+    <ConfuseSpinner v-if="orderStatus === 'pending'" message="Loading order..." />
 
     <template v-else-if="order">
       <div class="card bg-base-100 shadow-xl">
@@ -65,25 +65,26 @@
 
 <script setup lang="ts">
 import type { WalletOrder } from '~/types/auth'
+import { getOrder, payOrder } from '~/utils/api'
 
 const route = useRoute()
 const orderId = computed(() => route.params.id as string)
 const paying = ref(false)
 const pinCode = ref('')
 
-const { data: order, pending: loading } = await useFetch<WalletOrder>(
-  () => `/api/orders/${orderId.value}`,
+const { data: order, status: orderStatus } = await useAsyncData(
+  () => `order-${orderId.value}`,
+  () => getOrder(orderId.value),
   {
-    key: (id) => `order-${id}`,
+    watch: [orderId],
     default: () => null,
-  }
+  },
 )
 
 async function handlePay() {
   if (!order.value || !pinCode.value) return
   paying.value = true
   try {
-    const { payOrder } = await import('~/utils/api')
     await payOrder(order.value.id, pinCode.value)
     // Success
   } catch (e) {

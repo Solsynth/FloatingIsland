@@ -41,23 +41,26 @@
 
 <script setup lang="ts">
 import type { Post } from "~/types/post";
+import { fetchPost, fetchPostReplies } from "~/utils/api";
 
 const route = useRoute();
 const postId = computed(() => route.params.id as string);
 
-// Fetch post with useFetch
-const { data: post, status: postStatus } = await useFetch<Post>(
-    () => `/api/posts/${postId.value}`,
+// Fetch post with useAsyncData
+const { data: post, status: postStatus } = await useAsyncData(
+    () => `post-${postId.value}`,
+    () => fetchPost(postId.value),
     {
-        key: `post-${postId.value}`,
+        watch: [postId],
     },
 );
 
-// Fetch replies with useFetch
-const { data: replies } = await useFetch<Post[]>(
-    () => `/api/posts/${postId.value}/replies`,
+// Fetch replies with useAsyncData
+const { data: replies } = await useAsyncData(
+    () => `post-replies-${postId.value}`,
+    () => fetchPostReplies(postId.value),
     {
-        key: `post-replies-${postId.value}`,
+        watch: [postId],
         default: () => [],
     },
 );

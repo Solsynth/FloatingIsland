@@ -1,9 +1,9 @@
-import { defineEventHandler, setResponseHeader } from 'h3'
+import { defineEventHandler, setResponseHeader } from "h3";
 
 export default defineEventHandler(async (event) => {
-  setResponseHeader(event, 'Content-Type', 'application/xml')
+  setResponseHeader(event, "Content-Type", "application/xml");
 
-  const origin = getRequestURL(event).origin
+  const origin = getRequestURL(event).origin;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -22,5 +22,5 @@ export default defineEventHandler(async (event) => {
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
-</urlset>`
-})
+</urlset>`;
+});

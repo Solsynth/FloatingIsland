@@ -40,6 +40,7 @@
 
 <script setup lang="ts">
 import type { Post } from "~/types/post";
+import { fetchPosts } from "~/utils/api";
 
 useHead({
     title: "Explore",
@@ -53,16 +54,18 @@ const hasMore = ref(true);
 const fetchingMore = ref(false);
 const loadMoreRef = ref<HTMLElement | null>(null);
 
-// Initial fetch with useFetch
+// Initial fetch with useAsyncData for SSR compatibility
 const {
     data: initialData,
     status,
     error,
-} = await useFetch<{ posts: Post[]; total: number }>("/api/posts", {
-    query: { take: 20, offset: 0, replies: "false" },
-    key: "home-posts-fetch",
-    default: () => ({ posts: [], total: 0 }),
-});
+} = await useAsyncData(
+    "home-posts-fetch",
+    () => fetchPosts(20, 0, { replies: false }),
+    {
+        default: () => ({ posts: [], total: 0 }),
+    },
+);
 
 watch(
     initialData,
@@ -82,12 +85,7 @@ async function loadMore() {
     fetchingMore.value = true;
 
     try {
-        const result = await $fetch<{ posts: Post[]; total: number }>(
-            "/api/posts",
-            {
-                query: { take: 20, offset: offset.value },
-            },
-        );
+        const result = await fetchPosts(20, offset.value, { replies: false });
 
         if (result?.posts) {
             posts.value = [...posts.value, ...result.posts];

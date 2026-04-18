@@ -1,10 +1,11 @@
 <template>
   <div v-if="attachments.length" class="grid gap-1 rounded-xl overflow-hidden" :class="gridClass">
-    <div
+    <NuxtLink
       v-for="attachment in visibleAttachments"
       :key="attachment.id"
-      class="relative bg-base-300 aspect-video cursor-pointer"
-      @click="$emit('click', attachment)"
+      :to="`/files/${attachment.id}`"
+      class="relative bg-base-300 aspect-video cursor-pointer block"
+      @click.stop
     >
       <img
         v-if="getAttachmentUrl(attachment)"
@@ -22,7 +23,7 @@
       >
         <IconPlay class="w-10 h-10 text-white" />
       </div>
-    </div>
+    </NuxtLink>
   </div>
   <button v-if="attachments.length > 4" class="btn btn-ghost btn-xs mt-1" @click="showAll = !showAll">
     {{ showAll ? 'Show less' : `+${attachments.length - 4} more` }}
@@ -35,10 +36,6 @@ import { getFileUrl } from '~/utils/files'
 
 const props = defineProps<{
   attachments: FileAttachment[]
-}>()
-
-defineEmits<{
-  click: [attachment: FileAttachment]
 }>()
 
 const showAll = ref(false)

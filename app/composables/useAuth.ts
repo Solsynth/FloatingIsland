@@ -13,6 +13,14 @@ import {
   getToken,
   getUserInfo,
 } from "~/utils/api";
+import {
+  readTokenPair,
+  saveTokenPair,
+  clearTokenPair,
+  getValidToken,
+  setTokenFromResponse,
+  type StoredTokenPair,
+} from "~/utils/token";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 let fpPromise: Promise<FingerprintJS> | null = null;
@@ -27,6 +35,8 @@ async function getFingerprint(): Promise<string> {
 }
 
 export function useAuth() {
+  const config = useRuntimeConfig();
+
   // State - uses Nuxt's global useState so it's shared across calls
   const isAuthenticated = useState<boolean>(
     "auth-isAuthenticated",
@@ -35,6 +45,7 @@ export function useAuth() {
   const isLoading = useState<boolean>("auth-isLoading", () => false);
   const user = useState<User | null>("auth-user", () => null);
   const token = useState<SnAuthToken | null>("auth-token", () => null);
+  const tokenPair = useState<StoredTokenPair | null>("auth-tokenPair", () => null);
 
   // Login flow state
   const challenge = useState<SnAuthChallenge | null>(
@@ -110,11 +121,21 @@ export function useAuth() {
 
   async function initAuth() {
     if (import.meta.server) return;
-    const savedToken = localStorage.getItem("auth_token");
-    if (savedToken) {
-      token.value = { token: savedToken };
+
+    const saved = readTokenPair();
+    if (saved) {
+      tokenPair.value = saved;
+      token.value = { token: saved.token, expiresAt: saved.expiresAt };
       isAuthenticated.value = true;
-      await fetchUser();
+
+      // Validate and refresh token if needed
+      const validToken = await getValidToken(config.public.apiBaseUrl);
+      if (validToken) {
+        await fetchUser();
+      } else {
+        // Token is invalid or expired, clear it
+        logout();
+      }
     }
   }
 
@@ -132,24 +153,34 @@ export function useAuth() {
     }
   }
 
-  function setToken(tokenString: string) {
-    token.value = { token: tokenString };
+  function setToken(
+    tokenString: string,
+    refreshToken?: string,
+    expiresIn?: number,
+    refreshExpiresIn?: number,
+  ) {
+    setTokenFromResponse(tokenString, refreshToken, expiresIn, refreshExpiresIn);
+
+    const saved = readTokenPair();
+    tokenPair.value = saved;
+    token.value = { token: tokenString, expiresAt: saved?.expiresAt };
     isAuthenticated.value = true;
-    if (import.meta.client) {
-      localStorage.setItem("auth_token", tokenString);
-    }
   }
 
   function logout() {
     token.value = null;
+    tokenPair.value = null;
     user.value = null;
     isAuthenticated.value = false;
     challenge.value = null;
     factors.value = [];
     selectedFactor.value = null;
-    if (import.meta.client) {
-      localStorage.removeItem("auth_token");
-    }
+    clearTokenPair();
+  }
+
+  // Get a valid token, refreshing if necessary
+  async function getValidAuthToken(): Promise<string | null> {
+    return getValidToken(config.public.apiBaseUrl);
   }
 
   // Login flow
@@ -189,7 +220,13 @@ export function useAuth() {
 
   async function exchangeToken(code: string) {
     const result = await getToken(code);
-    setToken(result.token);
+    // The API may return refresh_token and expires_in
+    setToken(
+      result.token,
+      result.refreshToken,
+      result.expiresIn,
+      result.refreshExpiresIn,
+    );
     return result;
   }
 
@@ -217,6 +254,7 @@ export function useAuth() {
     isLoading,
     user,
     token,
+    tokenPair,
     challenge,
     factors,
     selectedFactor,
@@ -231,6 +269,7 @@ export function useAuth() {
     fetchUser,
     setToken,
     logout,
+    getValidAuthToken,
     startLogin,
     loadFactors,
     loadChallenge,

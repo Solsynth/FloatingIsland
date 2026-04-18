@@ -11,15 +11,15 @@
         <!-- Compose Dialog Modal -->
         <ComposeDialog v-if="showCompose" @close="showCompose = false" />
 
-        <div class="app-shell mx-auto max-w-320">
+        <div class="app-shell mx-auto max-w-7xl">
             <!-- Desktop Layout -->
-            <div
-                class="hidden lg:grid lg:grid-cols-[16rem_1fr_16rem] lg:gap-6 lg:px-8 lg:py-4"
-            >
-                <aside class="sticky top-4 self-start">
+            <div class="hidden lg:grid lg:grid-cols-[18rem_1fr_18rem] lg:gap-4">
+                <aside
+                    class="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto"
+                >
                     <Sidebar @compose="showCompose = true" />
                 </aside>
-                <main class="min-h-screen">
+                <main class="min-h-screen py-4">
                     <slot />
                 </main>
                 <aside class="sticky top-4 self-start">

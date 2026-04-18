@@ -62,26 +62,29 @@
 <script setup lang="ts">
 import type { Realm } from '~/types/realm'
 import type { Post } from '~/types/post'
+import { fetchRealm, fetchRealmPosts } from '~/utils/api'
 
 const route = useRoute()
 const realmSlug = computed(() => route.params.slug as string)
 
-const { data: realm, status: realmStatus } = await useFetch<Realm>(
-  () => `/api/realms/${realmSlug.value}`,
+const { data: realm, status: realmStatus } = await useAsyncData(
+  () => `realm-${realmSlug.value}`,
+  () => fetchRealm(realmSlug.value),
   {
-    key: `realm-${realmSlug.value}`,
+    watch: [realmSlug],
   },
 )
 
-const { data: realmPosts } = await useFetch<{ posts: Post[] }>(
-  () => `/api/realms/${realmSlug.value}?posts=true`,
+const { data: realmPostsData } = await useAsyncData(
+  () => `realm-posts-${realmSlug.value}`,
+  () => fetchRealmPosts(realmSlug.value, 20, 0),
   {
-    query: { posts: 'true', take: 20, offset: 0 },
-    key: `realm-posts-${realmSlug.value}`,
-    default: () => ({ posts: [] }),
-    transform: (data) => data?.posts || [],
+    watch: [realmSlug],
+    default: () => ({ posts: [], total: 0 }),
   },
 )
+
+const realmPosts = computed(() => realmPostsData.value?.posts || [])
 
 const pictureUrl = computed(() => realm.value?.picture?.url || null)
 const initials = computed(() => (realm.value?.name || '?').slice(0, 2).toUpperCase())

@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-base-200 flex items-center justify-center px-4">
     <div class="card bg-base-100 shadow-xl max-w-md w-full">
       <div class="card-body">
-        <ConfuseSpinner v-if="loading" message="Processing invite..." />
+        <ConfuseSpinner v-if="realmStatus === 'pending'" message="Processing invite..." />
 
         <template v-else-if="realm">
           <h2 class="card-title text-xl mb-2">Join {{ realm.name }}</h2>
@@ -28,17 +28,20 @@
 </template>
 
 <script setup lang="ts">
+import { fetchRealm } from '~/utils/api'
+
 definePageMeta({ layout: false })
 
 const route = useRoute()
 const realmSlug = computed(() => route.params.slug as string)
 
-const { data: realm, pending: loading } = await useFetch(
-  () => `/api/realms/${realmSlug.value}-invite`,
+const { data: realm, status: realmStatus } = await useAsyncData(
+  () => `realm-invite-${realmSlug.value}`,
+  () => fetchRealm(realmSlug.value),
   {
-    key: (slug) => `realm-invite-${slug}`,
+    watch: [realmSlug],
     default: () => null,
-  }
+  },
 )
 
 async function handleAccept() {
