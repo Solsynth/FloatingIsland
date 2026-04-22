@@ -60,6 +60,13 @@
                         <p class="truncate text-sm text-base-content/60">@{{ realm.slug }}</p>
                     </div>
                     <div class="flex gap-3 text-sm">
+                        <NuxtLink
+                            :to="`/realms/${realm.slug}/members`"
+                            class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 hover:bg-base-200 transition-colors"
+                        >
+                            <div class="font-semibold">{{ memberCount }}</div>
+                            <div class="text-base-content/60">Members</div>
+                        </NuxtLink>
                         <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2">
                             <div class="font-semibold">{{ total }}</div>
                             <div class="text-base-content/60">Posts</div>
@@ -68,184 +75,196 @@
                 </div>
             </section>
 
-            <!-- Content -->
-            <div class="space-y-4 px-4 py-4 lg:px-6">
-                <!-- Description Section -->
-                <section class="space-y-4">
-                    <div class="card">
-                        <div class="card-body p-4">
-                            <p v-if="realm.description" class="text-sm text-base-content/80">{{ realm.description }}</p>
-                            <p v-else class="text-sm text-base-content/60">No description yet.</p>
-                            <div class="flex flex-wrap gap-2 pt-1">
-                                <span class="badge gap-1 border-info/30 bg-info/15 text-info">
-                                    <IconUsers v-if="realm.isCommunity" class="w-3 h-3" />
-                                    <IconBuilding2 v-else class="w-3 h-3" />
-                                    <span v-if="realm.isCommunity">Community</span>
-                                    <span v-else>Organization</span>
-                                </span>
-                                <span
-                                    :class="`badge gap-1 ${
-                                        realm.isPublic
-                                            ? 'border-success/30 bg-success/15 text-success'
-                                            : 'border-warning/30 bg-warning/20 text-warning'
-                                    }`"
-                                >
-                                    <IconGlobe v-if="realm.isPublic" class="w-3 h-3" />
-                                    <IconLock v-else class="w-3 h-3" />
-                                    <span v-if="realm.isPublic">Public</span>
-                                    <span v-else>Private</span>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Verification Info -->
-                    <div v-if="realm.verification" class="card">
-                        <div class="card-body p-4">
-                            <p class="text-sm font-semibold">{{ realm.verification.title || 'Verified realm' }}</p>
-                            <p v-if="realm.verification.description" class="text-sm text-base-content/70">{{ realm.verification.description }}</p>
-                            <p v-if="realm.verification.verifiedBy" class="text-xs text-base-content/60">By {{ realm.verification.verifiedBy }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Join Button -->
-                    <button
-                        v-if="realm.isPublic && !isMember"
-                        class="btn w-full btn-primary sm:w-auto"
-                        :disabled="isJoining"
-                        @click="handleJoin"
-                    >
-                        <IconLoader v-if="isJoining" class="w-4 h-4 animate-spin" />
-                        <IconUserPlus v-else class="w-4 h-4" />
-                        Join Realm
-                    </button>
-                </section>
-
-                <!-- Posts Section with Filters -->
-                <section class="space-y-4">
-                    <!-- Filter Controls -->
-                    <div class="card">
-                        <div class="card-body gap-4 p-4">
-                            <div v-if="isRefreshing" class="mb-1 flex items-center gap-2 text-sm text-base-content/60">
-                                <IconLoader class="w-3.5 h-3.5 animate-spin" />
-                                <span>Refreshing feed...</span>
-                            </div>
-
-                            <!-- Content Type Tabs -->
-                            <div class="join w-full">
-                                <button
-                                    class="btn join-item flex-1"
-                                    :class="contentType === 'all' ? 'btn-primary' : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'"
-                                    @click="setContentType('all')"
-                                >
-                                    All
-                                </button>
-                                <button
-                                    class="btn join-item flex-1"
-                                    :class="contentType === 'posts' ? 'btn-primary' : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'"
-                                    @click="setContentType('posts')"
-                                >
-                                    Posts
-                                </button>
-                                <button
-                                    class="btn join-item flex-1"
-                                    :class="contentType === 'articles' ? 'btn-primary' : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'"
-                                    @click="setContentType('articles')"
-                                >
-                                    Articles
-                                </button>
-                            </div>
-
-                            <!-- Filter Buttons -->
-                            <div class="grid gap-2 sm:grid-cols-2">
-                                <button
-                                    class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
-                                    @click="cycleRepliesFilter"
-                                >
-                                    <IconMessageCircle class="w-3.5 h-3.5" />
-                                    <span>Replies: {{ includeReplies === null ? 'Auto' : includeReplies ? 'On' : 'Off' }}</span>
-                                </button>
-                                <button
-                                    class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
-                                    @click="toggleMediaOnly"
-                                >
-                                    <IconImage class="w-3.5 h-3.5" />
-                                    <span>Media only: {{ mediaOnly ? 'On' : 'Off' }}</span>
-                                </button>
-                                <button
-                                    class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
-                                    @click="toggleOrder"
-                                >
-                                    <IconArrowDownUp class="w-3.5 h-3.5" />
-                                    <span>Order: {{ orderDesc ? 'Newest' : 'Oldest' }}</span>
-                                </button>
-                                <div class="join">
-                                    <input
-                                        v-model="query"
-                                        class="input-bordered input join-item w-full"
-                                        placeholder="Search posts"
-                                        @keydown.enter="reloadWithFilters"
-                                    />
-                                    <button class="btn join-item btn-primary" @click="reloadWithFilters">
-                                        <IconSearch class="w-3.5 h-3.5" />
-                                    </button>
+            <!-- Content Grid -->
+            <div class="grid gap-4 px-4 py-4 lg:px-6 lg:grid-cols-3">
+                <!-- Left Column - Main Content -->
+                <div class="space-y-4 lg:col-span-2">
+                    <!-- Description Section -->
+                    <section class="space-y-4">
+                        <div class="card">
+                            <div class="card-body p-4">
+                                <p v-if="realm.description" class="text-sm text-base-content/80">{{ realm.description }}</p>
+                                <p v-else class="text-sm text-base-content/60">No description yet.</p>
+                                <div class="flex flex-wrap gap-2 pt-1">
+                                    <span class="badge gap-1 border-info/30 bg-info/15 text-info">
+                                        <IconUsers v-if="realm.isCommunity" class="w-3 h-3" />
+                                        <IconBuilding2 v-else class="w-3 h-3" />
+                                        <span v-if="realm.isCommunity">Community</span>
+                                        <span v-else>Organization</span>
+                                    </span>
+                                    <span
+                                        :class="`badge gap-1 ${
+                                            realm.isPublic
+                                                ? 'border-success/30 bg-success/15 text-success'
+                                                : 'border-warning/30 bg-warning/20 text-warning'
+                                        }`"
+                                    >
+                                        <IconGlobe v-if="realm.isPublic" class="w-3 h-3" />
+                                        <IconLock v-else class="w-3 h-3" />
+                                        <span v-if="realm.isPublic">Public</span>
+                                        <span v-else>Private</span>
+                                    </span>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Error -->
-                    <div v-if="error" class="alert alert-error">
-                        <span>{{ error }}</span>
-                    </div>
+                        <!-- Verification Info -->
+                        <div v-if="realm.verification" class="card">
+                            <div class="card-body p-4">
+                                <p class="text-sm font-semibold">{{ realm.verification.title || 'Verified realm' }}</p>
+                                <p v-if="realm.verification.description" class="text-sm text-base-content/70">{{ realm.verification.description }}</p>
+                                <p v-if="realm.verification.verifiedBy" class="text-xs text-base-content/60">By {{ realm.verification.verifiedBy }}</p>
+                            </div>
+                        </div>
 
-                    <!-- Posts List -->
-                    <div
-                        v-if="posts.length > 0"
-                        class="space-y-4"
-                        :class="isRefreshing ? 'opacity-60' : 'opacity-100'"
-                    >
-                        <PostCard
-                            v-for="post in posts"
-                            :key="post.id"
-                            :post="post"
-                            @boost="handleBoost"
-                            @share="handleShare"
-                            @reply="handleReply"
-                        />
-                    </div>
-
-                    <!-- Load More -->
-                    <div v-if="posts.length > 0" class="py-2 text-center">
+                        <!-- Join Button -->
                         <button
-                            v-if="hasMore"
-                            class="btn btn-outline"
-                            :disabled="isLoading"
-                            @click="loadMore"
+                            v-if="realm.isPublic && !isMember"
+                            class="btn w-full btn-primary sm:w-auto"
+                            :disabled="isJoining"
+                            @click="handleJoin"
                         >
-                            <IconLoader v-if="isLoading" class="w-4 h-4 animate-spin" />
-                            <span>Load more</span>
+                            <IconLoader v-if="isJoining" class="w-4 h-4 animate-spin" />
+                            <IconUserPlus v-else class="w-4 h-4" />
+                            Join Realm
                         </button>
-                        <p v-else class="text-sm text-base-content/50">No more posts</p>
-                    </div>
+                    </section>
 
-                    <!-- Empty State -->
-                    <div
-                        v-else-if="!error"
-                        class="rounded-xl border border-base-300 bg-base-100 p-8 text-center text-base-content/60"
-                    >
-                        No posts for this realm with current filters.
-                    </div>
-                </section>
+                    <!-- Posts Section with Filters -->
+                    <section class="space-y-4">
+                        <!-- Filter Controls -->
+                        <div class="card">
+                            <div class="card-body gap-4 p-4">
+                                <div v-if="isRefreshing" class="mb-1 flex items-center gap-2 text-sm text-base-content/60">
+                                    <IconLoader class="w-3.5 h-3.5 animate-spin" />
+                                    <span>Refreshing feed...</span>
+                                </div>
+
+                                <!-- Content Type Tabs -->
+                                <div class="join w-full">
+                                    <button
+                                        class="btn join-item flex-1"
+                                        :class="contentType === 'all' ? 'btn-primary' : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'"
+                                        @click="setContentType('all')"
+                                    >
+                                        All
+                                    </button>
+                                    <button
+                                        class="btn join-item flex-1"
+                                        :class="contentType === 'posts' ? 'btn-primary' : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'"
+                                        @click="setContentType('posts')"
+                                    >
+                                        Posts
+                                    </button>
+                                    <button
+                                        class="btn join-item flex-1"
+                                        :class="contentType === 'articles' ? 'btn-primary' : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'"
+                                        @click="setContentType('articles')"
+                                    >
+                                        Articles
+                                    </button>
+                                </div>
+
+                                <!-- Filter Buttons -->
+                                <div class="grid gap-2 sm:grid-cols-2">
+                                    <button
+                                        class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
+                                        @click="cycleRepliesFilter"
+                                    >
+                                        <IconMessageCircle class="w-3.5 h-3.5" />
+                                        <span>Replies: {{ includeReplies === null ? 'Auto' : includeReplies ? 'On' : 'Off' }}</span>
+                                    </button>
+                                    <button
+                                        class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
+                                        @click="toggleMediaOnly"
+                                    >
+                                        <IconImage class="w-3.5 h-3.5" />
+                                        <span>Media only: {{ mediaOnly ? 'On' : 'Off' }}</span>
+                                    </button>
+                                    <button
+                                        class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
+                                        @click="toggleOrder"
+                                    >
+                                        <IconArrowDownUp class="w-3.5 h-3.5" />
+                                        <span>Order: {{ orderDesc ? 'Newest' : 'Oldest' }}</span>
+                                    </button>
+                                    <div class="join">
+                                        <input
+                                            v-model="query"
+                                            class="input-bordered input join-item w-full"
+                                            placeholder="Search posts"
+                                            @keydown.enter="reloadWithFilters"
+                                        />
+                                        <button class="btn join-item btn-primary" @click="reloadWithFilters">
+                                            <IconSearch class="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Error -->
+                        <div v-if="error" class="alert alert-error">
+                            <span>{{ error }}</span>
+                        </div>
+
+                        <!-- Posts List -->
+                        <div
+                            v-if="posts.length > 0"
+                            class="space-y-4"
+                            :class="isRefreshing ? 'opacity-60' : 'opacity-100'"
+                        >
+                            <PostCard
+                                v-for="post in posts"
+                                :key="post.id"
+                                :post="post"
+                                @boost="handleBoost"
+                                @share="handleShare"
+                                @reply="handleReply"
+                            />
+                        </div>
+
+                        <!-- Load More -->
+                        <div v-if="posts.length > 0" class="py-2 text-center">
+                            <button
+                                v-if="hasMore"
+                                class="btn btn-outline"
+                                :disabled="isLoading"
+                                @click="loadMore"
+                            >
+                                <IconLoader v-if="isLoading" class="w-4 h-4 animate-spin" />
+                                <span>Load more</span>
+                            </button>
+                            <p v-else class="text-sm text-base-content/50">No more posts</p>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div
+                            v-else-if="!error"
+                            class="rounded-xl border border-base-300 bg-base-100 p-8 text-center text-base-content/60"
+                        >
+                            No posts for this realm with current filters.
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Column - Sidebar -->
+                <div class="space-y-4">
+                    <RealmSidebar
+                        :realm-slug="realm.slug"
+                        :is-member="isMember"
+                        :membership="myMembership"
+                    />
+                </div>
             </div>
         </div>
     </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-import type { Realm } from '~/types/realm';
+import type { Realm, RealmMember } from '~/types/realm';
 import type { Post } from '~/types/post';
-import { fetchRealm, fetchRealmPosts, apiFetch } from '~/utils/api';
+import { fetchRealm, fetchRealmPosts, getMyRealmMembership, joinRealm, fetchRealmMembers } from '~/utils/api';
 import { getFileUrl } from '~/utils/files';
 import {
     IconSearch,
@@ -267,6 +286,8 @@ const realmSlug = computed(() => route.params.slug as string);
 // State
 const realm = ref<Realm | null>(null);
 const posts = ref<Post[]>([]);
+const myMembership = ref<RealmMember | null>(null);
+const memberCount = ref(0);
 const notFound = ref(false);
 const error = ref<string | null>(null);
 const isLoading = ref(false);
@@ -373,9 +394,11 @@ async function loadMore() {
 async function checkMembership() {
     if (!realm.value?.slug) return;
     try {
-        await apiFetch(`/passport/realms/${encodeURIComponent(realm.value.slug)}/members/me`);
-        isMember.value = true;
+        const membership = await getMyRealmMembership(realm.value.slug);
+        myMembership.value = membership;
+        isMember.value = !!membership;
     } catch {
+        myMembership.value = null;
         isMember.value = false;
     }
 }
@@ -384,10 +407,8 @@ async function handleJoin() {
     if (!realm.value?.slug || isJoining.value || isMember.value) return;
     isJoining.value = true;
     try {
-        await apiFetch(`/passport/realms/${encodeURIComponent(realm.value.slug)}/members/me`, {
-            method: 'POST',
-        });
-        isMember.value = true;
+        await joinRealm(realm.value.slug);
+        await checkMembership();
     } catch (err) {
         error.value = err instanceof Error ? err.message : 'Failed to join realm';
     } finally {
@@ -417,8 +438,12 @@ function handleReply(post: Post) {
 // Initial load
 onMounted(async () => {
     try {
-        const data = await fetchRealm(realmSlug.value);
+        const [data, membersResult] = await Promise.all([
+            fetchRealm(realmSlug.value),
+            fetchRealmMembers(realmSlug.value, 1, 0).catch(() => ({ members: [], total: 0 })),
+        ]);
         realm.value = data;
+        memberCount.value = membersResult.total;
 
         // Load initial posts
         const postsResult = await fetchRealmPosts(realmSlug.value, 20, 0);

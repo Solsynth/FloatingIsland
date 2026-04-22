@@ -29,6 +29,11 @@ export interface UserProfilePicture {
   blurhash: string | null;
 }
 
+export interface UserPresence {
+  status: "online" | "away" | "busy" | "offline";
+  lastSeenAt: string;
+}
+
 export interface UserProfile {
   id: string;
   firstName: string;
@@ -55,6 +60,7 @@ export interface UserProfile {
     description: string;
     verifiedBy: string;
   } | null;
+  presence?: UserPresence;
 }
 
 export interface UserBadge {

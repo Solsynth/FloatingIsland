@@ -8,7 +8,15 @@ import type {
   SpellInfo,
 } from "~/types/auth";
 import type { Publisher, Post } from "~/types/post";
-import type { Realm } from "~/types/realm";
+import type {
+  Realm,
+  RealmMember,
+  RealmLabel,
+  RealmBoostStatus,
+  RealmBoostLeaderboardEntry,
+  RealmInvite,
+  RealmChatRoom,
+} from "~/types/realm";
 import type { LivestreamDetail } from "~/types/livestream";
 import { snakeToCamel, camelToSnake } from "~/utils/case";
 import {
@@ -553,4 +561,388 @@ export async function fetchLivestreamCredentials(
     `/sphere/livestreams/${livestreamId}/credentials`,
   );
   return safeJsonParse(response);
+}
+
+// Heatmap data for publisher activity
+export interface HeatmapData {
+  startDate: string;
+  endDate: string;
+  data: Record<string, number>;
+}
+
+export async function fetchPublisherHeatmap(
+  publisherName: string,
+): Promise<HeatmapData> {
+  const response = await apiFetch(
+    `/sphere/publishers/${encodeURIComponent(publisherName)}/heatmap`,
+    { skipAuth: true },
+  );
+  return safeJsonParse<HeatmapData>(response);
+}
+
+// Publisher subscription status
+export interface PublisherSubscriptionStatus {
+  status: "none" | "pending" | "following" | "subscribed";
+  isPending: boolean;
+  subscription?: {
+    isActive: boolean;
+    notify: boolean;
+  };
+}
+
+export async function fetchPublisherSubscriptionStatus(
+  publisherName: string,
+): Promise<PublisherSubscriptionStatus | null> {
+  try {
+    const response = await apiFetch(
+      `/sphere/publishers/${encodeURIComponent(publisherName)}/subscription`,
+    );
+    return safeJsonParse<PublisherSubscriptionStatus>(response);
+  } catch (err) {
+    // 404 means not subscribed
+    if (err instanceof Error && err.message.includes("404")) {
+      return null;
+    }
+    throw err;
+  }
+}
+
+export async function subscribeToPublisher(
+  publisherName: string,
+): Promise<void> {
+  await apiFetch(
+    `/sphere/publishers/${encodeURIComponent(publisherName)}/subscribers`,
+    { method: "POST" },
+  );
+}
+
+export async function unsubscribeFromPublisher(
+  publisherName: string,
+): Promise<void> {
+  await apiFetch(
+    `/sphere/publishers/${encodeURIComponent(publisherName)}/subscribers/me`,
+    { method: "DELETE" },
+  );
+}
+
+export async function setPublisherNotify(
+  publisherName: string,
+  notify: boolean,
+): Promise<void> {
+  await apiFetch(
+    `/sphere/publishers/${encodeURIComponent(publisherName)}/subscribers/me/notify`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ notify }),
+    },
+  );
+}
+
+// Pinned posts
+export async function fetchPublisherPinnedPosts(
+  publisherName: string,
+): Promise<Post[]> {
+  const response = await apiFetch(
+    `/sphere/posts?pub=${encodeURIComponent(publisherName)}&pinned=true&take=10`,
+    { skipAuth: true },
+  );
+  return safeJsonParse<Post[]>(response);
+}
+
+// Account timeline (user's posts)
+export async function fetchAccountTimeline(
+  accountName: string,
+  take = 20,
+  offset = 0,
+): Promise<{ posts: Post[]; total: number }> {
+  const params = new URLSearchParams({
+    take: String(take),
+    offset: String(offset),
+    account: accountName,
+  });
+
+  const response = await apiFetch(`/sphere/posts?${params.toString()}`, {
+    skipAuth: true,
+  });
+
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<Post[]>(response);
+
+  return { posts: data, total };
+}
+
+// Account relationships
+export interface RelationshipStatus {
+  status: number; // -100 = blocked, 0 = none, >0 = friend
+  isFriend: boolean;
+  isBlocked: boolean;
+}
+
+export async function fetchAccountRelationship(
+  accountId: string,
+): Promise<RelationshipStatus | null> {
+  try {
+    const response = await apiFetch(`/passport/accounts/${accountId}/relationship`);
+    return safeJsonParse<RelationshipStatus>(response);
+  } catch (err) {
+    if (err instanceof Error && err.message.includes("404")) {
+      return null;
+    }
+    throw err;
+  }
+}
+
+export async function addAccountAsFriend(accountId: string): Promise<void> {
+  await apiFetch(`/passport/accounts/${accountId}/relationship`, {
+    method: "POST",
+  });
+}
+
+export async function blockAccount(accountId: string): Promise<void> {
+  await apiFetch(`/passport/accounts/${accountId}/block`, {
+    method: "POST",
+  });
+}
+
+export async function unblockAccount(accountId: string): Promise<void> {
+  await apiFetch(`/passport/accounts/${accountId}/block`, {
+    method: "DELETE",
+  });
+}
+
+// Direct messages
+export async function getDirectChat(accountId: string): Promise<unknown | null> {
+  try {
+    const response = await apiFetch(`/passport/chat/direct/${accountId}`);
+    return safeJsonParse<unknown>(response);
+  } catch (err) {
+    if (err instanceof Error && err.message.includes("404")) {
+      return null;
+    }
+    throw err;
+  }
+}
+
+export async function createDirectChat(accountId: string): Promise<unknown> {
+  const response = await apiFetch(`/passport/chat/direct`, {
+    method: "POST",
+    body: JSON.stringify({ account_id: accountId }),
+  });
+  return safeJsonParse<unknown>(response);
+}
+
+// Realm API
+export async function fetchRealms(): Promise<Realm[]> {
+  const response = await apiFetch("/passport/realms");
+  const data = await safeJsonParse<{ items: Realm[] }>(response);
+  return data.items;
+}
+
+export async function createRealm(payload: {
+  name: string;
+  slug: string;
+  description?: string;
+  isPublic?: boolean;
+  isCommunity?: boolean;
+}): Promise<Realm> {
+  const response = await apiFetch("/passport/realms", {
+    method: "POST",
+    body: JSON.stringify(camelToSnake(payload)),
+  });
+  return safeJsonParse<Realm>(response);
+}
+
+export async function updateRealm(
+  slug: string,
+  payload: {
+    name?: string;
+    description?: string;
+    isPublic?: boolean;
+  },
+): Promise<Realm> {
+  const response = await apiFetch(`/passport/realms/${encodeURIComponent(slug)}`, {
+    method: "PATCH",
+    body: JSON.stringify(camelToSnake(payload)),
+  });
+  return safeJsonParse<Realm>(response);
+}
+
+export async function deleteRealm(slug: string): Promise<void> {
+  await apiFetch(`/passport/realms/${encodeURIComponent(slug)}`, {
+    method: "DELETE",
+  });
+}
+
+// Realm membership
+export async function joinRealm(slug: string): Promise<void> {
+  await apiFetch(`/passport/realms/${encodeURIComponent(slug)}/members`, {
+    method: "POST",
+  });
+}
+
+export async function leaveRealm(slug: string): Promise<void> {
+  await apiFetch(`/passport/realms/${encodeURIComponent(slug)}/members/me`, {
+    method: "DELETE",
+  });
+}
+
+export async function getMyRealmMembership(slug: string): Promise<RealmMember | null> {
+  try {
+    const response = await apiFetch(
+      `/passport/realms/${encodeURIComponent(slug)}/members/me`,
+    );
+    return safeJsonParse<RealmMember>(response);
+  } catch (err) {
+    if (err instanceof Error && err.message.includes("404")) {
+      return null;
+    }
+    throw err;
+  }
+}
+
+export async function fetchRealmMembers(
+  slug: string,
+  take = 50,
+  offset = 0,
+): Promise<{ members: RealmMember[]; total: number }> {
+  const params = new URLSearchParams({
+    take: String(take),
+    offset: String(offset),
+  });
+  const response = await apiFetch(
+    `/passport/realms/${encodeURIComponent(slug)}/members?${params.toString()}`,
+  );
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<RealmMember[]>(response);
+  return { members: data, total };
+}
+
+// Realm invites
+export async function fetchRealmInvites(): Promise<RealmInvite[]> {
+  const response = await apiFetch("/passport/realms/invites");
+  return safeJsonParse<RealmInvite[]>(response);
+}
+
+export async function acceptRealmInvite(slug: string): Promise<void> {
+  await apiFetch(`/passport/realms/invites/${encodeURIComponent(slug)}/accept`, {
+    method: "POST",
+  });
+}
+
+export async function declineRealmInvite(slug: string): Promise<void> {
+  await apiFetch(`/passport/realms/invites/${encodeURIComponent(slug)}/decline`, {
+    method: "POST",
+  });
+}
+
+// Realm boost
+export async function fetchRealmBoostStatus(slug: string): Promise<RealmBoostStatus> {
+  const response = await apiFetch(
+    `/passport/realms/${encodeURIComponent(slug)}/boost`,
+  );
+  return safeJsonParse<RealmBoostStatus>(response);
+}
+
+export async function fetchRealmBoostLeaderboard(
+  slug: string,
+  take = 20,
+): Promise<RealmBoostLeaderboardEntry[]> {
+  const response = await apiFetch(
+    `/passport/realms/${encodeURIComponent(slug)}/boost/leaderboard?take=${take}`,
+  );
+  return safeJsonParse<RealmBoostLeaderboardEntry[]>(response);
+}
+
+export async function boostRealm(
+  slug: string,
+  points: number,
+  currency: string,
+): Promise<void> {
+  await apiFetch(`/passport/realms/${encodeURIComponent(slug)}/boost`, {
+    method: "POST",
+    body: JSON.stringify({ points, currency }),
+  });
+}
+
+// Realm labels
+export async function fetchRealmLabels(slug: string): Promise<RealmLabel[]> {
+  const response = await apiFetch(
+    `/passport/realms/${encodeURIComponent(slug)}/labels`,
+  );
+  return safeJsonParse<RealmLabel[]>(response);
+}
+
+export async function createRealmLabel(
+  slug: string,
+  payload: {
+    name: string;
+    description?: string;
+    icon?: string;
+    color?: string;
+  },
+): Promise<RealmLabel> {
+  const response = await apiFetch(
+    `/passport/realms/${encodeURIComponent(slug)}/labels`,
+    {
+      method: "POST",
+      body: JSON.stringify(camelToSnake(payload)),
+    },
+  );
+  return safeJsonParse<RealmLabel>(response);
+}
+
+export async function updateRealmLabel(
+  slug: string,
+  labelId: string,
+  payload: {
+    name?: string;
+    description?: string;
+    icon?: string;
+    color?: string;
+  },
+): Promise<RealmLabel> {
+  const response = await apiFetch(
+    `/passport/realms/${encodeURIComponent(slug)}/labels/${labelId}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(camelToSnake(payload)),
+    },
+  );
+  return safeJsonParse<RealmLabel>(response);
+}
+
+export async function deleteRealmLabel(slug: string, labelId: string): Promise<void> {
+  await apiFetch(
+    `/passport/realms/${encodeURIComponent(slug)}/labels/${labelId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
+// Update my realm identity (nick, bio, label)
+export async function updateRealmIdentity(
+  slug: string,
+  payload: {
+    nick?: string;
+    bio?: string;
+    labelId?: string | null;
+  },
+): Promise<RealmMember> {
+  const response = await apiFetch(
+    `/passport/realms/${encodeURIComponent(slug)}/members/me`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(camelToSnake(payload)),
+    },
+  );
+  return safeJsonParse<RealmMember>(response);
+}
+
+// Realm chat rooms
+export async function fetchRealmChatRooms(slug: string): Promise<RealmChatRoom[]> {
+  const response = await apiFetch(
+    `/passport/realms/${encodeURIComponent(slug)}/chat`,
+  );
+  return safeJsonParse<RealmChatRoom[]>(response);
 }

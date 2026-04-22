@@ -121,6 +121,7 @@
 import {
     IconCompass,
     IconRadio,
+    IconUsers,
     IconPlus,
     IconLogIn,
     IconLogOut,
@@ -143,6 +144,7 @@ const {
 const navItems = [
     { icon: IconCompass, label: "Explore", href: "/" },
     { icon: IconRadio, label: "Livestreams", href: "/livestreams" },
+    { icon: IconUsers, label: "Realms", href: "/realms" },
 ];
 
 const displayName = computed(() => authDisplayName.value);
