@@ -107,10 +107,10 @@ export async function apiFetch(
     }
 
     // If refresh failed, clear auth and throw
+    // Note: We don't auto-redirect here to allow components to handle auth errors gracefully
     if (typeof window !== "undefined") {
       const auth = useAuth();
       auth.logout();
-      navigateTo("/auth/login");
     }
     throw new Error("Session expired. Please login again.");
   }

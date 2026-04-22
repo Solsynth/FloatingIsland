@@ -49,17 +49,6 @@ export function isNotExpired(dateStr?: string): boolean {
 }
 
 export function shouldRefreshToken(tokenPair: StoredTokenPair): boolean {
-  const issuedAt = decodeJwtIssuedAt(tokenPair.token);
-  const now = Date.now();
-
-  // If token was issued recently, don't refresh yet
-  if (issuedAt) {
-    const timeSinceIssued = now - issuedAt.getTime();
-    if (timeSinceIssued < TOKEN_REFRESH_INTERVAL_MS) {
-      return false;
-    }
-  }
-
   // If access token is still valid, don't refresh
   if (isNotExpired(tokenPair.expiresAt)) return false;
 
@@ -67,7 +56,19 @@ export function shouldRefreshToken(tokenPair: StoredTokenPair): boolean {
   if (!tokenPair.refreshToken) return false;
 
   // Check if refresh token is still valid
-  return isNotExpired(tokenPair.refreshExpiresAt);
+  if (!isNotExpired(tokenPair.refreshExpiresAt)) return false;
+
+  // If token was issued very recently (within 30 seconds), don't refresh yet
+  // This prevents multiple rapid refresh requests
+  const issuedAt = decodeJwtIssuedAt(tokenPair.token);
+  if (issuedAt) {
+    const timeSinceIssued = Date.now() - issuedAt.getTime();
+    if (timeSinceIssued < 30000) { // 30 seconds
+      return false;
+    }
+  }
+
+  return true;
 }
 
 export function readTokenPair(): StoredTokenPair | null {

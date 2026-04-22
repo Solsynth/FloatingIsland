@@ -13,8 +13,25 @@
                 </button>
             </div>
 
+            <!-- Auth Required State -->
+            <div v-if="requiresAuth || !auth.isAuthenticated.value" class="card bg-base-200/50">
+                <div class="card-body items-center text-center py-12">
+                    <div class="w-16 h-16 rounded-2xl bg-base-300 flex items-center justify-center mb-4">
+                        <IconLogIn class="w-8 h-8 text-base-content/40" />
+                    </div>
+                    <h2 class="text-lg font-bold">Sign in to view Realms</h2>
+                    <p class="text-base-content/60 text-sm max-w-sm mb-4">
+                        Realms are community spaces for you and your friends. Sign in to explore and join realms.
+                    </p>
+                    <NuxtLink to="/auth/login" class="btn btn-primary">
+                        <IconLogIn class="w-4 h-4" />
+                        Sign In
+                    </NuxtLink>
+                </div>
+            </div>
+
             <!-- Loading State -->
-            <ConfuseSpinner v-if="status === 'pending' && realms.length === 0" message="Loading realms..." />
+            <ConfuseSpinner v-else-if="status === 'pending' && realms.length === 0" message="Loading realms..." />
 
             <!-- Error State -->
             <div v-else-if="error" class="alert alert-error">
@@ -75,18 +92,35 @@ useHead({
     meta: [{ name: 'description', content: 'Explore and join realms on Solar Network' }],
 })
 
+const auth = useAuth()
 const realms = useState<Realm[]>('realms-list', () => [])
 const offset = ref(0)
 const hasMore = ref(true)
 const fetchingMore = ref(false)
 const showCreateModal = ref(false)
+const requiresAuth = ref(false)
 
-// Initial fetch
+// Initial fetch - only if authenticated
 const { data: initialData, status, error } = await useAsyncData(
     'realms-list-fetch',
-    () => fetchRealms(),
+    async () => {
+        if (!auth.isAuthenticated.value) {
+            requiresAuth.value = true
+            return []
+        }
+        try {
+            return await fetchRealms()
+        } catch (err: any) {
+            if (err?.message?.includes('401') || err?.message?.includes('Unauthorized')) {
+                requiresAuth.value = true
+                return []
+            }
+            throw err
+        }
+    },
     {
         default: () => [],
+        server: false, // Only run on client to ensure auth state is available
     },
 )
 
