@@ -248,6 +248,10 @@ export function useAuth() {
     selectedFactor.value = null;
   }
 
+  function clearFactor() {
+    selectedFactor.value = null;
+  }
+
   return {
     // State
     isAuthenticated,
@@ -280,5 +284,6 @@ export function useAuth() {
     setFactorsState,
     selectFactor,
     clearLoginFlow,
+    clearFactor,
   };
 }

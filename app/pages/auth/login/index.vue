@@ -3,11 +3,9 @@
         <div class="w-full max-w-md">
             <!-- Logo -->
             <div class="text-center mb-8">
-                <div
-                    class="inline-flex items-center gap-2 text-3xl font-bold text-primary"
-                >
-                    <IconMountain class="w-8 h-8" />
-                    Floating Island
+                <div class="inline-flex items-center gap-3">
+                    <img src="/favicon.png" alt="Solar Network" class="w-10 h-10" />
+                    <span class="text-2xl font-bold text-base-content">Solar Network</span>
                 </div>
             </div>
 
@@ -15,20 +13,14 @@
 
             <template v-else>
                 <!-- Step 1: Username Entry -->
-                <div
-                    v-if="step === 'lookup'"
-                    class="card bg-base-100 shadow-xl"
-                >
+                <div v-if="step === 'lookup'" class="card bg-base-100 shadow-xl">
                     <div class="card-body">
                         <h2 class="card-title text-2xl">Sign In</h2>
                         <p class="text-base-content/60 mb-4">
                             Login with your Solarpass and continue
                         </p>
 
-                        <div
-                            v-if="error"
-                            class="alert alert-error text-sm mb-4"
-                        >
+                        <div v-if="error" class="alert alert-error text-sm mb-4">
                             <IconAlertCircle class="w-4 h-4" />
                             <span>{{ error }}</span>
                         </div>
@@ -48,29 +40,18 @@
                             :disabled="!account || submitting"
                             @click="handleLookup"
                         >
-                            <IconLoader
-                                v-if="submitting"
-                                class="w-4 h-4 animate-spin"
-                            />
+                            <IconLoader v-if="submitting" class="w-4 h-4 animate-spin" />
                             Continue
                         </button>
 
                         <!-- OIDC Buttons -->
-                        <div class="divider text-base-content/40">
-                            or sign in with
-                        </div>
+                        <div class="divider text-base-content/40">or sign in with</div>
                         <div class="flex gap-2">
-                            <button
-                                class="btn btn-outline flex-1 gap-2"
-                                @click="handleOidcLogin('github')"
-                            >
+                            <button class="btn btn-outline flex-1 gap-2" @click="handleOidcLogin('github')">
                                 <IconGithub class="w-4 h-4" />
                                 GitHub
                             </button>
-                            <button
-                                class="btn btn-outline flex-1 gap-2"
-                                @click="handleOidcLogin('google')"
-                            >
+                            <button class="btn btn-outline flex-1 gap-2" @click="handleOidcLogin('google')">
                                 <svg class="w-4 h-4" viewBox="0 0 24 24">
                                     <path
                                         fill="currentColor"
@@ -94,10 +75,7 @@
                         </div>
 
                         <div class="text-center mt-4">
-                            <NuxtLink
-                                to="/auth/create-account"
-                                class="text-sm text-primary hover:underline"
-                            >
+                            <NuxtLink to="/auth/create-account" class="text-sm text-primary hover:underline">
                                 Create an account
                             </NuxtLink>
                         </div>
@@ -105,18 +83,13 @@
                 </div>
 
                 <!-- Step 2: Factor Selection -->
-                <div
-                    v-if="step === 'picker'"
-                    class="card bg-base-100 shadow-xl"
-                >
+                <div v-if="step === 'picker'" class="card bg-base-100 shadow-xl">
                     <div class="card-body">
                         <!-- Progress -->
                         <div class="w-full bg-base-200 rounded-full h-1 mb-4">
                             <div
                                 class="bg-primary h-1 rounded-full transition-all"
-                                :style="{
-                                    width: `${auth.loginProgress.value * 100}%`,
-                                }"
+                                :style="{ width: `${auth.loginProgress.value * 100}%` }"
                             />
                         </div>
 
@@ -143,16 +116,11 @@
                         <div class="w-full bg-base-200 rounded-full h-1 mb-4">
                             <div
                                 class="bg-primary h-1 rounded-full transition-all"
-                                :style="{
-                                    width: `${auth.loginProgress.value * 100}%`,
-                                }"
+                                :style="{ width: `${auth.loginProgress.value * 100}%` }"
                             />
                         </div>
 
-                        <div
-                            v-if="error"
-                            class="alert alert-error text-sm mb-4"
-                        >
+                        <div v-if="error" class="alert alert-error text-sm mb-4">
                             <IconAlertCircle class="w-4 h-4" />
                             <span>{{ error }}</span>
                         </div>
@@ -164,6 +132,17 @@
                             @submit="handleVerify"
                             @back="goBackToFactors"
                         />
+                    </div>
+                </div>
+
+                <!-- Step 4: Success -->
+                <div v-if="step === 'success'" class="card bg-base-100 shadow-xl">
+                    <div class="card-body items-center text-center">
+                        <div class="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mb-4">
+                            <IconCheck class="w-8 h-8 text-success" />
+                        </div>
+                        <h2 class="card-title text-2xl">Login Successful</h2>
+                        <p class="text-base-content/60">Redirecting you to the app...</p>
                     </div>
                 </div>
             </template>
@@ -179,17 +158,9 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const auth = useAuth();
-const {
-    startLogin,
-    loadFactors,
-    loadChallenge,
-    submitVerification,
-    exchangeToken,
-    fetchUser,
-    clearLoginFlow,
-} = auth;
+const { startLogin, loadFactors, loadChallenge, submitVerification, exchangeToken, fetchUser, clearLoginFlow, clearFactor } = auth;
 
-const step = ref<"lookup" | "picker" | "check">("lookup");
+const step = ref<"lookup" | "picker" | "check" | "success">("lookup");
 const account = ref("");
 const password = ref("");
 const submitting = ref(false);
@@ -209,7 +180,6 @@ async function handleLookup() {
         const challengeId = auth.challenge.value!.id;
         const factors = await loadFactors(challengeId);
 
-        // Add challenge to query string so flow can be resumed
         updateQuery({
             challenge: challengeId,
             step: factors.length > 1 ? "picker" : "check",
@@ -256,23 +226,23 @@ async function handleVerify() {
     error.value = null;
 
     try {
-        const result = await submitVerification(
-            auth.challenge.value.id,
-            auth.selectedFactor.value.id,
-            password.value,
-        );
+        const result = await submitVerification(auth.challenge.value.id, auth.selectedFactor.value.id, password.value);
 
         if (result.stepRemain > 0) {
-            // More steps needed - reload factors
+            // More steps needed - go back to factor picker
+            password.value = "";
+            clearFactor();
             const factors = await loadFactors(result.id);
+            updateQuery({ challenge: result.id, step: "picker" });
             if (factors.length === 1) {
                 auth.selectFactor(factors[0]!);
+                step.value = "check";
             } else {
                 step.value = "picker";
             }
-            password.value = "";
         } else {
-            // Login complete - exchange token
+            // Login complete - show success and redirect
+            step.value = "success";
             const code = auth.challenge.value!.id;
             await exchangeToken(code);
             await fetchUser();
@@ -289,6 +259,7 @@ async function handleVerify() {
 
 function goBackToFactors() {
     password.value = "";
+    clearFactor();
     step.value = "picker";
     if (auth.challenge.value) {
         updateQuery({ challenge: auth.challenge.value.id, step: "picker" });
@@ -308,7 +279,6 @@ onMounted(async () => {
     clearLoginFlow();
     step.value = "lookup";
 
-    // Pick up challenge from query string if present
     const challengeId = route.query.challenge as string;
     const requestedStep = route.query.step as string;
 
@@ -328,7 +298,6 @@ onMounted(async () => {
                 }
             }
         } catch {
-            // Challenge invalid - start fresh
             clearLoginFlow();
             step.value = "lookup";
         }
