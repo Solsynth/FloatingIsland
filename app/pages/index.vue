@@ -39,6 +39,7 @@
 </template>
 
 <script setup lang="ts">
+import { nextTick } from "vue";
 import type { Post } from "~/types/post";
 import { fetchPosts } from "~/utils/api";
 
@@ -115,22 +116,41 @@ function handleShare(post: Post) {
 let observer: IntersectionObserver | null = null;
 
 onMounted(() => {
-    observer = new IntersectionObserver(
-        (entries) => {
-            if (
-                entries[0].isIntersecting &&
-                hasMore.value &&
-                !fetchingMore.value
-            ) {
-                loadMore();
-            }
-        },
-        { rootMargin: "200px" },
-    );
+    // Delay observer setup to ensure DOM is fully rendered
+    nextTick(() => {
+        if (!loadMoreRef.value) return;
 
-    if (loadMoreRef.value) {
+        observer = new IntersectionObserver(
+            (entries) => {
+                const entry = entries[0];
+                if (
+                    entry.isIntersecting &&
+                    status.value !== 'pending' &&
+                    hasMore.value &&
+                    !fetchingMore.value &&
+                    posts.value.length > 0
+                ) {
+                    loadMore();
+                }
+            },
+            { rootMargin: "100px" },
+        );
+
         observer.observe(loadMoreRef.value);
-    }
+
+        // Trigger loadMore if element is already visible (large screens)
+        const rect = loadMoreRef.value.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+        if (
+            isVisible &&
+            status.value !== 'pending' &&
+            hasMore.value &&
+            !fetchingMore.value &&
+            posts.value.length > 0
+        ) {
+            loadMore();
+        }
+    });
 });
 
 onBeforeUnmount(() => {

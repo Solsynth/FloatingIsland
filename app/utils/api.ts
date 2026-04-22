@@ -428,13 +428,25 @@ export async function fetchPublisherPosts(
   name: string,
   take = 20,
   offset = 0,
+  options: {
+    type?: string;
+    replies?: boolean | null;
+    media?: boolean;
+    orderDesc?: boolean;
+    queryTerm?: string;
+  } = {},
 ): Promise<{ posts: Post[]; total: number }> {
   const params = new URLSearchParams({
     pub: name,
     take: String(take),
     offset: String(offset),
-    replies: "false",
+    replies: String(options.replies ?? false),
+    orderDesc: String(options.orderDesc ?? true),
   });
+
+  if (options.type) params.set("type", options.type);
+  if (options.media) params.set("media", "true");
+  if (options.queryTerm) params.set("query", options.queryTerm);
 
   const response = await apiFetch(`/sphere/posts?${params.toString()}`, {
     skipAuth: true,
@@ -473,13 +485,25 @@ export async function fetchRealmPosts(
   slug: string,
   take = 20,
   offset = 0,
+  options: {
+    type?: string;
+    replies?: boolean | null;
+    media?: boolean;
+    orderDesc?: boolean;
+    queryTerm?: string;
+  } = {},
 ): Promise<{ posts: Post[]; total: number }> {
   const params = new URLSearchParams({
     realm: slug,
     take: String(take),
     offset: String(offset),
-    replies: "false",
+    replies: String(options.replies ?? false),
+    orderDesc: String(options.orderDesc ?? true),
   });
+
+  if (options.type) params.set("type", options.type);
+  if (options.media) params.set("media", "true");
+  if (options.queryTerm) params.set("query", options.queryTerm);
 
   const response = await apiFetch(`/sphere/posts?${params.toString()}`, {
     skipAuth: true,

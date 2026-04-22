@@ -2,9 +2,6 @@ export interface FileAttachment {
   id: string
   name: string
   url?: string
-  width: number | null
-  height: number | null
-  blurhash: string | null
   mimeType: string
   hasCompression: boolean
   hasThumbnail: boolean

@@ -1,68 +1,374 @@
 <template>
-  <NuxtLayout name="app">
-    <div class="py-16">
-      <h1 class="text-4xl font-bold text-center mb-12">Pricing</h1>
+    <NuxtLayout name="app">
+        <div class="w-full max-w-7xl mx-auto">
+            <div
+                class="card border border-base-300 bg-base-100/88 shadow-xl backdrop-blur-xl"
+            >
+                <div class="card-body gap-6 p-5 md:p-8">
+                    <!-- Header -->
+                    <div
+                        class="flex flex-col gap-3 border-b border-base-300 pb-5"
+                    >
+                        <div
+                            class="flex items-center gap-2 text-sm text-base-content/60"
+                        >
+                            <IconSparkles class="h-4 w-4 text-primary" />
+                            <span>Stellar Program</span>
+                        </div>
+                        <div
+                            class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between"
+                        >
+                            <div class="max-w-3xl">
+                                <h1
+                                    class="text-3xl font-black tracking-tight text-base-content"
+                                >
+                                    Membership tiers
+                                </h1>
+                                <p
+                                    class="mt-2 text-sm leading-6 text-base-content/70 md:text-base"
+                                >
+                                    Pick the Stellar plan that matches how you
+                                    use Solar Network. Every tier improves
+                                    storage, progression, and account
+                                    capabilities without changing the core
+                                    experience.
+                                </p>
+                            </div>
+                            <div class="text-sm text-base-content/55">
+                                Billing details can be added when memberships
+                                open.
+                            </div>
+                        </div>
+                    </div>
 
-      <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
-        <!-- Free Plan -->
-        <div class="card bg-base-100 shadow-xl">
-          <div class="card-body items-center text-center">
-            <h2 class="card-title text-2xl">Free</h2>
-            <p class="text-4xl font-bold my-4">$0</p>
-            <p class="text-base-content/60 mb-4">Forever free</p>
-            <ul class="space-y-2 text-sm">
-              <li class="flex items-center gap-2">
-                <IconCheck class="w-4 h-4 text-success" />
-                Browse all public content
-              </li>
-              <li class="flex items-center gap-2">
-                <IconCheck class="w-4 h-4 text-success" />
-                Join communities
-              </li>
-              <li class="flex items-center gap-2">
-                <IconCheck class="w-4 h-4 text-success" />
-                Watch livestreams
-              </li>
-            </ul>
-          </div>
-        </div>
+                    <!-- Tier Cards -->
+                    <div class="grid gap-4 xl:grid-cols-3">
+                        <div
+                            v-for="tier in tiers"
+                            :key="tier.name"
+                            class="card border border-base-300 bg-base-100"
+                        >
+                            <div class="card-body gap-5">
+                                <div
+                                    class="flex items-start justify-between gap-4"
+                                >
+                                    <div>
+                                        <p
+                                            class="text-sm font-semibold text-base-content/55"
+                                        >
+                                            {{ tier.tagline }}
+                                        </p>
+                                        <h2
+                                            class="mt-1 text-2xl font-black tracking-tight"
+                                        >
+                                            {{ tier.name }}
+                                        </h2>
+                                    </div>
+                                    <div
+                                        :class="`rounded-box bg-base-200 p-3 ${tier.accent}`"
+                                    >
+                                        <component
+                                            :is="tier.iconComponent"
+                                            class="h-5 w-5"
+                                        />
+                                    </div>
+                                </div>
 
-        <!-- Premium Plan -->
-        <div class="card bg-base-100 shadow-xl border-2 border-primary">
-          <div class="card-body items-center text-center">
-            <div class="badge badge-primary mb-2">Popular</div>
-            <h2 class="card-title text-2xl">Premium</h2>
-            <p class="text-4xl font-bold my-4">$4.99</p>
-            <p class="text-base-content/60 mb-4">per month</p>
-            <ul class="space-y-2 text-sm">
-              <li class="flex items-center gap-2">
-                <IconCheck class="w-4 h-4 text-success" />
-                Everything in Free
-              </li>
-              <li class="flex items-center gap-2">
-                <IconCheck class="w-4 h-4 text-success" />
-                Create posts
-              </li>
-              <li class="flex items-center gap-2">
-                <IconCheck class="w-4 h-4 text-success" />
-                Premium badge
-              </li>
-              <li class="flex items-center gap-2">
-                <IconCheck class="w-4 h-4 text-success" />
-                Priority support
-              </li>
-            </ul>
-            <button class="btn btn-primary mt-4 w-full">Upgrade Now</button>
-          </div>
+                                <p
+                                    class="text-sm leading-6 text-base-content/70"
+                                >
+                                    {{ tier.description }}
+                                </p>
+
+                                <div class="grid gap-3 sm:grid-cols-2">
+                                    <div
+                                        class="rounded-box border border-base-300 bg-base-200/60 p-3"
+                                    >
+                                        <div
+                                            class="text-xs font-semibold text-base-content/45"
+                                        >
+                                            Storage
+                                        </div>
+                                        <div
+                                            class="mt-1 text-sm font-semibold"
+                                        >
+                                            {{ tier.storage }}
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="rounded-box border border-base-300 bg-base-200/60 p-3"
+                                    >
+                                        <div
+                                            class="text-xs font-semibold text-base-content/45"
+                                        >
+                                            Progression
+                                        </div>
+                                        <div
+                                            class="mt-1 text-sm font-semibold"
+                                        >
+                                            {{ tier.levelBoost }}
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="rounded-box border border-base-300 bg-base-200/60 p-3 sm:col-span-2"
+                                    >
+                                        <div
+                                            class="text-xs font-semibold text-base-content/45"
+                                        >
+                                            Username style
+                                        </div>
+                                        <div
+                                            class="mt-1 text-sm font-semibold"
+                                        >
+                                            {{ tier.usernameStyle }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <ul class="space-y-3">
+                                    <li
+                                        v-for="feature in tier.features"
+                                        :key="feature"
+                                        class="flex items-start gap-3 text-sm text-base-content/80"
+                                    >
+                                        <IconBadgeCheck
+                                            class="mt-0.5 h-4 w-4 shrink-0 text-success"
+                                        />
+                                        <span>{{ feature }}</span>
+                                    </li>
+                                </ul>
+
+                                <div class="mt-auto card-actions">
+                                    <NuxtLink
+                                        to="/auth/login"
+                                        :class="`btn w-full ${tier.ctaClass}`"
+                                    >
+                                        Choose {{ tier.name }}
+                                    </NuxtLink>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Table -->
+                    <div class="card border border-base-300 bg-base-100">
+                        <div class="card-body gap-5">
+                            <div
+                                class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between"
+                            >
+                                <div>
+                                    <h2 class="text-xl font-bold">
+                                        Compare membership benefits
+                                    </h2>
+                                    <p class="mt-1 text-sm text-base-content/65">
+                                        A quick view of how each Stellar Program
+                                        tier scales up.
+                                    </p>
+                                </div>
+                                <div class="text-sm text-base-content/55">
+                                    All tiers include the base Solar Network
+                                    experience.
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="table">
+                                    <thead>
+                                        <tr class="text-sm text-base-content/55">
+                                            <th>Benefit</th>
+                                            <th>Stellar</th>
+                                            <th>Nova</th>
+                                            <th>Supernova</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            v-for="row in comparisonRows"
+                                            :key="row.label"
+                                            class="align-top"
+                                        >
+                                            <th class="min-w-44">
+                                                <div
+                                                    class="flex items-center gap-2 font-semibold"
+                                                >
+                                                    <component
+                                                        :is="row.iconComponent"
+                                                        class="h-4 w-4 text-base-content/55"
+                                                    />
+                                                    <span>{{ row.label }}</span>
+                                                </div>
+                                            </th>
+                                            <td>{{ row.values[0] }}</td>
+                                            <td>{{ row.values[1] }}</td>
+                                            <td>{{ row.values[2] }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </NuxtLayout>
+    </NuxtLayout>
 </template>
 
 <script setup lang="ts">
+import {
+    IconBadgeCheck,
+    IconBot,
+    IconCloud,
+    IconGauge,
+    IconLanguages,
+    IconPalette,
+    IconRocket,
+    IconSparkles,
+    IconStars,
+} from "#components";
+
+interface Tier {
+    name: string;
+    tagline: string;
+    description: string;
+    storage: string;
+    levelBoost: string;
+    usernameStyle: string;
+    iconComponent: typeof IconSparkles;
+    accent: string;
+    ctaClass: string;
+    features: string[];
+}
+
+interface ComparisonRow {
+    label: string;
+    iconComponent: typeof IconCloud;
+    values: [string, string, string];
+}
+
+const tiers: Tier[] = [
+    {
+        name: "Stellar",
+        tagline: "Core membership",
+        description:
+            "A lighter upgrade for members who want better identity tools and a faster pace.",
+        storage: "5GB cloud storage",
+        levelBoost: "1.5x leveling boost",
+        usernameStyle: "Limited username colors",
+        iconComponent: IconSparkles,
+        accent: "text-primary",
+        ctaClass: "btn-primary",
+        features: [
+            "5GB cloud storage",
+            "Limited username color options",
+            "Translation",
+            "1.5x leveling up boost",
+            "Ability to get verified",
+            "Publisher quota: base 2, becomes 3 at level 30+, plus 2 per perk level",
+        ],
+    },
+    {
+        name: "Nova",
+        tagline: "Expanded creator tools",
+        description:
+            "Everything in Stellar, with more room for publishers, realms, and bot-driven workflows.",
+        storage: "10GB cloud storage",
+        levelBoost: "2x leveling boost",
+        usernameStyle: "Unlimited username colors",
+        iconComponent: IconRocket,
+        accent: "text-secondary",
+        ctaClass: "btn-secondary",
+        features: [
+            "Everything in Stellar",
+            "10GB cloud storage",
+            "Unlimited username color options",
+            "Publisher quota: base 2, becomes 3 at level 30+, plus 2 per perk level",
+            "Bot quota: base 0, then 1 at level 30, 2 at level 60, 3 at level 90, plus 1 per perk level",
+            "Realm quota: same as bot quota",
+            "2x leveling up boost",
+        ],
+    },
+    {
+        name: "Supernova",
+        tagline: "Highest capacity tier",
+        description:
+            "Everything in Nova, with the largest storage tier and the most room to scale out your setup.",
+        storage: "15GB cloud storage",
+        levelBoost: "2.5x leveling boost",
+        usernameStyle: "Unlimited username colors with gradients",
+        iconComponent: IconStars,
+        accent: "text-accent",
+        ctaClass: "btn-accent",
+        features: [
+            "Everything in Nova",
+            "15GB cloud storage",
+            "Unlimited username colors with gradient support",
+            "Publisher quota: base 2, becomes 3 at level 30+, plus 2 per perk level",
+            "Bot quota: base 0, then 1 at level 30, 2 at level 60, 3 at level 90, plus 1 per perk level",
+            "Realm quota: same as bot quota",
+            "2.5x leveling up boost",
+        ],
+    },
+];
+
+const comparisonRows: ComparisonRow[] = [
+    {
+        label: "Cloud storage",
+        iconComponent: IconCloud,
+        values: ["5GB", "10GB", "15GB"],
+    },
+    {
+        label: "Username color",
+        iconComponent: IconPalette,
+        values: ["Limited", "Unlimited", "Unlimited + gradient"],
+    },
+    {
+        label: "Translation",
+        iconComponent: IconLanguages,
+        values: ["Included", "Included", "Included"],
+    },
+    {
+        label: "Leveling boost",
+        iconComponent: IconGauge,
+        values: ["1.5x", "2x", "2.5x"],
+    },
+    {
+        label: "Verification access",
+        iconComponent: IconBadgeCheck,
+        values: ["Eligible", "Eligible", "Eligible"],
+    },
+    {
+        label: "Publisher quota",
+        iconComponent: IconSparkles,
+        values: ["2 base, 3 at lvl 30+, +2/perk", "Same", "Same"],
+    },
+    {
+        label: "Realm quota",
+        iconComponent: IconRocket,
+        values: [
+            "Not included",
+            "0/1/2/3 by lvl 0/30/60/90, +1/perk",
+            "Same",
+        ],
+    },
+    {
+        label: "Bot quota",
+        iconComponent: IconBot,
+        values: [
+            "Not included",
+            "0/1/2/3 by lvl 0/30/60/90, +1/perk",
+            "Same",
+        ],
+    },
+];
+
 useHead({
-  title: 'Pricing',
-  meta: [{ name: 'description', content: 'Membership plans for Floating Island' }],
-})
+    title: "Pricing - Stellar Program",
+    meta: [
+        {
+            name: "description",
+            content:
+                "Pick the Stellar plan that matches how you use Solar Network.",
+        },
+    ],
+});
 </script>

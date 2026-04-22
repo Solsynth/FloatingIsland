@@ -4,6 +4,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["nuxt-lucide-icons"],
   css: ["~/assets/css/main.css"],
+  experimental: {
+    viewTransition: true,
+  },
   app: {
     head: {
       title: "Solar Network",

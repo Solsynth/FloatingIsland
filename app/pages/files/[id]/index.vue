@@ -30,11 +30,11 @@
         class="flex flex-1 items-center justify-center overflow-hidden"
         role="img"
         aria-label="Zoomable image"
-        @wheel="handleWheel"
-        @mousedown="handleMouseDown"
-        @mousemove="handleMouseMove"
-        @mouseup="handleMouseUp"
-        @mouseleave="handleMouseUp"
+        @wheel.prevent="handleWheel"
+        @mousedown.stop="handleMouseDown"
+        @mousemove.stop="handleMouseMove"
+        @mouseup.stop="handleMouseUp"
+        @mouseleave.stop="handleMouseUp"
       >
         <img
           v-if="isImage"
@@ -96,11 +96,11 @@
 
       <div
         class="flex min-h-[calc(100vh-65px)] items-center justify-center overflow-auto p-4"
-        @wheel="handleWheel"
-        @mousedown="handleMouseDown"
-        @mousemove="handleMouseMove"
-        @mouseup="handleMouseUp"
-        @mouseleave="handleMouseUp"
+        @wheel.prevent="handleWheel"
+        @mousedown.stop="handleMouseDown"
+        @mousemove.stop="handleMouseMove"
+        @mouseup.stop="handleMouseUp"
+        @mouseleave.stop="handleMouseUp"
       >
         <div class="relative w-full max-w-5xl">
           <!-- Image -->
@@ -269,15 +269,19 @@ function handleMouseDown(e: MouseEvent) {
   if (!isImage.value) return
   if (scale.value > 1) {
     isDragging.value = true
-    startX.value = e.clientX - translateX.value
-    startY.value = e.clientY - translateY.value
+    startX.value = e.clientX
+    startY.value = e.clientY
   }
 }
 
 function handleMouseMove(e: MouseEvent) {
   if (isDragging.value && scale.value > 1) {
-    translateX.value = e.clientX - startX.value
-    translateY.value = e.clientY - startY.value
+    const deltaX = e.clientX - startX.value
+    const deltaY = e.clientY - startY.value
+    translateX.value += deltaX
+    translateY.value += deltaY
+    startX.value = e.clientX
+    startY.value = e.clientY
   }
 }
 
