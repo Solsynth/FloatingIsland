@@ -10,16 +10,13 @@
 
         <div class="app-shell mx-auto max-w-7xl">
             <!-- Desktop Layout -->
-            <div class="hidden lg:grid lg:grid-cols-[18rem_1fr_18rem] lg:gap-4">
+            <div class="hidden lg:grid lg:grid-cols-[18rem_1fr] lg:gap-4">
                 <aside class="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
                     <Sidebar @compose="showCompose = true" />
                 </aside>
                 <main class="min-h-screen py-4">
                     <slot />
                 </main>
-                <aside class="sticky top-4 self-start">
-                    <RightSidebar />
-                </aside>
             </div>
 
             <!-- Mobile Layout -->
@@ -82,11 +79,14 @@
                             <span class="text-xs">Pricing</span>
                         </NuxtLink>
                         <NuxtLink
-                            :to="isAuthenticated ? `/accounts/${user?.name}` : '/auth/login'"
+                            :to="isAuthenticated ? '/accounts/me' : '/auth/login'"
                             class="flex flex-col items-center gap-0.5 p-2 text-base-content/60 hover:text-primary"
                             :class="{ 'text-primary': $route.path.startsWith('/accounts') || $route.path.startsWith('/@') }"
                         >
-                            <IconUser class="w-5 h-5" />
+                            <div v-if="isAuthenticated && user?.profile?.picture?.id" class="w-5 h-5 rounded-full overflow-hidden">
+                                <img :src="user.profile.picture.url || getFileUrl(user.profile.picture.id)" class="w-full h-full object-cover" />
+                            </div>
+                            <IconUser v-else class="w-5 h-5" />
                             <span class="text-xs">{{ isAuthenticated ? 'Profile' : 'Sign In' }}</span>
                         </NuxtLink>
                     </div>
@@ -97,6 +97,8 @@
 </template>
 
 <script setup lang="ts">
+import { getFileUrl } from "~/utils/files";
+
 const progress = ref(0);
 const progressVisible = ref(false);
 const showCompose = ref(false);

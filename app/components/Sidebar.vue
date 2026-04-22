@@ -74,18 +74,25 @@
                     class="dropdown-content menu mb-2 w-52 rounded-box bg-base-100 p-2 shadow"
                 >
                     <li>
+                        <NuxtLink to="/accounts/me">
+                            <IconUser class="w-[18px]" />
+                            Profile
+                        </NuxtLink>
+                    </li>
+                    <li>
+                        <NuxtLink to="/settings">
+                            <IconSettings class="w-[18px]" />
+                            Settings
+                        </NuxtLink>
+                    </li>
+                    <li class="my-1 border-t border-base-300" />
+                    <li>
                         <NuxtLink to="/pricing">
                             <IconCreditCard class="w-[18px]" />
                             Membership
                         </NuxtLink>
                     </li>
                     <li class="my-1 border-t border-base-300" />
-                    <li>
-                        <NuxtLink :to="`/accounts/${username}`">
-                            <IconUser class="w-[18px]" />
-                            Profile
-                        </NuxtLink>
-                    </li>
                     <li>
                         <button @click="handleLogout">
                             <IconLogOut class="w-[18px]" />
@@ -127,6 +134,7 @@ import {
     IconLogOut,
     IconUser,
     IconCreditCard,
+    IconSettings,
 } from "#components";
 import { getFileUrl } from "~/utils/files";
 

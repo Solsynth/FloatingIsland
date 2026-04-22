@@ -1,56 +1,87 @@
 <template>
-    <div class="space-y-4">
-        <!-- Boost Status Card -->
-        <div class="card bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
-            <div class="card-body p-4">
-                <div class="flex items-center gap-2 mb-3">
-                    <IconRocket class="w-5 h-5 text-primary" />
-                    <h3 class="font-semibold">Boost Status</h3>
-                </div>
-
-                <div v-if="boostStatus" class="space-y-3">
-                    <div class="flex items-end justify-between">
-                        <div>
-                            <div class="text-3xl font-black">{{ boostStatus.boostLevel }}</div>
-                            <div class="text-xs text-base-content/60">Current Level</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-xl font-bold">{{ boostStatus.boostPoints.toLocaleString() }}</div>
-                            <div class="text-xs text-base-content/60">Points</div>
-                        </div>
+    <div class="space-y-3 lg:space-y-4">
+        <!-- Mobile: Horizontal scrollable cards -->
+        <div class="lg:hidden flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+            <!-- Compact Boost Card -->
+            <div class="card bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20 shrink-0 w-40">
+                <div class="card-body p-3">
+                    <div class="flex items-center gap-1.5 mb-2">
+                        <IconRocket class="w-4 h-4 text-primary" />
+                        <h3 class="font-semibold text-sm">Level {{ boostStatus?.boostLevel || 0 }}</h3>
                     </div>
-
-                    <!-- Progress Bar -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-xs text-base-content/60">
-                            <span>Progress to next level</span>
-                            <span>{{ progressPercent }}%</span>
-                        </div>
-                        <progress class="progress progress-primary w-full" :value="progressPercent" max="100" />
-                    </div>
-
-                    <!-- Boost Button -->
-                    <NuxtLink
-                        :to="`/realms/${realmSlug}/boost`"
-                        class="btn btn-primary btn-sm w-full"
-                    >
-                        <IconZap class="w-4 h-4" />
-                        Boost Realm
+                    <div v-if="boostStatus" class="text-lg font-bold">{{ boostStatus.boostPoints.toLocaleString() }} pts</div>
+                    <NuxtLink :to="`/realms/${realmSlug}/boost`" class="btn btn-primary btn-xs w-full mt-2">
+                        <IconZap class="w-3 h-3" />
+                        Boost
                     </NuxtLink>
                 </div>
-
-                <div v-else-if="isLoadingBoost" class="py-4 text-center">
-                    <span class="loading loading-spinner loading-sm"></span>
-                </div>
-
-                <div v-else class="text-center py-4 text-sm text-base-content/60">
-                    Failed to load boost status
-                </div>
             </div>
+
+            <!-- Quick Links -->
+            <NuxtLink :to="`/realms/${realmSlug}/members`" class="card bg-base-200 shrink-0 w-32 flex flex-col items-center justify-center p-3">
+                <IconUsers class="w-6 h-6 text-base-content/60 mb-1" />
+                <span class="text-sm font-medium">Members</span>
+            </NuxtLink>
+
+            <button v-if="isMember" @click="copyInviteLink" class="card bg-base-200 shrink-0 w-32 flex flex-col items-center justify-center p-3">
+                <IconLink class="w-6 h-6 text-base-content/60 mb-1" />
+                <span class="text-sm font-medium">Invite</span>
+            </button>
         </div>
 
-        <!-- Leaderboard Preview -->
-        <div v-if="leaderboard.length > 0" class="card">
+        <!-- Desktop: Full sidebar -->
+        <div class="hidden lg:block space-y-4">
+            <!-- Boost Status Card -->
+            <div class="card bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
+                <div class="card-body p-4">
+                    <div class="flex items-center gap-2 mb-3">
+                        <IconRocket class="w-5 h-5 text-primary" />
+                        <h3 class="font-semibold">Boost Status</h3>
+                    </div>
+
+                    <div v-if="boostStatus" class="space-y-3">
+                        <div class="flex items-end justify-between">
+                            <div>
+                                <div class="text-3xl font-black">{{ boostStatus.boostLevel }}</div>
+                                <div class="text-xs text-base-content/60">Current Level</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-bold">{{ boostStatus.boostPoints.toLocaleString() }}</div>
+                                <div class="text-xs text-base-content/60">Points</div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs text-base-content/60">
+                                <span>Progress to next level</span>
+                                <span>{{ progressPercent }}%</span>
+                            </div>
+                            <progress class="progress progress-primary w-full" :value="progressPercent" max="100" />
+                        </div>
+
+                        <!-- Boost Button -->
+                        <NuxtLink
+                            :to="`/realms/${realmSlug}/boost`"
+                            class="btn btn-primary btn-sm w-full"
+                        >
+                            <IconZap class="w-4 h-4" />
+                            Boost Realm
+                        </NuxtLink>
+                    </div>
+
+                    <div v-else-if="isLoadingBoost" class="py-4 text-center">
+                        <span class="loading loading-spinner loading-sm"></span>
+                    </div>
+
+                    <div v-else class="text-center py-4 text-sm text-base-content/60">
+                        Failed to load boost status
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard Preview (Desktop) -->
+            <div v-if="leaderboard.length > 0" class="card">
             <div class="card-body p-4">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
@@ -172,6 +203,7 @@
             </div>
         </div>
     </div>
+    </div>
 
     <!-- Copied Notification -->
     <div
@@ -242,8 +274,6 @@ function getRoleBadgeClass(role: number): string {
         default: return 'badge-ghost'
     }
 }
-
-const showCopied = ref(false)
 
 function copyInviteLink() {
     const link = `${window.location.origin}/realms/${props.realmSlug}/invite`

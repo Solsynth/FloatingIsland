@@ -46,7 +46,7 @@
         <button
             v-if="attachments.length > maxVisible"
             class="btn btn-ghost btn-xs mt-1"
-            @click="showAll = !showAll"
+            @click.stop="showAll = !showAll"
         >
             {{ showAll ? 'Show less' : `+${attachments.length - maxVisible} more` }}
         </button>

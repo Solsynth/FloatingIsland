@@ -1,39 +1,47 @@
 <template>
     <NuxtLayout name="app">
-        <div class="space-y-4">
-            <ConfuseSpinner
-                v-if="status === 'pending' && posts.length === 0"
-                message="Loading posts..."
-            />
-
-            <div v-else-if="error" class="alert alert-error">
-                <IconAlertCircle class="w-5 h-5" />
-                <span>Failed to load posts: {{ error }}</span>
-            </div>
-
-            <template v-if="posts.length > 0">
-                <PostCard
-                    v-for="post in posts"
-                    :key="post.id"
-                    :post="post"
-                    @boost="handleBoost"
-                    @share="handleShare"
+        <div class="grid lg:grid-cols-[1fr_18rem] gap-4">
+            <!-- Main Content -->
+            <div class="space-y-4">
+                <ConfuseSpinner
+                    v-if="status === 'pending' && posts.length === 0"
+                    message="Loading posts..."
                 />
-            </template>
 
-            <!-- Load More Trigger -->
-            <div
-                ref="loadMoreRef"
-                class="h-10 flex items-center justify-center"
-            >
-                <ConfuseSpinner v-if="fetchingMore" message="Loading more..." />
-                <p
-                    v-else-if="!hasMore && posts.length > 0"
-                    class="text-base-content/40 text-sm"
+                <div v-else-if="error" class="alert alert-error">
+                    <IconAlertCircle class="w-5 h-5" />
+                    <span>Failed to load posts: {{ error }}</span>
+                </div>
+
+                <template v-if="posts.length > 0">
+                    <PostCard
+                        v-for="post in posts"
+                        :key="post.id"
+                        :post="post"
+                        @boost="handleBoost"
+                        @share="handleShare"
+                    />
+                </template>
+
+                <!-- Load More Trigger -->
+                <div
+                    ref="loadMoreRef"
+                    class="h-10 flex items-center justify-center"
                 >
-                    No more posts to load
-                </p>
+                    <ConfuseSpinner v-if="fetchingMore" message="Loading more..." />
+                    <p
+                        v-else-if="!hasMore && posts.length > 0"
+                        class="text-base-content/40 text-sm"
+                    >
+                        No more posts to load
+                    </p>
+                </div>
             </div>
+
+            <!-- Right Sidebar (Desktop only) -->
+            <aside class="hidden lg:block sticky top-4 self-start">
+                <RightSidebar />
+            </aside>
         </div>
     </NuxtLayout>
 </template>

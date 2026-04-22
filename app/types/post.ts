@@ -38,6 +38,11 @@ export interface Publisher {
     verifiedBy: string | null
   } | null
   account: Account | null
+  stat?: {
+    totalPosts: number
+    totalSubscribers: number
+    totalViews: number
+  }
   createdAt: string
 }
 

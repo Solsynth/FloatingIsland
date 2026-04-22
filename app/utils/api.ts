@@ -734,8 +734,8 @@ export async function createDirectChat(accountId: string): Promise<unknown> {
 // Realm API
 export async function fetchRealms(): Promise<Realm[]> {
   const response = await apiFetch("/passport/realms");
-  const data = await safeJsonParse<{ items: Realm[] }>(response);
-  return data.items;
+  const data = await safeJsonParse<Realm[]>(response);
+  return data;
 }
 
 export async function createRealm(payload: {

@@ -550,6 +550,12 @@ function handleReply(post: Post) {
 }
 
 onMounted(async () => {
+    // Redirect to @ route if viewing own profile
+    if (isCurrentUser.value) {
+        navigateTo(`/@${accountName.value}`, { replace: true });
+        return;
+    }
+
     try {
         const data = await fetchAccount(accountName.value);
         account.value = data;

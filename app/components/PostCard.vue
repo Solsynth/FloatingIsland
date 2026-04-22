@@ -620,7 +620,7 @@ function getAvatarUrl(target: Post): string {
 
 // Navigation
 function navigateToPublisher(name: string) {
-    navigateTo(`/publishers/${name}`);
+    navigateTo(`/${name}`);
 }
 
 function navigateToReference() {
