@@ -229,9 +229,15 @@ const route = useRoute();
 const auth = useAuth();
 const accountName = computed(() => route.params.name as string);
 
+const auth = useAuth();
 const account = ref<User | null>(null);
 const publishers = ref<Publisher[]>([]);
 const realms = ref<Realm[]>([]);
+
+// Use auth user data if viewing own profile (avoid extra API call)
+const isOwnProfile = computed(() => {
+    return auth.user?.value?.name === accountName.value;
+});
 const timelinePosts = ref<Post[]>([]);
 const notFound = ref(false);
 const isLoadingTimeline = ref(false);
@@ -283,16 +289,24 @@ function handleReply(post: Post) {
 
 onMounted(async () => {
     // Redirect if not the current user
-    if (!isCurrentUser.value && auth.user?.name) {
+    if (!isCurrentUser.value && auth.user?.value?.name) {
         navigateTo(`/accounts/${accountName.value}`);
         return;
     }
 
     try {
-        const [data, realmsData] = await Promise.all([
-            fetchAccount(accountName.value),
+        // Use auth user data if available (avoid extra API call for own profile)
+        let data: User;
+        if (isOwnProfile.value && auth.user?.value) {
+            data = auth.user.value;
+        } else {
+            data = await fetchAccount(accountName.value);
+        }
+
+        const [realmsData] = await Promise.all([
             fetchRealms().catch(() => []),
         ]);
+
         account.value = data;
         publishers.value = data.publishers || [];
         realms.value = realmsData;

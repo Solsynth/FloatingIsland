@@ -14,15 +14,15 @@
     "blurhash": "^2.0.5",
     "markdown-it": "^14.1.1",
     "nuxt": "^4.4.2",
-    "vue": "^3.5.32",
-    "vue-router": "^5.0.4"
+    "vue": "^3.5.33",
+    "vue-router": "^5.0.6"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.2.2",
-    "@tailwindcss/vite": "^4.2.2",
+    "@tailwindcss/postcss": "^4.2.4",
+    "@tailwindcss/vite": "^4.2.4",
     "@types/markdown-it": "^14.1.2",
     "daisyui": "^5.5.19",
     "nuxt-lucide-icons": "^2.1.0",
-    "tailwindcss": "^4.2.2"
+    "tailwindcss": "^4.2.4"
   }
 }
