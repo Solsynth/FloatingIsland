@@ -211,4 +211,26 @@ onMounted(() => {
 onBeforeUnmount(() => {
     observer?.disconnect();
 });
+
+useHead({
+    title: "Explore",
+    meta: [
+        {
+            name: "description",
+            content: "Discover the latest posts, updates, and conversations on Solar Network.",
+        },
+        {
+            property: "og:title",
+            content: "Explore - Solar Network",
+        },
+        {
+            property: "og:description",
+            content: "Discover the latest posts, updates, and conversations on Solar Network.",
+        },
+        {
+            property: "og:url",
+            content: "https://solian.app",
+        },
+    ],
+});
 </script>

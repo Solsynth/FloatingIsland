@@ -722,14 +722,54 @@ onMounted(async () => {
         const data = await fetchAccount(accountName.value);
         account.value = data;
         await Promise.all([loadTimeline(), loadRelationship()]);
+        
+        const title = `${displayName.value} (@${data.name})`;
+        const description = data.profile?.bio || `View profile for @${data.name}`;
+        const avatarUrl = getFileUrl(data.profile?.picture?.id);
+        
         useHead({
-            title: `${displayName.value} (@${data.name})`,
+            title,
             meta: [
                 {
                     name: "description",
-                    content:
-                        data.profile?.bio || `View profile for @${data.name}`,
+                    content: description,
                 },
+                {
+                    property: "og:title",
+                    content: title,
+                },
+                {
+                    property: "og:description",
+                    content: description,
+                },
+                {
+                    property: "og:type",
+                    content: "profile",
+                },
+                ...(avatarUrl ? [{
+                    property: "og:image",
+                    content: avatarUrl
+                }] : []),
+                {
+                    property: "og:url",
+                    content: `https://solian.app/@${data.name}`,
+                },
+                {
+                    name: "twitter:card",
+                    content: "summary",
+                },
+                {
+                    name: "twitter:title",
+                    content: title,
+                },
+                {
+                    name: "twitter:description",
+                    content: description,
+                },
+                ...(avatarUrl ? [{
+                    name: "twitter:image",
+                    content: avatarUrl
+                }] : []),
             ],
         });
     } catch (err) {

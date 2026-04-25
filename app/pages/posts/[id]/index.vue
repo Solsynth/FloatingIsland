@@ -78,6 +78,7 @@
 <script setup lang="ts">
 import type { Post } from '~/types/post';
 import { fetchPost, fetchPostReplies } from '~/utils/api';
+import { getFileUrl } from '~/utils/files';
 import { IconArrowLeft, IconReply, IconAlertTriangle } from '#components';
 
 const route = useRoute();
@@ -108,15 +109,53 @@ watch(
 	post,
 	(p) => {
 		if (p) {
+			const title = p.title || `${p.publisher?.nick || p.publisher?.name}'s Post`;
+			const description = p.description || p.content.slice(0, 160);
+			const imageUrl = p.attachments[0]?.url || getFileUrl(p.attachments[0]?.id);
+			
 			useHead({
-				title:
-					p.title ||
-					`${p.publisher?.nick || p.publisher?.name}'s Post`,
+				title,
 				meta: [
 					{
 						name: 'description',
-						content: p.description || p.content.slice(0, 160)
-					}
+						content: description
+					},
+					{
+						property: 'og:title',
+						content: title
+					},
+					{
+						property: 'og:description',
+						content: description
+					},
+					{
+						property: 'og:type',
+						content: 'article'
+					},
+					...(imageUrl ? [{
+						property: 'og:image',
+						content: imageUrl
+					}] : []),
+					{
+						property: 'og:url',
+						content: `https://solian.app/posts/${p.id}`
+					},
+					{
+						name: 'twitter:card',
+						content: imageUrl ? 'summary_large_image' : 'summary'
+					},
+					{
+						name: 'twitter:title',
+						content: title
+					},
+					{
+						name: 'twitter:description',
+						content: description
+					},
+					...(imageUrl ? [{
+						name: 'twitter:image',
+						content: imageUrl
+					}] : [])
 				]
 			});
 		}
