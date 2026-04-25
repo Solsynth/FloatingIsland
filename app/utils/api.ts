@@ -2,7 +2,7 @@ import type {
   SnAuthChallenge,
   SnAuthFactor,
   SnAuthToken,
-  User,
+  SnAccount,
   CaptchaConfig,
   WalletOrder,
   SpellInfo,
@@ -29,9 +29,6 @@ import {
 // Global API configuration
 export const API_BASE = "api.solian.app";
 export const API_BASE_URL = `https://${API_BASE}`;
-
-// Re-export for convenience
-export { getValidToken } from "~/utils/token";
 
 // Helper to build API URL
 export function getApiUrl(endpoint: string): string {
@@ -253,9 +250,9 @@ export async function refreshApiAccessToken(
   }
 }
 
-export async function getUserInfo(): Promise<User> {
+export async function getUserInfo(): Promise<SnAccount> {
   const response = await apiFetch("/passport/accounts/me");
-  return safeJsonParse<User>(response);
+  return safeJsonParse<SnAccount>(response);
 }
 
 export async function createAccount(payload: {
@@ -469,12 +466,12 @@ export async function fetchPublishers(): Promise<Publisher[]> {
 }
 
 // Data API - Accounts
-export async function fetchAccount(name: string): Promise<User> {
+export async function fetchAccount(name: string): Promise<SnAccount> {
   const response = await apiFetch(
     `/passport/accounts/${encodeURIComponent(name)}`,
     { skipAuth: true },
   );
-  return safeJsonParse<User>(response);
+  return safeJsonParse<SnAccount>(response);
 }
 
 // Data API - Realms
@@ -679,7 +676,9 @@ export async function fetchAccountRelationship(
   accountId: string,
 ): Promise<RelationshipStatus | null> {
   try {
-    const response = await apiFetch(`/passport/accounts/${accountId}/relationship`);
+    const response = await apiFetch(
+      `/passport/accounts/${accountId}/relationship`,
+    );
     return safeJsonParse<RelationshipStatus>(response);
   } catch (err) {
     if (err instanceof Error && err.message.includes("404")) {
@@ -708,7 +707,9 @@ export async function unblockAccount(accountId: string): Promise<void> {
 }
 
 // Direct messages
-export async function getDirectChat(accountId: string): Promise<unknown | null> {
+export async function getDirectChat(
+  accountId: string,
+): Promise<unknown | null> {
   try {
     const response = await apiFetch(`/passport/chat/direct/${accountId}`);
     return safeJsonParse<unknown>(response);
@@ -757,10 +758,13 @@ export async function updateRealm(
     isPublic?: boolean;
   },
 ): Promise<Realm> {
-  const response = await apiFetch(`/passport/realms/${encodeURIComponent(slug)}`, {
-    method: "PATCH",
-    body: JSON.stringify(camelToSnake(payload)),
-  });
+  const response = await apiFetch(
+    `/passport/realms/${encodeURIComponent(slug)}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(camelToSnake(payload)),
+    },
+  );
   return safeJsonParse<Realm>(response);
 }
 
@@ -783,7 +787,9 @@ export async function leaveRealm(slug: string): Promise<void> {
   });
 }
 
-export async function getMyRealmMembership(slug: string): Promise<RealmMember | null> {
+export async function getMyRealmMembership(
+  slug: string,
+): Promise<RealmMember | null> {
   try {
     const response = await apiFetch(
       `/passport/realms/${encodeURIComponent(slug)}/members/me`,
@@ -821,19 +827,27 @@ export async function fetchRealmInvites(): Promise<RealmInvite[]> {
 }
 
 export async function acceptRealmInvite(slug: string): Promise<void> {
-  await apiFetch(`/passport/realms/invites/${encodeURIComponent(slug)}/accept`, {
-    method: "POST",
-  });
+  await apiFetch(
+    `/passport/realms/invites/${encodeURIComponent(slug)}/accept`,
+    {
+      method: "POST",
+    },
+  );
 }
 
 export async function declineRealmInvite(slug: string): Promise<void> {
-  await apiFetch(`/passport/realms/invites/${encodeURIComponent(slug)}/decline`, {
-    method: "POST",
-  });
+  await apiFetch(
+    `/passport/realms/invites/${encodeURIComponent(slug)}/decline`,
+    {
+      method: "POST",
+    },
+  );
 }
 
 // Realm boost
-export async function fetchRealmBoostStatus(slug: string): Promise<RealmBoostStatus> {
+export async function fetchRealmBoostStatus(
+  slug: string,
+): Promise<RealmBoostStatus> {
   const response = await apiFetch(
     `/passport/realms/${encodeURIComponent(slug)}/boost`,
   );
@@ -908,7 +922,10 @@ export async function updateRealmLabel(
   return safeJsonParse<RealmLabel>(response);
 }
 
-export async function deleteRealmLabel(slug: string, labelId: string): Promise<void> {
+export async function deleteRealmLabel(
+  slug: string,
+  labelId: string,
+): Promise<void> {
   await apiFetch(
     `/passport/realms/${encodeURIComponent(slug)}/labels/${labelId}`,
     {
@@ -937,7 +954,9 @@ export async function updateRealmIdentity(
 }
 
 // Realm chat rooms
-export async function fetchRealmChatRooms(slug: string): Promise<RealmChatRoom[]> {
+export async function fetchRealmChatRooms(
+  slug: string,
+): Promise<RealmChatRoom[]> {
   const response = await apiFetch(
     `/passport/realms/${encodeURIComponent(slug)}/chat`,
   );

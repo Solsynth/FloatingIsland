@@ -1,5 +1,9 @@
 <template>
-    <div class="min-h-screen bg-base-200 flex items-center justify-center px-4">
+    <div
+        class="min-h-screen bg-base-200 flex flex-col items-center justify-center px-4"
+    >
+        <FlowHeader />
+
         <div class="card bg-base-100 shadow-xl max-w-md w-full">
             <div class="card-body">
                 <ConfuseSpinner v-if="loading" message="Authorizing..." />
@@ -17,7 +21,7 @@
                                     v-if="clientInfo.picture?.id"
                                     :src="getFileUrl(clientInfo.picture.id)"
                                     class="w-full h-full object-cover"
-                                >
+                                />
                                 <div
                                     v-else
                                     class="w-full h-full flex items-center justify-center"
@@ -80,6 +84,7 @@
 definePageMeta({ layout: false });
 
 const route = useRoute();
+const { user } = useAuth();
 const loading = ref(true);
 const clientInfo = ref<{
     clientName?: string;

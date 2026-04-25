@@ -77,7 +77,7 @@ export interface UserContact {
   isPublic: boolean;
 }
 
-export interface User {
+export interface SnAccount {
   id: string;
   name: string;
   nick: string;

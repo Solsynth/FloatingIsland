@@ -1,14 +1,383 @@
 <template>
-    <div class="min-h-[50vh] flex items-center justify-center">
-        <ConfuseSpinner message="Loading..." />
-    </div>
+    <NuxtLayout name="app">
+        <ConfuseSpinner
+            v-if="isLoading || authStore.isLoading"
+            message="Loading profile..."
+        />
+
+        <div
+            v-else-if="!authStore.isAuthenticated"
+            class="mx-auto max-w-md p-6"
+        >
+            <div class="card">
+                <div class="card-body items-center text-center gap-4">
+                    <IconUser class="text-base-content/50 w-12 h-12" />
+                    <h1 class="text-xl font-bold">Not Signed In</h1>
+                    <p class="text-base-content/60">
+                        Sign in to view your profile.
+                    </p>
+                    <div class="flex gap-2">
+                        <NuxtLink to="/login" class="btn btn-primary">
+                            Sign In
+                        </NuxtLink>
+                        <NuxtLink to="/register" class="btn btn-outline">
+                            Create Account
+                        </NuxtLink>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-else-if="authStore.user" class="mx-auto max-w-6xl">
+            <!-- Content Grid -->
+            <div class="grid gap-4 px-4 py-4 lg:px-6 lg:grid-cols-3">
+                <!-- Left Column - Main Content -->
+                <div class="lg:col-span-2">
+                    <!-- Profile Header -->
+                    <section class="relative overflow-hidden">
+                        <div
+                            class="h-32 w-full bg-base-200 sm:h-40 rounded-2xl overflow-hidden"
+                        >
+                            <img
+                                v-if="backgroundUrl"
+                                :src="backgroundUrl"
+                                :alt="`${displayName} background`"
+                                class="h-full w-full object-cover"
+                            />
+                        </div>
+                        <div
+                            class="mx-auto -mt-16 flex flex-col gap-3 px-4 pb-4 sm:-mt-16 sm:flex-row sm:items-end"
+                        >
+                            <div class="shrink-0 mb-12">
+                                <div v-if="avatarUrl" class="avatar">
+                                    <div
+                                        class="h-20 w-20 rounded-full ring ring-base-300 ring-offset-2 ring-offset-base-100 sm:h-24 sm:w-24"
+                                    >
+                                        <img
+                                            :src="avatarUrl"
+                                            :alt="displayName"
+                                        />
+                                    </div>
+                                </div>
+                                <div v-else class="avatar avatar-placeholder">
+                                    <div
+                                        class="h-20 w-20 rounded-2xl bg-primary text-primary-content ring ring-base-300 ring-offset-2 ring-offset-base-100 sm:h-24 sm:w-24"
+                                    >
+                                        <span class="text-xl font-semibold">
+                                            {{ getInitials(displayName) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="min-w-0 flex-1 pt-20">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <h1
+                                        class="truncate text-xl font-black sm:text-2xl"
+                                    >
+                                        {{ displayName }}
+                                    </h1>
+                                    <span
+                                        v-if="
+                                            authStore.user.profile?.verification
+                                        "
+                                        class="badge gap-1 badge-primary"
+                                    >
+                                        <IconShieldCheck class="w-3 h-3" />
+                                        {{
+                                            authStore.user.profile.verification
+                                                .title || "Verified"
+                                        }}
+                                    </span>
+                                </div>
+                                <p
+                                    class="truncate text-sm text-base-content/60"
+                                >
+                                    @{{ authStore.user.name }}
+                                </p>
+                                <ActivityPresence
+                                    :account="authStore.user"
+                                    class="mt-1"
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Compact Bio -->
+                    <div class="card mb-4">
+                        <div class="card-body p-4">
+                            <p
+                                v-if="authStore.user.profile?.bio"
+                                class="text-sm text-base-content/80 line-clamp-2"
+                            >
+                                {{ authStore.user.profile.bio }}
+                            </p>
+                            <p
+                                v-else
+                                class="text-sm text-base-content/50 italic"
+                            >
+                                No bio yet.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Menu Items -->
+                    <div class="space-y-3">
+                        <!-- Profile Section -->
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-2">
+                                <NuxtLink
+                                    :to="`/accounts/${authStore.user.name}`"
+                                    class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
+                                >
+                                    <IconUser
+                                        class="w-5 h-5 text-base-content/70"
+                                    />
+                                    <span class="flex-1"
+                                        >View Public Profile</span
+                                    >
+                                    <IconChevronRight
+                                        class="w-4 h-4 text-base-content/50"
+                                    />
+                                </NuxtLink>
+
+                                <NuxtLink
+                                    to="/accounts/me/settings"
+                                    class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
+                                >
+                                    <IconSettings
+                                        class="w-5 h-5 text-base-content/70"
+                                    />
+                                    <span class="flex-1">Edit Profile</span>
+                                    <IconChevronRight
+                                        class="w-4 h-4 text-base-content/50"
+                                    />
+                                </NuxtLink>
+                            </div>
+                        </div>
+
+                        <!-- Account Section -->
+                        <div class="card bg-base-100">
+                            <div class="card-body p-2">
+                                <NuxtLink
+                                    to="/wallet"
+                                    class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
+                                >
+                                    <IconCreditCard
+                                        class="w-5 h-5 text-base-content/70"
+                                    />
+                                    <span class="flex-1">Wallet</span>
+                                    <IconChevronRight
+                                        class="w-4 h-4 text-base-content/50"
+                                    />
+                                </NuxtLink>
+
+                                <NuxtLink
+                                    to="/badges"
+                                    class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
+                                >
+                                    <IconMedal
+                                        class="w-5 h-5 text-base-content/70"
+                                    />
+                                    <span class="flex-1">Badges</span>
+                                    <IconChevronRight
+                                        class="w-4 h-4 text-base-content/50"
+                                    />
+                                </NuxtLink>
+
+                                <NuxtLink
+                                    to="/relationships"
+                                    class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
+                                >
+                                    <IconUsers
+                                        class="w-5 h-5 text-base-content/70"
+                                    />
+                                    <span class="flex-1">Relationships</span>
+                                    <IconChevronRight
+                                        class="w-4 h-4 text-base-content/50"
+                                    />
+                                </NuxtLink>
+
+                                <NuxtLink
+                                    to="/notifications"
+                                    class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
+                                >
+                                    <IconBell
+                                        class="w-5 h-5 text-base-content/70"
+                                    />
+                                    <span class="flex-1">Notifications</span>
+                                    <span
+                                        v-if="unreadCount > 0"
+                                        class="badge badge-primary badge-sm"
+                                    >
+                                        {{ unreadCount }}
+                                    </span>
+                                    <IconChevronRight
+                                        class="w-4 h-4 text-base-content/50"
+                                    />
+                                </NuxtLink>
+                            </div>
+                        </div>
+
+                        <!-- Settings Section -->
+                        <div class="card bg-base-100">
+                            <div class="card-body p-2">
+                                <NuxtLink
+                                    to="/settings"
+                                    class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
+                                >
+                                    <IconSettings
+                                        class="w-5 h-5 text-base-content/70"
+                                    />
+                                    <span class="flex-1">App Settings</span>
+                                    <IconChevronRight
+                                        class="w-4 h-4 text-base-content/50"
+                                    />
+                                </NuxtLink>
+
+                                <button
+                                    class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors w-full text-left"
+                                    @click="showLogoutConfirm = true"
+                                >
+                                    <IconLogOut class="w-5 h-5 text-error" />
+                                    <span class="flex-1 text-error"
+                                        >Log Out</span
+                                    >
+                                    <IconChevronRight
+                                        class="w-4 h-4 text-base-content/50"
+                                    />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Sidebar -->
+                <div class="space-y-4 hidden lg:block">
+                    <!-- Leveling Progress -->
+                    <LevelingProgress
+                        v-if="authStore.user.profile?.level"
+                        :level="authStore.user.profile.level"
+                        :experience="authStore.user.profile.experience || 0"
+                        :progress="authStore.user.profile.levelingProgress || 0"
+                    />
+
+                    <!-- Blank placeholder to maintain layout -->
+                    <div class="card bg-base-200/50 min-h-[200px]">
+                        <div class="card-body items-center justify-center">
+                            <span class="text-base-content/30 text-sm"> </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logout Confirmation Modal -->
+        <div
+            v-if="showLogoutConfirm"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            @click.self="showLogoutConfirm = false"
+        >
+            <div class="modal-box max-w-sm">
+                <h3 class="font-bold text-lg">Log Out</h3>
+                <p class="py-4">Are you sure you want to log out?</p>
+                <div class="modal-action">
+                    <button
+                        class="btn btn-ghost"
+                        @click="showLogoutConfirm = false"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        class="btn btn-error"
+                        :disabled="isLoggingOut"
+                        @click="logout"
+                    >
+                        <IconLoader
+                            v-if="isLoggingOut"
+                            class="w-4 h-4 animate-spin"
+                        />
+                        <IconLogOut v-else class="w-4 h-4" />
+                        Log Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-// Redirect /accounts/me to /accounts/me/settings
+import { getFileUrl } from "~/utils/files";
+import { useAuthStore } from "~/stores/auth";
+import {
+    IconUser,
+    IconShieldCheck,
+    IconSettings,
+    IconChevronRight,
+    IconCreditCard,
+    IconMedal,
+    IconUsers,
+    IconBell,
+    IconLogOut,
+    IconLoader,
+} from "#components";
+
+const authStore = useAuthStore();
 const router = useRouter();
 
-onMounted(() => {
-    router.replace('/accounts/me/settings');
+const isLoading = ref(true);
+const isLoggingOut = ref(false);
+const showLogoutConfirm = ref(false);
+const unreadCount = ref(0);
+
+const displayName = computed(
+    () => authStore.user?.nick || authStore.user?.name || "Unknown",
+);
+const avatarUrl = computed(() =>
+    getFileUrl(authStore.user?.profile?.picture?.id),
+);
+const backgroundUrl = computed(() =>
+    getFileUrl(authStore.user?.profile?.background?.id),
+);
+
+function getInitials(name: string): string {
+    return (
+        name
+            .split(/\s+/)
+            .filter(Boolean)
+            .map((p) => p[0]?.toUpperCase())
+            .slice(0, 2)
+            .join("") || "?"
+    );
+}
+
+async function logout() {
+    isLoggingOut.value = true;
+    try {
+        await authStore.logout();
+        showLogoutConfirm.value = false;
+        await router.push("/");
+    } finally {
+        isLoggingOut.value = false;
+    }
+}
+
+onMounted(async () => {
+    isLoading.value = true;
+    try {
+        // Wait for auth to be initialized
+        if (!authStore.isAuthenticated) {
+            await authStore.initAuth();
+        }
+        // If still no user data but we have a token, fetch it
+        if (authStore.isAuthenticated && !authStore.user) {
+            await authStore.fetchUser();
+        }
+    } finally {
+        isLoading.value = false;
+    }
+});
+
+useHead({
+    title: "My Account",
 });
 </script>

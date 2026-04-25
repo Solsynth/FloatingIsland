@@ -1,14 +1,15 @@
 import { getValidToken, readTokenPair } from "~/utils/token";
+import { useAuthStore } from "~/stores/auth";
 
 export default defineNuxtPlugin(async () => {
-  const auth = useAuth();
+  const store = useAuthStore();
   const config = useRuntimeConfig();
 
   // Initialize auth state from storage
-  await auth.initAuth();
+  await store.initAuth();
 
   // Ensure isLoading is false after initAuth completes
-  auth.isLoading.value = false;
+  store.isLoading = false;
 
   // Set up periodic token refresh (every 4 minutes)
   // This ensures the token is refreshed before it expires

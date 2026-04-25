@@ -1,9 +1,6 @@
 <template>
     <div class="flex items-center gap-2 text-sm">
-        <div
-            class="w-2.5 h-2.5 rounded-full"
-            :class="statusClass"
-        />
+        <div class="w-2.5 h-2.5 rounded-full" :class="statusClass" />
         <span :class="textClass">{{ statusText }}</span>
         <span v-if="showLastSeen && lastSeenText" class="text-base-content/50">
             · {{ lastSeenText }}
@@ -12,10 +9,10 @@
 </template>
 
 <script setup lang="ts">
-import type { User } from "~/types/auth";
+import type { SnAccount } from "~/types/auth";
 
 interface Props {
-    account: User;
+    account: SnAccount;
     showLastSeen?: boolean;
 }
 

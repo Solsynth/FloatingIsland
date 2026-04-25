@@ -1,26 +1,26 @@
 <template>
     <div class="min-h-screen bg-base-200 flex items-center justify-center px-4">
         <div class="w-full max-w-md">
-            <!-- Logo -->
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center gap-3">
-                    <img src="/favicon.png" alt="Solar Network" class="w-10 h-10" >
-                    <span class="text-2xl font-bold text-base-content">Solar Network</span>
-                </div>
-            </div>
+            <FlowHeader />
 
             <ConfuseSpinner v-if="auth.isLoading.value" />
 
             <template v-else>
                 <!-- Step 1: Username Entry -->
-                <div v-if="step === 'lookup'" class="card bg-base-100 shadow-xl">
+                <div
+                    v-if="step === 'lookup'"
+                    class="card bg-base-100 shadow-xl"
+                >
                     <div class="card-body">
                         <h2 class="card-title text-2xl">Sign In</h2>
                         <p class="text-base-content/60 mb-4">
                             Login with your Solarpass and continue
                         </p>
 
-                        <div v-if="error" class="alert alert-error text-sm mb-4">
+                        <div
+                            v-if="error"
+                            class="alert alert-error text-sm mb-4"
+                        >
                             <IconAlertCircle class="w-4 h-4" />
                             <span>{{ error }}</span>
                         </div>
@@ -32,7 +32,7 @@
                                 placeholder="Username or email"
                                 class="input input-bordered w-full"
                                 @keydown.enter="handleLookup"
-                            >
+                            />
                         </div>
 
                         <button
@@ -40,18 +40,29 @@
                             :disabled="!account || submitting"
                             @click="handleLookup"
                         >
-                            <IconLoader v-if="submitting" class="w-4 h-4 animate-spin" />
+                            <IconLoader
+                                v-if="submitting"
+                                class="w-4 h-4 animate-spin"
+                            />
                             Continue
                         </button>
 
                         <!-- OIDC Buttons -->
-                        <div class="divider text-base-content/40">or sign in with</div>
+                        <div class="divider text-base-content/40">
+                            or sign in with
+                        </div>
                         <div class="flex gap-2">
-                            <button class="btn btn-outline flex-1 gap-2" @click="handleOidcLogin('github')">
+                            <button
+                                class="btn btn-outline flex-1 gap-2"
+                                @click="handleOidcLogin('github')"
+                            >
                                 <IconGithub class="w-4 h-4" />
                                 GitHub
                             </button>
-                            <button class="btn btn-outline flex-1 gap-2" @click="handleOidcLogin('google')">
+                            <button
+                                class="btn btn-outline flex-1 gap-2"
+                                @click="handleOidcLogin('google')"
+                            >
                                 <svg class="w-4 h-4" viewBox="0 0 24 24">
                                     <path
                                         fill="currentColor"
@@ -75,7 +86,10 @@
                         </div>
 
                         <div class="text-center mt-4">
-                            <NuxtLink to="/auth/create-account" class="text-sm text-primary hover:underline">
+                            <NuxtLink
+                                to="/auth/create-account"
+                                class="text-sm text-primary hover:underline"
+                            >
                                 Create an account
                             </NuxtLink>
                         </div>
@@ -83,13 +97,18 @@
                 </div>
 
                 <!-- Step 2: Factor Selection -->
-                <div v-if="step === 'picker'" class="card bg-base-100 shadow-xl">
+                <div
+                    v-if="step === 'picker'"
+                    class="card bg-base-100 shadow-xl"
+                >
                     <div class="card-body">
                         <!-- Progress -->
                         <div class="w-full bg-base-200 rounded-full h-1 mb-4">
                             <div
                                 class="bg-primary h-1 rounded-full transition-all"
-                                :style="{ width: `${auth.loginProgress.value * 100}%` }"
+                                :style="{
+                                    width: `${auth.loginProgress.value * 100}%`,
+                                }"
                             />
                         </div>
 
@@ -116,11 +135,16 @@
                         <div class="w-full bg-base-200 rounded-full h-1 mb-4">
                             <div
                                 class="bg-primary h-1 rounded-full transition-all"
-                                :style="{ width: `${auth.loginProgress.value * 100}%` }"
+                                :style="{
+                                    width: `${auth.loginProgress.value * 100}%`,
+                                }"
                             />
                         </div>
 
-                        <div v-if="error" class="alert alert-error text-sm mb-4">
+                        <div
+                            v-if="error"
+                            class="alert alert-error text-sm mb-4"
+                        >
                             <IconAlertCircle class="w-4 h-4" />
                             <span>{{ error }}</span>
                         </div>
@@ -136,13 +160,20 @@
                 </div>
 
                 <!-- Step 4: Success -->
-                <div v-if="step === 'success'" class="card bg-base-100 shadow-xl">
+                <div
+                    v-if="step === 'success'"
+                    class="card bg-base-100 shadow-xl"
+                >
                     <div class="card-body items-center text-center">
-                        <div class="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mb-4">
+                        <div
+                            class="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mb-4"
+                        >
                             <IconCheck class="w-8 h-8 text-success" />
                         </div>
                         <h2 class="card-title text-2xl">Login Successful</h2>
-                        <p class="text-base-content/60">Redirecting you to the app...</p>
+                        <p class="text-base-content/60">
+                            Redirecting you to the app...
+                        </p>
                     </div>
                 </div>
             </template>
@@ -158,7 +189,16 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const auth = useAuth();
-const { startLogin, loadFactors, loadChallenge, submitVerification, exchangeToken, fetchUser, clearLoginFlow, clearFactor } = auth;
+const {
+    startLogin,
+    loadFactors,
+    loadChallenge,
+    submitVerification,
+    exchangeToken,
+    fetchUser,
+    clearLoginFlow,
+    clearFactor,
+} = auth;
 
 const step = ref<"lookup" | "picker" | "check" | "success">("lookup");
 const account = ref("");
@@ -226,7 +266,11 @@ async function handleVerify() {
     error.value = null;
 
     try {
-        const result = await submitVerification(auth.challenge.value.id, auth.selectedFactor.value.id, password.value);
+        const result = await submitVerification(
+            auth.challenge.value.id,
+            auth.selectedFactor.value.id,
+            password.value,
+        );
 
         if (result.stepRemain > 0) {
             // More steps needed - go back to factor picker
