@@ -146,6 +146,9 @@
 			>
 				<IconPlus class="w-6 h-6" />
 			</button>
+
+			<!-- Compose Dialog -->
+			<ComposeDialog :open="composeOpen" @close="composeOpen = false" @submit="handleComposeSubmit" />
 		</div>
 	</div>
 </template>
@@ -171,6 +174,7 @@ const { isAuthenticated, user } = auth;
 
 const menuOpen = ref(false);
 const menuContainer = ref<HTMLElement | null>(null);
+const composeOpen = ref(false);
 
 const navItems = [
 	{ to: '/', label: 'Explore', icon: IconCompass },
@@ -194,8 +198,15 @@ function handleLogout() {
 }
 
 function openCompose() {
-	const event = new CustomEvent('open-compose');
-	window.dispatchEvent(event);
+	composeOpen.value = true;
+}
+
+function handleComposeSubmit() {
+	composeOpen.value = false;
+}
+
+function handleOpenComposeEvent() {
+	composeOpen.value = true;
 }
 
 function handleClickOutside(event: MouseEvent) {
@@ -206,10 +217,12 @@ function handleClickOutside(event: MouseEvent) {
 
 onMounted(() => {
 	document.addEventListener('click', handleClickOutside);
+	window.addEventListener('open-compose', handleOpenComposeEvent);
 });
 
 onUnmounted(() => {
 	document.removeEventListener('click', handleClickOutside);
+	window.removeEventListener('open-compose', handleOpenComposeEvent);
 });
 </script>
 
