@@ -94,71 +94,37 @@
         </div>
       </div>
 
-      <div
-        class="flex min-h-[calc(100vh-65px)] items-center justify-center overflow-auto p-4"
-        @wheel.prevent="handleWheel"
-        @mousedown.stop="handleMouseDown"
-        @mousemove.stop="handleMouseMove"
-        @mouseup.stop="handleMouseUp"
-        @mouseleave.stop="handleMouseUp"
-      >
-        <div class="relative w-full max-w-5xl">
-          <!-- Image -->
-          <img
-            v-if="isImage"
-            :src="fileUrl"
-            alt="File"
-            class="w-full rounded-lg object-contain shadow-lg select-none"
-            :style="imageStyle"
-            draggable="false"
-            @error="handleImageError"
-          >
-          <!-- Video -->
-          <video
-            v-else-if="isVideo"
-            :src="fileUrl"
-            controls
-            class="w-full rounded-lg shadow-lg"
-          />
-          <!-- Audio -->
-          <div
-            v-else-if="isAudio"
-            class="flex flex-col items-center justify-center py-12 bg-base-200 rounded-lg"
-          >
-            <IconMusic class="w-20 h-20 text-base-content/20 mb-4" />
-            <p class="text-base-content/60 mb-4">{{ fileId }}</p>
-            <audio :src="fileUrl" controls class="w-full max-w-md" />
-          </div>
-          <!-- Other file types -->
-          <div
-            v-else
-            class="flex flex-col items-center justify-center py-12 bg-base-200 rounded-lg"
-          >
-            <IconFile class="w-20 h-20 text-base-content/20 mb-4" />
-            <p class="text-base-content/60">{{ fileId }}</p>
-            <a :href="fileUrl" class="btn btn-primary mt-4" download>
-              <IconDownload class="w-4 h-4" />
-              Download
-            </a>
+        <div
+          class="flex min-h-[calc(100vh-65px)] items-center justify-center overflow-auto p-4"
+        >
+          <div class="relative w-full max-w-5xl">
+            <AttachmentItem
+              :attachment="attachment"
+              :clickable="false"
+              @click="toggleFullscreen"
+              class="w-full cursor-pointer"
+            />
           </div>
         </div>
-      </div>
 
-      <!-- File Info -->
-      <div class="border-t border-base-300 bg-base-100">
-        <div class="mx-auto max-w-5xl px-4 py-4">
-          <h1 class="text-lg font-semibold">{{ fileId }}</h1>
-          <div class="mt-2 text-sm text-base-content/60 flex flex-wrap gap-4">
-            <span>Type: {{ detectedMimeType || 'Unknown' }}</span>
+        <!-- File Info -->
+        <div class="border-t border-base-300 bg-base-100">
+          <div class="mx-auto max-w-5xl px-4 py-4">
+            <h1 class="text-lg font-semibold">{{ attachment.name }}</h1>
+            <div class="mt-2 text-sm text-base-content/60 flex flex-wrap gap-4">
+              <span>Type: {{ attachment.mimeType || 'Unknown' }}</span>
+            </div>
           </div>
         </div>
-      </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import type { FileAttachment } from '~/types/post'
+import { isImageFile, isVideoFile, isAudioFile, detectMimeTypeFromExtension } from '~/utils/fileType'
+
 definePageMeta({
-  layout: false
+  layout: false,
 })
 
 const route = useRoute()
@@ -167,28 +133,21 @@ const fileId = computed(() => route.params.id as string)
 const config = useRuntimeConfig()
 const fileUrl = computed(() => `${config.public.fileBaseUrl}/${fileId.value}`)
 
-// Detect file type from extension
-const detectedMimeType = computed(() => {
-  const ext = fileId.value.split('.').pop()?.toLowerCase()
-  const mimeTypes: Record<string, string> = {
-    'jpg': 'image/jpeg',
-    'jpeg': 'image/jpeg',
-    'png': 'image/png',
-    'gif': 'image/gif',
-    'webp': 'image/webp',
-    'mp4': 'video/mp4',
-    'webm': 'video/webm',
-    'mov': 'video/quicktime',
-    'mp3': 'audio/mpeg',
-    'wav': 'audio/wav',
-    'ogg': 'audio/ogg',
-  }
-  return mimeTypes[ext || ''] || null
-})
+// Construct FileAttachment object for AttachmentItem
+const attachment = computed<FileAttachment>(() => ({
+  id: fileId.value,
+  name: fileId.value,
+  url: fileUrl.value,
+  mimeType: detectMimeTypeFromExtension(fileId.value) || 'application/octet-stream',
+  hasCompression: false,
+  hasThumbnail: false,
+  fileMeta: {}
+}))
 
-const isImage = computed(() => detectedMimeType.value?.startsWith('image/') ?? true) // Default to image
-const isVideo = computed(() => detectedMimeType.value?.startsWith('video/') ?? false)
-const isAudio = computed(() => detectedMimeType.value?.startsWith('audio/') ?? false)
+// File type checks using shared utility
+const isImage = computed(() => isImageFile(attachment.value))
+const isVideo = computed(() => isVideoFile(attachment.value))
+const isAudio = computed(() => isAudioFile(attachment.value))
 
 // Zoom and pan state
 const isFullscreen = ref(false)

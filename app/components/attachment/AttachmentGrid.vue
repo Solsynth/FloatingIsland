@@ -2,7 +2,7 @@
     <div>
         <div
             v-if="attachments.length"
-            class="grid gap-1 rounded-xl overflow-hidden"
+            class="grid gap-1 rounded-lg overflow-hidden"
             :class="gridClass"
             :style="containerStyle"
         >
@@ -10,37 +10,15 @@
                 v-for="attachment in visibleAttachments"
                 :key="attachment.id"
                 :to="`/files/${attachment.id}`"
-                class="relative bg-base-300 cursor-pointer block overflow-hidden"
+                class="relative block overflow-hidden"
                 :class="{ 'aspect-video': !maxHeight }"
                 :style="itemStyle"
                 @click.stop
             >
-                <img
-                    v-if="getAttachmentUrl(attachment)"
-                    :src="getAttachmentUrl(attachment)"
-                    :alt="attachment.name"
-                    class="w-full h-full object-cover"
-                >
-                <div
-                    v-else
-                    class="w-full h-full flex items-center justify-center"
-                >
-                    <IconFile class="w-8 h-8 text-base-content/30" />
-                </div>
-                <!-- Video indicator -->
-                <div
-                    v-if="attachment.mimeType?.startsWith('video/')"
-                    class="absolute inset-0 flex items-center justify-center bg-black/30"
-                >
-                    <IconPlay class="w-10 h-10 text-white" />
-                </div>
-                <!-- Blurhash placeholder (if available) -->
-                <div
-                    v-if="attachment.blurhash && !loadedAttachments.has(attachment.id)"
-                    class="absolute inset-0 bg-base-300"
-                >
-                    <!-- Note: blurhash rendering would require the blurhash package -->
-                </div>
+                <AttachmentItem
+                    :attachment="attachment"
+                    class="w-full h-full"
+                />
             </NuxtLink>
         </div>
         <button
@@ -55,7 +33,6 @@
 
 <script setup lang="ts">
 import type { FileAttachment } from '~/types/post';
-import { getFileUrl } from '~/utils/files';
 
 interface Props {
     attachments: FileAttachment[];
@@ -69,7 +46,6 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const showAll = ref(false);
-
 
 const visibleAttachments = computed(() => {
     if (showAll.value) return props.attachments;
@@ -97,10 +73,4 @@ const itemStyle = computed(() => {
     }
     return {};
 });
-
-function getAttachmentUrl(attachment: FileAttachment): string | null {
-    return attachment.url || getFileUrl(attachment.id);
-}
-
-
 </script>
