@@ -102,34 +102,6 @@ const menuItems = [
     { to: "/accounts/me/settings/appearance", label: "Appearance", icon: IconPalette },
     { to: "/accounts/me/settings/billing", label: "Billing", icon: IconCreditCard },
 ];
-
-const router = useRouter();
-
-router.beforeEach(() => {
-    progress.value = 0;
-    progressVisible.value = true;
-
-    const steps = [0.1, 0.3, 0.5, 0.7, 0.85, 0.95];
-    let i = 0;
-    const interval = setInterval(() => {
-        if (i < steps.length) {
-            progress.value = steps[i];
-            i++;
-        } else {
-            clearInterval(interval);
-        }
-    }, 50);
-
-    return () => clearInterval(interval);
-});
-
-router.afterEach(() => {
-    progress.value = 1;
-    setTimeout(() => {
-        progressVisible.value = false;
-        progress.value = 0;
-    }, 200);
-});
 </script>
 
 <style scoped>

@@ -43,7 +43,7 @@
                                 :src="backgroundUrl"
                                 :alt="`${displayName} background`"
                                 class="h-full w-full object-cover"
-                            />
+                            >
                         </div>
                         <div
                             class="mx-auto -mt-16 flex flex-col gap-3 px-4 pb-4 sm:-mt-16 sm:flex-row sm:items-end"
@@ -56,7 +56,7 @@
                                         <img
                                             :src="avatarUrl"
                                             :alt="displayName"
-                                        />
+                                        >
                                     </div>
                                 </div>
                                 <div v-else class="avatar avatar-placeholder">
@@ -159,7 +159,7 @@
                         <div class="card bg-base-100">
                             <div class="card-body p-2">
                                 <NuxtLink
-                                    to="/wallet"
+                                    to="/accounts/me/wallet"
                                     class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
                                 >
                                     <IconCreditCard
@@ -171,10 +171,10 @@
                                     />
                                 </NuxtLink>
 
-                                <NuxtLink
-                                    to="/badges"
-                                    class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
-                                >
+                        <NuxtLink
+                            to="/accounts/me/badges"
+                            class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
+                        >
                                     <IconMedal
                                         class="w-5 h-5 text-base-content/70"
                                     />
@@ -185,7 +185,7 @@
                                 </NuxtLink>
 
                                 <NuxtLink
-                                    to="/relationships"
+                                    to="/accounts/me/relationships"
                                     class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
                                 >
                                     <IconUsers
@@ -198,7 +198,7 @@
                                 </NuxtLink>
 
                                 <NuxtLink
-                                    to="/notifications"
+                                    to="/accounts/me/notifications"
                                     class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
                                 >
                                     <IconBell
@@ -260,33 +260,24 @@
                         :experience="authStore.user.profile.experience || 0"
                         :progress="authStore.user.profile.levelingProgress || 0"
                     />
-
-                    <!-- Blank placeholder to maintain layout -->
-                    <div class="card bg-base-200/50 min-h-[200px]">
-                        <div class="card-body items-center justify-center">
-                            <span class="text-base-content/30 text-sm"> </span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Logout Confirmation Modal -->
-        <div
-            v-if="showLogoutConfirm"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-            @click.self="showLogoutConfirm = false"
-        >
+        <dialog :open="showLogoutConfirm" class="modal">
             <div class="modal-box max-w-sm">
                 <h3 class="font-bold text-lg">Log Out</h3>
                 <p class="py-4">Are you sure you want to log out?</p>
                 <div class="modal-action">
-                    <button
-                        class="btn btn-ghost"
-                        @click="showLogoutConfirm = false"
-                    >
-                        Cancel
-                    </button>
+                    <form method="dialog">
+                        <button
+                            class="btn btn-ghost"
+                            @click="showLogoutConfirm = false"
+                        >
+                            Cancel
+                        </button>
+                    </form>
                     <button
                         class="btn btn-error"
                         :disabled="isLoggingOut"
@@ -301,7 +292,10 @@
                     </button>
                 </div>
             </div>
-        </div>
+            <form method="dialog" class="modal-backdrop">
+                <button @click="showLogoutConfirm = false">close</button>
+            </form>
+        </dialog>
     </NuxtLayout>
 </template>
 

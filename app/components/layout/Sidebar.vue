@@ -26,19 +26,8 @@
             </NuxtLink>
         </nav>
 
-        <!-- Bottom Section: Compose + User Profile -->
+        <!-- Bottom Section: User Profile -->
         <div class="mt-auto flex flex-col gap-2 px-2">
-            <!-- Compose Button -->
-            <div>
-                <button
-                    class="btn btn-primary btn-lg w-full rounded-full shadow-lg transition-shadow hover:shadow-xl"
-                    @click="$emit('compose')"
-                >
-                    <IconPlus class="h-6 w-6" />
-                    <span>New Post</span>
-                </button>
-            </div>
-
             <!-- User Profile Mini -->
             <div
                 v-if="isAuthenticated && user"
@@ -76,20 +65,13 @@
                     <li>
                         <NuxtLink to="/accounts/me">
                             <IconUser class="w-4.5" />
-                            Profile
+                            Account
                         </NuxtLink>
                     </li>
                     <li>
                         <NuxtLink to="/settings">
                             <IconSettings class="w-4.5" />
                             Settings
-                        </NuxtLink>
-                    </li>
-                    <li class="my-1 border-t border-base-300" />
-                    <li>
-                        <NuxtLink to="/pricing">
-                            <IconCreditCard class="w-4.5" />
-                            Membership
                         </NuxtLink>
                     </li>
                     <li class="my-1 border-t border-base-300" />
@@ -127,20 +109,13 @@
 <script setup lang="ts">
 import {
     IconCompass,
-    IconRadio,
-    IconUsers,
-    IconPlus,
+    IconBuilding,
     IconLogIn,
     IconLogOut,
     IconUser,
-    IconCreditCard,
     IconSettings,
 } from "#components";
 import { getFileUrl } from "~/utils/files";
-
-defineEmits<{
-    compose: [];
-}>();
 
 const {
     isAuthenticated,
@@ -150,9 +125,8 @@ const {
 } = useAuth();
 
 const navItems = [
-    { icon: IconCompass, label: "Explore", href: "/" },
-    { icon: IconRadio, label: "Livestreams", href: "/livestreams" },
-    { icon: IconUsers, label: "Realms", href: "/realms" },
+    { icon: IconCompass, label: "Explore", href: "/explore" },
+    { icon: IconBuilding, label: "Realms", href: "/realms" },
 ];
 
 const displayName = computed(() => authDisplayName.value);

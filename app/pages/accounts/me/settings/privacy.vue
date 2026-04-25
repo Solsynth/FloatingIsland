@@ -103,7 +103,7 @@
                         <div class="flex items-center gap-3">
                             <div class="avatar">
                                 <div class="w-10 h-10 rounded-full">
-                                    <img v-if="user.avatar" :src="user.avatar" :alt="user.name" >
+                                    <img v-if="user.profile.picture" :src="getFileUrl(user.profile.picture.id)!" :alt="user.name" >
                                     <div v-else class="bg-primary text-primary-content flex items-center justify-center w-full h-full text-sm font-bold">
                                         {{ user.name[0] }}
                                     </div>
@@ -138,6 +138,7 @@
 
 <script setup lang="ts">
 import { IconBan, IconLoader, IconCheck } from "#components";
+import type { SnAccount } from '~/types/auth';
 
 const isSaving = ref(false);
 
@@ -149,7 +150,7 @@ const privacy = reactive({
     allowComments: true,
 });
 
-const blockedUsers = ref([
+const blockedUsers = ref<SnAccount[]>([
     // TODO: Fetch from API
 ]);
 

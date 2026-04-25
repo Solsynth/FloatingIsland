@@ -11,9 +11,7 @@ import {
 import {
     readTokenPair,
     clearTokenPair,
-    getValidToken,
     setTokenFromResponse,
-    type StoredTokenPair,
 } from "~/utils/token";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 

@@ -105,9 +105,9 @@
                         <div class="w-6 text-center font-bold text-base-content/40">
                             {{ index + 1 }}
                         </div>
-                        <div v-if="entry.account?.avatar?.id" class="avatar">
+                        <div v-if="entry.account?.profile.picture?.id" class="avatar">
                             <div class="w-8 h-8 rounded-lg">
-                                <img :src="getFileUrl(entry.account.avatar.id)" :alt="entry.account.nick || entry.account.name" >
+                                <img :src="getFileUrl(entry.account.profile.picture.id)!" :alt="entry.account.nick || entry.account.name" >
                             </div>
                         </div>
                         <div v-else class="avatar avatar-placeholder">
@@ -165,19 +165,19 @@
             <div class="card-body p-4">
                 <h3 class="font-semibold mb-3">My Identity</h3>
                 <div class="flex items-start gap-3">
-                    <div v-if="auth.user?.profile?.picture?.id" class="avatar">
+                    <div v-if="auth.user.value?.profile?.picture?.id" class="avatar">
                         <div class="w-10 h-10 rounded-xl">
-                            <img :src="getFileUrl(auth.user.profile.picture.id)" :alt="membership.nick || auth.user.name" >
+                            <img :src="getFileUrl(auth.user.value.profile.picture.id)!" :alt="membership.nick || auth.user.value.name" >
                         </div>
                     </div>
                     <div v-else class="avatar avatar-placeholder">
                         <div class="w-10 h-10 rounded-xl bg-primary text-primary-content flex items-center justify-center font-bold">
-                            {{ getInitials(membership.nick || auth.user?.name || '?') }}
+                            {{ getInitials(membership.nick || auth.user.value?.name || '?') }}
                         </div>
                     </div>
                     <div class="min-w-0 flex-1">
                         <div class="font-medium truncate">
-                            {{ membership.nick || auth.user?.nick || auth.user?.name }}
+                            {{ membership.nick || auth.user.value?.nick || auth.user.value?.name }}
                         </div>
                         <div class="text-xs text-base-content/60 flex items-center gap-2 mt-1">
                             <span class="badge badge-xs" :class="getRoleBadgeClass(membership.role)">

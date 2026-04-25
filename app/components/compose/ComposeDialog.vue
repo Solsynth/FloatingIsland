@@ -1,5 +1,5 @@
 <template>
-    <dialog id="compose-dialog" ref="dialogRef" class="modal modal-open">
+    <dialog id="compose-dialog" :open="isOpen" class="modal">
         <div
             class="modal-box p-0 overflow-hidden max-w-2xl w-[calc(100%-2rem)] max-h-[calc(100vh-4rem)] flex flex-col"
             :class="{ 'h-[calc(100vh-4rem)]': isMobile }"
@@ -495,10 +495,16 @@ import { getFileUrl } from "~/utils/files";
 import { fetchJson, API_BASE_URL } from "~/utils/api";
 import { getValidToken } from "~/utils/token";
 
+const props = defineProps<{
+    open?: boolean;
+}>();
+
 const emit = defineEmits<{
     close: [];
     submit: [post: Post];
 }>();
+
+const isOpen = computed(() => props.open ?? true);
 
 const compose = useCompose();
 const {
@@ -532,7 +538,6 @@ const {
     reset,
 } = compose;
 
-const dialogRef = ref<HTMLDialogElement | null>(null);
 const contentRef = ref<HTMLTextAreaElement | null>(null);
 const isMobile = ref(false);
 const newTag = ref("");
@@ -562,9 +567,6 @@ onMounted(() => {
     window.addEventListener("resize", () => {
         isMobile.value = window.innerWidth < 640;
     });
-
-    // Show the dialog
-    dialogRef.value?.showModal();
 
     // Start auto-save
     startAutoSave();

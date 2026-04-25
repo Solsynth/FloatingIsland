@@ -86,7 +86,7 @@
                 <div class="space-y-3">
                     <div class="flex items-center justify-between p-3 bg-base-200 rounded-xl">
                         <div class="flex items-center gap-3">
-                            <IconDeviceDesktop class="w-5 h-5 text-base-content/60" />
+                            <IconLaptop class="w-5 h-5 text-base-content/60" />
                             <div>
                                 <p class="font-medium">Current Session</p>
                                 <p class="text-xs text-base-content/60">Chrome on macOS · {{ formatDate(new Date().toISOString()) }}</p>
@@ -110,7 +110,7 @@ import {
     IconLoader,
     IconKey,
     IconShield,
-    IconDeviceDesktop,
+    IconLaptop,
     IconLogOut,
 } from "#components";
 

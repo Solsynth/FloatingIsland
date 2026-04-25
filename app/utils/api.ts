@@ -23,6 +23,7 @@ import {
   getValidToken,
   readTokenPair,
   setTokenFromResponse,
+  refreshAccessToken,
   type StoredTokenPair,
 } from "~/utils/token";
 
@@ -89,9 +90,9 @@ export async function apiFetch(
     // Force token refresh and retry
     const tokenPair = readTokenPair();
     if (tokenPair?.refreshToken) {
-      // Clear any cached token to force refresh
-      const newToken = await getValidToken(API_BASE_URL);
-      if (newToken) {
+      // Force refresh the token
+      const refreshed = await refreshAccessToken(API_BASE_URL, tokenPair);
+      if (refreshed) {
         // Retry the request with new token
         return apiFetch(endpoint, {
           ...options,
@@ -703,6 +704,333 @@ export async function blockAccount(accountId: string): Promise<void> {
 export async function unblockAccount(accountId: string): Promise<void> {
   await apiFetch(`/passport/accounts/${accountId}/block`, {
     method: "DELETE",
+  });
+}
+
+// Relationships
+export interface Relationship {
+  id: string;
+  accountId: string;
+  relatedId: string;
+  status: number;
+  expiredAt?: string;
+  account?: {
+    id: string;
+    name: string;
+    nick: string;
+    profile: {
+      picture?: { id: string };
+    };
+  };
+  related?: {
+    id: string;
+    name: string;
+    nick: string;
+    profile: {
+      picture?: { id: string };
+    };
+  };
+}
+
+export async function fetchRelationships(
+  offset = 0,
+  take = 20,
+): Promise<{ items: Relationship[]; total: number; hasMore: boolean }> {
+  const response = await apiFetch(
+    `/passport/relationships?offset=${offset}&take=${take}`,
+  );
+  const data = await safeJsonParse<Relationship[]>(response);
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  return {
+    items: data,
+    total,
+    hasMore: offset + data.length < total,
+  };
+}
+
+export async function fetchFriendRequests(): Promise<Relationship[]> {
+  const response = await apiFetch("/passport/relationships/requests");
+  return safeJsonParse<Relationship[]>(response);
+}
+
+export async function sendFriendRequest(accountId: string): Promise<void> {
+  await apiFetch(`/passport/relationships/${accountId}/friends`, {
+    method: "POST",
+  });
+}
+
+export async function acceptFriendRequest(accountId: string): Promise<void> {
+  await apiFetch(`/passport/relationships/${accountId}/friends/accept`, {
+    method: "POST",
+  });
+}
+
+export async function declineFriendRequest(accountId: string): Promise<void> {
+  await apiFetch(`/passport/relationships/${accountId}/friends/decline`, {
+    method: "POST",
+  });
+}
+
+export async function cancelFriendRequest(relatedId: string): Promise<void> {
+  await apiFetch(`/passport/relationships/${relatedId}/friends`, {
+    method: "DELETE",
+  });
+}
+
+export async function updateRelationship(
+  accountId: string,
+  status: number,
+): Promise<void> {
+  await apiFetch(`/passport/relationships/${accountId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function deleteRelationship(relatedId: string): Promise<void> {
+  await apiFetch(`/passport/relationships/${relatedId}`, {
+    method: "DELETE",
+  });
+}
+
+// Wallet Types
+export interface WalletPocket {
+  id: string;
+  currency: string;
+  amount: number;
+  walletId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Wallet {
+  id: string;
+  accountId: string;
+  pockets: WalletPocket[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WalletStats {
+  totalIncome: number;
+  totalOutgoing: number;
+}
+
+export interface Transaction {
+  id: string;
+  payerWalletId?: string;
+  payeeWalletId?: string;
+  amount: number;
+  currency: string;
+  type: number; // 0: transfer, 1: payment
+  remarks?: string;
+  createdAt: string;
+  payerWallet?: {
+    account?: {
+      id: string;
+      name: string;
+      nick: string;
+      profile: {
+        picture?: { id: string };
+      };
+    };
+  };
+  payeeWallet?: {
+    account?: {
+      id: string;
+      name: string;
+      nick: string;
+      profile: {
+        picture?: { id: string };
+      };
+    };
+  };
+}
+
+export interface Fund {
+  id: string;
+  senderId: string;
+  currency: string;
+  totalAmount: number;
+  splitType: number; // 0: even, 1: random
+  amountOfSplits: number;
+  message?: string;
+  remainingAmount: number;
+  claimedCount: number;
+  createdAt: string;
+  expiresAt?: string;
+}
+
+// Wallet API
+export async function fetchWallet(): Promise<Wallet | null> {
+  try {
+    const response = await apiFetch("/wallet/wallets");
+    return safeJsonParse<Wallet>(response);
+  } catch (err) {
+    if (err instanceof Error && err.message.includes("404")) {
+      return null;
+    }
+    throw err;
+  }
+}
+
+export async function createWallet(): Promise<Wallet> {
+  const response = await apiFetch("/wallet/wallets", {
+    method: "POST",
+  });
+  return safeJsonParse<Wallet>(response);
+}
+
+export async function fetchWalletStats(): Promise<WalletStats> {
+  const response = await apiFetch("/wallet/wallets/stats");
+  return safeJsonParse<WalletStats>(response);
+}
+
+export async function fetchTransactions(
+  offset = 0,
+  take = 20,
+): Promise<{ items: Transaction[]; total: number; hasMore: boolean }> {
+  const response = await apiFetch(
+    `/wallet/wallets/transactions?offset=${offset}&take=${take}`,
+  );
+  const data = await safeJsonParse<Transaction[]>(response);
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  return {
+    items: data,
+    total,
+    hasMore: offset + data.length < total,
+  };
+}
+
+export async function createTransfer(payload: {
+  amount: number;
+  currency: string;
+  payeeAccountId: string;
+  remark?: string;
+  pinCode: string;
+}): Promise<void> {
+  await apiFetch("/wallet/wallets/transfers", {
+    method: "POST",
+    body: JSON.stringify({
+      amount: payload.amount,
+      currency: payload.currency,
+      payee_account_id: payload.payeeAccountId,
+      remark: payload.remark,
+      pin_code: payload.pinCode,
+    }),
+  });
+}
+
+export async function createFund(payload: {
+  currency: string;
+  totalAmount: number;
+  splitType: number;
+  amountOfSplits: number;
+  recipientAccountIds: string[];
+  message?: string;
+  pinCode: string;
+}): Promise<Fund> {
+  const response = await apiFetch("/wallet/wallets/funds", {
+    method: "POST",
+    body: JSON.stringify({
+      currency: payload.currency,
+      total_amount: payload.totalAmount,
+      split_type: payload.splitType,
+      amount_of_splits: payload.amountOfSplits,
+      recipient_account_ids: payload.recipientAccountIds,
+      message: payload.message,
+      pin_code: payload.pinCode,
+    }),
+  });
+  return safeJsonParse<Fund>(response);
+}
+
+export async function fetchFunds(
+  offset = 0,
+  take = 20,
+): Promise<{ items: Fund[]; total: number; hasMore: boolean }> {
+  const response = await apiFetch(
+    `/wallet/wallets/funds?offset=${offset}&take=${take}`,
+  );
+  const data = await safeJsonParse<Fund[]>(response);
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  return {
+    items: data,
+    total,
+    hasMore: offset + data.length < total,
+  };
+}
+
+// Badges
+export interface Badge {
+  id: string;
+  type: string;
+  label: string | null;
+  caption: string | null;
+  activatedAt: string | null;
+  createdAt: string;
+  meta: Record<string, unknown>;
+}
+
+export async function fetchMyBadges(): Promise<Badge[]> {
+  const response = await apiFetch("/passport/accounts/me/badges");
+  return safeJsonParse<Badge[]>(response);
+}
+
+export async function activateBadge(badgeId: string): Promise<void> {
+  await apiFetch(`/passport/accounts/me/badges/${badgeId}/activate`, {
+    method: "POST",
+  });
+}
+
+// Notifications
+export interface Notification {
+  id: string;
+  topic: string;
+  title: string;
+  subtitle: string;
+  content: string;
+  link?: string;
+  meta: Record<string, unknown>;
+  viewedAt?: string;
+  createdAt: string;
+}
+
+export async function fetchNotifications(
+  offset = 0,
+  take = 20,
+): Promise<{ items: Notification[]; total: number; hasMore: boolean }> {
+  const response = await apiFetch(
+    `/ring/notifications?offset=${offset}&take=${take}`,
+  );
+  const data = await safeJsonParse<Notification[]>(response);
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  return {
+    items: data,
+    total,
+    hasMore: offset + data.length < total,
+  };
+}
+
+export async function fetchNotificationCount(): Promise<number> {
+  try {
+    const response = await apiFetch("/ring/notifications/count");
+    const data = await response.text();
+    return parseInt(data, 10) || 0;
+  } catch {
+    return 0;
+  }
+}
+
+export async function markNotificationRead(notificationId: string): Promise<void> {
+  await apiFetch(`/ring/notifications/${notificationId}/read`, {
+    method: "POST",
+  });
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+  await apiFetch("/ring/notifications/all/read", {
+    method: "POST",
   });
 }
 
