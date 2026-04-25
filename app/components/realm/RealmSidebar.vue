@@ -225,9 +225,7 @@ const props = defineProps<{
     membership: RealmMember | null
 }>()
 
-const emit = defineEmits<{
-    membershipUpdated: [membership: RealmMember]
-}>()
+
 
 const auth = useAuth()
 
@@ -236,7 +234,6 @@ const boostStatus = ref<RealmBoostStatus | null>(null)
 const leaderboard = ref<RealmBoostLeaderboardEntry[]>([])
 const labels = ref<RealmLabel[]>([])
 const isLoadingBoost = ref(false)
-const isBoosting = ref(false)
 const showCopied = ref(false)
 
 // Computed

@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import type { LivestreamDetail } from '~/types/livestream'
+
 import { fetchLivestream } from '~/utils/api'
 
 const route = useRoute()

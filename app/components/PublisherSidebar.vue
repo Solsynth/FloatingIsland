@@ -106,21 +106,17 @@ function getInitials(name: string): string {
   );
 }
 
-function formatNumber(num: number): string {
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
-  if (num >= 1000) return (num / 1000).toFixed(1) + "K";
-  return num.toString();
-}
-
-function sharePublisher() {
+async function sharePublisher() {
   if (props.publisher?.name) {
-    navigator.share?.({
-      title: displayName.value,
-      url: `${window.location.origin}/${props.publisher.name}`,
-    }) ??
-      navigator.clipboard.writeText(
-        `${window.location.origin}/${props.publisher.name}`,
-      );
+    const url = `${window.location.origin}/${props.publisher.name}`;
+    if (navigator.share) {
+      await navigator.share({
+        title: displayName.value,
+        url,
+      });
+    } else {
+      await navigator.clipboard.writeText(url);
+    }
   }
 }
 </script>

@@ -8,7 +8,6 @@ export interface StoredTokenPair {
 const TOKEN_KEY = "auth_token";
 const TOKEN_PAIR_KEY = "auth_token_pair";
 const TOKEN_EXPIRY_SKEW_MS = 30 * 1000; // 30 seconds
-const TOKEN_REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 let tokenRefreshInFlight: Promise<StoredTokenPair | null> | null = null;
 

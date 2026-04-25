@@ -94,7 +94,6 @@ useHead({
 
 const auth = useAuth()
 const realms = useState<Realm[]>('realms-list', () => [])
-const offset = ref(0)
 const hasMore = ref(true)
 const fetchingMore = ref(false)
 const showCreateModal = ref(false)
@@ -110,8 +109,8 @@ const { data: initialData, status, error } = await useAsyncData(
         }
         try {
             return await fetchRealms()
-        } catch (err: any) {
-            if (err?.message?.includes('401') || err?.message?.includes('Unauthorized')) {
+        } catch (err: unknown) {
+            if ((err as Error)?.message?.includes('401') || (err as Error)?.message?.includes('Unauthorized')) {
                 requiresAuth.value = true
                 return []
             }

@@ -69,7 +69,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const showAll = ref(false);
-const loadedAttachments = ref(new Set<string>());
+
 
 const visibleAttachments = computed(() => {
     if (showAll.value) return props.attachments;
@@ -102,7 +102,5 @@ function getAttachmentUrl(attachment: FileAttachment): string | null {
     return attachment.url || getFileUrl(attachment.id);
 }
 
-function onImageLoad(attachmentId: string) {
-    loadedAttachments.value.add(attachmentId);
-}
+
 </script>

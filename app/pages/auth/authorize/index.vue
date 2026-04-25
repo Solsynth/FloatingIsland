@@ -94,7 +94,6 @@ function getFileUrl(fileId: string): string {
 
 async function loadClientInfo() {
     try {
-        const config = useRuntimeConfig();
         const query = new URLSearchParams(
             route.query as Record<string, string>,
         );

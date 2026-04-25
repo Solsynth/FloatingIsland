@@ -82,11 +82,13 @@
               <div class="text-xs text-base-content/55">
                 {{ formatDate(referencePost.publishedAt) }}
               </div>
+              <!-- eslint-disable vue/no-v-html -->
               <div
                 v-if="referencePost.content"
                 class="prose prose-sm mt-2 max-w-none prose-headings:mb-1 prose-headings:mt-2 prose-p:my-1 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-xs prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-3 prose-blockquote:italic prose-ul:my-1 prose-ol:my-1"
                 v-html="renderedReferenceContent"
               />
+              <!-- eslint-enable vue/no-v-html -->
               <div
                 v-if="referencePost.title || referencePost.description"
                 class="mt-2 space-y-1"
@@ -224,10 +226,12 @@
           <h3 v-if="post.title" class="mb-2 text-lg font-semibold">
             {{ post.title }}
           </h3>
+          <!-- eslint-disable vue/no-v-html -->
           <div
             class="prose prose-sm max-w-none prose-headings:mb-2 prose-headings:mt-4 prose-p:my-1.5 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-sm prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-ul:my-1.5 prose-ol:my-1.5"
             v-html="renderedContent"
           />
+          <!-- eslint-enable vue/no-v-html -->
           <div
             v-if="post.isTruncated"
             class="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-base-300 bg-base-200/40 px-2 py-1 text-xs text-base-content/75 italic"

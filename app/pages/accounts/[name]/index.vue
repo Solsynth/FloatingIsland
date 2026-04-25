@@ -155,11 +155,13 @@
                             <h2 class="text-sm font-semibold text-base-content/70 mb-2">
                                 Bio
                             </h2>
+                            <!-- eslint-disable vue/no-v-html -->
                             <div
                                 v-if="bioHtml"
                                 class="prose prose-sm max-w-none prose-headings:mb-2 prose-headings:mt-4 prose-p:my-1.5 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-sm prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-ul:my-1.5 prose-ol:my-1.5"
                                 v-html="bioHtml"
                             />
+                            <!-- eslint-enable vue/no-v-html -->
                             <p v-else class="text-sm text-base-content/60">No bio yet.</p>
                         </div>
                     </div>
@@ -543,10 +545,14 @@ async function sendMessage() {
     }
 }
 
-function shareProfile() {
+async function shareProfile() {
     if (account.value?.name) {
-        navigator.share?.({ title: displayName.value, url: `https://solian.app/@${account.value.name}` })
-            ?? navigator.clipboard.writeText(`https://solian.app/@${account.value.name}`);
+        const url = `https://solian.app/@${account.value.name}`;
+        if (navigator.share) {
+            await navigator.share({ title: displayName.value, url });
+        } else {
+            await navigator.clipboard.writeText(url);
+        }
     }
 }
 

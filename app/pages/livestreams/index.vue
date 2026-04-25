@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import type { LivestreamDetail } from '~/types/livestream'
+
 import { fetchLivestreams } from '~/utils/api'
 
 useHead({

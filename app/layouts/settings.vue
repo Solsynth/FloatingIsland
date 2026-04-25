@@ -93,7 +93,6 @@ import {
 const progress = ref(0);
 const progressVisible = ref(false);
 const { user } = useAuth();
-const route = useRoute();
 
 const menuItems = [
     { to: "/accounts/me/settings", label: "Profile", icon: IconUser },

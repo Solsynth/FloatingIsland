@@ -115,9 +115,9 @@ const invoices = ref([
     // TODO: Fetch from API
 ]);
 
-async function removePaymentMethod(id: string) {
+async function removePaymentMethod(_id: string) {
     // TODO: Implement API
-    paymentMethods.value = paymentMethods.value.filter((m) => m.id !== id);
+    paymentMethods.value = paymentMethods.value.filter((m) => m.id !== _id);
 }
 
 async function addPaymentMethod() {
@@ -125,7 +125,7 @@ async function addPaymentMethod() {
     alert("Payment method addition coming soon");
 }
 
-async function downloadInvoice(id: string) {
+async function downloadInvoice(_id: string) {
     // TODO: Implement API
     alert("Invoice download coming soon");
 }

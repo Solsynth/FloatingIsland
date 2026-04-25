@@ -15,7 +15,6 @@ import {
 } from "~/utils/api";
 import {
   readTokenPair,
-  saveTokenPair,
   clearTokenPair,
   getValidToken,
   setTokenFromResponse,

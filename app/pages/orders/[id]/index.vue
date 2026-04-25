@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import type { WalletOrder } from '~/types/auth'
+
 import { getOrder, payOrder } from '~/utils/api'
 
 const route = useRoute()

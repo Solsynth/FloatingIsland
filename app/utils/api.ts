@@ -62,12 +62,6 @@ async function getAuthToken(): Promise<string | null> {
   return getValidToken(API_BASE_URL);
 }
 
-function getAuthTokenSync(): string | null {
-  if (import.meta.server) return null;
-  const tokenPair = readTokenPair();
-  return tokenPair?.token ?? null;
-}
-
 interface ApiFetchOptions extends RequestInit {
   skipAuth?: boolean;
   retryCount?: number;

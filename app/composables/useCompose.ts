@@ -1,4 +1,4 @@
-import type { Post, FileAttachment, Publisher, Tag, Category } from '~/types/post'
+import type { Post, FileAttachment, Publisher, Category } from '~/types/post'
 
 export interface ComposeAttachment {
   id: string
@@ -137,10 +137,11 @@ export function useCompose() {
     saveDraftsToStorage()
   }
 
-  function deleteDraft(id: string) {
-    delete drafts.value[id]
+function deleteDraft(id: string) {
+    const { [id]: _, ...rest } = drafts.value
+    drafts.value = rest
     saveDraftsToStorage()
-  }
+}
 
   function loadDraft(id: string): ComposeDraft | undefined {
     return drafts.value[id]

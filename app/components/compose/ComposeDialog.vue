@@ -519,7 +519,6 @@ const {
     forwardingTo,
     originalPost,
     hasContent,
-    addAttachment,
     addAttachments,
     removeAttachment,
     moveAttachment,
@@ -748,7 +747,14 @@ async function handleSubmit() {
     }
 }
 
-async function uploadAttachments(): Promise<any[]> {
+interface UploadAttachment {
+    file: File;
+    cloudFile?: FileAttachment;
+    uploaded?: boolean;
+    progress?: number;
+}
+
+async function uploadAttachments(): Promise<UploadAttachment[]> {
     const results = [];
 
     for (let i = 0; i < attachments.value.length; i++) {

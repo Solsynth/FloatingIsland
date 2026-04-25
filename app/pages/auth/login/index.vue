@@ -284,7 +284,7 @@ onMounted(async () => {
 
     if (challengeId) {
         try {
-            const challengeData = await loadChallenge(challengeId);
+            await loadChallenge(challengeId);
             const factors = await loadFactors(challengeId);
             if (factors.length > 0) {
                 if (requestedStep === "check" && factors.length === 1) {
