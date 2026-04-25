@@ -1,116 +1,85 @@
 <template>
-    <div class="max-w-2xl mx-auto">
+    <div class="max-w-3xl mx-auto space-y-6 min-w-0">
         <h1 class="text-2xl font-bold mb-6">Appearance Settings</h1>
 
         <!-- Theme -->
-        <div class="card mb-6">
-            <div class="card-body gap-4">
-                <h2 class="text-sm font-semibold text-base-content/70">Theme</h2>
+        <div class="card bg-base-100 shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title text-lg mb-4">Theme</h2>
 
                 <div class="grid grid-cols-3 gap-3">
                     <button
-                        class="p-4 rounded-xl border-2 transition-all"
+                        class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2"
                         :class="theme === 'light' ? 'border-primary bg-primary/10' : 'border-base-300 hover:border-base-400'"
-                        @click="theme = 'light'"
+                        @click="setTheme('light')"
                     >
-                        <IconSun class="w-6 h-6 mx-auto mb-2" />
+                        <IconSun class="w-6 h-6" />
                         <span class="text-sm">Light</span>
                     </button>
                     <button
-                        class="p-4 rounded-xl border-2 transition-all"
+                        class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2"
                         :class="theme === 'dark' ? 'border-primary bg-primary/10' : 'border-base-300 hover:border-base-400'"
-                        @click="theme = 'dark'"
+                        @click="setTheme('dark')"
                     >
-                        <IconMoon class="w-6 h-6 mx-auto mb-2" />
+                        <IconMoon class="w-6 h-6" />
                         <span class="text-sm">Dark</span>
                     </button>
                     <button
-                        class="p-4 rounded-xl border-2 transition-all"
+                        class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2"
                         :class="theme === 'system' ? 'border-primary bg-primary/10' : 'border-base-300 hover:border-base-400'"
-                        @click="theme = 'system'"
+                        @click="setTheme('system')"
                     >
-                        <IconMonitor class="w-6 h-6 mx-auto mb-2" />
+                        <IconMonitor class="w-6 h-6" />
                         <span class="text-sm">System</span>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Accent Color -->
-        <div class="card mb-6">
-            <div class="card-body gap-4">
-                <h2 class="text-sm font-semibold text-base-content/70">Accent Color</h2>
-
-                <div class="flex flex-wrap gap-3">
-                    <button
-                        v-for="color in accentColors"
-                        :key="color.value"
-                        class="w-10 h-10 rounded-full border-2 transition-all"
-                        :class="accentColor === color.value ? 'border-white ring-2 ring-primary scale-110' : 'border-transparent hover:scale-105'"
-                        :style="{ backgroundColor: color.hex }"
-                        :title="color.label"
-                        @click="accentColor = color.value"
-                    />
-                </div>
-            </div>
-        </div>
-
         <!-- Font Size -->
-        <div class="card mb-6">
-            <div class="card-body gap-4">
-                <h2 class="text-sm font-semibold text-base-content/70">Font Size</h2>
+        <div class="card bg-base-100 shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title text-lg mb-4">Font Size</h2>
 
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Base Font Size</span>
-                    </label>
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Base Font Size</legend>
                     <input
                         v-model="fontSize"
                         type="range"
                         min="14"
                         max="20"
-                        class="range range-primary"
+                        class="range range-primary w-full"
+                        @change="updateFontSize"
                     >
-                    <div class="flex justify-between text-xs text-base-content/60 mt-1">
+                    <p class="label flex justify-between">
                         <span>Small</span>
                         <span>{{ fontSize }}px</span>
                         <span>Large</span>
-                    </div>
-                </div>
+                    </p>
+                </fieldset>
             </div>
         </div>
 
         <!-- Display Options -->
-        <div class="card mb-6">
-            <div class="card-body gap-4">
-                <h2 class="text-sm font-semibold text-base-content/70">Display Options</h2>
+        <div class="card bg-base-100 shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title text-lg mb-4">Display Options</h2>
 
-                <div class="form-control">
-                    <label class="label cursor-pointer justify-start gap-4">
-                        <input
-                            v-model="display.compactMode"
-                            type="checkbox"
-                            class="toggle toggle-primary"
-                        >
-                        <div>
-                            <span class="label-text font-medium">Compact Mode</span>
-                            <p class="text-sm text-base-content/60">Reduce padding and spacing</p>
-                        </div>
-                    </label>
-                </div>
-
-                <div class="form-control">
-                    <label class="label cursor-pointer justify-start gap-4">
-                        <input
-                            v-model="display.reducedMotion"
-                            type="checkbox"
-                            class="toggle toggle-primary"
-                        >
-                        <div>
-                            <span class="label-text font-medium">Reduced Motion</span>
-                            <p class="text-sm text-base-content/60">Minimize animations</p>
-                        </div>
-                    </label>
+                <div class="space-y-4">
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-4">
+                            <input
+                                v-model="display.reducedMotion"
+                                type="checkbox"
+                                class="toggle toggle-primary"
+                                @change="updateDisplay"
+                            >
+                            <div>
+                                <span class="label-text font-medium">Reduced Motion</span>
+                                <p class="text-sm text-base-content/60">Minimize animations</p>
+                            </div>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -122,7 +91,7 @@
                 @click="saveAppearance"
             >
                 <IconLoader v-if="isSaving" class="w-4 h-4 animate-spin" />
-                <IconCheck v-else class="w-4 h-4" />
+                <IconSave v-else class="w-4 h-4" />
                 Save Preferences
             </button>
         </div>
@@ -130,34 +99,77 @@
 </template>
 
 <script setup lang="ts">
-import { IconSun, IconMoon, IconMonitor, IconLoader, IconCheck } from "#components";
+import { IconSun, IconMoon, IconMonitor, IconLoader, IconSave } from "#components";
 
 const isSaving = ref(false);
 
 const theme = ref("system");
-const accentColor = ref("blue");
 const fontSize = ref(16);
 
 const display = reactive({
-    compactMode: false,
     reducedMotion: false,
 });
 
-const accentColors = [
-    { value: "blue", label: "Blue", hex: "#3b82f6" },
-    { value: "purple", label: "Purple", hex: "#8b5cf6" },
-    { value: "pink", label: "Pink", hex: "#ec4899" },
-    { value: "red", label: "Red", hex: "#ef4444" },
-    { value: "orange", label: "Orange", hex: "#f97316" },
-    { value: "green", label: "Green", hex: "#22c55e" },
-    { value: "teal", label: "Teal", hex: "#14b8a6" },
-];
+// Load settings from localStorage on mount
+onMounted(() => {
+    const savedTheme = localStorage.getItem("theme") || "system";
+    const savedFontSize = localStorage.getItem("font-size") || "16";
+    const savedDisplay = localStorage.getItem("display-options");
+
+    theme.value = savedTheme;
+    fontSize.value = parseInt(savedFontSize, 10);
+
+    if (savedDisplay) {
+        try {
+            const parsed = JSON.parse(savedDisplay);
+            display.reducedMotion = parsed.reducedMotion || false;
+        } catch {
+            // Ignore parse errors
+        }
+    }
+
+    applyTheme(savedTheme);
+});
+
+function setTheme(newTheme: string) {
+    theme.value = newTheme;
+    applyTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+}
+
+function applyTheme(newTheme: string) {
+    const root = document.documentElement;
+    if (newTheme === "system") {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        root.setAttribute("data-theme", prefersDark ? "dark" : "light");
+    } else {
+        root.setAttribute("data-theme", newTheme);
+    }
+}
+
+function updateFontSize() {
+    localStorage.setItem("font-size", String(fontSize.value));
+    document.documentElement.style.fontSize = `${fontSize.value}px`;
+}
+
+function updateDisplay() {
+    localStorage.setItem("display-options", JSON.stringify(display));
+    if (display.reducedMotion) {
+        document.documentElement.classList.add("reduce-motion");
+    } else {
+        document.documentElement.classList.remove("reduce-motion");
+    }
+}
 
 async function saveAppearance() {
     isSaving.value = true;
     try {
-        // TODO: Implement API
-        await new Promise((r) => setTimeout(r, 1000));
+        // Save to localStorage
+        localStorage.setItem("theme", theme.value);
+        localStorage.setItem("font-size", String(fontSize.value));
+        localStorage.setItem("display-options", JSON.stringify(display));
+
+        await new Promise(r => setTimeout(r, 500));
         alert("Appearance settings saved");
     } finally {
         isSaving.value = false;

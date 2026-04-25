@@ -1,54 +1,215 @@
 <template>
-  <div class="min-h-screen bg-base-200 flex items-center justify-center px-4">
-    <div class="card bg-base-100 shadow-xl max-w-md w-full">
-      <div class="card-body">
-        <ConfuseSpinner v-if="spellStatus === 'pending'" message="Processing spell..." />
+	<div class="min-h-screen bg-base-200 flex items-center justify-center px-4 py-8">
+		<div class="w-full max-w-4xl rounded-3xl shadow-2xl backdrop-blur-xl overflow-hidden">
+			<div class="grid md:grid-cols-[0.95fr_1.05fr]">
+				<!-- Left Column: Branding -->
+				<section
+					class="flex flex-col justify-between gap-4 rounded-t-3xl bg-base-100/50 p-6 backdrop-blur-2xl md:rounded-l-3xl md:rounded-tr-none md:p-8"
+				>
+					<div class="flex flex-col gap-4">
+						<div class="w-12 h-12 rounded-xl bg-warning/20 flex items-center justify-center">
+							<IconWand2 class="w-6 h-6 text-warning" />
+						</div>
+						<div>
+							<p class="text-xs font-semibold tracking-[0.2em] text-base-content/70 uppercase">
+								Magic Spell
+							</p>
+						</div>
+						<div>
+							<h1 class="text-3xl leading-tight font-black">
+								{{ spell ? (spellTypes[spell.type] ?? 'Unknown Spell') : 'Magic Spell' }}
+							</h1>
+							<p class="text-sm text-base-content/70 mt-2">
+								Review the spell details before applying it to your account.
+							</p>
+						</div>
+					</div>
 
-        <template v-else-if="spell">
-          <h2 class="card-title text-xl mb-2">Spell Activated</h2>
-          <div class="space-y-2 text-sm">
-            <p><strong>Type:</strong> {{ spell.type }}</p>
-            <p><strong>Account:</strong> @{{ spell.account.name }}</p>
-            <p><strong>Applied:</strong> {{ new Date(spell.affectedAt).toLocaleString() }}</p>
-            <p v-if="spell.expiredAt"><strong>Expires:</strong> {{ new Date(spell.expiredAt).toLocaleString() }}</p>
-          </div>
-          <button class="btn btn-primary mt-4" @click="navigateTo('/')">Done</button>
-        </template>
 
-        <template v-else-if="applySuccess">
-          <div class="text-center">
-            <IconWand2 class="w-12 h-12 text-primary mx-auto mb-4" />
-            <h2 class="text-xl font-bold mb-2">Spell Applied!</h2>
-            <p class="text-base-content/60">Your spell has been successfully applied.</p>
-            <button class="btn btn-primary mt-4" @click="navigateTo('/')">Done</button>
-          </div>
-        </template>
+				</section>
 
-        <div v-else class="alert alert-error">
-          <IconAlertCircle class="w-4 h-4" />
-          <span>Invalid spell</span>
-        </div>
-      </div>
-    </div>
-  </div>
+				<!-- Right Column: Spell Content -->
+				<section class="rounded-b-2xl bg-base-100/90 p-6 md:rounded-r-2xl md:rounded-bl-none md:p-8 min-h-96 flex flex-col justify-between">
+					<!-- Loading State -->
+					<div v-if="loading" class="flex flex-col items-center justify-center py-16">
+						<ConfuseSpinner message="Loading spell..." />
+					</div>
+
+					<!-- Error State -->
+					<div v-else-if="error" class="flex flex-col items-center justify-center py-8 text-center">
+						<div class="w-16 h-16 rounded-full bg-error/20 flex items-center justify-center mb-4">
+							<IconAlertCircle class="w-8 h-8 text-error" />
+						</div>
+						<h2 class="text-xl font-bold">Spell Error</h2>
+						<p class="text-base-content/60 text-sm mt-1">{{ error }}</p>
+					</div>
+
+					<!-- Success State -->
+					<div v-else-if="done" class="flex flex-col items-center justify-center py-8 text-center">
+						<div class="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mb-4">
+							<IconCheck class="w-8 h-8 text-success" />
+						</div>
+						<h2 class="text-xl font-bold">Spell Applied!</h2>
+						<p class="text-base-content/60 text-sm mt-1">
+							Your spell has been successfully applied. You can close this tab now.
+						</p>
+						<button class="btn btn-primary mt-6" @click="navigateTo('/')">
+							<IconHome class="w-4 h-4" />
+							Go Home
+						</button>
+					</div>
+
+					<!-- Spell Details & Confirmation -->
+					<template v-else-if="spell">
+						<div>
+							<!-- Spell Info -->
+							<div class="space-y-4 text-sm">
+								<div class="flex items-center gap-3">
+									<IconUser class="w-5 h-5 text-base-content/60" />
+									<div>
+										<p class="text-xs tracking-wide text-base-content/60 uppercase">Account</p>
+										<p class="font-semibold">@{{ spell.account.name }}</p>
+									</div>
+								</div>
+
+								<div class="flex items-center gap-3">
+									<IconClock class="w-5 h-5 text-base-content/60" />
+									<div>
+										<p class="text-xs tracking-wide text-base-content/60 uppercase">Available at</p>
+										<p class="font-semibold">
+											{{ new Date(spell.createdAt ?? spell.affectedAt).toLocaleString() }}
+										</p>
+									</div>
+								</div>
+
+								<div v-if="spell.expiredAt" class="flex items-center gap-3">
+									<IconCalendar class="w-5 h-5 text-base-content/60" />
+									<div>
+										<p class="text-xs tracking-wide text-base-content/60 uppercase">Expires</p>
+										<p class="font-semibold">{{ new Date(spell.expiredAt).toLocaleString() }}</p>
+									</div>
+								</div>
+							</div>
+
+							<!-- Password Input (for reset password spells) -->
+							<div v-if="spell.type === 3" class="mt-6">
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend">New Password</legend>
+									<input
+										v-model="newPassword"
+										type="password"
+										class="input input-bordered w-full"
+										placeholder="Enter your new password"
+									>
+									<p class="fieldset-label text-xs text-base-content/50">
+										This spell will reset your account password
+									</p>
+								</fieldset>
+							</div>
+						</div>
+
+						<!-- Action Buttons -->
+						<div class="mt-6">
+							<button
+								class="btn btn-primary w-full"
+								:disabled="submitting || (spell.type === 3 && !newPassword)"
+								@click="apply"
+							>
+								<IconLoader
+									v-if="submitting"
+									class="w-4 h-4 animate-spin"
+								/>
+								<IconCheck v-else class="w-4 h-4" />
+								Apply Spell
+							</button>
+						</div>
+					</template>
+
+					<!-- Invalid Spell State -->
+					<div v-else class="flex flex-col items-center justify-center py-8 text-center">
+						<div class="w-16 h-16 rounded-full bg-error/20 flex items-center justify-center mb-4">
+							<IconAlertCircle class="w-8 h-8 text-error" />
+						</div>
+						<h2 class="text-xl font-bold">Invalid Spell</h2>
+						<p class="text-base-content/60 text-sm mt-1">
+							This spell link is invalid or has expired.
+						</p>
+					</div>
+				</section>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script setup lang="ts">
-import { getSpell } from '~/utils/api'
+import {
+	IconWand2,
+	IconAlertCircle,
+	IconCheck,
+	IconUser,
+	IconClock,
+	IconCalendar,
+	IconLoader,
+	IconHome,
+} from '#components';
+import { getSpell, applySpell, type SpellInfo } from '~/utils/api';
 
-definePageMeta({ layout: false })
+definePageMeta({ layout: false });
 
-const route = useRoute()
-const spellWord = computed(() => (route.params.slug as string[])?.join('/') || '')
+const route = useRoute();
+const spellWord = computed(() => (route.params.slug as string[])?.join('/') || '');
 
-const { data: spell, status: spellStatus } = await useAsyncData(
-  () => `spell-${spellWord.value}`,
-  () => getSpell(spellWord.value),
-  {
-    watch: [spellWord],
-    default: () => null,
-  },
-)
+const spellTypes = [
+	'Account Activation',
+	'Account Deactivation',
+	'Account Deletion',
+	'Reset Password',
+	'Contact Method Verification',
+];
 
-const applySuccess = computed(() => spellStatus.value !== 'pending' && !spell.value)
+const spell = ref<SpellInfo | null>(null);
+const loading = ref(true);
+const submitting = ref(false);
+const error = ref<string | null>(null);
+const done = ref(false);
+const newPassword = ref('');
+
+async function fetchSpell() {
+	if (!spellWord.value) {
+		error.value = 'Invalid spell word';
+		loading.value = false;
+		return;
+	}
+
+	loading.value = true;
+	error.value = null;
+
+	try {
+		spell.value = await getSpell(spellWord.value);
+	} catch (err) {
+		error.value = err instanceof Error ? err.message : 'Failed to load spell';
+	} finally {
+		loading.value = false;
+	}
+}
+
+async function apply() {
+	if (!spell.value || submitting.value || !spellWord.value) return;
+
+	submitting.value = true;
+	error.value = null;
+
+	try {
+		await applySpell(spellWord.value, spell.value.type === 3 ? newPassword.value : undefined);
+		done.value = true;
+	} catch (err) {
+		error.value = err instanceof Error ? err.message : 'Failed to apply spell';
+	} finally {
+		submitting.value = false;
+	}
+}
+
+onMounted(() => {
+	fetchSpell();
+});
 </script>

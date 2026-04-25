@@ -13,9 +13,9 @@ import {
     clearTokenPair,
     setTokenFromResponse,
 } from "~/utils/token";
-import FingerprintJS from "@fingerprintjs/fingerprintjs";
+import FingerprintJS, { type Agent } from "@fingerprintjs/fingerprintjs";
 
-let fpPromise: Promise<FingerprintJS> | null = null;
+let fpPromise: Promise<Agent> | null = null;
 
 async function getFingerprint(): Promise<string> {
     if (!fpPromise) {

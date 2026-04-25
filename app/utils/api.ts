@@ -3,10 +3,17 @@ import type {
   SnAuthFactor,
   SnAuthToken,
   SnAccount,
+  SnContactMethod,
+  SnAccountConnection,
+  SnAuthDevice,
+  SnAuthSession,
   CaptchaConfig,
   WalletOrder,
   SpellInfo,
 } from "~/types/auth";
+
+// Re-export types for convenience
+export type { SpellInfo };
 import type { Publisher, Post } from "~/types/post";
 import type {
   Realm,
@@ -1289,4 +1296,208 @@ export async function fetchRealmChatRooms(
     `/passport/realms/${encodeURIComponent(slug)}/chat`,
   );
   return safeJsonParse<RealmChatRoom[]>(response);
+}
+
+// Settings API - Account Management
+export async function updateAccount(payload: {
+  name?: string;
+  nick?: string;
+  language?: string;
+  region?: string;
+}): Promise<SnAccount> {
+  const response = await apiFetch("/padlock/accounts/me", {
+    method: "PATCH",
+    body: JSON.stringify(camelToSnake(payload)),
+  });
+  return safeJsonParse<SnAccount>(response);
+}
+
+export async function updateProfile(payload: {
+  bio?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  gender?: string;
+  pronouns?: string;
+  location?: string;
+  timeZone?: string;
+  birthday?: string | null;
+  pictureId?: string;
+  backgroundId?: string;
+}): Promise<SnAccount> {
+  const response = await apiFetch("/passport/accounts/me/profile", {
+    method: "PATCH",
+    body: JSON.stringify(camelToSnake(payload)),
+  });
+  return safeJsonParse<SnAccount>(response);
+}
+
+export async function deleteAccount(): Promise<void> {
+  await apiFetch("/passport/accounts/me", {
+    method: "DELETE",
+  });
+}
+
+// Settings API - Auth Factors
+export async function fetchAuthFactors(): Promise<SnAuthFactor[]> {
+  const response = await apiFetch("/padlock/factors");
+  return safeJsonParse<SnAuthFactor[]>(response);
+}
+
+export async function createAuthFactor(payload: {
+  type: number;
+  data?: Record<string, string>;
+}): Promise<SnAuthFactor> {
+  const response = await apiFetch("/padlock/factors", {
+    method: "POST",
+    body: JSON.stringify(camelToSnake(payload)),
+  });
+  return safeJsonParse<SnAuthFactor>(response);
+}
+
+export async function deleteAuthFactor(factorId: string): Promise<void> {
+  await apiFetch(`/padlock/factors/${factorId}`, {
+    method: "DELETE",
+  });
+}
+
+export async function enableAuthFactor(
+  factorId: string,
+  verificationCode?: string,
+): Promise<SnAuthFactor> {
+  const response = await apiFetch(`/padlock/factors/${factorId}/enable`, {
+    method: "POST",
+    body: verificationCode ? JSON.stringify(verificationCode) : undefined,
+  });
+  return safeJsonParse<SnAuthFactor>(response);
+}
+
+export async function disableAuthFactor(factorId: string): Promise<void> {
+  await apiFetch(`/padlock/factors/${factorId}/disable`, {
+    method: "POST",
+  });
+}
+
+// Settings API - Contact Methods
+export async function fetchContactMethods(): Promise<SnContactMethod[]> {
+  const response = await apiFetch("/padlock/contacts");
+  return safeJsonParse<SnContactMethod[]>(response);
+}
+
+export async function createContactMethod(payload: {
+  type: number;
+  content: string;
+}): Promise<SnContactMethod> {
+  const response = await apiFetch("/padlock/contacts", {
+    method: "POST",
+    body: JSON.stringify(camelToSnake(payload)),
+  });
+  return safeJsonParse<SnContactMethod>(response);
+}
+
+export async function deleteContactMethod(contactId: string): Promise<void> {
+  await apiFetch(`/padlock/contacts/${contactId}`, {
+    method: "DELETE",
+  });
+}
+
+export async function verifyContactMethod(contactId: string): Promise<void> {
+  await apiFetch(`/padlock/contacts/${contactId}/verify`, {
+    method: "POST",
+  });
+}
+
+export async function setPrimaryContactMethod(contactId: string): Promise<void> {
+  await apiFetch(`/padlock/contacts/${contactId}/primary`, {
+    method: "POST",
+  });
+}
+
+export async function makeContactPublic(contactId: string): Promise<void> {
+  await apiFetch(`/padlock/contacts/${contactId}/public`, {
+    method: "POST",
+  });
+}
+
+export async function makeContactPrivate(contactId: string): Promise<void> {
+  await apiFetch(`/padlock/contacts/${contactId}/public`, {
+    method: "DELETE",
+  });
+}
+
+// Settings API - Account Connections
+export async function fetchAccountConnections(): Promise<SnAccountConnection[]> {
+  const response = await apiFetch("/padlock/connections");
+  return safeJsonParse<SnAccountConnection[]>(response);
+}
+
+export async function deleteAccountConnection(connectionId: string): Promise<void> {
+  await apiFetch(`/padlock/connections/${connectionId}`, {
+    method: "DELETE",
+  });
+}
+
+export function getConnectionAuthUrl(provider: string): string {
+  return `${API_BASE_URL}/padlock/auth/login/${provider.toLowerCase()}`;
+}
+
+// Settings API - Auth Devices & Sessions
+export async function fetchAuthDevices(): Promise<SnAuthDevice[]> {
+  const response = await apiFetch("/padlock/devices");
+  const raw = await safeJsonParse<{ sessions: SnAuthSession[] }[]>(response);
+  
+  return raw.map((item) => {
+    const sessions = item.sessions ?? [];
+    const client = sessions.find(s => s.client)?.client;
+    const isCurrent = sessions.some((s) => s.isCurrent);
+    
+    return {
+      deviceId: client?.deviceId ?? sessions[0]?.clientId ?? "unknown",
+      deviceName: client?.deviceName ?? "Unknown Device",
+      deviceLabel: client?.deviceLabel ?? undefined,
+      platform: client?.platform ?? 0,
+      isCurrent,
+      sessions,
+    };
+  });
+}
+
+export async function fetchAuthSessions(type?: number): Promise<SnAuthSession[]> {
+  const params = new URLSearchParams();
+  if (type !== undefined) params.set("type", String(type));
+  params.set("include_children", "false");
+  const response = await apiFetch(`/padlock/sessions?${params.toString()}`);
+  const data = await safeJsonParse<SnAuthSession[]>(response);
+  return Array.isArray(data) ? data : [];
+}
+
+export async function fetchSessionChildren(parentId: string): Promise<SnAuthSession[]> {
+  const response = await apiFetch(`/padlock/sessions/${parentId}/children`);
+  const data = await safeJsonParse<{ items: SnAuthSession[] }>(response);
+  return data.items;
+}
+
+export async function revokeDevice(deviceId: string): Promise<void> {
+  await apiFetch(`/padlock/devices/${deviceId}`, {
+    method: "DELETE",
+  });
+}
+
+export async function revokeSession(sessionId: string): Promise<void> {
+  await apiFetch(`/padlock/sessions/${sessionId}`, {
+    method: "DELETE",
+  });
+}
+
+export async function revokeAllOtherSessions(): Promise<void> {
+  await apiFetch("/padlock/sessions/others", {
+    method: "DELETE",
+  });
+}
+
+export async function updateDeviceLabel(deviceId: string, label: string): Promise<void> {
+  await apiFetch(`/padlock/devices/${deviceId}/label`, {
+    method: "PATCH",
+    body: JSON.stringify({ label }),
+  });
 }

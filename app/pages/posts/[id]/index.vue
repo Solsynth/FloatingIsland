@@ -1,8 +1,8 @@
 <template>
     <NuxtLayout name="app">
-        <div class="grid xl:grid-cols-[1fr_20rem]">
+        <div class="grid xl:grid-cols-[1fr_20rem] min-w-0">
             <!-- Main Content -->
-            <div>
+            <div class="min-w-0">
                 <ConfuseSpinner
                     v-if="postStatus === 'pending'"
                     message="Loading post..."

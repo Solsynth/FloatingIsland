@@ -32,7 +32,7 @@
 				</header>
 
 				<!-- Mobile Main Content -->
-				<main class="flex-1 px-2 py-3 pb-20">
+				<main class="flex-1 px-4 py-3 pb-20">
 					<slot />
 				</main>
 
@@ -42,9 +42,9 @@
 				>
 					<div class="flex items-center justify-around h-16">
 						<NuxtLink
-							to="/explore"
+							to="/"
 							class="flex flex-col items-center gap-0.5 p-2 text-base-content/60 hover:text-primary"
-							:class="{ 'text-primary': $route.path.startsWith('/explore') }"
+							:class="{ 'text-primary': $route.path === '/' }"
 						>
 							<IconSearch class="w-5 h-5" />
 							<span class="text-xs">Explore</span>
@@ -82,7 +82,7 @@
 									alt="Account Picture"
 									:src="
                                         user.profile.picture.url ||
-                                        getFileUrl(user.profile.picture.id)
+                                        getFileUrl(user.profile.picture.id)!
                                     "
 									class="w-full h-full object-cover"
 								>

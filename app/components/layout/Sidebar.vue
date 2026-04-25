@@ -125,7 +125,7 @@ const {
 } = useAuth();
 
 const navItems = [
-    { icon: IconCompass, label: "Explore", href: "/explore" },
+    { icon: IconCompass, label: "Explore", href: "/" },
     { icon: IconBuilding, label: "Realms", href: "/realms" },
 ];
 

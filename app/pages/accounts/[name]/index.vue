@@ -26,7 +26,7 @@
         </div>
 
         <!-- Account Profile -->
-        <div v-else-if="account" class="mx-auto max-w-5xl">
+        <div v-else-if="account" class="mx-auto max-w-5xl min-w-0">
             <!-- Header Section -->
             <section class="relative overflow-hidden px-4 pt-4 lg:px-6">
                 <div
@@ -61,7 +61,7 @@
                         </div>
                     </div>
                     <div class="min-w-0 flex-1 pt-8">
-                        <div class="flex flex-wrap items-center gap-2 pt-18">
+                        <div class="flex flex-wrap items-center gap-2 min-w-0">
                             <h1
                                 class="truncate text-2xl font-black sm:text-3xl"
                             >
@@ -159,9 +159,9 @@
             </section>
 
             <!-- Content Grid -->
-            <div class="grid gap-4 px-4 py-4 lg:px-6 lg:grid-cols-3">
+            <div class="grid gap-4 px-4 py-4 lg:px-6 lg:grid-cols-3 min-w-0">
                 <!-- Left Column - Main Content -->
-                <div class="space-y-4 lg:col-span-2">
+                <div class="space-y-4 lg:col-span-2 min-w-0">
                     <!-- Bio Section -->
                     <div class="card">
                         <div class="card-body p-4">
@@ -173,7 +173,7 @@
                             <!-- eslint-disable vue/no-v-html -->
                             <div
                                 v-if="bioHtml"
-                                class="prose prose-sm max-w-none prose-headings:mb-2 prose-headings:mt-4 prose-p:my-1.5 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-sm prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-ul:my-1.5 prose-ol:my-1.5"
+                                class="prose prose-sm max-w-none break-words prose-headings:mb-2 prose-headings:mt-4 prose-p:my-1.5 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-a:break-all prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-sm prose-pre:overflow-x-auto prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-ul:my-1.5 prose-ol:my-1.5"
                                 v-html="bioHtml"
                             />
                             <!-- eslint-enable vue/no-v-html -->

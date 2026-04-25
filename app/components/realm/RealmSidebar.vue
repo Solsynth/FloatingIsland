@@ -3,7 +3,7 @@
         <!-- Mobile: Horizontal scrollable cards -->
         <div class="lg:hidden flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
             <!-- Compact Boost Card -->
-            <div class="card bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20 shrink-0 w-40">
+            <div class="card bg-linear-to-br from-primary/10 to-secondary/10 border border-primary/20 shrink-0 w-40">
                 <div class="card-body p-3">
                     <div class="flex items-center gap-1.5 mb-2">
                         <IconRocket class="w-4 h-4 text-primary" />
@@ -32,7 +32,7 @@
         <!-- Desktop: Full sidebar -->
         <div class="hidden lg:block space-y-4">
             <!-- Boost Status Card -->
-            <div class="card bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
+            <div class="card bg-linear-to-br from-primary/10 to-secondary/10 border border-primary/20">
                 <div class="card-body p-4">
                     <div class="flex items-center gap-2 mb-3">
                         <IconRocket class="w-5 h-5 text-primary" />

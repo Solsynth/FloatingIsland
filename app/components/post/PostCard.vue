@@ -68,7 +68,7 @@
               />
             </div>
             <div class="min-w-0 pb-2">
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 min-w-0">
                 <span class="truncate text-sm font-semibold">{{
                   getDisplayName(referencePost.publisher)
                 }}</span>
@@ -85,7 +85,7 @@
               <!-- eslint-disable vue/no-v-html -->
               <div
                 v-if="referencePost.content"
-                class="prose prose-sm mt-2 max-w-none prose-headings:mb-1 prose-headings:mt-2 prose-p:my-1 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-xs prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-3 prose-blockquote:italic prose-ul:my-1 prose-ol:my-1"
+                class="prose prose-sm mt-2 max-w-none break-words prose-headings:mb-1 prose-headings:mt-2 prose-p:my-1 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-a:break-all prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-xs prose-pre:overflow-x-auto prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-3 prose-blockquote:italic prose-ul:my-1 prose-ol:my-1"
                 v-html="renderedReferenceContent"
               />
               <!-- eslint-enable vue/no-v-html -->
@@ -161,18 +161,18 @@
               </div>
             </div>
 
-            <div class="flex flex-col items-start">
-              <div class="flex items-center gap-1.5">
-                <span class="text-base leading-tight font-semibold">
+            <div class="flex flex-col items-start min-w-0">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="text-base leading-tight font-semibold truncate">
                   {{ getDisplayName(post.publisher) }}
                 </span>
                 <IconBadgeCheck
                   v-if="post.publisher?.verification"
-                  class="h-4 w-4 text-primary"
+                  class="h-4 w-4 text-primary shrink-0"
                 />
                 <span
                   v-if="post.publisher?.name"
-                  class="text-sm text-base-content/50"
+                  class="text-sm text-base-content/50 truncate"
                 >
                   @{{ post.publisher.name }}
                 </span>
@@ -223,12 +223,12 @@
 
         <!-- Content -->
         <div class="mt-3">
-          <h3 v-if="post.title" class="mb-2 text-lg font-semibold">
+          <h3 v-if="post.title" class="mb-2 text-lg font-semibold line-clamp-2">
             {{ post.title }}
           </h3>
           <!-- eslint-disable vue/no-v-html -->
           <div
-            class="prose prose-sm max-w-none prose-headings:mb-2 prose-headings:mt-4 prose-p:my-1.5 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-sm prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-ul:my-1.5 prose-ol:my-1.5"
+            class="prose prose-sm max-w-none break-words prose-headings:mb-2 prose-headings:mt-4 prose-p:my-1.5 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-a:break-all prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-sm prose-pre:overflow-x-auto prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-ul:my-1.5 prose-ol:my-1.5"
             v-html="renderedContent"
           />
           <!-- eslint-enable vue/no-v-html -->

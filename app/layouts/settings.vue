@@ -1,10 +1,5 @@
 <template>
     <div class="min-h-screen bg-base-200">
-        <!-- Route Progress Bar -->
-        <div class="route-progress" :class="{ 'is-visible': progressVisible }">
-            <div class="route-progress__bar" :style="{ transform: `scaleX(${progress})` }" />
-        </div>
-
         <div class="app-shell mx-auto max-w-7xl">
             <!-- Desktop Layout -->
             <div class="hidden lg:grid lg:grid-cols-[16rem_1fr] lg:gap-6">
@@ -90,8 +85,6 @@ import {
     IconArrowLeft,
 } from "#components";
 
-const progress = ref(0);
-const progressVisible = ref(false);
 const { user } = useAuth();
 
 const menuItems = [

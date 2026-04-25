@@ -118,9 +118,9 @@
 </template>
 
 <script setup lang="ts">
-import { fetchRealm, apiFetch } from '~/utils/api';
-import { getFileUrl } from '~/utils/files';
-import type { Realm } from '~/types/realm';
+import { fetchRealm, apiFetch } from 'app/utils/api';
+import { getFileUrl } from 'app/utils/files';
+import type { Realm } from 'app/types/realm';
 import {
     IconUsers,
     IconGlobe,
@@ -128,7 +128,7 @@ import {
     IconCheck,
     IconLoader,
     IconUserPlus,
-} from '#components';
+} from '.nuxt/components';
 
 definePageMeta({ layout: false });
 

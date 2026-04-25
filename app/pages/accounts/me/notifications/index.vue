@@ -94,7 +94,7 @@
                                                     getFileUrl(
                                                         notification.meta
                                                             .pfp as string,
-                                                    )
+                                                    )!
                                                 "
                                                 alt=""
                                             >
@@ -172,7 +172,7 @@
                                                         .images as string[]
                                                 ).slice(0, 3)"
                                                 :key="imgId"
-                                                :src="getFileUrl(imgId)"
+                                                :src="getFileUrl(imgId)!"
                                                 class="w-16 h-16 rounded-lg object-cover"
                                             >
                                         </div>
