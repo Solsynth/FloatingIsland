@@ -30,6 +30,9 @@ import {
 export const API_BASE = "api.solian.app";
 export const API_BASE_URL = `https://${API_BASE}`;
 
+// Re-export for convenience
+export { getValidToken } from "~/utils/token";
+
 // Helper to build API URL
 export function getApiUrl(endpoint: string): string {
   return `${API_BASE_URL}${endpoint}`;

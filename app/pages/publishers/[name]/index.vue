@@ -178,7 +178,7 @@
               </h2>
               <div
                 v-if="bioHtml"
-                class="prose prose-sm max-w-none"
+                class="prose prose-sm max-w-none prose-headings:mb-2 prose-headings:mt-4 prose-p:my-1.5 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-sm prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-ul:my-1.5 prose-ol:my-1.5"
                 v-html="bioHtml"
               />
               <p v-else class="text-sm text-base-content/60">No bio yet.</p>
@@ -194,93 +194,148 @@
           />
 
           <!-- Posts Section with Filters -->
-          <div class="card">
-            <div class="card-body gap-4 p-4">
-              <h2 class="text-sm font-semibold text-base-content/70">Posts</h2>
-
-              <!-- Filter Controls -->
-              <div class="flex flex-wrap gap-2">
-                <button
-                  v-for="tab in contentTabs"
-                  :key="tab.value"
-                  class="btn btn-sm"
-                  :class="
-                    contentType === tab.value ? 'btn-primary' : 'btn-ghost'
-                  "
-                  @click="setContentType(tab.value)"
+          <section class="space-y-4">
+            <!-- Filter Controls -->
+            <div class="card">
+              <div class="card-body gap-4 p-4">
+                <div
+                  v-if="isRefreshing"
+                  class="mb-1 flex items-center gap-2 text-sm text-base-content/60"
                 >
-                  {{ tab.label }}
-                </button>
-              </div>
+                  <IconLoader class="w-3.5 h-3.5 animate-spin" />
+                  <span>Refreshing feed...</span>
+                </div>
 
-              <div class="flex flex-wrap gap-2">
-                <button
-                  class="btn btn-sm btn-ghost gap-2"
-                  @click="cycleRepliesFilter"
-                >
-                  <IconMessageCircle class="w-4 h-4" />
-                  Replies:
-                  {{
-                    includeReplies === null
-                      ? "Auto"
-                      : includeReplies
-                        ? "On"
-                        : "Off"
-                  }}
-                </button>
-                <button
-                  class="btn btn-sm btn-ghost gap-2"
-                  :class="mediaOnly ? 'btn-active' : ''"
-                  @click="toggleMediaOnly"
-                >
-                  <IconImage class="w-4 h-4" />
-                  Media
-                </button>
-                <button class="btn btn-sm btn-ghost gap-2" @click="toggleOrder">
-                  <IconArrowDownUp class="w-4 h-4" />
-                  {{ orderDesc ? "Newest" : "Oldest" }}
-                </button>
-              </div>
+                <!-- Content Type Tabs -->
+                <div class="join w-full">
+                  <button
+                    class="btn join-item flex-1"
+                    :class="
+                      contentType === 'all'
+                        ? 'btn-primary'
+                        : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'
+                    "
+                    @click="setContentType('all')"
+                  >
+                    All
+                  </button>
+                  <button
+                    class="btn join-item flex-1"
+                    :class="
+                      contentType === 'posts'
+                        ? 'btn-primary'
+                        : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'
+                    "
+                    @click="setContentType('posts')"
+                  >
+                    Posts
+                  </button>
+                  <button
+                    class="btn join-item flex-1"
+                    :class="
+                      contentType === 'articles'
+                        ? 'btn-primary'
+                        : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'
+                    "
+                    @click="setContentType('articles')"
+                  >
+                    Articles
+                  </button>
+                </div>
 
-              <!-- Posts List -->
-              <div
-                v-if="posts.length > 0"
-                class="space-y-3"
-                :class="isRefreshing ? 'opacity-60' : ''"
-              >
-                <PostCard
-                  v-for="post in posts"
-                  :key="post.id"
-                  :post="post"
-                  @boost="handleBoost"
-                  @share="handleShare"
-                  @reply="handleReply"
-                />
-              </div>
-
-              <!-- Load More -->
-              <div v-if="posts.length > 0" class="text-center">
-                <button
-                  v-if="hasMore"
-                  class="btn btn-outline btn-sm"
-                  :disabled="isLoading"
-                  @click="loadMore"
-                >
-                  <IconLoader v-if="isLoading" class="w-4 h-4 animate-spin" />
-                  <span>Load more</span>
-                </button>
-                <p v-else class="text-sm text-base-content/50">No more posts</p>
-              </div>
-
-              <!-- Empty State -->
-              <div
-                v-else-if="!isRefreshing"
-                class="text-center py-8 text-base-content/50"
-              >
-                No posts with current filters.
+                <!-- Filter Buttons -->
+                <div class="grid gap-2 sm:grid-cols-2">
+                  <button
+                    class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
+                    @click="cycleRepliesFilter"
+                  >
+                    <IconMessageCircle class="w-3.5 h-3.5" />
+                    <span
+                      >Replies:
+                      {{
+                        includeReplies === null
+                          ? "Auto"
+                          : includeReplies
+                            ? "On"
+                            : "Off"
+                      }}</span
+                    >
+                  </button>
+                  <button
+                    class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
+                    @click="toggleMediaOnly"
+                  >
+                    <IconImage class="w-3.5 h-3.5" />
+                    <span>Media only: {{ mediaOnly ? "On" : "Off" }}</span>
+                  </button>
+                  <button
+                    class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
+                    @click="toggleOrder"
+                  >
+                    <IconArrowDownUp class="w-3.5 h-3.5" />
+                    <span>Order: {{ orderDesc ? "Newest" : "Oldest" }}</span>
+                  </button>
+                  <div class="join">
+                    <input
+                      v-model="query"
+                      class="input-bordered input join-item w-full"
+                      placeholder="Search posts"
+                      @keydown.enter="reloadWithFilters"
+                    />
+                    <button
+                      class="btn join-item btn-primary"
+                      @click="reloadWithFilters"
+                    >
+                      <IconSearch class="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+
+            <!-- Error -->
+            <div v-if="error" class="alert alert-error">
+              <span>{{ error }}</span>
+            </div>
+
+            <!-- Posts List -->
+            <div
+              v-if="posts.length > 0"
+              class="space-y-4"
+              :class="isRefreshing ? 'opacity-60' : 'opacity-100'"
+            >
+              <PostCard
+                v-for="post in posts"
+                :key="post.id"
+                :post="post"
+                @boost="handleBoost"
+                @share="handleShare"
+                @reply="handleReply"
+              />
+            </div>
+
+            <!-- Load More -->
+            <div v-if="posts.length > 0" class="py-2 text-center">
+              <button
+                v-if="hasMore"
+                class="btn btn-outline"
+                :disabled="isLoading"
+                @click="loadMore"
+              >
+                <IconLoader v-if="isLoading" class="w-4 h-4 animate-spin" />
+                <span>Load more</span>
+              </button>
+              <p v-else class="text-sm text-base-content/50">No more posts</p>
+            </div>
+
+            <!-- Empty State -->
+            <div
+              v-else-if="!error"
+              class="rounded-xl border border-base-300 bg-base-100 p-8 text-center text-base-content/60"
+            >
+              No posts from this publisher with current filters.
+            </div>
+          </section>
         </div>
 
         <!-- Right Column - Sidebar -->
@@ -356,6 +411,7 @@ import {
 } from "~/utils/api";
 import { getFileUrl } from "~/utils/files";
 import { renderMarkdown } from "~/utils/markdown";
+import { IconSearch } from "#components";
 
 const route = useRoute();
 const auth = useAuth();
@@ -386,12 +442,7 @@ const contentType = ref<"all" | "posts" | "articles">("all");
 const includeReplies = ref<boolean | null>(null);
 const mediaOnly = ref(false);
 const orderDesc = ref(true);
-
-const contentTabs = [
-  { label: "All", value: "all" },
-  { label: "Posts", value: "posts" },
-  { label: "Articles", value: "articles" },
-];
+const query = ref("");
 
 // Computed
 const status = computed(() =>
@@ -465,6 +516,7 @@ async function reloadWithFilters() {
       replies: includeReplies.value,
       media: mediaOnly.value,
       orderDesc: orderDesc.value,
+      queryTerm: query.value.trim() || undefined,
     });
     posts.value = result.posts;
     totalPosts.value = result.total;
@@ -481,6 +533,7 @@ async function reloadWithFilters() {
 async function loadMore() {
   if (!hasMore.value || isLoading.value) return;
   isLoading.value = true;
+  error.value = null;
   try {
     const result = await fetchPublisherPosts(
       publisherName.value,
@@ -496,6 +549,7 @@ async function loadMore() {
         replies: includeReplies.value,
         media: mediaOnly.value,
         orderDesc: orderDesc.value,
+        queryTerm: query.value.trim() || undefined,
       },
     );
     const more = result.posts;

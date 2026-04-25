@@ -45,7 +45,10 @@ export function useAuth() {
   const isLoading = useState<boolean>("auth-isLoading", () => false);
   const user = useState<User | null>("auth-user", () => null);
   const token = useState<SnAuthToken | null>("auth-token", () => null);
-  const tokenPair = useState<StoredTokenPair | null>("auth-tokenPair", () => null);
+  const tokenPair = useState<StoredTokenPair | null>(
+    "auth-tokenPair",
+    () => null,
+  );
 
   // Login flow state
   const challenge = useState<SnAuthChallenge | null>(
@@ -90,15 +93,8 @@ export function useAuth() {
       return { device_id: "", device_name: "Server", platform: 1 };
     }
     const ua = navigator.userAgent;
-    const platform = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
-      ? 4
-      : /Android/.test(ua)
-        ? 3
-        : /Windows/.test(ua)
-          ? 5
-          : /Linux/.test(ua)
-            ? 6
-            : 1;
+    // 1 stands for web
+    const platform = 1;
 
     const deviceName =
       ua.includes("Chrome") && !ua.includes("Edg")
@@ -159,7 +155,12 @@ export function useAuth() {
     expiresIn?: number,
     refreshExpiresIn?: number,
   ) {
-    setTokenFromResponse(tokenString, refreshToken, expiresIn, refreshExpiresIn);
+    setTokenFromResponse(
+      tokenString,
+      refreshToken,
+      expiresIn,
+      refreshExpiresIn,
+    );
 
     const saved = readTokenPair();
     tokenPair.value = saved;

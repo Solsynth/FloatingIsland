@@ -52,6 +52,14 @@ export interface Tag {
   name: string
 }
 
+export interface Category {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  color: string | null
+}
+
 export interface Post {
   id: string
   title: string | null

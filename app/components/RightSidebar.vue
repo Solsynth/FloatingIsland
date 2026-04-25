@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col gap-6 py-4">
+    <div class="flex flex-col gap-6">
         <!-- Search -->
         <div class="relative">
             <input
@@ -13,13 +13,18 @@
         <div role="alert" class="alert alert-soft text-xs text-base-content/70">
             <div class="flex flex-col gap-2">
                 <p>
-                    You're accessing Floating Island. The Solar Network client that specialized for the web
-                    browser to browse content. It does not contains all the features of the Solar Network have.
+                    You're accessing Floating Island. The Solar Network client
+                    that specialized for the web browser to browse content. It
+                    does not contains all the features of the Solar Network
+                    have.
                 </p>
 
                 <p>
-                    If you want to experience the full features of Solar Network, please use the Solian instead.
-                    <a href="https://web.solian.app" class="font-bold underline">Open web version</a>
+                    If you want to experience the full features of Solar
+                    Network, please use the Solian instead.
+                    <a href="https://web.solian.app" class="font-bold underline"
+                        >Open web version</a
+                    >
                 </p>
             </div>
         </div>

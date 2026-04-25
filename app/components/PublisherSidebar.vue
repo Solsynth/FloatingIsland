@@ -14,10 +14,10 @@
 
       <div class="card-body p-4">
         <!-- Avatar and Name -->
-        <div class="flex items-center gap-3 -mt-10 mb-3">
-          <NuxtLink :to="`/${publisher.name}`" class="shrink-0">
+        <div class="flex items-center gap-3 -mt-8 mb-3">
+          <NuxtLink :to="`/publishers/${publisher.name}`" class="shrink-0">
             <div v-if="avatarUrl" class="avatar">
-              <div class="w-16 h-16 rounded-2xl ring-4 ring-base-100">
+              <div class="w-16 h-16 rounded-full ring-4 ring-base-100">
                 <img :src="avatarUrl" :alt="displayName" />
               </div>
             </div>
@@ -73,29 +73,6 @@
           >
             <IconShare2 class="w-4 h-4" />
           </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Stats Card -->
-    <div v-if="publisher" class="card bg-base-100">
-      <div class="card-body p-4">
-        <h3 class="text-sm font-semibold text-base-content/70 mb-3">
-          Publisher Stats
-        </h3>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="text-center p-2 rounded-xl bg-base-200">
-            <div class="text-xl font-bold">
-              {{ formatNumber(publisher.stat?.totalPosts || 0) }}
-            </div>
-            <div class="text-xs text-base-content/60">Posts</div>
-          </div>
-          <div class="text-center p-2 rounded-xl bg-base-200">
-            <div class="text-xl font-bold">
-              {{ formatNumber(publisher.stat?.totalSubscribers || 0) }}
-            </div>
-            <div class="text-xs text-base-content/60">Subscribers</div>
-          </div>
         </div>
       </div>
     </div>

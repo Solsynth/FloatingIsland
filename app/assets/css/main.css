@@ -5,6 +5,7 @@
     dark --prefersdark;
   exclude: indicator, status;
 }
+@plugin "@tailwindcss/typography";
 
 @theme {
   --font-sans: 'Nunito', sans-serif;
