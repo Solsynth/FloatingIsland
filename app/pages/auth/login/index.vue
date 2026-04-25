@@ -48,10 +48,8 @@
                                 <span>{{ error }}</span>
                             </div>
 
-                            <div class="form-control">
-                                <label class="label">
-                                    <span class="label-text">Username or email</span>
-                                </label>
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Username or email</legend>
                                 <input
                                     v-model="account"
                                     type="text"
@@ -59,7 +57,7 @@
                                     class="input input-bordered w-full"
                                     @keydown.enter="handleLookup"
                                 >
-                            </div>
+                            </fieldset>
 
                             <button
                                 class="btn btn-primary w-full"
@@ -323,7 +321,7 @@ async function handleVerify() {
             password.value,
         );
 
-        if (result.stepRemain > 0) {
+        if (result.stepRemain && result.stepRemain > 0) {
             // More steps needed - go back to factor picker
             password.value = "";
             clearFactor();

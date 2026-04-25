@@ -10,10 +10,8 @@
             <span>{{ error }}</span>
         </div>
 
-        <div class="form-control">
-            <label class="label">
-                <span class="label-text">{{ inputPlaceholder }}</span>
-            </label>
+        <fieldset class="fieldset">
+            <legend class="fieldset-legend">{{ inputPlaceholder }}</legend>
             <input
                 ref="inputRef"
                 :type="isPassword ? 'password' : 'text'"
@@ -24,7 +22,7 @@
                 @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
                 @keydown.enter="$emit('submit')"
             >
-        </div>
+        </fieldset>
 
         <div class="flex gap-2">
             <button class="btn btn-ghost flex-1" @click="$emit('back')">
