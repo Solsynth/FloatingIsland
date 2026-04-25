@@ -20,7 +20,7 @@
             </div>
 
             <div v-if="status === 'pending'" class="flex justify-center py-4">
-                <div class="loading loading-spinner loading-sm"></div>
+                <div class="loading loading-spinner loading-sm"/>
             </div>
 
             <div
@@ -30,7 +30,7 @@
                 <div class="flex gap-1 min-w-max">
                     <!-- Month labels -->
                     <div class="flex flex-col gap-1">
-                        <div class="h-3"></div>
+                        <div class="h-3"/>
                         <div
                             v-for="(month, idx) in monthLabels"
                             :key="idx"

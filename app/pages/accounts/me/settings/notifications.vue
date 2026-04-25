@@ -13,7 +13,7 @@
                             v-model="notifications.push"
                             type="checkbox"
                             class="toggle toggle-primary"
-                        />
+                        >
                         <div>
                             <span class="label-text font-medium">Enable Push Notifications</span>
                             <p class="text-sm text-base-content/60">Receive notifications in your browser</p>
@@ -34,7 +34,7 @@
                             v-model="notifications.email.mentions"
                             type="checkbox"
                             class="checkbox checkbox-primary"
-                        />
+                        >
                         <div>
                             <span class="label-text font-medium">Mentions</span>
                             <p class="text-sm text-base-content/60">When someone mentions you in a post</p>
@@ -48,7 +48,7 @@
                             v-model="notifications.email.replies"
                             type="checkbox"
                             class="checkbox checkbox-primary"
-                        />
+                        >
                         <div>
                             <span class="label-text font-medium">Replies</span>
                             <p class="text-sm text-base-content/60">When someone replies to your posts</p>
@@ -62,7 +62,7 @@
                             v-model="notifications.email.likes"
                             type="checkbox"
                             class="checkbox checkbox-primary"
-                        />
+                        >
                         <div>
                             <span class="label-text font-medium">Likes</span>
                             <p class="text-sm text-base-content/60">When someone likes your posts</p>
@@ -76,7 +76,7 @@
                             v-model="notifications.email.follows"
                             type="checkbox"
                             class="checkbox checkbox-primary"
-                        />
+                        >
                         <div>
                             <span class="label-text font-medium">New Followers</span>
                             <p class="text-sm text-base-content/60">When someone follows you</p>
@@ -90,7 +90,7 @@
                             v-model="notifications.email.messages"
                             type="checkbox"
                             class="checkbox checkbox-primary"
-                        />
+                        >
                         <div>
                             <span class="label-text font-medium">Direct Messages</span>
                             <p class="text-sm text-base-content/60">When you receive a direct message</p>

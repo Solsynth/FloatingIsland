@@ -1,11 +1,9 @@
 <template>
-    <div class="card bg-gradient-to-br from-primary/10 to-base-200">
+    <div class="card bg-linear-to-br from-primary/10 to-base-200">
         <div class="card-body p-4">
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                    <div
-                        class="badge badge-primary badge-lg gap-1 font-bold"
-                    >
+                    <div class="badge badge-primary badge-lg gap-1 font-bold">
                         <IconStar class="w-3 h-3" />
                         Lv {{ level }}
                     </div>

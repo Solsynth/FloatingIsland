@@ -36,7 +36,7 @@
 							:src="getAttachmentUrl(attachment)!"
 							:alt="attachment.name"
 							class="relative z-10 max-w-full max-h-125 w-auto h-auto object-contain"
-						/>
+						>
 
 						<!-- File Icon Fallback -->
 						<div

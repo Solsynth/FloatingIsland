@@ -70,7 +70,7 @@
                         min="14"
                         max="20"
                         class="range range-primary"
-                    />
+                    >
                     <div class="flex justify-between text-xs text-base-content/60 mt-1">
                         <span>Small</span>
                         <span>{{ fontSize }}px</span>
@@ -91,7 +91,7 @@
                             v-model="display.compactMode"
                             type="checkbox"
                             class="toggle toggle-primary"
-                        />
+                        >
                         <div>
                             <span class="label-text font-medium">Compact Mode</span>
                             <p class="text-sm text-base-content/60">Reduce padding and spacing</p>
@@ -105,7 +105,7 @@
                             v-model="display.reducedMotion"
                             type="checkbox"
                             class="toggle toggle-primary"
-                        />
+                        >
                         <div>
                             <span class="label-text font-medium">Reduced Motion</span>
                             <p class="text-sm text-base-content/60">Minimize animations</p>

@@ -15,10 +15,10 @@
         :placeholder="inputPlaceholder"
         class="input input-bordered w-full"
         :value="modelValue"
+        autocomplete="off"
         @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
         @keydown.enter="$emit('submit')"
-        autocomplete="off"
-      />
+      >
     </div>
 
     <div class="flex gap-2">

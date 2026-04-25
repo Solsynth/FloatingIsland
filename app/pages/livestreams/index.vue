@@ -17,7 +17,7 @@
             :src="getFileUrl(stream.thumbnailId)"
             :alt="stream.title"
             class="w-full h-full object-cover"
-          />
+          >
           <div v-else class="w-full h-full flex items-center justify-center">
             <IconRadio class="w-12 h-12 text-base-content/20" />
           </div>
@@ -41,7 +41,7 @@
                   v-if="stream.publisher?.picture?.id"
                   :src="getFileUrl(stream.publisher.picture.id)"
                   class="w-full h-full object-cover"
-                />
+                >
               </div>
             </div>
             <span>{{ stream.publisher?.nick || stream.publisher?.name || 'Unknown' }}</span>

@@ -30,7 +30,7 @@
             :src="backgroundUrl"
             :alt="`${displayName} background`"
             class="h-full w-full object-cover rounded-2xl"
-          />
+          >
         </div>
         <div
           class="mx-auto -mt-10 flex max-w-5xl flex-col gap-4 px-4 pb-4 sm:-mt-10 sm:flex-row sm:items-end sm:px-6"
@@ -40,7 +40,7 @@
               <div
                 class="h-24 w-24 rounded-3xl ring ring-base-300 ring-offset-2 ring-offset-base-100 sm:h-28 sm:w-28"
               >
-                <img :src="avatarUrl" :alt="displayName" />
+                <img :src="avatarUrl" :alt="displayName" >
               </div>
             </div>
             <div v-else class="avatar avatar-placeholder">
@@ -247,7 +247,7 @@
                       class="input-bordered input join-item w-full"
                       placeholder="Search posts"
                       @keydown.enter="reloadWithFilters"
-                    />
+                    >
                     <button
                       class="btn join-item btn-primary"
                       @click="reloadWithFilters"

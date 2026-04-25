@@ -35,7 +35,7 @@
                         :src="backgroundUrl"
                         :alt="`${displayName} background`"
                         class="h-full w-full object-cover"
-                    />
+                    >
                 </div>
                 <div
                     class="mx-auto -mt-20 flex max-w-5xl flex-col gap-4 px-4 pb-4 sm:-mt-20 sm:flex-row sm:items-end"
@@ -45,7 +45,7 @@
                             <div
                                 class="h-24 w-24 rounded-full ring ring-base-300 ring-offset-2 ring-offset-base-100 sm:h-28 sm:w-28 mb-8"
                             >
-                                <img :src="avatarUrl" :alt="displayName" />
+                                <img :src="avatarUrl" :alt="displayName" >
                             </div>
                         </div>
                         <div v-else class="avatar avatar-placeholder">

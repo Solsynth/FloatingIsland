@@ -17,7 +17,7 @@
                     class="radio radio-primary"
                     :checked="selectedFactor?.id === factor.id"
                     @change="$emit('select', factor)"
-                />
+                >
                 <IconKey
                     v-if="getFactorIconType(factor.type) === 'key'"
                     class="w-5 h-5"

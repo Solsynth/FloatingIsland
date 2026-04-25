@@ -20,7 +20,7 @@
                     :src="getAttachmentUrl(attachment)"
                     :alt="attachment.name"
                     class="w-full h-full object-cover"
-                />
+                >
                 <div
                     v-else
                     class="w-full h-full flex items-center justify-center"

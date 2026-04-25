@@ -51,7 +51,7 @@
                 <header class="sticky top-0 z-50 bg-base-100/95 backdrop-blur border-b border-base-300">
                     <div class="flex items-center justify-between px-4 h-14">
                         <NuxtLink to="/" class="flex items-center gap-2">
-                            <img src="/favicon.png" alt="Solar Network" class="w-8 h-8" />
+                            <img src="/favicon.png" alt="Solar Network" class="w-8 h-8" >
                             <span class="font-bold text-lg">Settings</span>
                         </NuxtLink>
                     </div>

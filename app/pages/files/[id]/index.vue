@@ -44,7 +44,7 @@
           :style="imageStyle"
           draggable="false"
           @error="handleImageError"
-        />
+        >
         <video
           v-else-if="isVideo"
           :src="fileUrl"
@@ -112,7 +112,7 @@
             :style="imageStyle"
             draggable="false"
             @error="handleImageError"
-          />
+          >
           <!-- Video -->
           <video
             v-else-if="isVideo"

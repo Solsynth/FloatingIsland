@@ -7,7 +7,7 @@
         <div class="shrink-0">
             <div v-if="pictureUrl" class="avatar">
                 <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl">
-                    <img :src="pictureUrl" :alt="realm.name" class="object-cover w-full h-full" />
+                    <img :src="pictureUrl" :alt="realm.name" class="object-cover w-full h-full" >
                 </div>
             </div>
             <div v-else class="avatar avatar-placeholder">

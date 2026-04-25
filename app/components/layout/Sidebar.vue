@@ -3,7 +3,7 @@
         <!-- Logo -->
         <div class="mb-6 flex justify-end px-2">
             <NuxtLink to="/" class="text-2xl font-bold text-primary">
-                <img src="/favicon.png" alt="Logo" class="h-12 w-12" />
+                <img src="/favicon.png" alt="Logo" class="h-12 w-12" >
             </NuxtLink>
         </div>
 
@@ -49,7 +49,7 @@
                 >
                     <div v-if="avatarUrl" class="avatar">
                         <div class="w-10 rounded-full">
-                            <img :src="avatarUrl" :alt="username" />
+                            <img :src="avatarUrl" :alt="username" >
                         </div>
                     </div>
                     <div v-else class="avatar avatar-placeholder">
@@ -75,27 +75,27 @@
                 >
                     <li>
                         <NuxtLink to="/accounts/me">
-                            <IconUser class="w-[18px]" />
+                            <IconUser class="w-4.5" />
                             Profile
                         </NuxtLink>
                     </li>
                     <li>
                         <NuxtLink to="/settings">
-                            <IconSettings class="w-[18px]" />
+                            <IconSettings class="w-4.5" />
                             Settings
                         </NuxtLink>
                     </li>
                     <li class="my-1 border-t border-base-300" />
                     <li>
                         <NuxtLink to="/pricing">
-                            <IconCreditCard class="w-[18px]" />
+                            <IconCreditCard class="w-4.5" />
                             Membership
                         </NuxtLink>
                     </li>
                     <li class="my-1 border-t border-base-300" />
                     <li>
                         <button @click="handleLogout">
-                            <IconLogOut class="w-[18px]" />
+                            <IconLogOut class="w-4.5" />
                             Logout
                         </button>
                     </li>

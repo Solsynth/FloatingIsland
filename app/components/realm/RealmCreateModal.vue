@@ -9,8 +9,8 @@
             <form method="dialog">
                 <button
                     class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                    @click="handleClose"
                     :disabled="isCreating"
+                    @click="handleClose"
                 >
                     <IconX class="w-5 h-5" />
                 </button>
@@ -26,7 +26,7 @@
                 <div class="form-control">
                     <label class="label">
                         <span class="label-text font-medium">Name</span>
-                        <span class="label-text-alt text-error" v-if="errors.name">{{ errors.name }}</span>
+                        <span v-if="errors.name" class="label-text-alt text-error">{{ errors.name }}</span>
                     </label>
                     <input
                         v-model="form.name"
@@ -36,7 +36,7 @@
                         :class="{ 'input-error': errors.name }"
                         maxlength="100"
                         required
-                    />
+                    >
                 </div>
 
                 <!-- Slug -->
@@ -53,13 +53,13 @@
                         :class="{ 'input-error': errors.slug }"
                         maxlength="50"
                         pattern="[a-z0-9-]+"
-                        @input="sanitizeSlug"
                         required
-                    />
-                    <label class="label" v-if="errors.slug">
+                        @input="sanitizeSlug"
+                    >
+                    <label v-if="errors.slug" class="label">
                         <span class="label-text-alt text-error">{{ errors.slug }}</span>
                     </label>
-                    <label class="label" v-else>
+                    <label v-else class="label">
                         <span class="label-text-alt">Lowercase letters, numbers, and hyphens only</span>
                     </label>
                 </div>
@@ -93,7 +93,7 @@
                                 type="radio"
                                 :value="true"
                                 class="radio radio-primary hidden"
-                            />
+                            >
                             <div
                                 class="card card-compact border-2 cursor-pointer transition-all"
                                 :class="form.isCommunity ? 'border-primary bg-primary/5' : 'border-base-300'"
@@ -114,7 +114,7 @@
                                 type="radio"
                                 :value="false"
                                 class="radio radio-primary hidden"
-                            />
+                            >
                             <div
                                 class="card card-compact border-2 cursor-pointer transition-all"
                                 :class="!form.isCommunity ? 'border-primary bg-primary/5' : 'border-base-300'"
@@ -132,7 +132,7 @@
                 <!-- Visibility -->
                 <div class="form-control">
                     <label class="label cursor-pointer justify-start gap-3">
-                        <input v-model="form.isPublic" type="checkbox" class="toggle toggle-primary" />
+                        <input v-model="form.isPublic" type="checkbox" class="toggle toggle-primary" >
                         <div>
                             <span class="label-text font-medium">Public Realm</span>
                             <p class="text-xs text-base-content/60">
@@ -156,8 +156,8 @@
                     <button
                         type="button"
                         class="btn btn-ghost"
-                        @click="handleClose"
                         :disabled="isCreating"
+                        @click="handleClose"
                     >
                         Cancel
                     </button>
@@ -176,7 +176,7 @@
 
         <!-- Backdrop -->
         <form method="dialog" class="modal-backdrop">
-            <button @click="handleClose" :disabled="isCreating">close</button>
+            <button :disabled="isCreating" @click="handleClose">close</button>
         </form>
     </dialog>
 </template>

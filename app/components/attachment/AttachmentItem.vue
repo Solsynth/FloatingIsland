@@ -5,7 +5,7 @@
       :src="fileUrl"
       :alt="attachment.name"
       class="w-full h-full object-cover"
-    />
+    >
     <div v-else class="p-8 flex flex-col items-center justify-center">
       <IconFile class="w-12 h-12 text-base-content/30 mb-2" />
       <span class="text-sm text-base-content/50">{{ attachment.name }}</span>
@@ -23,7 +23,7 @@
         :src="fileUrl"
         :alt="attachment.name"
         class="w-full h-auto"
-      />
+      >
       <div v-else class="p-8 flex flex-col items-center justify-center text-white">
         <IconFile class="w-16 h-16 text-white/30 mb-4" />
         <span>{{ attachment.name }}</span>

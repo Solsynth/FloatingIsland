@@ -9,7 +9,7 @@
           :src="backgroundUrl"
           :alt="`${displayName} background`"
           class="h-full w-full object-cover"
-        />
+        >
       </div>
 
       <div class="card-body p-4">
@@ -18,7 +18,7 @@
           <NuxtLink :to="`/publishers/${publisher.name}`" class="shrink-0">
             <div v-if="avatarUrl" class="avatar">
               <div class="w-16 h-16 rounded-full ring-4 ring-base-100">
-                <img :src="avatarUrl" :alt="displayName" />
+                <img :src="avatarUrl" :alt="displayName" >
               </div>
             </div>
             <div v-else class="avatar avatar-placeholder">

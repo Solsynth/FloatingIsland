@@ -6,7 +6,7 @@
                 type="text"
                 placeholder="Search..."
                 class="input-bordered input w-full bg-base-200/50 focus:bg-base-100"
-            />
+            >
         </div>
 
         <!-- Floating Island Note -->

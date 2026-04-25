@@ -53,7 +53,7 @@
                         </div>
                     </div>
 
-                    <div class="divider"></div>
+                    <div class="divider"/>
 
                     <div class="space-y-2">
                         <div class="flex justify-between text-sm">
@@ -81,7 +81,7 @@
                                 min="1"
                                 class="input input-bordered w-full"
                                 placeholder="Enter amount"
-                            />
+                            >
                         </div>
                         <div class="form-control">
                             <label class="label">
@@ -147,7 +147,7 @@
                                     <img
                                         :src="getFileUrl(entry.account.avatar.id)"
                                         :alt="entry.account.nick || entry.account.name"
-                                    />
+                                    >
                                 </div>
                             </div>
                             <div v-else class="avatar avatar-placeholder">

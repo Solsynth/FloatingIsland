@@ -36,8 +36,8 @@
                                 src="/favicon.png"
                                 alt="Solar Network"
                                 class="w-8 h-8"
-                            />
-                            <span class="font-bold text-lg">Solar</span>
+                            >
+                            <span class="font-bold text-lg">Solar Network</span>
                         </NuxtLink>
                         <button
                             class="btn btn-primary btn-sm gap-1"
@@ -124,7 +124,7 @@
                                         getFileUrl(user.profile.picture.id)
                                     "
                                     class="w-full h-full object-cover"
-                                />
+                                >
                             </div>
                             <IconUser v-else class="w-5 h-5" />
                             <span class="text-xs">{{
@@ -150,13 +150,13 @@ const { isAuthenticated, user } = useAuth();
 
 // Listen for global compose open event
 onMounted(() => {
-    window.addEventListener('open-compose', () => {
+    window.addEventListener("open-compose", () => {
         showCompose.value = true;
     });
 });
 
 onBeforeUnmount(() => {
-    window.removeEventListener('open-compose', () => {
+    window.removeEventListener("open-compose", () => {
         showCompose.value = true;
     });
 });

@@ -54,7 +54,7 @@
                                 placeholder="Search members..."
                                 class="input input-bordered join-item w-full"
                                 @keydown.enter="reloadMembers"
-                            />
+                            >
                             <button class="btn btn-primary join-item" @click="reloadMembers">
                                 <IconSearch class="w-4 h-4" />
                             </button>
@@ -86,7 +86,7 @@
                                         <img
                                             :src="getFileUrl(member.account.avatar.id)"
                                             :alt="member.nick || member.account?.nick || member.account?.name"
-                                        />
+                                        >
                                     </div>
                                 </div>
                                 <div v-else class="avatar avatar-placeholder">
@@ -154,7 +154,7 @@
                                             Demote
                                         </button>
                                     </li>
-                                    <li class="divider"></li>
+                                    <li class="divider"/>
                                     <li>
                                         <button class="text-error" @click="kickMember(member)">
                                             <IconUserX class="w-4 h-4" />

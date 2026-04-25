@@ -41,12 +41,12 @@
                   v-if="publisherPicture"
                   :src="publisherPicture"
                   class="w-full h-full object-cover"
-                />
+                >
               </div>
             </div>
             <div>
               <p class="font-semibold">{{ publisherName }}</p>
-              <p class="text-xs text-base-content/50" v-if="stream.description">{{ stream.description }}</p>
+              <p v-if="stream.description" class="text-xs text-base-content/50">{{ stream.description }}</p>
             </div>
           </div>
         </div>

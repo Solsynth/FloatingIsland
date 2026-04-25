@@ -31,7 +31,7 @@
                     :src="bgUrl"
                     :alt="`${realm.name} background`"
                     class="h-full w-full object-cover"
-                />
+                >
             </div>
 
             <div class="p-6 md:p-8">
@@ -45,7 +45,7 @@
                         <div
                             class="h-14 w-14 rounded-2xl ring ring-base-300 ring-offset-2 ring-offset-base-100"
                         >
-                            <img :src="avatarUrl" :alt="realm.name" />
+                            <img :src="avatarUrl" :alt="realm.name" >
                         </div>
                     </div>
                     <div v-else class="avatar avatar-placeholder">

@@ -41,7 +41,7 @@
               placeholder="Enter your PIN"
               class="input input-bordered w-full"
               maxlength="6"
-            />
+            >
           </div>
 
           <button

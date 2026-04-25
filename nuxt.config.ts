@@ -4,8 +4,14 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  modules: ["nuxt-lucide-icons"],
+  modules: ["nuxt-lucide-icons", "@nuxt/eslint"],
   css: ["~/assets/css/main.css"],
+  components: [
+    {
+      path: "~/components",
+      pathPrefix: false,
+    },
+  ],
   experimental: {
     viewTransition: true,
   },

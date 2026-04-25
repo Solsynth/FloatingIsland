@@ -52,7 +52,7 @@
                     :src="getAvatarUrl(referencePost)"
                     :alt="getDisplayName(referencePost.publisher)"
                     class="h-full w-full rounded-full object-cover"
-                  />
+                  >
                 </div>
                 <div
                   v-else
@@ -65,7 +65,7 @@
               </component>
               <div
                 class="absolute top-10 -bottom-2.5 w-px bg-base-300/80"
-              ></div>
+              />
             </div>
             <div class="min-w-0 pb-2">
               <div class="flex items-center gap-2">
@@ -86,7 +86,7 @@
                 v-if="referencePost.content"
                 class="prose prose-sm mt-2 max-w-none prose-headings:mb-1 prose-headings:mt-2 prose-p:my-1 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-xs prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-3 prose-blockquote:italic prose-ul:my-1 prose-ol:my-1"
                 v-html="renderedReferenceContent"
-              ></div>
+              />
               <div
                 v-if="referencePost.title || referencePost.description"
                 class="mt-2 space-y-1"
@@ -146,7 +146,7 @@
                   :src="getAvatarUrl(post)"
                   :alt="getDisplayName(post.publisher)"
                   class="h-full w-full rounded-full object-cover"
-                />
+                >
               </div>
             </div>
             <div v-else class="avatar avatar-placeholder">
@@ -227,7 +227,7 @@
           <div
             class="prose prose-sm max-w-none prose-headings:mb-2 prose-headings:mt-4 prose-p:my-1.5 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-sm prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-ul:my-1.5 prose-ol:my-1.5"
             v-html="renderedContent"
-          ></div>
+          />
           <div
             v-if="post.isTruncated"
             class="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-base-300 bg-base-200/40 px-2 py-1 text-xs text-base-content/75 italic"
@@ -292,7 +292,7 @@
                   :alt="getEmbedTitle(linkEmbeds[0]) || 'Link preview image'"
                   class="h-36 w-full rounded-t-xl object-cover"
                   loading="lazy"
-                />
+                >
                 <div class="card-body gap-2 p-3">
                   <div
                     class="flex items-center gap-2 text-xs text-base-content/60"
@@ -308,7 +308,7 @@
                       alt="Site icon"
                       class="h-4 w-4 rounded object-cover"
                       loading="lazy"
-                    />
+                    >
                     <IconLink v-else class="h-4 w-4" />
                     <span class="truncate">{{
                       getEmbedSiteName(linkEmbeds[0]) ||
@@ -373,7 +373,7 @@
                   :alt="getEmbedTitle(embed) || 'Link preview image'"
                   class="h-24 w-full rounded-t-xl object-cover"
                   loading="lazy"
-                />
+                >
                 <div class="card-body p-3">
                   <div class="truncate text-xs text-base-content/60">
                     {{

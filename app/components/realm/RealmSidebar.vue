@@ -23,7 +23,7 @@
                 <span class="text-sm font-medium">Members</span>
             </NuxtLink>
 
-            <button v-if="isMember" @click="copyInviteLink" class="card bg-base-200 shrink-0 w-32 flex flex-col items-center justify-center p-3">
+            <button v-if="isMember" class="card bg-base-200 shrink-0 w-32 flex flex-col items-center justify-center p-3" @click="copyInviteLink">
                 <IconLink class="w-6 h-6 text-base-content/60 mb-1" />
                 <span class="text-sm font-medium">Invite</span>
             </button>
@@ -71,7 +71,7 @@
                     </div>
 
                     <div v-else-if="isLoadingBoost" class="py-4 text-center">
-                        <span class="loading loading-spinner loading-sm"></span>
+                        <span class="loading loading-spinner loading-sm"/>
                     </div>
 
                     <div v-else class="text-center py-4 text-sm text-base-content/60">
@@ -107,7 +107,7 @@
                         </div>
                         <div v-if="entry.account?.avatar?.id" class="avatar">
                             <div class="w-8 h-8 rounded-lg">
-                                <img :src="getFileUrl(entry.account.avatar.id)" :alt="entry.account.nick || entry.account.name" />
+                                <img :src="getFileUrl(entry.account.avatar.id)" :alt="entry.account.nick || entry.account.name" >
                             </div>
                         </div>
                         <div v-else class="avatar avatar-placeholder">
@@ -167,7 +167,7 @@
                 <div class="flex items-start gap-3">
                     <div v-if="auth.user?.profile?.picture?.id" class="avatar">
                         <div class="w-10 h-10 rounded-xl">
-                            <img :src="getFileUrl(auth.user.profile.picture.id)" :alt="membership.nick || auth.user.name" />
+                            <img :src="getFileUrl(auth.user.profile.picture.id)" :alt="membership.nick || auth.user.name" >
                         </div>
                     </div>
                     <div v-else class="avatar avatar-placeholder">

@@ -13,7 +13,7 @@
                             v-model="privacy.profileVisible"
                             type="checkbox"
                             class="checkbox checkbox-primary"
-                        />
+                        >
                         <div>
                             <span class="label-text font-medium">Public Profile</span>
                             <p class="text-sm text-base-content/60">Allow anyone to view your profile</p>
@@ -27,7 +27,7 @@
                             v-model="privacy.showEmail"
                             type="checkbox"
                             class="checkbox checkbox-primary"
-                        />
+                        >
                         <div>
                             <span class="label-text font-medium">Show Email</span>
                             <p class="text-sm text-base-content/60">Display your email on your profile</p>
@@ -41,7 +41,7 @@
                             v-model="privacy.showBirthday"
                             type="checkbox"
                             class="checkbox checkbox-primary"
-                        />
+                        >
                         <div>
                             <span class="label-text font-medium">Show Birthday</span>
                             <p class="text-sm text-base-content/60">Display your birthday on your profile</p>
@@ -74,7 +74,7 @@
                             v-model="privacy.allowComments"
                             type="checkbox"
                             class="checkbox checkbox-primary"
-                        />
+                        >
                         <div>
                             <span class="label-text font-medium">Allow Comments</span>
                             <p class="text-sm text-base-content/60">Let others comment on your posts</p>
@@ -103,7 +103,7 @@
                         <div class="flex items-center gap-3">
                             <div class="avatar">
                                 <div class="w-10 h-10 rounded-full">
-                                    <img v-if="user.avatar" :src="user.avatar" :alt="user.name" />
+                                    <img v-if="user.avatar" :src="user.avatar" :alt="user.name" >
                                     <div v-else class="bg-primary text-primary-content flex items-center justify-center w-full h-full text-sm font-bold">
                                         {{ user.name[0] }}
                                     </div>

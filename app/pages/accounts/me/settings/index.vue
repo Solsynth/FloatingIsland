@@ -9,7 +9,7 @@
                 <div class="flex items-center gap-4">
                     <div class="avatar">
                         <div class="w-16 h-16 rounded-full">
-                            <img v-if="avatarUrl" :src="avatarUrl" :alt="displayName" />
+                            <img v-if="avatarUrl" :src="avatarUrl" :alt="displayName" >
                             <div v-else class="bg-primary text-primary-content flex items-center justify-center w-full h-full text-xl font-bold">
                                 {{ getInitials(displayName) }}
                             </div>
@@ -37,7 +37,7 @@
                         type="text"
                         class="input input-bordered"
                         placeholder="Your display name"
-                    />
+                    >
                 </div>
 
                 <div class="form-control">
@@ -60,7 +60,7 @@
                         type="text"
                         class="input input-bordered"
                         placeholder="City, Country"
-                    />
+                    >
                 </div>
 
                 <div class="form-control">
@@ -72,7 +72,7 @@
                         type="url"
                         class="input input-bordered"
                         placeholder="https://example.com"
-                    />
+                    >
                 </div>
 
                 <div class="form-control">
@@ -83,7 +83,7 @@
                         v-model="form.birthday"
                         type="date"
                         class="input input-bordered"
-                    />
+                    >
                 </div>
 
                 <div class="form-control">
@@ -108,7 +108,7 @@
                         type="text"
                         class="input input-bordered"
                         placeholder="e.g. they/them"
-                    />
+                    >
                 </div>
 
                 <div class="form-control">

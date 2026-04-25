@@ -16,7 +16,7 @@
                         type="password"
                         class="input input-bordered"
                         placeholder="Enter current password"
-                    />
+                    >
                 </div>
 
                 <div class="form-control">
@@ -28,7 +28,7 @@
                         type="password"
                         class="input input-bordered"
                         placeholder="Enter new password"
-                    />
+                    >
                 </div>
 
                 <div class="form-control">
@@ -40,7 +40,7 @@
                         type="password"
                         class="input input-bordered"
                         placeholder="Confirm new password"
-                    />
+                    >
                 </div>
 
                 <button
