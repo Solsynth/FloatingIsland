@@ -69,7 +69,7 @@
                         </NuxtLink>
                     </li>
                     <li>
-                        <NuxtLink to="/settings">
+                        <NuxtLink to="/accounts/me/settings">
                             <IconSettings class="w-4.5" />
                             Settings
                         </NuxtLink>
@@ -132,9 +132,7 @@ const navItems = [
 const displayName = computed(() => authDisplayName.value);
 const username = computed(() => user.value?.name || "");
 const avatarUrl = computed(
-    () =>
-        user.value?.profile?.picture?.url ||
-        getFileUrl(user.value?.profile?.picture?.id),
+    () => getFileUrl(user.value?.profile?.picture?.id),
 );
 const fallbackInitials = computed(() =>
     (username.value || "?").slice(0, 2).toUpperCase(),
