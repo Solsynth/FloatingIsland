@@ -1,0 +1,16 @@
+node_modules
+.nuxt
+.output
+.git
+.DS_Store
+*.md
+.env*
+playground
+examples
+test
+tests
+**/*.spec.*
+**/*.test.*
+coverage
+.nitro
+.cache
