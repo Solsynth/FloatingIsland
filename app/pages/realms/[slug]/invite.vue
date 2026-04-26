@@ -1,134 +1,143 @@
 <template>
-    <div class="min-h-screen bg-base-200 flex items-center justify-center px-4">
-        <!-- Not Found State -->
-        <div
-            v-if="notFound"
-            class="w-full max-w-md rounded-3xl border border-base-300/70 bg-base-100/90 p-8 text-center shadow-2xl backdrop-blur-xl"
-        >
-            <IconUsers class="mx-auto text-base-content/50 w-9 h-9" />
-            <h1 class="mt-3 text-xl font-black">Realm not found</h1>
-        </div>
-
-        <!-- Error State -->
-        <div
-            v-else-if="!realm"
-            class="w-full max-w-md rounded-3xl border border-base-300/70 bg-base-100/90 p-8 shadow-2xl backdrop-blur-xl"
-        >
-            <div class="alert alert-error">
-                <span>{{ error || 'Failed to load invite' }}</span>
-            </div>
-        </div>
-
-        <!-- Invite Card -->
-        <div
-            v-else
-            class="w-full max-w-lg overflow-hidden rounded-3xl border border-base-300/70 bg-base-100/95 shadow-2xl backdrop-blur-xl"
-        >
-            <!-- Banner -->
-            <div class="h-28 w-full bg-base-200">
-                <img
-                    v-if="bgUrl"
-                    :src="bgUrl"
-                    :alt="`${realm.name} background`"
-                    class="h-full w-full object-cover"
-                >
-            </div>
-
-            <div class="p-6 md:p-8">
-                <p class="mb-3 text-xs font-semibold tracking-[0.2em] text-base-content/60 uppercase">
-                    You're invited
-                </p>
-
-                <!-- Realm Info -->
-                <div class="mb-6 flex items-center gap-3">
-                    <div v-if="avatarUrl" class="avatar">
-                        <div
-                            class="h-14 w-14 rounded-2xl ring ring-base-300 ring-offset-2 ring-offset-base-100"
-                        >
-                            <img :src="avatarUrl" :alt="realm.name" >
-                        </div>
-                    </div>
-                    <div v-else class="avatar avatar-placeholder">
-                        <div
-                            class="h-14 w-14 rounded-2xl bg-primary text-primary-content ring ring-base-300 ring-offset-2 ring-offset-base-100"
-                        >
-                            <span class="text-base font-semibold">{{ getInitials(realm.name) }}</span>
-                        </div>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-sm text-base-content/60">Join the realm</p>
-                        <h1 class="truncate text-2xl font-black">{{ realm.name }}</h1>
-                        <p class="truncate text-sm text-base-content/60">@{{ realm.slug }}</p>
-                    </div>
-                </div>
-
-                <!-- Description -->
-                <p v-if="realm.description" class="mb-4 text-sm text-base-content/80">
-                    {{ realm.description }}
-                </p>
-
-                <!-- Badges -->
-                <div class="mb-3 flex flex-wrap gap-2">
-                    <span class="badge gap-1 border-info/30 bg-info/15 text-info">
-                        <IconUsers class="w-3 h-3" />
-                        <span v-if="realm.isCommunity">Community</span>
-                        <span v-else>Organization</span>
-                    </span>
-                    <span
-                        :class="`badge gap-1 ${
-                            realm.isPublic
-                                ? 'border-success/30 bg-success/15 text-success'
-                                : 'border-warning/30 bg-warning/20 text-warning'
-                        }`"
-                    >
-                        <IconGlobe v-if="realm.isPublic" class="w-3 h-3" />
-                        <IconLock v-else class="w-3 h-3" />
-                        <span v-if="realm.isPublic">Public</span>
-                        <span v-else>Private</span>
-                    </span>
-                </div>
-
-                <!-- Error -->
-                <div v-if="error" class="mb-4 alert alert-error">
-                    <span>{{ error }}</span>
-                </div>
-
-                <!-- Actions -->
-                <button
-                    v-if="isMember"
-                    class="btn w-full btn-success"
-                    @click="navigateTo(`/realms/${realm.slug}`)"
-                >
-                    <IconCheck class="w-4 h-4" />
-                    Open Realm
-                </button>
-                <button
-                    v-else
-                    class="btn w-full btn-primary"
-                    :disabled="isJoining || isCheckingMembership"
-                    @click="joinRealm"
-                >
-                    <IconLoader v-if="isJoining || isCheckingMembership" class="w-4 h-4 animate-spin" />
-                    <IconUserPlus v-else class="w-4 h-4" />
-                    Join Realm
-                </button>
-            </div>
-        </div>
+  <div class="min-h-screen bg-base-200 flex items-center justify-center px-4">
+    <!-- Not Found State -->
+    <div
+      v-if="notFound"
+      class="w-full max-w-md rounded-3xl border border-base-300/70 bg-base-100/90 p-8 text-center shadow-2xl backdrop-blur-xl"
+    >
+      <IconUsers class="mx-auto text-base-content/50 w-9 h-9" />
+      <h1 class="mt-3 text-xl font-black">Realm not found</h1>
     </div>
+
+    <!-- Error State -->
+    <div
+      v-else-if="!realm"
+      class="w-full max-w-md rounded-3xl border border-base-300/70 bg-base-100/90 p-8 shadow-2xl backdrop-blur-xl"
+    >
+      <div class="alert alert-error">
+        <span>{{ error || "Failed to load invite" }}</span>
+      </div>
+    </div>
+
+    <!-- Invite Card -->
+    <div
+      v-else
+      class="w-full max-w-lg overflow-hidden rounded-3xl border border-base-300/70 bg-base-100/95 shadow-2xl backdrop-blur-xl"
+    >
+      <!-- Banner -->
+      <div class="h-28 w-full bg-base-200">
+        <img
+          v-if="bgUrl"
+          :src="bgUrl"
+          :alt="`${realm.name} background`"
+          class="h-full w-full object-cover"
+        />
+      </div>
+
+      <div class="p-6 md:p-8">
+        <p
+          class="mb-3 text-xs font-semibold tracking-[0.2em] text-base-content/60 uppercase"
+        >
+          You're invited
+        </p>
+
+        <!-- Realm Info -->
+        <div class="mb-6 flex items-center gap-3">
+          <div v-if="avatarUrl" class="avatar">
+            <div
+              class="h-14 w-14 rounded-2xl ring ring-base-300 ring-offset-2 ring-offset-base-100"
+            >
+              <img :src="avatarUrl" :alt="realm.name" />
+            </div>
+          </div>
+          <div v-else class="avatar avatar-placeholder">
+            <div
+              class="h-14 w-14 rounded-2xl bg-primary text-primary-content ring ring-base-300 ring-offset-2 ring-offset-base-100"
+            >
+              <span class="text-base font-semibold">{{
+                getInitials(realm.name)
+              }}</span>
+            </div>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm text-base-content/60">Join the realm</p>
+            <h1 class="truncate text-2xl font-black">{{ realm.name }}</h1>
+            <p class="truncate text-sm text-base-content/60">
+              @{{ realm.slug }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <p v-if="realm.description" class="mb-4 text-sm text-base-content/80">
+          {{ realm.description }}
+        </p>
+
+        <!-- Badges -->
+        <div class="mb-3 flex flex-wrap gap-2">
+          <span class="badge gap-1 border-info/30 bg-info/15 text-info">
+            <IconUsers class="w-3 h-3" />
+            <span v-if="realm.isCommunity">Community</span>
+            <span v-else>Organization</span>
+          </span>
+          <span
+            :class="`badge gap-1 ${
+              realm.isPublic
+                ? 'border-success/30 bg-success/15 text-success'
+                : 'border-warning/30 bg-warning/20 text-warning'
+            }`"
+          >
+            <IconGlobe v-if="realm.isPublic" class="w-3 h-3" />
+            <IconLock v-else class="w-3 h-3" />
+            <span v-if="realm.isPublic">Public</span>
+            <span v-else>Private</span>
+          </span>
+        </div>
+
+        <!-- Error -->
+        <div v-if="error" class="mb-4 alert alert-error">
+          <span>{{ error }}</span>
+        </div>
+
+        <!-- Actions -->
+        <button
+          v-if="isMember"
+          class="btn w-full btn-success"
+          @click="navigateTo(`/realms/${realm.slug}`)"
+        >
+          <IconCheck class="w-4 h-4" />
+          Open Realm
+        </button>
+        <button
+          v-else
+          class="btn w-full btn-primary"
+          :disabled="isJoining || isCheckingMembership"
+          @click="joinRealm"
+        >
+          <IconLoader
+            v-if="isJoining || isCheckingMembership"
+            class="w-4 h-4 animate-spin"
+          />
+          <IconUserPlus v-else class="w-4 h-4" />
+          Join Realm
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { fetchRealm, apiFetch } from 'app/utils/api';
-import { getFileUrl } from 'app/utils/files';
-import type { Realm } from 'app/types/realm';
+import { fetchRealm, apiFetch } from "~/utils/api";
+import { getFileUrl } from "~/utils/files";
+import type { Realm } from "~/types/realm";
 import {
-    IconUsers,
-    IconGlobe,
-    IconLock,
-    IconCheck,
-    IconLoader,
-    IconUserPlus,
-} from '.nuxt/components';
+  IconUsers,
+  IconGlobe,
+  IconLock,
+  IconCheck,
+  IconLoader,
+  IconUserPlus,
+} from "#components";
 
 definePageMeta({ layout: false });
 
@@ -146,57 +155,63 @@ const bgUrl = computed(() => getFileUrl(realm.value?.background?.id));
 const avatarUrl = computed(() => getFileUrl(realm.value?.picture?.id));
 
 function getInitials(name: string): string {
-    return (
-        name
-            .split(/\s+/)
-            .filter(Boolean)
-            .map((part) => part[0]?.toUpperCase())
-            .slice(0, 2)
-            .join('') || '?'
-    );
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => part[0]?.toUpperCase())
+      .slice(0, 2)
+      .join("") || "?"
+  );
 }
 
 async function checkMembership() {
-    if (!realm.value?.slug || isCheckingMembership.value) return;
-    isCheckingMembership.value = true;
-    try {
-        await apiFetch(`/passport/realms/${encodeURIComponent(realm.value.slug)}/members/me`);
-        isMember.value = true;
-    } catch {
-        isMember.value = false;
-    } finally {
-        isCheckingMembership.value = false;
-    }
+  if (!realm.value?.slug || isCheckingMembership.value) return;
+  isCheckingMembership.value = true;
+  try {
+    await apiFetch(
+      `/passport/realms/${encodeURIComponent(realm.value.slug)}/members/me`,
+    );
+    isMember.value = true;
+  } catch {
+    isMember.value = false;
+  } finally {
+    isCheckingMembership.value = false;
+  }
 }
 
 async function joinRealm() {
-    if (!realm.value?.slug || isJoining.value) return;
-    isJoining.value = true;
-    error.value = null;
-    try {
-        await apiFetch(`/passport/realms/${encodeURIComponent(realm.value.slug)}/members/me`, {
-            method: 'POST',
-        });
-        isMember.value = true;
-        navigateTo(`/realms/${realm.value.slug}`);
-    } catch (err) {
-        error.value = err instanceof Error ? err.message : 'Failed to join realm';
-    } finally {
-        isJoining.value = false;
-    }
+  if (!realm.value?.slug || isJoining.value) return;
+  isJoining.value = true;
+  error.value = null;
+  try {
+    await apiFetch(
+      `/passport/realms/${encodeURIComponent(realm.value.slug)}/members/me`,
+      {
+        method: "POST",
+      },
+    );
+    isMember.value = true;
+    navigateTo(`/realms/${realm.value.slug}`);
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : "Failed to join realm";
+  } finally {
+    isJoining.value = false;
+  }
 }
 
 onMounted(async () => {
-    try {
-        const data = await fetchRealm(realmSlug.value);
-        realm.value = data;
-        await checkMembership();
-    } catch (err) {
-        if (err instanceof Error && err.message.includes('404')) {
-            notFound.value = true;
-        } else {
-            error.value = err instanceof Error ? err.message : 'Failed to load invite';
-        }
+  try {
+    const data = await fetchRealm(realmSlug.value);
+    realm.value = data;
+    await checkMembership();
+  } catch (err) {
+    if (err instanceof Error && err.message.includes("404")) {
+      notFound.value = true;
+    } else {
+      error.value =
+        err instanceof Error ? err.message : "Failed to load invite";
     }
+  }
 });
 </script>
