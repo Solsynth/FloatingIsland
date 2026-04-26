@@ -19,10 +19,10 @@
                         <!-- Show return URL info when redirect is present -->
                         <div
                             v-if="route.query.redirect"
-                            class="p-3 bg-base-200/60 rounded-xl border border-base-300 text-sm"
+                            class="p-3 bg-base-200/60 rounded-xl border border-base-300 text-sm overflow-hidden"
                         >
                             <p class="text-base-content/70 mb-1">Login to continue</p>
-                            <p class="font-medium text-primary truncate">
+                            <p class="font-medium text-primary break-all">
                                 {{ decodeURIComponent(route.query.redirect as string) }}
                             </p>
                         </div>
