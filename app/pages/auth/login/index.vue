@@ -15,14 +15,26 @@
                             Use your Solarpass account to login the Floating Island.
                         </p>
                     </div>
-                    <div class="mt-6 text-sm">
-                        No account?
-                        <NuxtLink
-                            to="/auth/create-account"
-                            class="link font-semibold link-primary"
+                    <div class="mt-6">
+                        <!-- Show return URL info when redirect is present -->
+                        <div
+                            v-if="route.query.redirect"
+                            class="p-3 bg-base-200/60 rounded-xl border border-base-300 text-sm"
                         >
-                            Create one
-                        </NuxtLink>
+                            <p class="text-base-content/70 mb-1">Login to continue</p>
+                            <p class="font-medium text-primary truncate">
+                                {{ decodeURIComponent(route.query.redirect as string) }}
+                            </p>
+                        </div>
+                        <p v-else class="text-sm">
+                            No account?
+                            <NuxtLink
+                                to="/auth/create-account"
+                                class="link font-semibold link-primary"
+                            >
+                                Create one
+                            </NuxtLink>
+                        </p>
                     </div>
                 </section>
 
@@ -341,7 +353,9 @@ async function handleVerify() {
             await fetchUser();
             clearLoginFlow();
             router.replace({ query: {} });
-            navigateTo("/");
+            // Redirect to original URL if redirect param exists, otherwise go home
+            const redirectUrl = route.query.redirect as string;
+            navigateTo(redirectUrl || "/");
         }
     } catch (e) {
         error.value = e instanceof Error ? e.message : "Verification failed";

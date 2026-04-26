@@ -183,7 +183,10 @@ import {
 	IconUser
 } from '#components';
 
-definePageMeta({ layout: false });
+definePageMeta({
+	layout: false,
+	middleware: 'auth',
+});
 
 const route = useRoute();
 const auth = useAuth();
@@ -281,12 +284,6 @@ async function handleDeny() {
 }
 
 onMounted(() => {
-	// Redirect to login if not authenticated
-	if (!auth.isAuthenticated.value) {
-		const redirectUrl = route.fullPath;
-		navigateTo(`/auth/login?redirect=${encodeURIComponent(redirectUrl)}`);
-		return;
-	}
 	loadClientInfo();
 });
 </script>
