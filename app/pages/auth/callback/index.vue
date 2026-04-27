@@ -23,6 +23,7 @@ definePageMeta({ layout: false })
 
 const route = useRoute()
 const { exchangeToken, fetchUser } = useAuth()
+const { getRedirect, clearRedirect } = useAuthRedirect()
 const loading = ref(true)
 const success = ref(false)
 
@@ -33,7 +34,10 @@ onMounted(async () => {
       await exchangeToken(code)
       await fetchUser()
       success.value = true
-      setTimeout(() => navigateTo('/'), 1500)
+      // Get redirect from query or sessionStorage
+      const redirectUrl = (route.query.redirect as string) || getRedirect()
+      clearRedirect()
+      setTimeout(() => navigateTo(redirectUrl || '/'), 1500)
     } else {
       navigateTo('/auth/login')
     }

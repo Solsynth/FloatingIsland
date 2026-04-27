@@ -29,7 +29,7 @@
                         <p v-else class="text-sm">
                             No account?
                             <NuxtLink
-                                to="/auth/create-account"
+                                :to="getRedirect() ? `/auth/create-account?redirect=${encodeURIComponent(getRedirect()!)}` : '/auth/create-account'"
                                 class="link font-semibold link-primary"
                             >
                                 Create one
@@ -238,6 +238,7 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const auth = useAuth();
+const { saveRedirect, getRedirect, clearRedirect } = useAuthRedirect();
 const {
     startLogin,
     loadFactors,
@@ -255,7 +256,10 @@ const submitting = ref(false);
 const error = ref<string | null>(null);
 
 function updateQuery(params: Record<string, string>) {
-    router.replace({ query: params });
+    const redirect = route.query.redirect as string | undefined;
+    router.replace({
+        query: redirect ? { ...params, redirect } : params,
+    });
 }
 
 function goBackToLookup() {
@@ -348,10 +352,11 @@ async function handleVerify() {
             // Login complete - show success and redirect
             step.value = "success";
             const code = auth.challenge.value!.id;
-            // Read redirect URL BEFORE clearing query params
-            const redirectUrl = route.query.redirect as string;
+            // Get redirect URL from query or sessionStorage
+            const redirectUrl = (route.query.redirect as string) || getRedirect();
             await exchangeToken(code);
             clearLoginFlow();
+            clearRedirect();
             router.replace({ query: {} });
             // Redirect to original URL if redirect param exists, otherwise go home
             navigateTo(redirectUrl || "/");
@@ -374,7 +379,10 @@ function goBackToFactors() {
 
 async function handleOidcLogin(provider: string) {
     const config = useRuntimeConfig();
-    const returnUrl = `${window.location.origin}/auth/callback/${provider}`;
+    // Include redirect in callback URL so it's preserved after OIDC flow
+    const redirectUrl = (route.query.redirect as string) || getRedirect();
+    const redirectParam = redirectUrl ? `&redirect=${encodeURIComponent(redirectUrl)}` : "";
+    const returnUrl = `${window.location.origin}/auth/callback/${provider}?${redirectParam}`;
     const deviceId = await auth.getDeviceId();
     const url = `${config.public.apiBaseUrl}/padlock/auth/login/${provider}?returnUrl=${encodeURIComponent(returnUrl)}&deviceId=${deviceId}&flow=login`;
     window.location.href = url;
@@ -384,6 +392,12 @@ onMounted(async () => {
     auth.isLoading.value = false;
     clearLoginFlow();
     step.value = "lookup";
+
+    // Save redirect URL to sessionStorage if present
+    const redirectFromQuery = route.query.redirect as string | undefined;
+    if (redirectFromQuery) {
+        saveRedirect(redirectFromQuery);
+    }
 
     const challengeId = route.query.challenge as string;
     const requestedStep = route.query.step as string;

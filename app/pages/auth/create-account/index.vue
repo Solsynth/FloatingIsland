@@ -128,7 +128,7 @@
 					<div class="mt-6 flex items-center justify-between">
 						<NuxtLink
 							v-if="stage === 'username-nick'"
-							to="/auth/login"
+							:to="redirectUrl ? `/auth/login?redirect=${encodeURIComponent(redirectUrl)}` : '/auth/login'"
 							class="btn btn-ghost btn-sm"
 						>
 							Login
@@ -197,6 +197,7 @@ const form = reactive({
 const stage = ref<Stage>('username-nick');
 const submitting = ref(false);
 const error = ref<string | null>(null);
+const redirectUrl = ref<string | null>(null);
 
 const stepIndex = computed(() => {
 	const stages: Stage[] = ['username-nick', 'email', 'password', 'captcha', 'terms'];
@@ -295,7 +296,10 @@ async function handleSubmit() {
 			captchaToken: form.captchaToken
 		});
 
-		navigateTo('/auth/login');
+		const loginUrl = redirectUrl.value
+			? `/auth/login?redirect=${encodeURIComponent(redirectUrl.value)}`
+			: '/auth/login';
+		navigateTo(loginUrl);
 	} catch (e) {
 		error.value = e instanceof Error ? e.message : 'Failed to create account';
 	} finally {
@@ -309,6 +313,11 @@ onMounted(() => {
 	if (tk) {
 		form.captchaToken = tk;
 		stage.value = 'terms';
+	}
+	// Save redirect param for navigation back to login
+	const redirect = route.query.redirect as string;
+	if (redirect) {
+		redirectUrl.value = redirect;
 	}
 });
 </script>
