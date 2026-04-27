@@ -1,22 +1,30 @@
 import { getValidToken, readTokenPair } from "~/utils/token";
 import { useAuthStore } from "~/stores/auth";
+import { getAuthMode, refreshSession } from "~/utils/api";
 
 export default defineNuxtPlugin(async () => {
   const store = useAuthStore();
   const config = useRuntimeConfig();
 
-  // Initialize auth state from storage
+  // Initialize auth state
   await store.initAuth();
 
   // Ensure isLoading is false after initAuth completes
   store.isLoading = false;
 
   // Set up periodic token refresh (every 4 minutes)
-  // This ensures the token is refreshed before it expires
+  // Cookie mode: call refresh endpoint (uses HttpOnly refresh cookie)
+  // Bearer mode: use localStorage refresh token
   const refreshInterval = setInterval(async () => {
-    const tokenPair = readTokenPair();
-    if (tokenPair) {
-      await getValidToken(config.public.apiBaseUrl);
+    const mode = getAuthMode();
+
+    if (mode === "cookie") {
+      await refreshSession();
+    } else {
+      const tokenPair = readTokenPair();
+      if (tokenPair) {
+        await getValidToken(config.public.apiBaseUrl);
+      }
     }
   }, 4 * 60 * 1000); // 4 minutes
 

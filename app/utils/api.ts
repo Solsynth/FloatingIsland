@@ -11,9 +11,6 @@ import type {
   WalletOrder,
   SpellInfo,
 } from "~/types/auth";
-
-// Re-export types for convenience
-export type { SpellInfo };
 import type { Publisher, Post } from "~/types/post";
 import type {
   Realm,
@@ -29,10 +26,12 @@ import { snakeToCamel, camelToSnake } from "~/utils/case";
 import {
   getValidToken,
   readTokenPair,
-  setTokenFromResponse,
   refreshAccessToken,
   type StoredTokenPair,
 } from "~/utils/token";
+
+// Re-export types for convenience
+export type { SpellInfo };
 
 // Global API configuration
 export const API_BASE = "api.solian.app";
@@ -41,6 +40,15 @@ export const API_BASE_URL = `https://${API_BASE}`;
 // Helper to build API URL
 export function getApiUrl(endpoint: string): string {
   return `${API_BASE_URL}${endpoint}`;
+}
+
+// Auth mode detection
+// - 'cookie': Production mode - uses HttpOnly cookies set by backend
+// - 'bearer': Development mode - uses localStorage + Authorization header
+export function getAuthMode(): "cookie" | "bearer" {
+  if (import.meta.server) return "cookie";
+  const host = window.location.hostname;
+  return host === "localhost" || host === "127.0.0.1" ? "bearer" : "cookie";
 }
 
 // Parse response helper
@@ -64,6 +72,7 @@ async function safeJsonParse<T>(response: Response): Promise<T> {
 
 async function getAuthToken(): Promise<string | null> {
   if (import.meta.server) return null;
+  if (getAuthMode() === "cookie") return null;
   return getValidToken(API_BASE_URL);
 }
 
@@ -83,7 +92,16 @@ export async function apiFetch(
     ...((fetchOptions.headers as Record<string, string>) || {}),
   };
 
-  if (!skipAuth) {
+  // SSR: Forward cookies from incoming request
+  if (import.meta.server) {
+    const requestHeaders = useRequestHeaders(["cookie"]);
+    if (requestHeaders.cookie) {
+      headers["cookie"] = requestHeaders.cookie;
+    }
+  }
+
+  // Client bearer mode: Add Authorization header
+  if (!skipAuth && import.meta.client && getAuthMode() === "bearer") {
     const token = await getAuthToken();
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
@@ -92,24 +110,37 @@ export async function apiFetch(
 
   const response = await fetch(url, { ...fetchOptions, headers });
 
-  // Handle 401 Unauthorized - token might be expired
+  // Handle 401 Unauthorized
   if (response.status === 401 && !skipAuth && retryCount < 1) {
-    // Force token refresh and retry
-    const tokenPair = readTokenPair();
-    if (tokenPair?.refreshToken) {
-      // Force refresh the token
-      const refreshed = await refreshAccessToken(API_BASE_URL, tokenPair);
-      if (refreshed) {
-        // Retry the request with new token
-        return apiFetch(endpoint, {
-          ...options,
-          retryCount: retryCount + 1,
+    const mode = getAuthMode();
+
+    if (mode === "cookie") {
+      // Cookie mode: Call refresh endpoint (uses HttpOnly refresh cookie)
+      try {
+        const refreshResponse = await fetch(`${API_BASE_URL}/padlock/auth/refresh`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
         });
+
+        if (refreshResponse.ok) {
+          return apiFetch(endpoint, { ...options, retryCount: retryCount + 1 });
+        }
+      } catch {
+        // Refresh failed, proceed to logout
+      }
+    } else {
+      // Bearer mode: Use localStorage refresh token
+      const tokenPair = readTokenPair();
+      if (tokenPair?.refreshToken) {
+        const refreshed = await refreshAccessToken(API_BASE_URL, tokenPair);
+        if (refreshed) {
+          return apiFetch(endpoint, { ...options, retryCount: retryCount + 1 });
+        }
       }
     }
 
-    // If refresh failed, clear auth and throw
-    // Note: We don't auto-redirect here to allow components to handle auth errors gracefully
+    // Refresh failed - clear auth state
     if (typeof window !== "undefined") {
       const auth = useAuth();
       auth.logout();
@@ -208,13 +239,16 @@ export async function getToken(code: string): Promise<SnAuthToken> {
     refresh_expires_in?: number;
   }>(response);
 
-  // Store the token pair with refresh token info
-  setTokenFromResponse(
-    data.token,
-    data.refresh_token,
-    data.expires_in,
-    data.refresh_expires_in,
-  );
+  // Only store in localStorage for dev mode (bearer auth)
+  // Production uses HttpOnly cookies set by backend
+  if (getAuthMode() === "bearer") {
+    setTokenFromResponse(
+      data.token,
+      data.refresh_token,
+      data.expires_in,
+      data.refresh_expires_in,
+    );
+  }
 
   return {
     token: data.token,
@@ -261,6 +295,24 @@ export async function refreshApiAccessToken(
 export async function getUserInfo(): Promise<SnAccount> {
   const response = await apiFetch("/passport/accounts/me");
   return safeJsonParse<SnAccount>(response);
+}
+
+// Cookie-mode auth helpers
+export async function logoutApi(): Promise<void> {
+  await apiFetch("/padlock/auth/logout", { method: "POST", skipAuth: true });
+}
+
+export async function refreshSession(): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/padlock/auth/refresh`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
 }
 
 export async function createAccount(payload: {

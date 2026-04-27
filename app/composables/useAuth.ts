@@ -3,7 +3,7 @@ import { useAuthStore } from "~/stores/auth";
 
 /**
  * Composable for auth - uses Pinia store internally
- * This maintains backward compatibility with existing code
+ * Supports both cookie-based auth (production) and bearer token auth (dev)
  */
 export function useAuth() {
     const store = useAuthStore();
@@ -46,7 +46,7 @@ export function useAuth() {
         requestCode: store.requestCode,
         submitVerification: store.submitVerification,
         exchangeToken: store.exchangeToken,
-        // For backward compatibility with state setters
+        // State setters (for login flow)
         setChallengeState: (ch: typeof store.challenge) => {
             store.challenge = ch;
         },
@@ -64,7 +64,8 @@ export function useAuth() {
         clearFactor: () => {
             store.selectedFactor = null;
         },
-        getDeviceId: async () => "", // Legacy, not used anymore
+        // Legacy helpers (primarily for dev mode with bearer tokens)
+        getDeviceId: async () => "",
         getDeviceInfo: () => ({ device_id: "", device_name: "Web", platform: 1 }),
         getValidAuthToken: async () => store.token?.token || null,
     };

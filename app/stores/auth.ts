@@ -7,6 +7,8 @@ import {
     verifyChallenge,
     getToken,
     getUserInfo,
+    logoutApi,
+    getAuthMode,
 } from "~/utils/api";
 import {
     readTokenPair,
@@ -63,13 +65,6 @@ export const useAuthStore = defineStore("auth", () => {
     const factors = ref<SnAuthFactor[]>([]);
     const selectedFactor = ref<SnAuthFactor | null>(null);
 
-    // Cookie for SSR (server sets this, we read it)
-    const authCookie = useCookie("auth_token", {
-        httpOnly: false, // We need to read it client-side
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
-
     // Computed
     const loginProgress = computed(() => {
         const ch = challenge.value;
@@ -92,28 +87,25 @@ export const useAuthStore = defineStore("auth", () => {
 
     // Actions
     async function initAuth() {
-        // Server-side: check for cookie
-        if (import.meta.server) {
-            if (authCookie.value) {
-                // Server has set the token in cookie
-                // We'll fetch user data client-side or server can pre-fetch
-                isAuthenticated.value = true;
-            }
-            return;
-        }
-
-        // Client-side: check localStorage (for backward compatibility)
-        const saved = readTokenPair();
-        if (saved) {
-            token.value = { token: saved.token, expiresAt: saved.expiresAt };
+        isLoading.value = true;
+        try {
+            const userData = await getUserInfo();
+            user.value = userData;
             isAuthenticated.value = true;
 
-            // Validate token
-            try {
-                await fetchUser();
-            } catch {
-                logout();
+            // For bearer mode, also populate token ref from localStorage
+            if (import.meta.client && getAuthMode() === "bearer") {
+                const saved = readTokenPair();
+                if (saved) {
+                    token.value = { token: saved.token, expiresAt: saved.expiresAt };
+                }
             }
+        } catch {
+            user.value = null;
+            isAuthenticated.value = false;
+            token.value = null;
+        } finally {
+            isLoading.value = false;
         }
     }
 
@@ -125,7 +117,9 @@ export const useAuthStore = defineStore("auth", () => {
             isAuthenticated.value = true;
         } catch (error) {
             console.error("Failed to fetch user:", error);
-            logout();
+            user.value = null;
+            isAuthenticated.value = false;
+            token.value = null;
             throw error;
         } finally {
             isLoading.value = false;
@@ -138,17 +132,27 @@ export const useAuthStore = defineStore("auth", () => {
         expiresIn?: number,
         refreshExpiresIn?: number,
     ) {
-        setTokenFromResponse(tokenString, refreshToken, expiresIn, refreshExpiresIn);
-
-        const saved = readTokenPair();
-        token.value = { token: tokenString, expiresAt: saved?.expiresAt };
+        // Only store in localStorage for dev mode (bearer auth)
+        // Production uses HttpOnly cookies set by backend
+        if (import.meta.client && getAuthMode() === "bearer") {
+            setTokenFromResponse(tokenString, refreshToken, expiresIn, refreshExpiresIn);
+            const saved = readTokenPair();
+            token.value = { token: tokenString, expiresAt: saved?.expiresAt };
+        }
         isAuthenticated.value = true;
-
-        // Also set cookie for SSR
-        authCookie.value = tokenString;
     }
 
-    function logout() {
+    async function logout(): Promise<void> {
+        try {
+            // Clear server-side session (cookie mode)
+            if (import.meta.client && getAuthMode() === "cookie") {
+                await logoutApi();
+            }
+        } catch {
+            // Ignore logout API errors
+        }
+
+        // Clear local state
         token.value = null;
         user.value = null;
         isAuthenticated.value = false;
@@ -156,7 +160,6 @@ export const useAuthStore = defineStore("auth", () => {
         factors.value = [];
         selectedFactor.value = null;
         clearTokenPair();
-        authCookie.value = null;
     }
 
     // Login flow
