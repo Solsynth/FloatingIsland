@@ -108,7 +108,10 @@ export async function apiFetch(
     }
   }
 
-  const response = await fetch(url, { ...fetchOptions, headers });
+  // Client cookie mode: Include credentials for cookies
+  const credentials = import.meta.client && getAuthMode() === "cookie" ? "include" : undefined;
+
+  const response = await fetch(url, { ...fetchOptions, headers, credentials });
 
   // Handle 401 Unauthorized
   if (response.status === 401 && !skipAuth && retryCount < 1) {
