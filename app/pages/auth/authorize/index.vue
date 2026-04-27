@@ -1,5 +1,5 @@
 <template>
-	<div class="min-h-screen bg-base-200 flex items-center justify-center px-4 py-8 relative">
+	<div class="min-h-screen bg-base-200 flex flex-col items-center justify-center px-4 py-8 relative">
 		<!-- Background Image (if available) -->
 		<div
 			v-if="backgroundUrl"
@@ -113,15 +113,22 @@
 									v-if="clientInfo.scopes?.length"
 									class="space-y-2 text-sm"
 								>
-									<li
-										v-for="scope in clientInfo.scopes"
-										:key="scope"
-										class="flex items-start gap-2"
-									>
-										<IconCheck class="w-4 h-4 mt-0.5 text-success flex-shrink-0" />
-										<span>{{ getScopeLabel(scope) }}</span>
-									</li>
-								</ul>
+								<li
+									v-for="scope in clientInfo.scopes"
+									:key="scope"
+									class="flex items-start gap-2"
+								>
+									<IconAlertTriangle
+										v-if="scope === '*'"
+										class="w-4 h-4 mt-0.5 text-warning flex-shrink-0"
+									/>
+									<IconCheck
+										v-else
+										class="w-4 h-4 mt-0.5 text-success flex-shrink-0"
+									/>
+									<span>{{ getScopeLabel(scope) }}</span>
+								</li>
+							</ul>
 								<p v-else class="text-sm text-base-content/60">
 									No explicit scopes provided.
 								</p>
@@ -169,6 +176,21 @@
 				</section>
 			</div>
 		</div>
+
+		<div class="w-full max-w-4xl mt-4 flex justify-center md:justify-end">
+			<button
+				class="btn btn-ghost"
+				:disabled="isLoggingOut || isAuthorizing"
+				@click="handleLogoutForAnotherAccount"
+			>
+				<IconLoader
+					v-if="isLoggingOut"
+					class="w-4 h-4 animate-spin"
+				/>
+				<IconLogOut v-else class="w-4 h-4" />
+				Use another account
+			</button>
+		</div>
 	</div>
 </template>
 
@@ -176,8 +198,10 @@
 import {
 	IconPlug,
 	IconCheck,
+	IconAlertTriangle,
 	IconAlertCircle,
 	IconLoader,
+	IconLogOut,
 	IconX,
 	IconShield,
 	IconUser
@@ -192,6 +216,7 @@ const route = useRoute();
 const auth = useAuth();
 const loading = ref(true);
 const isAuthorizing = ref(false);
+const isLoggingOut = ref(false);
 const error = ref<string | null>(null);
 
 const clientInfo = ref<{
@@ -224,6 +249,7 @@ const scopeLabels: Record<string, string> = {
 	profile: 'Read your public profile information',
 	email: 'Read your email address',
 	'offline_access': 'Access your account when you\'re not logged in',
+	'*': 'Full access: this app can do anything as you',
 };
 
 function getScopeLabel(scope: string): string {
@@ -280,6 +306,18 @@ async function handleDeny() {
 	} catch (e) {
 		error.value = e instanceof Error ? e.message : 'Failed to submit denial';
 		isAuthorizing.value = false;
+	}
+}
+
+async function handleLogoutForAnotherAccount() {
+	isLoggingOut.value = true;
+	error.value = null;
+	try {
+		await auth.logout();
+		await navigateTo(`/auth/login?redirect=${encodeURIComponent(route.fullPath)}`);
+	} catch (e) {
+		error.value = e instanceof Error ? e.message : 'Failed to logout';
+		isLoggingOut.value = false;
 	}
 }
 
