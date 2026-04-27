@@ -244,7 +244,6 @@ const {
     loadChallenge,
     submitVerification,
     exchangeToken,
-    fetchUser,
     clearLoginFlow,
     clearFactor,
 } = auth;
@@ -349,12 +348,12 @@ async function handleVerify() {
             // Login complete - show success and redirect
             step.value = "success";
             const code = auth.challenge.value!.id;
+            // Read redirect URL BEFORE clearing query params
+            const redirectUrl = route.query.redirect as string;
             await exchangeToken(code);
-            await fetchUser();
             clearLoginFlow();
             router.replace({ query: {} });
             // Redirect to original URL if redirect param exists, otherwise go home
-            const redirectUrl = route.query.redirect as string;
             navigateTo(redirectUrl || "/");
         }
     } catch (e) {

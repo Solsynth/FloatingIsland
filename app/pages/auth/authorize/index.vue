@@ -185,6 +185,7 @@ import {
 
 definePageMeta({
 	layout: false,
+	middleware: 'auth',
 });
 
 const route = useRoute();
@@ -283,11 +284,6 @@ async function handleDeny() {
 }
 
 onMounted(() => {
-	if (!auth.isAuthenticated.value) {
-		const redirectUrl = route.fullPath;
-		navigateTo(`/auth/login?redirect=${encodeURIComponent(redirectUrl)}`);
-		return;
-	}
 	loadClientInfo();
 });
 </script>
