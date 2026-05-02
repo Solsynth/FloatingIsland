@@ -1,69 +1,53 @@
 <template>
 	<div class="min-h-screen bg-base-200 flex items-center justify-center px-4">
-		<div class="w-full max-w-md rounded-3xl shadow-2xl backdrop-blur-xl overflow-hidden">
-			<div class="bg-base-100/90 p-6 backdrop-blur-2xl md:p-8">
-				<div class="flex flex-col items-center gap-4 mb-6">
-					<img src="/favicon.png" alt="Solar Network" class="h-12 w-12 rounded-full">
-					<div class="text-center">
-						<h1 class="text-2xl font-bold">Verification Required</h1>
-						<p class="text-sm text-base-content/60 mt-1">
-							Complete the captcha to continue
-						</p>
-					</div>
+		<div class="w-full max-w-lg rounded-3xl border border-base-300/70 bg-base-100/90 p-6 text-center shadow-2xl backdrop-blur-xl">
+			<div class="mb-4 flex flex-col items-center gap-3">
+				<div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+					<IconShieldCheck class="w-5 h-5" />
 				</div>
-
-				<div
-					v-if="error"
-					class="alert alert-error text-sm mb-4"
-				>
-					<IconAlertCircle class="w-4 h-4" />
-					<span>{{ error }}</span>
+				<div>
+					<h1 class="text-xl font-black">Solar Network Anti-Robot</h1>
+					<p class="text-xs text-base-content/60">Complete verification to continue</p>
 				</div>
-
-				<CaptchaWidget @verified="onVerified" />
-
-				<p v-if="token" class="text-xs text-success text-center mt-3">
-					<IconCheckCircle class="w-3 h-3 inline mr-1" />
-					Captcha verified successfully. Redirecting...
-				</p>
 			</div>
+
+			<div class="my-4">
+				<CaptchaWidget @verified="useToken" />
+			</div>
+
+			<p class="mt-5 text-xs text-base-content/60">
+				Hosted by
+				<a
+					href="https://github.com/Solsynth/DysonNetwork"
+					class="link link-primary"
+					target="_blank"
+					rel="noreferrer"
+				>DysonNetwork.Sphere</a>
+			</p>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import {
-	IconAlertCircle,
-	IconCheckCircle,
-} from '#components';
+import { IconShieldCheck } from '#components';
 
 definePageMeta({ layout: false });
 
 const route = useRoute();
-const error = ref<string | null>(null);
-const token = ref<string | null>(null);
 
-const redirectUrl = computed(() => {
-	const redirect = route.query.redirect as string;
-	return redirect ? decodeURIComponent(redirect) : null;
-});
+function useToken(value: string) {
+	const finalToken = value.trim();
+	if (!finalToken) return;
 
-function onVerified(captchaToken: string) {
-	token.value = captchaToken;
-
-	const target = redirectUrl.value || '/auth/login';
-	const separator = target.includes('?') ? '&' : '?';
-	const url = `${target}${separator}captcha_tk=${encodeURIComponent(captchaToken)}`;
-
-	setTimeout(() => {
-		navigateTo(url);
-	}, 500);
-}
-
-onMounted(() => {
-	const captchaTk = route.query.captcha_tk as string;
-	if (captchaTk) {
-		token.value = captchaTk;
+	if (window.parent !== window) {
+		window.parent.postMessage(`captcha_tk=${finalToken}`, '*');
 	}
-});
+
+	const redirectUri = route.query.redirect_uri as string;
+	if (redirectUri) {
+		const url = new URL(redirectUri);
+		url.searchParams.set('captcha_tk', finalToken);
+		window.location.href = url.toString();
+	}
+}
 </script>
