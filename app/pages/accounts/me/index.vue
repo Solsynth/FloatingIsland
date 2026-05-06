@@ -153,18 +153,33 @@
 						<!-- Account Section -->
 						<div class="card bg-base-100">
 							<div class="card-body p-2">
-								<NuxtLink
-									to="/accounts/me/wallet"
-									class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
-								>
-									<IconCreditCard
-										class="w-5 h-5 text-base-content/70"
-									/>
-									<span class="flex-1">Wallet</span>
-									<IconChevronRight
-										class="w-4 h-4 text-base-content/50"
-									/>
-								</NuxtLink>
+							<NuxtLink
+								to="/accounts/me/wallet"
+								class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
+							>
+								<IconCreditCard
+									class="w-5 h-5 text-base-content/70"
+								/>
+								<span class="flex-1">Wallet</span>
+								<IconChevronRight
+									class="w-4 h-4 text-base-content/50"
+								/>
+							</NuxtLink>
+
+							<a
+								href="https://api.solian.app/passport/accounts/me/passbook/member"
+								target="_blank"
+								rel="noopener"
+								class="flex items-center gap-3 p-3 rounded-xl hover:bg-base-200 transition-colors"
+							>
+								<IconWallet
+									class="w-5 h-5 text-base-content/70"
+								/>
+								<span class="flex-1">Add Solarpass to Apple Wallet</span>
+								<IconExternalLink
+									class="w-4 h-4 text-base-content/50"
+								/>
+							</a>
 
 								<NuxtLink
 									to="/accounts/me/badges"

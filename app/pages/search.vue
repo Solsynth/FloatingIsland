@@ -4,28 +4,24 @@
       <!-- Main Content -->
       <div class="space-y-4 min-w-0">
         <!-- Search Bar -->
-        <div class="card bg-base-100">
-          <div class="card-body p-4">
-            <div class="relative">
-              <IconSearch class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-base-content/40" />
-              <input
-                ref="searchInputRef"
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search..."
-                class="input-bordered input w-full bg-base-200/50 focus:bg-base-100 pl-10 pr-10"
-                @input="onInput"
-                @keyup.enter="onSubmit"
-              >
-              <button
-                v-if="searchQuery"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70 transition-colors"
-                @click="clearSearch"
-              >
-                <IconX class="h-4 w-4" />
-              </button>
-            </div>
-          </div>
+        <div class="relative">
+          <IconSearch class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-base-content/40" />
+          <input
+            ref="searchInputRef"
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search..."
+            class="input-bordered input w-full bg-base-200/50 focus:bg-base-100 pl-10 pr-10"
+            @input="onInput"
+            @keyup.enter="onSubmit"
+          >
+          <button
+            v-if="searchQuery"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70 transition-colors"
+            @click="clearSearch"
+          >
+            <IconX class="h-4 w-4" />
+          </button>
         </div>
 
         <!-- Mode Switcher -->
