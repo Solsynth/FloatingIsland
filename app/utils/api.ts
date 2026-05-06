@@ -647,6 +647,43 @@ export async function fetchPublishers(): Promise<Publisher[]> {
   return safeJsonParse<Publisher[]>(response);
 }
 
+// Search API
+export async function searchAccounts(
+  query: string,
+  take = 20,
+): Promise<SnAccount[]> {
+  const params = new URLSearchParams({ query, take: String(take) });
+  const response = await apiFetch(
+    `/passport/accounts/search?${params.toString()}`,
+    { skipAuth: true },
+  );
+  return safeJsonParse<SnAccount[]>(response);
+}
+
+export async function searchPublishers(
+  query: string,
+  take = 20,
+): Promise<Publisher[]> {
+  const params = new URLSearchParams({ query, take: String(take) });
+  const response = await apiFetch(
+    `/sphere/publishers/search?${params.toString()}`,
+    { skipAuth: true },
+  );
+  return safeJsonParse<Publisher[]>(response);
+}
+
+export async function searchRealms(
+  query: string,
+  take = 20,
+): Promise<Realm[]> {
+  const params = new URLSearchParams({ query, take: String(take) });
+  const response = await apiFetch(
+    `/passport/realms/search?${params.toString()}`,
+    { skipAuth: true },
+  );
+  return safeJsonParse<Realm[]>(response);
+}
+
 // Data API - Accounts
 export async function fetchAccount(name: string): Promise<SnAccount> {
   const response = await apiFetch(

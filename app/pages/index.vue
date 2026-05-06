@@ -3,29 +3,6 @@
         <div class="grid xl:grid-cols-[1fr_20rem] min-w-0">
             <!-- Main Content -->
             <div class="space-y-4 min-w-0">
-                <!-- Search Bar -->
-                <div class="card bg-base-100">
-                    <div class="card-body p-4">
-                        <div class="flex items-center gap-2">
-                            <div class="relative flex-1">
-                                <input
-                                    v-model="searchQuery"
-                                    type="text"
-                                    placeholder="Search posts..."
-                                    class="input-bordered input w-full bg-base-200/50 focus:bg-base-100 pr-10"
-                                    @keyup.enter="handleSearch"
-                                >
-                                <button
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70 transition-colors"
-                                    @click="handleSearch"
-                                >
-                                    <IconSearch class="h-4 w-4" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Compose Quick Input -->
                 <div
                     v-if="isAuthenticated"
@@ -115,7 +92,6 @@ import type { Post } from "~/types/post";
 import { fetchPosts } from "~/utils/api";
 import { getFileUrl } from "~/utils/files";
 import {
-    IconSearch,
     IconAlertCircle,
 } from "#components";
 
@@ -134,7 +110,6 @@ const offset = ref(0);
 const hasMore = ref(true);
 const fetchingMore = ref(false);
 const loadMoreRef = ref<HTMLElement | null>(null);
-const searchQuery = ref("");
 
 // User info
 const userName = computed(() => user.value?.nick || user.value?.name || "");
@@ -143,12 +118,6 @@ const userInitials = computed(() => {
     const name = user.value?.name || "?";
     return name.slice(0, 2).toUpperCase();
 });
-
-function handleSearch() {
-    if (searchQuery.value.trim()) {
-        navigateTo(`/search?q=${encodeURIComponent(searchQuery.value.trim())}`);
-    }
-}
 
 // Initial fetch with useAsyncData for SSR compatibility
 const {
