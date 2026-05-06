@@ -110,6 +110,8 @@
 import {
     IconCompass,
     IconBuilding,
+    IconFolder,
+    IconTag,
     IconLogIn,
     IconLogOut,
     IconUser,
@@ -127,6 +129,8 @@ const {
 const navItems = [
     { icon: IconCompass, label: "Explore", href: "/" },
     { icon: IconBuilding, label: "Realms", href: "/realms" },
+    { icon: IconFolder, label: "Categories", href: "/categories" },
+    { icon: IconTag, label: "Tags", href: "/tags" },
 ];
 
 const displayName = computed(() => authDisplayName.value);

@@ -79,6 +79,7 @@
               v-if="reply.content"
               class="prose prose-xs max-w-none break-words text-xs line-clamp-2 prose-p:my-0.5 prose-a:text-primary"
               v-html="renderMarkdown(reply.content)"
+              @click="handleMarkdownClick"
             />
             <!-- eslint-enable vue/no-v-html -->
 
@@ -242,6 +243,25 @@ function formatRelativeTime(dateStr: string): string {
   if (hours < 24) return `${hours}h`;
   if (days < 7) return `${days}d`;
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function handleMarkdownClick(e: MouseEvent) {
+  const target = e.target as HTMLElement
+
+  // Handle mention chip clicks
+  if (target.closest('.mention-chip')) {
+    e.preventDefault()
+    const href = target.closest('a')?.getAttribute('href')
+    if (href) {
+      navigateTo(href)
+    }
+    return
+  }
+
+  // Handle spoiler toggles
+  if (target.classList.contains('spoiler')) {
+    target.classList.toggle('revealed')
+  }
 }
 
 function handleReplyToReply(post: Post) {

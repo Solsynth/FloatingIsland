@@ -1675,3 +1675,168 @@ export async function updateDeviceLabel(deviceId: string, label: string): Promis
     body: JSON.stringify({ label }),
   });
 }
+
+// Categories API
+export interface PostCategory {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  color: string | null
+  icon: string | null
+  usage: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface PostTag {
+  id: string
+  slug: string
+  name: string | null
+  usage: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CategorySubscription {
+  id: string
+  categoryId: string
+  accountId: string
+  createdAt: string
+}
+
+export async function fetchCategories(
+  take = 20,
+  offset = 0,
+): Promise<{ categories: PostCategory[]; total: number }> {
+  const params = new URLSearchParams({
+    take: String(take),
+    offset: String(offset),
+  })
+
+  const response = await apiFetch(`/sphere/posts/categories?${params.toString()}`, {
+    skipAuth: true,
+  })
+
+  const total = parseInt(response.headers.get("x-total") || "0", 10)
+  const data = await safeJsonParse<PostCategory[]>(response)
+
+  return { categories: data, total }
+}
+
+export async function fetchCategory(slug: string): Promise<PostCategory> {
+  const response = await apiFetch(`/sphere/posts/categories/${slug}`, {
+    skipAuth: true,
+  })
+  return safeJsonParse<PostCategory>(response)
+}
+
+export async function fetchCategorySubscription(slug: string): Promise<CategorySubscription | null> {
+  try {
+    const response = await apiFetch(`/sphere/posts/categories/${slug}/subscription`)
+    return safeJsonParse<CategorySubscription>(response)
+  } catch {
+    return null
+  }
+}
+
+export async function subscribeToCategory(slug: string): Promise<void> {
+  await apiFetch(`/sphere/posts/categories/${slug}/subscribe`, {
+    method: "POST",
+  })
+}
+
+export async function unsubscribeFromCategory(slug: string): Promise<void> {
+  await apiFetch(`/sphere/posts/categories/${slug}/unsubscribe`, {
+    method: "POST",
+  })
+}
+
+export async function fetchTags(
+  take = 20,
+  offset = 0,
+): Promise<{ tags: PostTag[]; total: number }> {
+  const params = new URLSearchParams({
+    take: String(take),
+    offset: String(offset),
+  })
+
+  const response = await apiFetch(`/sphere/posts/tags?${params.toString()}`, {
+    skipAuth: true,
+  })
+
+  const total = parseInt(response.headers.get("x-total") || "0", 10)
+  const data = await safeJsonParse<PostTag[]>(response)
+
+  return { tags: data, total }
+}
+
+export async function fetchTag(slug: string): Promise<PostTag> {
+  const response = await apiFetch(`/sphere/posts/tags/${slug}`, {
+    skipAuth: true,
+  })
+  return safeJsonParse<PostTag>(response)
+}
+
+export async function fetchTagSubscription(slug: string): Promise<CategorySubscription | null> {
+  try {
+    const response = await apiFetch(`/sphere/posts/tags/${slug}/subscription`)
+    return safeJsonParse<CategorySubscription>(response)
+  } catch {
+    return null
+  }
+}
+
+export async function subscribeToTag(slug: string): Promise<void> {
+  await apiFetch(`/sphere/posts/tags/${slug}/subscribe`, {
+    method: "POST",
+  })
+}
+
+export async function unsubscribeFromTag(slug: string): Promise<void> {
+  await apiFetch(`/sphere/posts/tags/${slug}/unsubscribe`, {
+    method: "POST",
+  })
+}
+
+export async function fetchPostsByCategory(
+  slug: string,
+  take = 20,
+  offset = 0,
+): Promise<{ posts: Post[]; total: number }> {
+  const params = new URLSearchParams({
+    take: String(take),
+    offset: String(offset),
+    categories: slug,
+  })
+
+  const response = await apiFetch(`/sphere/posts?${params.toString()}`, {
+    skipAuth: true,
+  })
+
+  const total = parseInt(response.headers.get("x-total") || "0", 10)
+  const data = await safeJsonParse<Post[]>(response)
+
+  return { posts: data, total }
+}
+
+export async function fetchPostsByTag(
+  slug: string,
+  take = 20,
+  offset = 0,
+): Promise<{ posts: Post[]; total: number }> {
+  const params = new URLSearchParams({
+    take: String(take),
+    offset: String(offset),
+    tags: slug,
+  })
+
+  const response = await apiFetch(`/sphere/posts?${params.toString()}`, {
+    skipAuth: true,
+  })
+
+  const total = parseInt(response.headers.get("x-total") || "0", 10)
+  const data = await safeJsonParse<Post[]>(response)
+
+  return { posts: data, total }
+}

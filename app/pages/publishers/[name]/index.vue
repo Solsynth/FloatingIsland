@@ -181,6 +181,7 @@
                 v-if="bioHtml"
                 class="prose prose-sm max-w-none prose-headings:mb-2 prose-headings:mt-4 prose-p:my-1.5 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-sm prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-ul:my-1.5 prose-ol:my-1.5"
                 v-html="bioHtml"
+                @click="handleMarkdownClick"
               />
               <!-- eslint-enable vue/no-v-html -->
               <p v-else class="text-sm text-base-content/60">No bio yet.</p>
@@ -477,6 +478,25 @@ function getInitials(name: string): string {
       .slice(0, 2)
       .join("") || "?"
   );
+}
+
+function handleMarkdownClick(e: MouseEvent) {
+  const target = e.target as HTMLElement;
+
+  // Handle mention chip clicks
+  if (target.closest('.mention-chip')) {
+    e.preventDefault();
+    const href = target.closest('a')?.getAttribute('href');
+    if (href) {
+      navigateTo(href);
+    }
+    return;
+  }
+
+  // Handle spoiler toggles
+  if (target.classList.contains('spoiler')) {
+    target.classList.toggle('revealed');
+  }
 }
 
 function cycleRepliesFilter() {
