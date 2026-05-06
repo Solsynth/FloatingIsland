@@ -3,10 +3,18 @@
         <!-- Search -->
         <div class="relative">
             <input
+                v-model="searchQuery"
                 type="text"
                 placeholder="Search..."
                 class="input-bordered input w-full bg-base-200/50 focus:bg-base-100"
+                @keyup.enter="handleSearch"
             >
+            <button
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70 transition-colors"
+                @click="handleSearch"
+            >
+                <IconSearch class="h-4 w-4" />
+            </button>
         </div>
 
         <!-- Floating Island Note -->
@@ -46,5 +54,14 @@
 </template>
 
 <script setup lang="ts">
+import { IconSearch } from "#components";
+
 const currentYear = new Date().getFullYear();
+const searchQuery = ref("");
+
+function handleSearch() {
+    if (searchQuery.value.trim()) {
+        navigateTo(`/search?q=${encodeURIComponent(searchQuery.value.trim())}`);
+    }
+}
 </script>

@@ -3,28 +3,49 @@
         <div class="grid xl:grid-cols-[1fr_20rem] min-w-0">
             <!-- Main Content -->
             <div class="space-y-4 min-w-0">
-                <ConfuseSpinner
-                    v-if="status === 'pending' && posts.length === 0"
-                    message="Loading posts..."
-                />
-
-                <div v-else-if="error" class="alert alert-error">
-                    <IconAlertCircle class="w-5 h-5" />
-                    <span>Failed to load posts: {{ error }}</span>
+                <!-- Search Bar -->
+                <div class="card bg-base-100">
+                    <div class="card-body p-4">
+                        <div class="flex items-center gap-2">
+                            <div class="relative flex-1">
+                                <input
+                                    v-model="searchQuery"
+                                    type="text"
+                                    placeholder="Search posts..."
+                                    class="input-bordered input w-full bg-base-200/50 focus:bg-base-100 pr-10"
+                                    @keyup.enter="handleSearch"
+                                >
+                                <button
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70 transition-colors"
+                                    @click="handleSearch"
+                                >
+                                    <IconSearch class="h-4 w-4" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Compose Quick Input -->
-                <div class="card bg-base-100">
+                <div
+                    v-if="isAuthenticated"
+                    class="card bg-base-100 cursor-pointer transition-all hover:shadow-md"
+                    @click="openCompose"
+                >
                     <div class="card-body p-4">
-                        <div
-                            class="flex items-center gap-3 cursor-pointer"
-                            @click="openCompose"
-                        >
-                            <div class="avatar">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-primary text-primary-content flex items-center justify-center"
-                                >
-                                    <IconPlus class="w-5 h-5" />
+                        <div class="flex items-center gap-3">
+                            <div v-if="userAvatar" class="avatar">
+                                <div class="h-10 w-10 rounded-full">
+                                    <img
+                                        :src="userAvatar"
+                                        :alt="userName"
+                                        class="h-full w-full rounded-full object-cover"
+                                    >
+                                </div>
+                            </div>
+                            <div v-else class="avatar avatar-placeholder">
+                                <div class="h-10 w-10 rounded-full bg-primary text-primary-content">
+                                    <span class="text-sm font-medium">{{ userInitials }}</span>
                                 </div>
                             </div>
                             <div class="flex-1">
@@ -38,6 +59,19 @@
                     </div>
                 </div>
 
+                <!-- Loading State -->
+                <ConfuseSpinner
+                    v-if="status === 'pending' && posts.length === 0"
+                    message="Loading posts..."
+                />
+
+                <!-- Error State -->
+                <div v-else-if="error" class="alert alert-error">
+                    <IconAlertCircle class="h-5 w-5" />
+                    <span>Failed to load posts: {{ error }}</span>
+                </div>
+
+                <!-- Posts List -->
                 <template v-if="posts.length > 0">
                     <PostCard
                         v-for="post in posts"
@@ -79,12 +113,36 @@
 import { nextTick } from "vue";
 import type { Post } from "~/types/post";
 import { fetchPosts } from "~/utils/api";
-import { IconPlus } from "#components";
+import { getFileUrl } from "~/utils/files";
+import {
+    IconSearch,
+    IconAlertCircle,
+} from "#components";
 
 useHead({
     title: "Explore",
-    meta: [{ name: "description", content: "Explore posts on Solar Network" }],
+    meta: [
+        {
+            name: "description",
+            content: "Discover the latest posts, updates, and conversations on Solar Network.",
+        },
+        {
+            property: "og:title",
+            content: "Explore - Solar Network",
+        },
+        {
+            property: "og:description",
+            content: "Discover the latest posts, updates, and conversations on Solar Network.",
+        },
+        {
+            property: "og:url",
+            content: "https://solian.app",
+        },
+    ],
 });
+
+const auth = useAuth();
+const { isAuthenticated, user } = auth;
 
 const posts = useState<Post[]>("home-posts", () => []);
 const total = ref(0);
@@ -92,6 +150,21 @@ const offset = ref(0);
 const hasMore = ref(true);
 const fetchingMore = ref(false);
 const loadMoreRef = ref<HTMLElement | null>(null);
+const searchQuery = ref("");
+
+// User info
+const userName = computed(() => user.value?.nick || user.value?.name || "");
+const userAvatar = computed(() => getFileUrl(user.value?.profile?.picture?.id));
+const userInitials = computed(() => {
+    const name = user.value?.name || "?";
+    return name.slice(0, 2).toUpperCase();
+});
+
+function handleSearch() {
+    if (searchQuery.value.trim()) {
+        navigateTo(`/search?q=${encodeURIComponent(searchQuery.value.trim())}`);
+    }
+}
 
 // Initial fetch with useAsyncData for SSR compatibility
 const {
@@ -100,7 +173,10 @@ const {
     error,
 } = await useAsyncData(
     "home-posts-fetch",
-    () => fetchPosts(20, 0, { replies: false }),
+    () => {
+        const options: Parameters<typeof fetchPosts>[2] = { replies: false };
+        return fetchPosts(20, 0, options);
+    },
     {
         default: () => ({ posts: [], total: 0 }),
     },
@@ -124,7 +200,8 @@ async function loadMore() {
     fetchingMore.value = true;
 
     try {
-        const result = await fetchPosts(20, offset.value, { replies: false });
+        const options: Parameters<typeof fetchPosts>[2] = { replies: false };
+        const result = await fetchPosts(20, offset.value, options);
 
         if (result?.posts) {
             posts.value = [...posts.value, ...result.posts];
@@ -151,13 +228,11 @@ function handleShare(post: Post) {
 }
 
 function handleReply(post: Post) {
-    // Use the global compose state
     const compose = useCompose();
     compose.initializeFromState({
         content: "",
         replyingTo: post,
     });
-    // Open compose dialog via event
     const event = new CustomEvent("open-compose");
     window.dispatchEvent(event);
 }
@@ -171,7 +246,6 @@ function openCompose() {
 let observer: IntersectionObserver | null = null;
 
 onMounted(() => {
-    // Delay observer setup to ensure DOM is fully rendered
     nextTick(() => {
         if (!loadMoreRef.value) return;
 
@@ -210,27 +284,5 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     observer?.disconnect();
-});
-
-useHead({
-    title: "Explore",
-    meta: [
-        {
-            name: "description",
-            content: "Discover the latest posts, updates, and conversations on Solar Network.",
-        },
-        {
-            property: "og:title",
-            content: "Explore - Solar Network",
-        },
-        {
-            property: "og:description",
-            content: "Discover the latest posts, updates, and conversations on Solar Network.",
-        },
-        {
-            property: "og:url",
-            content: "https://solian.app",
-        },
-    ],
 });
 </script>

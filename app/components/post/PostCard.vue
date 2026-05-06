@@ -1,147 +1,111 @@
 <template>
-  <component
-    :is="wrapperTag"
-    class="block hover:no-underline"
-    v-bind="wrapperProps"
+  <article
+    class="card transition-all"
+    :class="[embedded ? 'bg-base-200 border-0' : 'bg-base-100']"
   >
-    <article
-      class="card cursor-pointer transition-all"
-      :class="embedded ? 'bg-base-200 border-0' : 'bg-base-100'"
-    >
-      <div class="card-body p-4">
-        <!-- Reference Post (Parent, Twitter-style) -->
+    <div class="card-body p-4">
+        <!-- Reference Post (Reply/Forward) -->
         <div v-if="showReference && hasReference" class="mb-2">
           <button
             type="button"
-            class="mb-2 flex w-full items-center gap-2 text-left text-sm font-medium text-base-content/65"
+            class="flex w-full items-center gap-1.5 text-left text-xs font-medium text-base-content/50 hover:text-base-content/70 transition-colors"
             @click.stop="referenceCollapsed = !referenceCollapsed"
           >
-            <IconReply v-if="referenceIsReply" class="h-4 w-4" />
-            <IconForward v-else class="h-4 w-4" />
-            <span>{{ referenceIsReply ? "Replying to" : "Forwarded" }}</span>
-            <span class="ml-auto text-xs">{{
-              referenceCollapsed ? "Expand" : "Collapse"
-            }}</span>
+            <IconReply v-if="referenceIsReply" class="h-3.5 w-3.5" />
+            <IconForward v-else class="h-3.5 w-3.5" />
+            <span>{{ referenceIsReply ? "Replied to" : "Forwarded" }}</span>
             <IconChevronDown
               v-if="referenceCollapsed"
-              class="h-4 w-4 text-base-content/60"
+              class="h-3.5 w-3.5 ml-auto"
             />
-            <IconChevronUp v-else class="h-4 w-4 text-base-content/60" />
+            <IconChevronUp v-else class="h-3.5 w-3.5 ml-auto" />
           </button>
+
           <div
             v-if="!referenceCollapsed && referencePost"
-            class="grid cursor-pointer grid-cols-[40px_1fr] gap-3"
-            @click.stop="navigateToReference"
+            class="mt-2 grid grid-cols-[28px_1fr] gap-2"
           >
-            <div class="relative flex justify-center">
-              <component
-                :is="referencePost.publisher ? 'NuxtLink' : 'div'"
-                type="button"
-                class="avatar"
-                :to="
-                  referencePost.publisher
-                    ? `/publishers/${referencePost.publisher.name}`
-                    : undefined
-                "
-              >
-                <div
-                  v-if="getAvatarUrl(referencePost)"
-                  class="h-10 w-10 rounded-full"
-                >
-                  <img
-                    :src="getAvatarUrl(referencePost)"
-                    :alt="getDisplayName(referencePost.publisher)"
-                    class="h-full w-full rounded-full object-cover"
-                  >
-                </div>
-                <div
-                  v-else
-                  class="h-10 w-10 rounded-full bg-primary text-primary-content"
-                >
-                  <span class="text-sm font-medium">{{
-                    getInitials(getDisplayName(referencePost.publisher))
-                  }}</span>
-                </div>
-              </component>
-              <div
-                class="absolute top-10 -bottom-2.5 w-px bg-base-300/80"
-              />
+            <!-- Threading line -->
+            <div class="flex flex-col items-center">
+              <div class="w-px flex-1 bg-base-300/80" />
             </div>
-            <div class="min-w-0 pb-2">
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="truncate text-sm font-semibold">{{
-                  getDisplayName(referencePost.publisher)
-                }}</span>
+
+            <!-- Referenced post content -->
+            <div
+              class="min-w-0 pb-2 cursor-pointer"
+              @click.stop="navigateToReference"
+            >
+              <!-- Author info -->
+              <div class="flex items-center gap-2 mb-1">
+                <div v-if="getAvatarUrl(referencePost)" class="avatar">
+                  <div class="h-6 w-6 rounded-full">
+                    <img
+                      :src="getAvatarUrl(referencePost)"
+                      :alt="getDisplayName(referencePost.publisher)"
+                      class="h-full w-full rounded-full object-cover"
+                    >
+                  </div>
+                </div>
+                <div v-else class="avatar avatar-placeholder">
+                  <div class="h-6 w-6 rounded-full bg-primary text-primary-content">
+                    <span class="text-[10px] font-medium">
+                      {{ getInitials(getDisplayName(referencePost.publisher)) }}
+                    </span>
+                  </div>
+                </div>
+                <span class="text-xs font-semibold truncate">
+                  {{ getDisplayName(referencePost.publisher) }}
+                </span>
                 <span
                   v-if="referencePost.publisher?.name"
-                  class="truncate text-sm text-base-content/65"
+                  class="text-xs text-base-content/50 truncate"
                 >
                   @{{ referencePost.publisher.name }}
                 </span>
               </div>
-              <div class="text-xs text-base-content/55">
-                {{ formatDate(referencePost.publishedAt) }}
-              </div>
+
+              <!-- Content preview -->
               <!-- eslint-disable vue/no-v-html -->
               <div
                 v-if="referencePost.content"
-                class="prose prose-sm mt-2 max-w-none break-words prose-headings:mb-1 prose-headings:mt-2 prose-p:my-1 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-a:break-all prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-xs prose-pre:overflow-x-auto prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-3 prose-blockquote:italic prose-ul:my-1 prose-ol:my-1"
+                class="prose prose-xs max-w-none break-words text-xs line-clamp-3 prose-p:my-0.5 prose-headings:mb-1 prose-headings:mt-1 prose-a:text-primary prose-a:no-underline"
                 v-html="renderedReferenceContent"
               />
               <!-- eslint-enable vue/no-v-html -->
-              <div
-                v-if="referencePost.title || referencePost.description"
-                class="mt-2 space-y-1"
-              >
-                <div
-                  v-if="referencePost.title"
-                  class="line-clamp-1 text-sm font-semibold"
-                >
-                  {{ referencePost.title }}
-                </div>
-                <div
-                  v-if="referencePost.description"
-                  class="line-clamp-2 text-xs text-base-content/75"
-                >
-                  {{ referencePost.description }}
-                </div>
-              </div>
+
+              <!-- Truncated hint -->
               <div
                 v-if="referencePost.isTruncated"
-                class="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-base-300 bg-base-100/70 px-2 py-1 text-xs text-base-content/70 italic"
+                class="mt-1 inline-flex items-center gap-1 text-xs text-base-content/50 italic"
               >
-                <IconEllipsis class="h-3.5 w-3.5" />
+                <IconEllipsis class="h-3 w-3" />
                 <span>Post truncated</span>
               </div>
+
+              <!-- Attachments indicator -->
               <div
                 v-if="referencePost.attachments.length > 0"
-                class="mt-2 inline-flex items-center gap-1 text-xs text-base-content/70"
+                class="mt-1 inline-flex items-center gap-1 text-xs text-base-content/50"
               >
-                <IconPaperclip class="h-3.5 w-3.5" />
-                <span
-                  >{{ referencePost.attachments.length }} attachment(s)</span
-                >
+                <IconPaperclip class="h-3 w-3" />
+                <span>{{ referencePost.attachments.length }} attachment(s)</span>
               </div>
-              <AttachmentGrid
-                v-if="referencePost.attachments.length > 0"
-                :attachments="referencePost.attachments"
-                :max-height="80"
-              />
             </div>
           </div>
         </div>
 
-        <!-- Header -->
-        <div class="flex items-start justify-between gap-3">
+        <!-- Post Header -->
+        <div class="flex items-start gap-3">
+          <!-- Avatar -->
           <component
             :is="post.publisher ? 'NuxtLink' : 'div'"
             type="button"
-            class="flex items-center gap-3"
+            class="shrink-0"
             :to="
               post.publisher ? `/publishers/${post.publisher.name}` : undefined
             "
+            @click.stop
           >
-            <!-- Avatar -->
             <div v-if="getAvatarUrl(post)" class="avatar">
               <div class="h-10 w-10 rounded-full">
                 <img
@@ -152,39 +116,67 @@
               </div>
             </div>
             <div v-else class="avatar avatar-placeholder">
-              <div
-                class="h-10 w-10 rounded-full bg-primary text-primary-content"
-              >
-                <span class="text-sm font-medium">{{
-                  getInitials(getDisplayName(post.publisher))
-                }}</span>
-              </div>
-            </div>
-
-            <div class="flex flex-col items-start min-w-0">
-              <div class="flex items-center gap-1.5 min-w-0">
-                <span class="text-base leading-tight font-semibold truncate">
-                  {{ getDisplayName(post.publisher) }}
-                </span>
-                <IconBadgeCheck
-                  v-if="post.publisher?.verification"
-                  class="h-4 w-4 text-primary shrink-0"
-                />
-                <span
-                  v-if="post.publisher?.name"
-                  class="text-sm text-base-content/50 truncate"
-                >
-                  @{{ post.publisher.name }}
+              <div class="h-10 w-10 rounded-full bg-primary text-primary-content">
+                <span class="text-sm font-medium">
+                  {{ getInitials(getDisplayName(post.publisher)) }}
                 </span>
               </div>
-              <span class="text-xs text-base-content/40">{{
-                formatDate(post.publishedAt, isDetail)
-              }}</span>
             </div>
           </component>
 
+          <!-- Author info -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 min-w-0">
+              <NuxtLink
+                v-if="post.publisher"
+                :to="`/publishers/${post.publisher.name}`"
+                class="text-sm leading-tight font-semibold truncate hover:underline"
+                @click.stop
+              >
+                {{ getDisplayName(post.publisher) }}
+              </NuxtLink>
+              <span v-else class="text-sm leading-tight font-semibold truncate">
+                {{ getDisplayName(post.publisher) }}
+              </span>
+
+              <IconBadgeCheck
+                v-if="post.publisher?.verification"
+                class="h-4 w-4 text-primary shrink-0"
+              />
+
+              <NuxtLink
+                v-if="post.publisher?.name"
+                :to="`/publishers/${post.publisher.name}`"
+                class="text-xs text-base-content/50 truncate hover:underline"
+                @click.stop
+              >
+                @{{ post.publisher.name }}
+              </NuxtLink>
+
+              <!-- Realm -->
+              <template v-if="post.realm">
+                <IconChevronRight class="h-3 w-3 text-base-content/40 shrink-0" />
+                <NuxtLink
+                  :to="`/realms/${post.realm.slug}`"
+                  class="flex items-center gap-1 text-xs text-base-content/60 hover:underline truncate"
+                  @click.stop
+                >
+                  <span>{{ post.realm.name }}</span>
+                </NuxtLink>
+              </template>
+            </div>
+
+            <div class="flex items-center gap-2 text-xs text-base-content/40">
+              <span>{{ formatDate(post.publishedAt, isDetail) }}</span>
+              <span v-if="hasEdits" class="flex items-center gap-0.5">
+                <IconPenLine class="h-3 w-3" />
+                edited
+              </span>
+            </div>
+          </div>
+
           <!-- Menu -->
-          <div class="relative">
+          <div class="relative shrink-0">
             <button
               class="btn btn-circle btn-ghost btn-sm"
               @click.stop="showMenu = !showMenu"
@@ -193,26 +185,47 @@
             </button>
             <div
               v-if="showMenu"
-              class="absolute top-full right-0 z-10 mt-1"
+              class="absolute top-full right-0 z-50 mt-1"
               role="menu"
               tabindex="-1"
               @click.stop
             >
-              <ul
-                class="menu w-40 rounded-box border border-base-300 bg-base-100 shadow-lg"
-              >
-                <li>
-                  <button @click.stop="handleShare">
-                    <IconShare class="h-4 w-4" /> Share
+              <ul class="menu w-48 rounded-box border border-base-300 bg-base-100 shadow-lg">
+                <li v-if="isAuthor">
+                  <button @click.stop="handleEdit">
+                    <IconPencil class="h-4 w-4" /> Edit
                   </button>
                 </li>
+                <li v-if="isAuthor">
+                  <button class="text-error" @click.stop="handleDelete">
+                    <IconTrash class="h-4 w-4" /> Delete
+                  </button>
+                </li>
+                <li v-if="isAuthor"><div class="divider my-0" /></li>
+                <li>
+                  <button @click.stop="handleReply">
+                    <IconReply class="h-4 w-4" /> Reply
+                  </button>
+                </li>
+                <li>
+                  <button @click.stop="handleForward">
+                    <IconForward class="h-4 w-4" /> Forward
+                  </button>
+                </li>
+                <li><div class="divider my-0" /></li>
                 <li>
                   <button @click.stop="handleCopyLink">
                     <IconLink class="h-4 w-4" /> Copy link
                   </button>
                 </li>
                 <li>
-                  <button class="text-error" @click.stop="handleReport">
+                  <button @click.stop="handleShare">
+                    <IconShare class="h-4 w-4" /> Share
+                  </button>
+                </li>
+                <li><div class="divider my-0" /></li>
+                <li>
+                  <button @click.stop="handleReport">
                     <IconFlag class="h-4 w-4" /> Report
                   </button>
                 </li>
@@ -221,25 +234,65 @@
           </div>
         </div>
 
-        <!-- Content -->
-        <div class="mt-3">
-          <h3 v-if="post.title" class="mb-2 text-lg font-semibold line-clamp-2">
+        <!-- Article type header (only in list view) -->
+        <div
+          v-if="isArticle && !isDetail"
+          class="mt-2 rounded-lg border border-base-300 bg-base-200/30 overflow-hidden"
+        >
+          <NuxtLink
+            :to="`/posts/${post.id}`"
+            class="block hover:bg-base-200/50 transition-colors"
+          >
+            <div v-if="thumbnailUrl" class="aspect-video w-full overflow-hidden">
+              <img
+                :src="thumbnailUrl"
+                :alt="post.title || 'Article thumbnail'"
+                class="h-full w-full object-cover"
+              >
+            </div>
+            <div class="p-3">
+              <div class="badge badge-primary badge-sm mb-2">Article</div>
+              <h3 v-if="post.title" class="text-base font-bold line-clamp-2">
+                {{ post.title }}
+              </h3>
+              <p v-if="post.description" class="text-sm text-base-content/70 line-clamp-2 mt-1">
+                {{ post.description }}
+              </p>
+            </div>
+          </NuxtLink>
+        </div>
+
+        <!-- Content (shown for all posts, or for articles in detail view) -->
+        <div v-if="!isArticle || isDetail" class="mt-2">
+          <div v-if="isArticle && isDetail" class="mb-3">
+            <div class="badge badge-primary badge-sm mb-2">Article</div>
+            <h3 v-if="post.title" class="text-xl font-bold">
+              {{ post.title }}
+            </h3>
+            <p v-if="post.description" class="text-base text-base-content/70 mt-2">
+              {{ post.description }}
+            </p>
+          </div>
+          <h3 v-else-if="post.title" class="mb-2 text-base font-bold line-clamp-2">
             {{ post.title }}
           </h3>
           <!-- eslint-disable vue/no-v-html -->
           <div
             class="prose prose-sm max-w-none break-words prose-headings:mb-2 prose-headings:mt-4 prose-p:my-1.5 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-a:break-all prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-sm prose-pre:overflow-x-auto prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-ul:my-1.5 prose-ol:my-1.5"
+            :class="{ 'prose-lg': isArticle && isDetail }"
             v-html="renderedContent"
           />
           <!-- eslint-enable vue/no-v-html -->
-          <div
-            v-if="post.isTruncated"
-            class="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-base-300 bg-base-200/40 px-2 py-1 text-xs text-base-content/75 italic"
+
+          <!-- Read more link -->
+          <NuxtLink
+            v-if="!isDetail"
+            :to="`/posts/${post.id}`"
+            class="mt-2 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
           >
-            <IconEllipsis class="h-3.5 w-3.5" />
-            <span>Post truncated</span>
-            <IconArrowRight v-if="!isDetail" class="h-3.5 w-3.5" />
-          </div>
+            <span>Read more</span>
+            <IconArrowRight class="h-4 w-4" />
+          </NuxtLink>
         </div>
 
         <!-- Attachments -->
@@ -249,280 +302,135 @@
         />
 
         <!-- Tags -->
-        <div v-if="post.tags.length > 0" class="mt-3 flex flex-wrap gap-2">
+        <div v-if="post.tags.length > 0" class="mt-3 flex flex-wrap gap-1.5">
           <NuxtLink
-            v-for="tag in post.tags"
+            v-for="tag in displayTags"
             :key="tag.id"
-            :to="`/tag/${tag.slug}`"
+            :to="`/tags/${tag.slug}`"
             class="badge badge-ghost badge-sm transition-colors hover:badge-primary"
             @click.stop
           >
             {{ tag.name ?? "#" + tag.slug }}
           </NuxtLink>
+          <span
+            v-if="!isDetail && post.tags.length > 3"
+            class="badge badge-ghost badge-sm opacity-60"
+          >
+            +{{ post.tags.length - 3 }}
+          </span>
         </div>
 
         <!-- Embeds -->
-        <div v-if="embeds.length > 0" class="mt-3 space-y-3">
-          <!-- Link Embeds -->
+        <div v-if="embeds.length > 0" class="mt-3 space-y-2">
           <div
-            v-if="linkEmbeds.length > 0"
-            class="rounded-xl border border-base-300/80 bg-base-200/20 p-2"
+            v-for="(embed, idx) in embeds"
+            :key="idx"
           >
-            <div
-              class="mb-2 flex items-center gap-2 px-1 text-sm font-medium text-base-content/70"
+            <!-- Link Embed -->
+            <button
+              v-if="getEmbedType(embed) === 'link'"
+              type="button"
+              class="card w-full cursor-pointer border border-base-300 bg-base-100 text-left"
+              @click.stop="openExternal(getEmbedUrl(embed)!)"
             >
-              <IconLink2 class="h-4 w-4" />
-              <span>Links ({{ linkEmbeds.length }})</span>
-            </div>
-            <!-- Single Link -->
-            <div v-if="linkEmbeds.length === 1">
-              <button
-                type="button"
-                class="card w-full cursor-pointer border border-base-300 bg-base-100 text-left"
-                @click.stop="openExternal(getEmbedUrl(linkEmbeds[0])!)"
-              >
+              <div v-if="getEmbedImage(embed)" class="aspect-video w-full overflow-hidden rounded-t-xl">
                 <img
-                  v-if="
-                    getEmbedImage(linkEmbeds[0]) &&
-                    getEmbedImage(linkEmbeds[0]) !==
-                      getEmbedFavicon(linkEmbeds[0])
-                  "
-                  :src="
-                    resolveAssetUrl(
-                      getEmbedUrl(linkEmbeds[0])!,
-                      getEmbedImage(linkEmbeds[0])!,
-                    )
-                  "
-                  :alt="getEmbedTitle(linkEmbeds[0]) || 'Link preview image'"
-                  class="h-36 w-full rounded-t-xl object-cover"
+                  :src="resolveAssetUrl(getEmbedUrl(embed)!, getEmbedImage(embed)!)"
+                  :alt="getEmbedTitle(embed) || 'Link preview'"
+                  class="h-full w-full object-cover"
                   loading="lazy"
                 >
-                <div class="card-body gap-2 p-3">
-                  <div
-                    class="flex items-center gap-2 text-xs text-base-content/60"
+              </div>
+              <div class="card-body gap-1 p-3">
+                <div class="flex items-center gap-2 text-xs text-base-content/60">
+                  <img
+                    v-if="getEmbedFavicon(embed)"
+                    :src="resolveAssetUrl(getEmbedUrl(embed)!, getEmbedFavicon(embed)!)"
+                    alt="Site icon"
+                    class="h-4 w-4 rounded object-cover"
+                    loading="lazy"
                   >
-                    <img
-                      v-if="getEmbedFavicon(linkEmbeds[0])"
-                      :src="
-                        resolveAssetUrl(
-                          getEmbedUrl(linkEmbeds[0])!,
-                          getEmbedFavicon(linkEmbeds[0])!,
-                        )
-                      "
-                      alt="Site icon"
-                      class="h-4 w-4 rounded object-cover"
-                      loading="lazy"
-                    >
-                    <IconLink v-else class="h-4 w-4" />
-                    <span class="truncate">{{
-                      getEmbedSiteName(linkEmbeds[0]) ||
-                      getHost(getEmbedUrl(linkEmbeds[0])!)
-                    }}</span>
-                    <IconExternalLink class="ml-auto h-4 w-4" />
-                  </div>
-                  <div
-                    v-if="getEmbedTitle(linkEmbeds[0])"
-                    class="line-clamp-2 text-sm font-semibold"
-                  >
-                    {{ getEmbedTitle(linkEmbeds[0]) }}
-                  </div>
-                  <div
-                    v-if="getEmbedDescription(linkEmbeds[0])"
-                    class="line-clamp-3 text-sm text-base-content/75"
-                  >
-                    {{ getEmbedDescription(linkEmbeds[0]) }}
-                  </div>
-                  <div class="truncate text-xs text-primary underline">
-                    {{ getEmbedUrl(linkEmbeds[0]) }}
-                  </div>
-                  <div
-                    v-if="
-                      getEmbedAuthor(linkEmbeds[0]) ||
-                      getEmbedPublished(linkEmbeds[0])
-                    "
-                    class="mt-1 flex items-center gap-3 text-xs text-base-content/60"
-                  >
-                    <span
-                      v-if="getEmbedAuthor(linkEmbeds[0])"
-                      class="inline-flex items-center gap-1"
-                    >
-                      <IconUser class="h-3.5 w-3.5" />
-                      {{ getEmbedAuthor(linkEmbeds[0]) }}
-                    </span>
-                    <span
-                      v-if="getEmbedPublished(linkEmbeds[0])"
-                      class="inline-flex items-center gap-1"
-                    >
-                      <IconClock3 class="h-3.5 w-3.5" />
-                      {{ formatDateLabel(getEmbedPublished(linkEmbeds[0])!) }}
-                    </span>
-                  </div>
+                  <IconLink v-else class="h-3.5 w-3.5" />
+                  <span class="truncate">
+                    {{ getEmbedSiteName(embed) || getHost(getEmbedUrl(embed)!) }}
+                  </span>
+                  <IconExternalLink class="ml-auto h-3.5 w-3.5" />
                 </div>
-              </button>
-            </div>
-            <!-- Multiple Links Carousel -->
-            <div v-else class="carousel w-full carousel-center gap-3">
-              <button
-                v-for="(embed, idx) in linkEmbeds"
-                :key="idx"
-                type="button"
-                class="card carousel-item w-80 cursor-pointer border border-base-300 bg-base-100 text-left"
-                @click.stop="openExternal(getEmbedUrl(embed)!)"
-              >
-                <img
-                  v-if="getEmbedImage(embed)"
-                  :src="
-                    resolveAssetUrl(getEmbedUrl(embed)!, getEmbedImage(embed)!)
-                  "
-                  :alt="getEmbedTitle(embed) || 'Link preview image'"
-                  class="h-24 w-full rounded-t-xl object-cover"
-                  loading="lazy"
-                >
-                <div class="card-body p-3">
-                  <div class="truncate text-xs text-base-content/60">
-                    {{
-                      getEmbedSiteName(embed) || getHost(getEmbedUrl(embed)!)
-                    }}
-                  </div>
-                  <div class="line-clamp-1 text-sm font-semibold">
-                    {{ getEmbedTitle(embed) || getEmbedUrl(embed) }}
-                  </div>
-                  <div
-                    v-if="getEmbedDescription(embed)"
-                    class="line-clamp-2 text-xs text-base-content/70"
-                  >
-                    {{ getEmbedDescription(embed) }}
-                  </div>
+                <div v-if="getEmbedTitle(embed)" class="line-clamp-2 text-sm font-semibold">
+                  {{ getEmbedTitle(embed) }}
                 </div>
-              </button>
-            </div>
-          </div>
-
-          <!-- Non-Link Embeds -->
-          <div v-for="(embed, idx) in nonLinkEmbeds" :key="idx">
-            <!-- Poll Embed -->
-            <div v-if="getEmbedType(embed) === 'poll'" class="card">
-              <div class="card-body p-3">
-                <div class="flex items-center gap-2 font-medium">
-                  <IconVote class="h-4 w-4" /> Poll
-                </div>
-                <div
-                  v-if="!getEmbedId(embed)"
-                  class="text-sm text-base-content/70"
-                >
-                  Poll was unavailable.
-                </div>
-                <div v-else>
-                  <div class="text-sm text-base-content/80">
-                    {{ getEmbedTitle(embed) || `Poll #${getEmbedId(embed)}` }}
-                  </div>
-                  <div
-                    v-if="getEmbedDescription(embed)"
-                    class="text-xs text-base-content/65"
-                  >
-                    {{ getEmbedDescription(embed) }}
-                  </div>
+                <div v-if="getEmbedDescription(embed)" class="line-clamp-2 text-xs text-base-content/75">
+                  {{ getEmbedDescription(embed) }}
                 </div>
               </div>
-            </div>
+            </button>
 
-            <!-- Fund Embed -->
-            <div v-else-if="getEmbedType(embed) === 'fund'" class="card">
+            <!-- Poll Embed -->
+            <div v-else-if="getEmbedType(embed) === 'poll'" class="card border border-base-300">
               <div class="card-body p-3">
-                <div class="flex items-center gap-2 font-medium">
-                  <IconCircleDollarSign class="h-4 w-4" /> Fund Envelope
+                <div class="flex items-center gap-2 text-sm font-medium">
+                  <IconVote class="h-4 w-4" /> Poll
                 </div>
-                <div
-                  v-if="!getEmbedId(embed)"
-                  class="text-sm text-base-content/70"
-                >
-                  Fund envelope was unavailable.
-                </div>
-                <div v-else>
-                  <div class="text-sm text-base-content/80">
-                    {{ getEmbedTitle(embed) || `Fund #${getEmbedId(embed)}` }}
-                  </div>
-                  <div
-                    v-if="getEmbedDescription(embed)"
-                    class="text-xs text-base-content/65"
-                  >
-                    {{ getEmbedDescription(embed) }}
-                  </div>
+                <div v-if="getEmbedTitle(embed)" class="text-sm text-base-content/80">
+                  {{ getEmbedTitle(embed) }}
                 </div>
               </div>
             </div>
 
             <!-- Livestream Embed -->
-            <div v-else-if="getEmbedType(embed) === 'livestream'">
-              <div v-if="!getEmbedId(embed)" class="card">
-                <div class="card-body p-3">
-                  <div class="flex items-center gap-2 font-medium">
-                    <IconRadio class="h-4 w-4" /> Livestream
-                  </div>
-                  <div class="text-sm text-base-content/70">
-                    Livestream was unavailable.
-                  </div>
+            <NuxtLink
+              v-else-if="getEmbedType(embed) === 'livestream' && getEmbedId(embed)"
+              :to="`/livestreams/${getEmbedId(embed)}`"
+              class="card border border-base-300 bg-base-100 block hover:no-underline"
+              @click.stop
+            >
+              <div class="card-body p-3">
+                <div class="flex items-center gap-2 text-sm font-medium text-primary">
+                  <IconRadio class="h-4 w-4" />
+                  <span>{{ getEmbedTitle(embed) || "Livestream" }}</span>
+                </div>
+                <div v-if="getEmbedDescription(embed)" class="text-xs text-base-content/70 line-clamp-2">
+                  {{ getEmbedDescription(embed) }}
                 </div>
               </div>
-              <NuxtLink
-                v-else
-                :to="`/livestreams/${getEmbedId(embed)}`"
-                class="card cursor-pointer border border-base-300 bg-base-100 block hover:no-underline"
-                @click.stop
-              >
-                <div class="card-body p-3">
-                  <div class="flex items-center gap-2 font-medium text-primary">
-                    <IconRadio class="h-4 w-4" />
-                    <span>{{ getEmbedTitle(embed) || "Livestream" }}</span>
-                  </div>
-                  <div
-                    v-if="getEmbedDescription(embed)"
-                    class="text-sm text-base-content/70 line-clamp-2"
-                  >
-                    {{ getEmbedDescription(embed) }}
-                  </div>
-                </div>
-              </NuxtLink>
-            </div>
-
-            <!-- Unknown Embed -->
-            <div v-else class="alert py-2 text-sm alert-info">
-              <IconAlertCircle class="h-4 w-4" />
-              <span
-                >Unable to show embed:
-                {{ getEmbedType(embed) || "unknown" }}</span
-              >
-            </div>
+            </NuxtLink>
           </div>
         </div>
 
         <!-- Metadata -->
-        <div class="mt-3 flex flex-wrap items-center gap-2 text-xs">
+        <div v-if="metadataItems.length > 0" class="mt-2 flex flex-wrap items-center gap-2 text-xs text-base-content/50">
           <span
-            v-if="post.visibility !== 0"
-            :class="`badge badge-sm ${visibilityMeta.tone}`"
+            v-for="(item, idx) in metadataItems"
+            :key="idx"
+            class="inline-flex items-center gap-1"
           >
-            <IconGlobe v-if="post.visibility === 0" class="h-3.5 w-3.5" />
-            <IconUsers v-else-if="post.visibility === 1" class="h-3.5 w-3.5" />
-            <IconEyeOff v-else-if="post.visibility === 2" class="h-3.5 w-3.5" />
-            <IconLock v-else class="h-3.5 w-3.5" />
-            {{ visibilityMeta.label }}
-          </span>
-          <span v-if="hasEdits" class="badge badge-outline badge-sm">
-            <IconPenLine class="h-3 w-3" />
-            {{ formatDate(post.editedAt!) }} edited
-          </span>
-          <span
-            v-if="post.attachments.length > 0"
-            class="badge badge-outline badge-sm"
-          >
-            <IconPaperclip class="h-3 w-3" />
-            {{ post.attachments.length }}
+            <component :is="item.icon" class="h-3.5 w-3.5" />
+            <span>{{ item.label }}</span>
           </span>
         </div>
 
+        <!-- Reactions -->
+        <PostReactionList
+          v-if="post.reactionsCount && Object.keys(post.reactionsCount).length > 0"
+          :reactions="formattedReactions"
+          :post-id="post.id"
+          class="mt-2"
+          @react="handleReact"
+          @remove="handleRemoveReaction"
+        />
+
+        <!-- Reply Preview -->
+        <PostReplyPreview
+          v-if="!isDetail && post.repliesCount > 0"
+          :post-id="post.id"
+          :total-replies="post.repliesCount"
+          class="mt-2"
+          @reply="handleReply"
+          @boost="handleBoost"
+        />
+
         <!-- Actions -->
-        <div class="mt-4 flex items-center justify-between pt-3">
+        <div class="mt-3 flex items-center justify-between pt-3 border-t border-base-200">
           <div class="flex items-center gap-1">
             <button
               class="btn gap-1.5 btn-ghost btn-sm hover:bg-primary/10 hover:text-primary"
@@ -533,6 +441,7 @@
             </button>
             <button
               class="btn gap-1.5 btn-ghost btn-sm hover:bg-success/10 hover:text-success"
+              :class="{ 'text-success': hasBoosted }"
               @click.stop="handleBoost"
             >
               <IconRepeat2 class="h-4 w-4" />
@@ -543,24 +452,25 @@
           <div class="flex items-center gap-0.5 rounded-xl bg-base-200 p-0.5">
             <button
               class="btn px-2 btn-ghost btn-xs hover:bg-success/20 hover:text-success"
+              :class="{ 'text-success': hasUpvoted }"
               @click.stop="handleUpvote"
             >
               <IconArrowBigUp class="h-5 w-5" />
             </button>
-            <span class="min-w-[1.5ch] text-center text-sm font-medium">{{
-              formatNumber(netScore)
-            }}</span>
+            <span class="min-w-[1.5ch] text-center text-sm font-medium">
+              {{ formatNumber(netScore) }}
+            </span>
             <button
               class="btn px-2 btn-ghost btn-xs hover:bg-error/20 hover:text-error"
+              :class="{ 'text-error': hasDownvoted }"
               @click.stop="handleDownvote"
             >
               <IconArrowBigDown class="h-5 w-5" />
             </button>
-          </div>
         </div>
       </div>
-    </article>
-  </component>
+    </div>
+  </article>
 </template>
 
 <script setup lang="ts">
@@ -577,27 +487,29 @@ import {
   IconFlag,
   IconLink,
   IconReply,
+  IconForward,
   IconChevronDown,
   IconChevronUp,
+  IconChevronRight,
   IconEllipsis,
   IconArrowRight,
   IconPaperclip,
-  IconGlobe,
+  IconPenLine,
+  IconPencil,
+  IconTrash,
+  IconExternalLink,
+  IconVote,
+  IconRadio,
+  IconBadgeCheck,
   IconUsers,
   IconEyeOff,
   IconLock,
-  IconPenLine,
-  IconLink2,
-  IconExternalLink,
-  IconVote,
-  IconCircleDollarSign,
-  IconRadio,
-  IconAlertCircle,
-  IconUser,
-  IconClock3,
-  IconForward,
-  IconBadgeCheck,
 } from "#components";
+
+interface EmbedItem {
+  type?: string;
+  [key: string]: unknown;
+}
 
 interface Props {
   post: Post;
@@ -616,17 +528,43 @@ const emit = defineEmits<{
   boost: [post: Post];
   share: [post: Post];
   reply: [post: Post];
+  refresh: [];
 }>();
+
+const auth = useAuth();
+const { user } = auth;
 
 // State
 const showMenu = ref(false);
 const referenceCollapsed = ref(false);
+const hasBoosted = ref(false);
+const hasUpvoted = ref(false);
+const hasDownvoted = ref(false);
 
-// Computed
+// Check if current user is the author
+const isAuthor = computed(() => {
+  if (!user.value || !props.post.publisher) return false;
+  return props.post.publisher.account?.id === user.value.id;
+});
+
+// Post type checks
+const isArticle = computed(() => props.post.type === 1);
+
+// Thumbnail for articles
+const thumbnailUrl = computed(() => {
+  const thumbnailId = props.post.meta?.thumbnail as string | undefined;
+  if (!thumbnailId) return null;
+  const attachment = props.post.attachments.find(a => a.id === thumbnailId);
+  return attachment ? getFileUrl(attachment.id) : null;
+});
+
+// Content
 const displayContent = computed(() =>
   props.post.isTruncated ? `${props.post.content}...` : props.post.content,
 );
 const renderedContent = computed(() => renderMarkdown(displayContent.value));
+
+// Reference post
 const referencePost = computed(
   () => props.post.repliedPost ?? props.post.forwardedPost,
 );
@@ -639,55 +577,58 @@ const renderedReferenceContent = computed(() => {
     : referencePost.value.content;
   return renderMarkdown(content);
 });
+
+// Scores
 const netScore = computed(() => props.post.upvotes - props.post.downvotes);
 const hasEdits = computed(() => props.post.editedAt != null);
 
-// Wrapper element - use 'div' for detail view, 'NuxtLink' for list view
-const wrapperTag = computed(() => (props.isDetail ? "div" : "a"));
-const wrapperProps = computed(() => {
-  if (props.isDetail) return {};
-  return { href: `/posts/${props.post.id}` };
+// Reactions
+const formattedReactions = computed(() => {
+  const reactionsCount = props.post.reactionsCount || {};
+  const reactionsMade = props.post.reactionsMade || {};
+
+  return Object.entries(reactionsCount).map(([symbol, count]) => ({
+    symbol,
+    attitude: 0,
+    count: count as number,
+    userReacted: reactionsMade[symbol] || false,
+  }));
+});
+
+// Tags
+const displayTags = computed(() => {
+  if (props.isDetail) return props.post.tags;
+  return props.post.tags.slice(0, 3);
 });
 
 // Embeds
-interface EmbedItem {
-  type?: string;
-  [key: string]: unknown;
-}
-
 const embeds = computed(() => {
   const raw = props.post.meta?.embeds ?? props.post.metadata?.embeds;
   if (!Array.isArray(raw)) return [];
   return raw.filter((e): e is EmbedItem => typeof e === "object" && e !== null);
 });
 
-const linkEmbeds = computed(() =>
-  embeds.value.filter((e) => getEmbedType(e) === "link"),
-);
-const nonLinkEmbeds = computed(() =>
-  embeds.value.filter((e) => getEmbedType(e) !== "link"),
-);
+// Metadata items
+const metadataItems = computed(() => {
+  const items: Array<{ icon: typeof IconFlag; label: string }> = [];
 
-// Visibility
-interface VisibilityMeta {
-  label: string;
-  tone: string;
-}
-
-function getVisibilityMeta(visibility: number): VisibilityMeta {
-  switch (visibility) {
-    case 1:
-      return { label: "Friends", tone: "badge-info" };
-    case 2:
-      return { label: "Unlisted", tone: "badge-warning" };
-    case 3:
-      return { label: "Private", tone: "badge-neutral" };
-    default:
-      return { label: "Public", tone: "badge-success" };
+  if (props.post.visibility === 1) {
+    items.push({ icon: IconUsers, label: "Friends only" });
+  } else if (props.post.visibility === 2) {
+    items.push({ icon: IconEyeOff, label: "Unlisted" });
+  } else if (props.post.visibility === 3) {
+    items.push({ icon: IconLock, label: "Private" });
   }
-}
 
-const visibilityMeta = computed(() => getVisibilityMeta(props.post.visibility));
+  if (props.post.attachments.length > 0) {
+    items.push({
+      icon: IconPaperclip,
+      label: `${props.post.attachments.length} attachment(s)`,
+    });
+  }
+
+  return items;
+});
 
 // Embed helpers
 function getEmbedType(embed: EmbedItem): string {
@@ -733,14 +674,6 @@ function getEmbedImage(embed: EmbedItem): string | null {
   return getEmbedString(embed, ["imageUrl", "image_url"]);
 }
 
-function getEmbedAuthor(embed: EmbedItem): string | null {
-  return getEmbedString(embed, ["author"]);
-}
-
-function getEmbedPublished(embed: EmbedItem): string | null {
-  return getEmbedString(embed, ["publishedDate", "published_date"]);
-}
-
 // Helpers
 function getHost(url: string): string {
   try {
@@ -761,12 +694,6 @@ function resolveAssetUrl(baseUrl: string, rawUrl: string): string {
     }
   }
   return rawUrl;
-}
-
-function formatDateLabel(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return formatDate(date.toISOString());
 }
 
 function openExternal(url: string): void {
@@ -834,6 +761,7 @@ function navigateToReference() {
 
 // Actions
 function handleShare() {
+  showMenu.value = false;
   emit("share", props.post);
 }
 
@@ -843,35 +771,107 @@ function handleCopyLink() {
   showMenu.value = false;
 }
 
-function handleReport() {
-  // TODO: Implement report
+function handleReply() {
   showMenu.value = false;
+  const compose = useCompose();
+  compose.initializeFromState({
+    content: "",
+    replyingTo: props.post,
+  });
+  emit("reply", props.post);
+  const event = new CustomEvent("open-compose");
+  window.dispatchEvent(event);
 }
 
-function handleReply() {
-  // Use global compose state
-  const compose = useCompose()
+function handleForward() {
+  showMenu.value = false;
+  const compose = useCompose();
   compose.initializeFromState({
-    content: '',
-    replyingTo: props.post,
-  })
-  // Emit to parent for dialog opening
-  emit("reply", props.post);
-  // Also trigger global compose open
-  const event = new CustomEvent('open-compose')
-  window.dispatchEvent(event)
+    content: "",
+    forwardingTo: props.post,
+  });
+  const event = new CustomEvent("open-compose");
+  window.dispatchEvent(event);
+}
+
+function handleEdit() {
+  showMenu.value = false;
+  // TODO: Implement edit
+}
+
+function handleDelete() {
+  showMenu.value = false;
+  // TODO: Implement delete
+}
+
+function handleReport() {
+  showMenu.value = false;
+  // TODO: Implement report
 }
 
 function handleBoost() {
+  hasBoosted.value = !hasBoosted.value;
   emit("boost", props.post);
 }
 
 function handleUpvote() {
-  // TODO: Implement upvote
+  if (hasUpvoted.value) {
+    hasUpvoted.value = false;
+  } else {
+    hasUpvoted.value = true;
+    hasDownvoted.value = false;
+  }
 }
 
 function handleDownvote() {
-  // TODO: Implement downvote
+  if (hasDownvoted.value) {
+    hasDownvoted.value = false;
+  } else {
+    hasDownvoted.value = true;
+    hasUpvoted.value = false;
+  }
+}
+
+async function handleReact(symbol: string, attitude: number) {
+  try {
+    const { reactToPost } = await import('~/utils/api');
+    await reactToPost(props.post.id, symbol, attitude);
+
+    // Update local state
+    const reactionsCount = { ...props.post.reactionsCount };
+    reactionsCount[symbol] = (reactionsCount[symbol] || 0) + 1;
+
+    const reactionsMade = { ...(props.post.reactionsMade || {}) };
+    reactionsMade[symbol] = true;
+
+    // Emit update if needed
+    // Note: The parent should handle post updates
+  } catch (e) {
+    console.error('Failed to react:', e);
+  }
+}
+
+async function handleRemoveReaction(symbol: string) {
+  try {
+    const { removeReaction } = await import('~/utils/api');
+    await removeReaction(props.post.id, symbol);
+
+    // Update local state
+    const reactionsCount = { ...props.post.reactionsCount };
+    if (reactionsCount[symbol]) {
+      reactionsCount[symbol] = Math.max(0, reactionsCount[symbol] - 1);
+      if (reactionsCount[symbol] === 0) {
+        delete reactionsCount[symbol];
+      }
+    }
+
+    const reactionsMade = { ...(props.post.reactionsMade || {}) };
+    reactionsMade[symbol] = false;
+
+    // Emit update if needed
+  } catch (e) {
+    console.error('Failed to remove reaction:', e);
+  }
 }
 
 // Close menu when clicking outside

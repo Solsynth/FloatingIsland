@@ -480,6 +480,125 @@ export async function fetchPostReplies(id: string): Promise<Post[]> {
   return safeJsonParse<Post[]>(response);
 }
 
+// Reactions API
+export interface Reaction {
+  symbol: string;
+  attitude: number;
+  count: number;
+}
+
+export interface PostReaction {
+  id: string;
+  postId: string;
+  symbol: string;
+  attitude: number;
+  accountId?: string;
+  actorId?: string;
+  account?: {
+    id: string;
+    name: string;
+    nick: string;
+    profile: {
+      picture?: { id: string };
+    };
+  };
+  createdAt: string;
+}
+
+export interface Boost {
+  id: string;
+  postId: string;
+  accountId?: string;
+  actorId?: string;
+  account?: {
+    id: string;
+    name: string;
+    nick: string;
+    profile: {
+      picture?: { id: string };
+    };
+  };
+  boostedAt: string;
+}
+
+export async function fetchPostReactions(postId: string): Promise<Reaction[]> {
+  const response = await apiFetch(`/sphere/posts/${postId}/reactions`, {
+    skipAuth: true,
+  });
+  return safeJsonParse<Reaction[]>(response);
+}
+
+export async function fetchPostReactionList(
+  postId: string,
+  take = 20,
+  offset = 0,
+): Promise<{ items: PostReaction[]; total: number }> {
+  const params = new URLSearchParams({
+    take: String(take),
+    offset: String(offset),
+  });
+  const response = await apiFetch(`/sphere/posts/${postId}/reactions?${params.toString()}`, {
+    skipAuth: true,
+  });
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<PostReaction[]>(response);
+  return { items: data, total };
+}
+
+export async function reactToPost(
+  postId: string,
+  symbol: string,
+  attitude: number,
+): Promise<void> {
+  await apiFetch(`/sphere/posts/${postId}/reactions`, {
+    method: "POST",
+    body: JSON.stringify({ symbol, attitude }),
+  });
+}
+
+export async function removeReaction(
+  postId: string,
+  symbol: string,
+): Promise<void> {
+  await apiFetch(`/sphere/posts/${postId}/reactions/${symbol}`, {
+    method: "DELETE",
+  });
+}
+
+export async function fetchPostBoosts(
+  postId: string,
+  take = 20,
+  offset = 0,
+): Promise<{ items: Boost[]; total: number }> {
+  const params = new URLSearchParams({
+    take: String(take),
+    offset: String(offset),
+  });
+  const response = await apiFetch(`/sphere/posts/${postId}/boosts?${params.toString()}`, {
+    skipAuth: true,
+  });
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<Boost[]>(response);
+  return { items: data, total };
+}
+
+export async function fetchPostForwards(
+  postId: string,
+  take = 20,
+  offset = 0,
+): Promise<{ posts: Post[]; total: number }> {
+  const params = new URLSearchParams({
+    take: String(take),
+    offset: String(offset),
+  });
+  const response = await apiFetch(`/sphere/posts/${postId}/forwards?${params.toString()}`, {
+    skipAuth: true,
+  });
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<Post[]>(response);
+  return { posts: data, total };
+}
+
 // Data API - Publishers
 export async function fetchPublisher(name: string): Promise<Publisher> {
   const response = await apiFetch(

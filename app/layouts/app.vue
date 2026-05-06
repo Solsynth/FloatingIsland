@@ -149,6 +149,9 @@
 
 			<!-- Compose Dialog -->
 			<ComposeDialog :open="composeOpen" @close="composeOpen = false" @submit="handleComposeSubmit" />
+
+			<!-- Lightbox Viewer -->
+			<LightboxViewer />
 		</div>
 	</div>
 </template>
