@@ -512,20 +512,12 @@ watch(
 			const description = p.description || p.content.slice(0, 160);
 			const imageUrl = p.attachments[0]?.url || getFileUrl(p.attachments[0]?.id);
 
-			useHead({
+			useSeoMeta({
 				title,
-				meta: [
-					{ name: 'description', content: description },
-					{ property: 'og:title', content: title },
-					{ property: 'og:description', content: description },
-					{ property: 'og:type', content: 'article' },
-					...(imageUrl ? [{ property: 'og:image', content: imageUrl }] : []),
-					{ property: 'og:url', content: `https://solian.app/posts/${p.id}` },
-					{ name: 'twitter:card', content: imageUrl ? 'summary_large_image' : 'summary' },
-					{ name: 'twitter:title', content: title },
-					{ name: 'twitter:description', content: description },
-					...(imageUrl ? [{ name: 'twitter:image', content: imageUrl }] : []),
-				],
+				description,
+				image: imageUrl || undefined,
+				url: `https://solian.app/posts/${p.id}`,
+				type: 'article',
 			});
 		}
 	},

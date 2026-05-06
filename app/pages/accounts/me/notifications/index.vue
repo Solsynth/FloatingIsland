@@ -535,7 +535,7 @@ onMounted(async () => {
     isLoading.value = false;
 });
 
-useHead({
+useSeoMeta({
     title: "Notifications",
 });
 </script>

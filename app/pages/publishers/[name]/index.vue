@@ -692,14 +692,10 @@ onMounted(async () => {
     }
 
     // SEO
-    useHead({
+    useSeoMeta({
       title: displayName.value,
-      meta: [
-        {
-          name: "description",
-          content: pubData.bio || `@${pubData.name} on Solar Network`,
-        },
-      ],
+      description: pubData.bio || `@${pubData.name} on Solar Network`,
+      url: `https://solian.app/publishers/${pubData.name}`,
     });
   } catch (err) {
     if (err instanceof Error && err.message.includes("404")) {

@@ -176,7 +176,7 @@ async function saveAppearance() {
     }
 }
 
-useHead({
+useSeoMeta({
     title: "Appearance Settings",
 });
 </script>

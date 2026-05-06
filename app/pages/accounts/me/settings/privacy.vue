@@ -204,7 +204,7 @@ onMounted(() => {
     fetchBlockedUsers();
 });
 
-useHead({
+useSeoMeta({
     title: "Privacy Settings",
 });
 </script>

@@ -361,14 +361,8 @@ const comparisonRows: ComparisonRow[] = [
     },
 ];
 
-useHead({
+useSeoMeta({
     title: "Pricing - Stellar Program",
-    meta: [
-        {
-            name: "description",
-            content:
-                "Pick the Stellar plan that matches how you use Solar Network.",
-        },
-    ],
+    description: "Pick the Stellar plan that matches how you use Solar Network.",
 });
 </script>

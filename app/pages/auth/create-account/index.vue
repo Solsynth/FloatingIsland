@@ -184,6 +184,11 @@ import {
 
 definePageMeta({ layout: false });
 
+useSeoMeta({
+    title: "Create Account",
+    description: "Create a new account on Solar Network.",
+});
+
 type Stage = 'username-nick' | 'email' | 'password' | 'captcha' | 'terms';
 
 const form = reactive({

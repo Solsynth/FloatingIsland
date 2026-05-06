@@ -127,6 +127,11 @@ definePageMeta({
   layout: false,
 })
 
+useSeoMeta({
+    title: "File",
+    description: "View file on Solar Network.",
+})
+
 const route = useRoute()
 const fileId = computed(() => route.params.id as string)
 

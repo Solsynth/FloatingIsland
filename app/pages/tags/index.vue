@@ -55,7 +55,10 @@
 import { fetchTags, type PostTag } from '~/utils/api'
 import { IconTag, IconLoader } from '#components'
 
-useHead({ title: 'Tags' })
+useSeoMeta({
+  title: 'Tags',
+  description: 'Browse tags on Solar Network.',
+})
 
 const tags = ref<PostTag[]>([])
 const offset = ref(0)

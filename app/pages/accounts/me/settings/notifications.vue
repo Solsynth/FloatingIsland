@@ -398,7 +398,7 @@ onMounted(() => {
     fetchNotificationTopics();
 });
 
-useHead({
+useSeoMeta({
     title: "Notification Settings",
 });
 </script>

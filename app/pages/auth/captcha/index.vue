@@ -33,6 +33,11 @@ import { IconShieldCheck } from '#components';
 
 definePageMeta({ layout: false });
 
+useSeoMeta({
+    title: "Verification",
+    description: "Complete verification to continue.",
+});
+
 const route = useRoute();
 
 function useToken(value: string) {

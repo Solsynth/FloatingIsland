@@ -21,6 +21,11 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 
+useSeoMeta({
+    title: "Authenticating",
+    description: "Completing authentication...",
+})
+
 const route = useRoute()
 const { exchangeToken, fetchUser } = useAuth()
 const { getRedirect, clearRedirect } = useAuthRedirect()

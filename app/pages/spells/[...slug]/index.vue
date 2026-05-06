@@ -156,6 +156,11 @@ import { getSpell, applySpell, type SpellInfo } from '~/utils/api';
 
 definePageMeta({ layout: false });
 
+useSeoMeta({
+    title: "Spells",
+    description: "Discover and apply spells on Solar Network.",
+});
+
 const route = useRoute();
 const spellWord = computed(() => (route.params.slug as string[])?.join('/') || '');
 

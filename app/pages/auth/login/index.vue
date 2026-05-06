@@ -235,6 +235,11 @@ definePageMeta({
     layout: false,
 });
 
+useSeoMeta({
+    title: "Log In",
+    description: "Log in to your Solar Network account.",
+});
+
 const route = useRoute();
 const router = useRouter();
 const auth = useAuth();

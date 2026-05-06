@@ -319,11 +319,9 @@ onMounted(async () => {
         }
 
         // SEO
-        useHead({
+        useSeoMeta({
             title: `Boost - ${realmData.name}`,
-            meta: [
-                { name: 'description', content: `Support ${realmData.name} with boost points` },
-            ],
+            description: `Support ${realmData.name} with boost points`,
         })
     } catch (err) {
         if (err instanceof Error && err.message.includes('404')) {

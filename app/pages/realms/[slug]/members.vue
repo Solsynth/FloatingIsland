@@ -332,11 +332,9 @@ onMounted(async () => {
 		await reloadMembers();
 
 		// SEO
-		useHead({
+		useSeoMeta({
 			title: `Members - ${realmData.name}`,
-			meta: [
-				{ name: 'description', content: `Members of ${realmData.name}` }
-			]
+			description: `Members of ${realmData.name}`,
 		});
 	} catch (err) {
 		if (err instanceof Error && err.message.includes('404')) {

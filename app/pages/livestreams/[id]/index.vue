@@ -89,11 +89,10 @@ const hlsUrl = computed(() => {
 
 watchEffect(() => {
   if (stream.value) {
-    useHead({
+    useSeoMeta({
       title: stream.value.title || 'Livestream',
-      meta: [
-        { name: 'description', content: stream.value.description || `Watch ${publisherName.value}'s livestream` },
-      ],
+      description: stream.value.description || `Watch ${publisherName.value}'s livestream`,
+      image: stream.value.thumbnailUrl || undefined,
     })
   }
 })

@@ -498,7 +498,7 @@ onMounted(() => {
     resetForms();
 });
 
-useHead({
+useSeoMeta({
     title: "Profile Settings",
 });
 </script>

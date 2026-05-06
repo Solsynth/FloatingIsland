@@ -141,6 +141,11 @@ import {
 
 definePageMeta({ layout: false });
 
+useSeoMeta({
+    title: "Join Realm",
+    description: "You've been invited to join a realm on Solar Network.",
+});
+
 const route = useRoute();
 const realmSlug = computed(() => route.params.slug as string);
 

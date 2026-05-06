@@ -62,9 +62,9 @@
 
 import { fetchLivestreams } from '~/utils/api'
 
-useHead({
+useSeoMeta({
   title: 'Livestreams',
-  meta: [{ name: 'description', content: 'Watch livestreams on Solar Network' }],
+  description: 'Watch livestreams on Solar Network',
 })
 
 const { data: streams, status: streamsStatus } = await useAsyncData(

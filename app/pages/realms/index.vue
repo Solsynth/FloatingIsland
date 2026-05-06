@@ -96,9 +96,9 @@
 import type { Realm } from '~/types/realm';
 import { fetchRealms } from '~/utils/api';
 
-useHead({
+useSeoMeta({
 	title: 'Realms',
-	meta: [{ name: 'description', content: 'Explore and join realms on Solar Network' }]
+	description: 'Explore and join realms on Solar Network',
 });
 
 const auth = useAuth();

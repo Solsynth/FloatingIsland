@@ -366,7 +366,7 @@ onMounted(async () => {
 	}
 });
 
-useHead({
-	title: 'My Account'
+useSeoMeta({
+	title: 'My Account',
 });
 </script>

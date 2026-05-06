@@ -67,6 +67,11 @@
 
 import { getOrder, payOrder } from '~/utils/api'
 
+useSeoMeta({
+    title: "Order Status",
+    description: "View and manage your order on Solar Network.",
+})
+
 const route = useRoute()
 const orderId = computed(() => route.params.id as string)
 const paying = ref(false)

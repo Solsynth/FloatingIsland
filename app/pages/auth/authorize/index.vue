@@ -212,6 +212,11 @@ definePageMeta({
 	middleware: 'auth',
 });
 
+useSeoMeta({
+	title: "Authorize App",
+	description: "Authorize an application to access your Solar Network account.",
+});
+
 const route = useRoute();
 const auth = useAuth();
 const loading = ref(true);

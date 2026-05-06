@@ -134,7 +134,10 @@ import {
   IconLoader,
 } from '#components'
 
-useHead({ title: 'Categories & Tags' })
+useSeoMeta({
+  title: 'Categories & Tags',
+  description: 'Browse categories and tags on Solar Network.',
+})
 
 const activeTab = ref<'categories' | 'tags'>('categories')
 

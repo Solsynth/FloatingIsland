@@ -151,7 +151,10 @@ const title = computed(() => {
   return tag.value?.name || 'Tag'
 })
 
-useHead({ title })
+useSeoMeta({
+  title: title,
+  description: computed(() => isCategory.value ? (category.value?.description || 'A category') : 'A tag'),
+})
 
 const hasMorePosts = computed(() => posts.value.length < totalPosts.value)
 const isSubscribed = computed(() => subscription.value !== null)

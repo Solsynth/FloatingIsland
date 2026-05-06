@@ -709,7 +709,7 @@ onMounted(async () => {
     isLoading.value = false;
 });
 
-useHead({
+useSeoMeta({
     title: "Relationships",
 });
 </script>

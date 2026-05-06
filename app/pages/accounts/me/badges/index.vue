@@ -397,7 +397,7 @@ onMounted(() => {
     loadBadges();
 });
 
-useHead({
+useSeoMeta({
     title: "Badges",
 });
 </script>

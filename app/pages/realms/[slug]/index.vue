@@ -533,14 +533,9 @@ onMounted(async () => {
     await checkMembership();
 
     // SEO
-    useHead({
+    useSeoMeta({
       title: data.name,
-      meta: [
-        {
-          name: "description",
-          content: data.description || `Realm: ${data.name}`,
-        },
-      ],
+      description: data.description || `Realm: ${data.name}`,
     });
   } catch (err) {
     if (err instanceof Error && err.message.includes("404")) {

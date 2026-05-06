@@ -938,7 +938,7 @@ async function logoutAllOtherSessions() {
     }
 }
 
-useHead({
+useSeoMeta({
     title: "Security Settings",
 });
 </script>

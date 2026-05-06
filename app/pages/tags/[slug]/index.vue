@@ -128,7 +128,10 @@ const error = ref<string | null>(null)
 const postsOffset = ref(0)
 const totalPosts = ref(0)
 
-useHead({ title: computed(() => tag.value?.name || 'Tag') })
+useSeoMeta({
+  title: computed(() => tag.value?.name || 'Tag'),
+  description: computed(() => `Browse posts tagged with ${tag.value?.name || 'this tag'} on Solar Network.`),
+})
 
 const hasMorePosts = computed(() => posts.value.length < totalPosts.value)
 const isSubscribed = computed(() => subscription.value !== null)
