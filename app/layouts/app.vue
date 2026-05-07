@@ -151,7 +151,7 @@
         <IconPlus class="w-6 h-6" />
       </button>
 
-      <!-- Compose Dialog -->
+      <!-- Lightbox Viewer -->
       <ComposeDialog
         :open="composeOpen"
         @close="composeOpen = false"
@@ -207,7 +207,7 @@ function handleLogout() {
 }
 
 function openCompose() {
-  composeOpen.value = true;
+  navigateTo("/compose");
 }
 
 function handleComposeSubmit() {

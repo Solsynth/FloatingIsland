@@ -29,72 +29,21 @@
                         Saved {{ formatTimeAgo(lastSaved) }}
                     </span>
 
-                    <!-- Settings Button -->
-                    <div class="dropdown dropdown-end">
-                        <button
-                            class="btn btn-sm btn-circle btn-ghost"
-                            tabindex="0"
-                        >
-                            <IconSettings class="w-5 h-5" />
-                        </button>
-                        <div
-                            class="dropdown-content z-20 menu p-2 shadow-lg bg-base-100 rounded-box w-64 mt-2"
-                        >
-                            <div class="p-3 space-y-4">
-                                <!-- Visibility -->
-                                <div>
-                                    <label
-                                        class="text-xs font-medium text-base-content/70 mb-1.5 block"
-                                        >Visibility</label
-                                    >
-                                    <select
-                                        v-model="visibility"
-                                        class="select select-bordered select-sm w-full"
-                                    >
-                                        <option :value="0">Public</option>
-                                        <option :value="1">Friends Only</option>
-                                        <option :value="2">Unlisted</option>
-                                        <option :value="3">Private</option>
-                                    </select>
-                                </div>
+                    <button
+                        class="btn btn-sm btn-circle btn-ghost"
+                        :title="showPreview ? 'Back to editor' : 'Preview'"
+                        @click="showPreview = !showPreview"
+                    >
+                        <IconEye class="w-5 h-5" />
+                    </button>
 
-                                <!-- Language -->
-                                <div>
-                                    <label
-                                        class="text-xs font-medium text-base-content/70 mb-1.5 block"
-                                        >Language</label
-                                    >
-                                    <select
-                                        v-model="language"
-                                        class="select select-bordered select-sm w-full"
-                                    >
-                                        <option :value="null">
-                                            Auto-detect
-                                        </option>
-                                        <option value="en">English</option>
-                                        <option value="zh">Chinese</option>
-                                        <option value="ja">Japanese</option>
-                                        <option value="ko">Korean</option>
-                                        <option value="es">Spanish</option>
-                                        <option value="fr">French</option>
-                                        <option value="de">German</option>
-                                        <option value="ru">Russian</option>
-                                    </select>
-                                </div>
-
-                                <!-- Draft Actions -->
-                                <div class="pt-2 border-t border-base-200">
-                                    <button
-                                        class="btn btn-sm btn-ghost w-full gap-2"
-                                        @click="saveDraftManually"
-                                    >
-                                        <IconSave class="w-4 h-4" />
-                                        Save Draft Now
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <button
+                        class="btn btn-sm btn-circle btn-ghost"
+                        title="Settings"
+                        @click="showSettingsPanel = true"
+                    >
+                        <IconSettings class="w-5 h-5" />
+                    </button>
 
                     <!-- Submit Button -->
                     <button
@@ -130,11 +79,7 @@
                                 <div class="w-8 h-8 rounded-full">
                                     <img
                                         v-if="currentPublisher.picture?.id"
-                                        :src="
-                                            getFileUrl(
-                                                currentPublisher.picture.id,
-                                            )
-                                        "
+                                        :src="getFileUrlSafe(currentPublisher.picture.id)"
                                         alt=""
                                         class="w-full h-full object-cover"
                                     >
@@ -179,11 +124,7 @@
                                             <div class="w-6 h-6 rounded-full">
                                                 <img
                                                     v-if="pub.picture?.id"
-                                                    :src="
-                                                        getFileUrl(
-                                                            pub.picture.id,
-                                                        )
-                                                    "
+                                                    :src="getFileUrlSafe(pub.picture.id)"
                                                     alt=""
                                                     class="w-full h-full object-cover"
                                                 >
@@ -231,11 +172,7 @@
                                 <div class="w-6 h-6 rounded-full">
                                     <img
                                         v-if="replyingTo.publisher?.picture?.id"
-                                        :src="
-                                            getFileUrl(
-                                                replyingTo.publisher.picture.id,
-                                            )
-                                        "
+                                        :src="getFileUrlSafe(replyingTo.publisher.picture.id)"
                                         alt=""
                                         class="w-full h-full object-cover"
                                     >
@@ -283,12 +220,7 @@
                                         v-if="
                                             forwardingTo.publisher?.picture?.id
                                         "
-                                        :src="
-                                            getFileUrl(
-                                                forwardingTo.publisher.picture
-                                                    .id,
-                                            )
-                                        "
+                                        :src="getFileUrlSafe(forwardingTo.publisher.picture.id)"
                                         alt=""
                                         class="w-full h-full object-cover"
                                     >
@@ -318,12 +250,22 @@
                         </div>
                     </div>
 
+                    <div
+                        v-if="!currentPublisher"
+                        class="alert alert-info text-sm"
+                    >
+                        <span>
+                            Pick a publisher to start composing.
+                        </span>
+                    </div>
+
                     <!-- Title Input -->
                     <input
                         v-model="title"
                         type="text"
                         placeholder="Title (optional)"
                         class="input input-bordered w-full"
+                        :disabled="!currentPublisher"
                     >
 
                     <!-- Description Input -->
@@ -332,15 +274,17 @@
                         type="text"
                         placeholder="Description (optional)"
                         class="input input-bordered w-full"
+                        :disabled="!currentPublisher"
                     >
 
-                    <!-- Content Textarea -->
-                    <div class="relative">
+                    <!-- Content Textarea / Preview -->
+                    <div v-if="!showPreview" class="relative">
                         <textarea
                             ref="contentRef"
                             v-model="content"
                             placeholder="What's on your mind?"
                             class="textarea textarea-bordered w-full min-h-[120px] resize-y"
+                            :disabled="!currentPublisher"
                             @keydown="handleKeyDown"
                         />
                         <div
@@ -348,6 +292,21 @@
                         >
                             {{ content.length }} chars
                         </div>
+                    </div>
+                    <div
+                        v-else
+                        class="prose prose-sm max-w-none p-4 rounded-lg border border-base-300 bg-base-100 min-h-[120px]"
+                    >
+                        <!-- eslint-disable vue/no-v-html -->
+                        <div
+                            v-if="content.trim().length > 0"
+                            v-html="renderedPreviewContent"
+                            @click="handleMarkdownClick"
+                        />
+                        <!-- eslint-enable vue/no-v-html -->
+                        <p v-if="content.trim().length === 0" class="text-base-content/50">
+                            Nothing to preview yet.
+                        </p>
                     </div>
 
                     <!-- Tags Input -->
@@ -373,10 +332,12 @@
                                 type="text"
                                 placeholder="Add tags (press Enter)"
                                 class="input input-bordered input-sm flex-1"
+                                :disabled="!currentPublisher"
                                 @keydown.enter.prevent="addNewTag"
                             >
                             <button
                                 class="btn btn-sm btn-ghost"
+                                :disabled="!currentPublisher"
                                 @click="addNewTag"
                             >
                                 <IconPlus class="w-4 h-4" />
@@ -486,6 +447,47 @@
         <form method="dialog" class="modal-backdrop">
             <button @click="handleClose">close</button>
         </form>
+
+        <dialog :open="showSettingsPanel" class="modal" @close="showSettingsPanel = false">
+            <div class="modal-box max-w-md">
+                <h4 class="font-semibold mb-4">Post settings</h4>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-medium text-base-content/70 mb-1.5 block">Visibility</label>
+                        <select v-model="visibility" class="select select-bordered select-sm w-full">
+                            <option :value="0">Public</option>
+                            <option :value="1">Friends Only</option>
+                            <option :value="2">Unlisted</option>
+                            <option :value="3">Private</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-base-content/70 mb-1.5 block">Language</label>
+                        <select v-model="language" class="select select-bordered select-sm w-full">
+                            <option :value="null">Auto-detect</option>
+                            <option value="en">English</option>
+                            <option value="zh">Chinese</option>
+                            <option value="ja">Japanese</option>
+                            <option value="ko">Korean</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="de">German</option>
+                            <option value="ru">Russian</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-sm btn-ghost w-full gap-2" @click="saveDraftManually">
+                        <IconSave class="w-4 h-4" />
+                        Save Draft Now
+                    </button>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showSettingsPanel = false">Close</button>
+                </div>
+            </div>
+            <form method="dialog" class="modal-backdrop">
+                <button @click="showSettingsPanel = false">close</button>
+            </form>
+        </dialog>
     </dialog>
 </template>
 
@@ -494,6 +496,7 @@ import type { Post, Publisher, FileAttachment } from "~/types/post";
 import { getFileUrl } from "~/utils/files";
 import { fetchJson, API_BASE_URL } from "~/utils/api";
 import { getValidToken } from "~/utils/token";
+import { renderMarkdown } from "~/utils/markdown";
 
 const props = defineProps<{
     open?: boolean;
@@ -521,6 +524,9 @@ const {
     lastSaved,
     canSubmit,
     visibilityLabel,
+    draftList,
+    loadDraft,
+    deleteDraft,
     replyingTo,
     forwardingTo,
     originalPost,
@@ -541,6 +547,9 @@ const {
 const contentRef = ref<HTMLTextAreaElement | null>(null);
 const isMobile = ref(false);
 const newTag = ref("");
+const showPreview = ref(false);
+const showSettingsPanel = ref(false);
+const checkedDraftRestore = ref(false);
 
 // File input refs
 const imageInput = ref<HTMLInputElement | null>(null);
@@ -561,6 +570,8 @@ const submitButtonText = computed(() => {
     return "Post";
 });
 
+const renderedPreviewContent = computed(() => renderMarkdown(content.value || ""));
+
 // Check mobile on mount
 onMounted(() => {
     isMobile.value = window.innerWidth < 640;
@@ -573,6 +584,7 @@ onMounted(() => {
 
     // Load publishers
     loadPublishers();
+    maybeRestoreLatestDraft();
 });
 
 onBeforeUnmount(() => {
@@ -591,6 +603,31 @@ async function loadPublishers() {
     } catch (error) {
         console.error("Failed to load publishers:", error);
     }
+}
+
+function maybeRestoreLatestDraft() {
+    if (checkedDraftRestore.value) return;
+    checkedDraftRestore.value = true;
+    if (originalPost.value || replyingTo.value || forwardingTo.value) return;
+    if (hasContent.value) return;
+
+    const latest = draftList.value[0];
+    if (!latest) return;
+
+    const shouldRestore = window.confirm("Restore your latest draft?");
+    if (!shouldRestore) return;
+
+    const restored = loadDraft(latest.id);
+    if (!restored) return;
+
+    title.value = restored.title;
+    description.value = restored.description;
+    content.value = restored.content;
+    visibility.value = restored.visibility;
+    language.value = restored.language;
+    tags.value = [...restored.tags];
+    attachments.value = [...restored.attachments];
+    deleteDraft(restored.id);
 }
 
 function selectPublisher(pub: Publisher) {
@@ -674,6 +711,16 @@ function handleKeyDown(event: KeyboardEvent) {
     // Escape to close (only if empty)
     if (event.key === "Escape" && !hasContent.value) {
         handleClose();
+    }
+}
+
+function handleMarkdownClick(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    const link = target.closest("a") as HTMLAnchorElement | null;
+    if (!link?.href) return;
+    if (link.href.startsWith(window.location.origin)) {
+        e.preventDefault();
+        navigateTo(link.getAttribute("href") || "/");
     }
 }
 
@@ -863,5 +910,10 @@ function formatTimeAgo(date: Date): string {
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}h ago`;
     return date.toLocaleDateString();
+}
+
+function getFileUrlSafe(id: string | null | undefined): string | undefined {
+    const url = getFileUrl(id ?? undefined);
+    return url ?? undefined;
 }
 </script>
