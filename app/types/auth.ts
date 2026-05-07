@@ -51,6 +51,8 @@ export interface SnAccountProfile {
   level?: number;
   experience?: number;
   levelingProgress?: number;
+  socialCredits?: number;
+  socialCreditsLevel?: number;
 }
 
 export interface SnAccount {
@@ -59,8 +61,10 @@ export interface SnAccount {
   nick?: string;
   language?: string;
   region?: string;
+  automatedId?: string | null;
   profile?: SnAccountProfile;
   badges?: { id: string; type: number; label?: string; caption?: string }[];
+  contacts?: SnContactMethod[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -196,6 +200,15 @@ export interface WalletOrder {
   expiredAt?: string | null;
 }
 
+export interface SnAccountPunishment {
+  id: string;
+  type: number;
+  reason?: string;
+  createdAt: string;
+  expiresAt?: string | null;
+  issuedBy?: string;
+}
+
 export interface SpellInfo {
   type: number;
   account: {
@@ -204,4 +217,31 @@ export interface SpellInfo {
   createdAt: string;
   affectedAt: string;
   expiredAt?: string;
+}
+
+export interface SnAccountStatus {
+  type: number;
+  label: string;
+  symbol?: string;
+  isOnline: boolean;
+  isAutomated: boolean;
+  appIdentifier?: string;
+}
+
+export interface SnAccountActivity {
+  type: number;
+  manualId?: string;
+  title?: string;
+  subtitle?: string;
+  caption?: string;
+  largeImage?: string;
+  meta?: Record<string, unknown>;
+}
+
+export interface SnAccountTimelineItem {
+  id: string;
+  eventType: number;
+  createdAt: string;
+  status?: SnAccountStatus;
+  activity?: SnAccountActivity;
 }

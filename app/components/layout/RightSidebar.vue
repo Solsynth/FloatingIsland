@@ -17,6 +17,56 @@
             </button>
         </div>
 
+        <!-- Categories -->
+        <div v-if="categories.length > 0" class="card">
+            <div class="card-body p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-semibold text-base-content/70">Categories</h3>
+                    <NuxtLink to="/categories" class="text-xs text-primary hover:underline">
+                        View all
+                    </NuxtLink>
+                </div>
+                <div class="space-y-1">
+                    <NuxtLink
+                        v-for="category in categories.slice(0, 5)"
+                        :key="category.id"
+                        :to="`/categories/${category.slug}`"
+                        class="flex items-center gap-2 p-2 rounded-lg hover:bg-base-200 transition-colors"
+                    >
+                        <div
+                            class="w-6 h-6 rounded flex items-center justify-center"
+                            :style="{ backgroundColor: category.color || '#6366f1' }"
+                        >
+                            <IconFolder class="w-3 h-3 text-white" />
+                        </div>
+                        <span class="text-sm truncate">{{ category.name }}</span>
+                    </NuxtLink>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tags -->
+        <div v-if="tags.length > 0" class="card">
+            <div class="card-body p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-semibold text-base-content/70">Tags</h3>
+                    <NuxtLink to="/categories?tab=tags" class="text-xs text-primary hover:underline">
+                        View all
+                    </NuxtLink>
+                </div>
+                <div class="flex flex-wrap gap-1.5">
+                    <NuxtLink
+                        v-for="tag in tags.slice(0, 10)"
+                        :key="tag.id"
+                        :to="`/tags/${tag.slug}`"
+                        class="badge badge-sm badge-outline hover:badge-primary transition-colors"
+                    >
+                        #{{ tag.name || tag.slug }}
+                    </NuxtLink>
+                </div>
+            </div>
+        </div>
+
         <!-- Floating Island Note -->
         <div role="alert" class="alert alert-soft text-xs text-base-content/70">
             <div class="flex flex-col gap-2">
@@ -54,14 +104,35 @@
 </template>
 
 <script setup lang="ts">
-import { IconSearch } from "#components";
+import { IconSearch, IconFolder } from "#components";
+import { fetchCategories, fetchTags, type PostCategory, type PostTag } from "~/utils/api";
 
 const currentYear = new Date().getFullYear();
 const searchQuery = ref("");
+
+const categories = ref<PostCategory[]>([]);
+const tags = ref<PostTag[]>([]);
 
 function handleSearch() {
     if (searchQuery.value.trim()) {
         navigateTo(`/search?q=${encodeURIComponent(searchQuery.value.trim())}`);
     }
 }
+
+async function loadData() {
+    try {
+        const [categoriesResult, tagsResult] = await Promise.all([
+            fetchCategories(5, 0),
+            fetchTags(10, 0),
+        ]);
+        categories.value = categoriesResult.categories;
+        tags.value = tagsResult.tags;
+    } catch (e) {
+        console.error("Failed to load sidebar data:", e);
+    }
+}
+
+onMounted(() => {
+    loadData();
+});
 </script>

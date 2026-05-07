@@ -10,6 +10,8 @@ import type {
   CaptchaConfig,
   WalletOrder,
   SpellInfo,
+  SnAccountPunishment,
+  SnAccountTimelineItem,
 } from "~/types/auth";
 import type { Publisher, Post } from "~/types/post";
 import type {
@@ -693,6 +695,35 @@ export async function fetchAccount(name: string): Promise<SnAccount> {
   return safeJsonParse<SnAccount>(response);
 }
 
+export async function fetchAccountPunishment(
+  name: string,
+): Promise<SnAccountPunishment | null> {
+  try {
+    const response = await apiFetch(
+      `/padlock/accounts/${encodeURIComponent(name)}/punishments/overview`,
+      { skipAuth: true },
+    );
+    if (!response.ok) return null;
+    return safeJsonParse<SnAccountPunishment>(response);
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchAccountBotDeveloper(
+  automatedId: string,
+): Promise<{ publisher?: { name: string; nick?: string } } | null> {
+  try {
+    const response = await apiFetch(
+      `/develop/bots/${encodeURIComponent(automatedId)}/developer`,
+      { skipAuth: true },
+    );
+    return safeJsonParse(response);
+  } catch {
+    return null;
+  }
+}
+
 // Data API - Realms
 export async function fetchRealm(slug: string): Promise<Realm> {
   const response = await apiFetch(
@@ -882,6 +913,28 @@ export async function fetchAccountTimeline(
   const data = await safeJsonParse<Post[]>(response);
 
   return { posts: data, total };
+}
+
+// Account activity timeline (status updates, activities, etc.)
+export async function fetchAccountActivityTimeline(
+  accountName: string,
+  take = 20,
+  offset = 0,
+): Promise<{ items: SnAccountTimelineItem[]; total: number }> {
+  const params = new URLSearchParams({
+    take: String(take),
+    offset: String(offset),
+  });
+
+  const response = await apiFetch(
+    `/passport/accounts/${encodeURIComponent(accountName)}/timeline?${params.toString()}`,
+    { skipAuth: true },
+  );
+
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<SnAccountTimelineItem[]>(response);
+
+  return { items: data, total };
 }
 
 // Account relationships

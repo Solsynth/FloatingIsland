@@ -1,9 +1,12 @@
 <template>
-  <div v-if="reactions.length > 0 || showAddButton" class="flex items-center gap-1.5 flex-wrap">
+  <div
+    v-if="reactions.length > 0 || showAddButton"
+    class="flex items-center gap-1.5 flex-wrap"
+  >
     <!-- Add reaction button -->
     <button
       v-if="showAddButton"
-      class="btn btn-ghost btn-xs gap-1 h-7 px-2"
+      class="btn btn-glass btn-xs gap-1 h-7 px-2"
       @click.stop="showReactionPicker = !showReactionPicker"
     >
       <IconSmilePlus class="h-3.5 w-3.5" />
@@ -15,9 +18,11 @@
       v-for="reaction in displayReactions"
       :key="reaction.symbol"
       class="inline-flex items-center gap-1 h-7 px-2 rounded-full text-xs font-medium transition-colors"
-      :class="reaction.userReacted
-        ? 'bg-primary/20 text-primary border border-primary/30'
-        : 'bg-base-200 text-base-content/70 border border-base-300 hover:bg-base-300'"
+      :class="
+        reaction.userReacted
+          ? 'bg-primary/20 text-primary border border-primary/30'
+          : 'bg-base-200 text-base-content/70 border border-base-300 hover:bg-base-300'
+      "
       @click.stop="toggleReaction(reaction)"
     >
       <img
@@ -25,8 +30,10 @@
         :src="getStickerUrl(reaction.symbol)"
         :alt="getReactionLabel(reaction.symbol)"
         class="w-5 h-5 object-contain"
-      >
-      <span v-else class="text-base">{{ getReactionEmoji(reaction.symbol) }}</span>
+      />
+      <span v-else class="text-base">{{
+        getReactionEmoji(reaction.symbol)
+      }}</span>
       <span>{{ reaction.count }}</span>
     </button>
 
@@ -62,7 +69,7 @@
               :src="`/images/stickers/${emoji.symbol}.webp`"
               :alt="emoji.label"
               class="w-10 h-10 object-contain"
-            >
+            />
             <span class="text-xs font-medium text-base-content/70">
               {{ emoji.label }}
             </span>
@@ -74,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { IconSmilePlus } from '#components';
+import { IconSmilePlus } from "#components";
 
 interface Reaction {
   symbol: string;
@@ -104,20 +111,35 @@ const showReactionPicker = ref(false);
 const showAll = ref(false);
 
 const availableReactions = [
-  { symbol: 'thumb_up', emoji: '👍', label: 'Like' },
-  { symbol: 'heart', emoji: '❤️', label: 'Love' },
-  { symbol: 'clap', emoji: '👏', label: 'Clap' },
-  { symbol: 'party', emoji: '🎉', label: 'Party' },
-  { symbol: 'laugh', emoji: '😂', label: 'Laugh' },
-  { symbol: 'cry', emoji: '😢', label: 'Cry' },
-  { symbol: 'angry', emoji: '😠', label: 'Angry' },
-  { symbol: 'confuse', emoji: '😕', label: 'Confused' },
-  { symbol: 'pray', emoji: '🙏', label: 'Pray' },
+  { symbol: "thumb_up", emoji: "👍", label: "Like" },
+  { symbol: "heart", emoji: "❤️", label: "Love" },
+  { symbol: "clap", emoji: "👏", label: "Clap" },
+  { symbol: "party", emoji: "🎉", label: "Party" },
+  { symbol: "laugh", emoji: "😂", label: "Laugh" },
+  { symbol: "cry", emoji: "😢", label: "Cry" },
+  { symbol: "angry", emoji: "😠", label: "Angry" },
+  { symbol: "confuse", emoji: "😕", label: "Confused" },
+  { symbol: "pray", emoji: "🙏", label: "Pray" },
 ];
 
 const stickerSymbols = new Set([
-  'thumb_up', 'heart', 'clap', 'party', 'laugh', 'cry', 'angry', 'confuse', 'pray',
-  'thumb_down', 'thinking', 'speechless', 'hello', 'eat', 'onegai', 'sleepy', 'sorry',
+  "thumb_up",
+  "heart",
+  "clap",
+  "party",
+  "laugh",
+  "cry",
+  "angry",
+  "confuse",
+  "pray",
+  "thumb_down",
+  "thinking",
+  "speechless",
+  "hello",
+  "eat",
+  "onegai",
+  "sleepy",
+  "sorry",
 ]);
 
 const displayReactions = computed(() => {
@@ -128,9 +150,9 @@ const displayReactions = computed(() => {
 // Picker position
 const pickerStyle = computed(() => {
   return {
-    bottom: '80px',
-    left: '50%',
-    transform: 'translateX(-50%)',
+    bottom: "80px",
+    left: "50%",
+    transform: "translateX(-50%)",
   };
 });
 
@@ -144,38 +166,42 @@ function getStickerUrl(symbol: string): string {
 }
 
 function getReactionLabel(symbol: string): string {
-  const reaction = availableReactions.find(r => r.symbol === symbol.toLowerCase());
+  const reaction = availableReactions.find(
+    (r) => r.symbol === symbol.toLowerCase(),
+  );
   return reaction?.label || symbol;
 }
 
 function getReactionEmoji(symbol: string): string {
-  const reaction = availableReactions.find(r => r.symbol === symbol.toLowerCase());
-  return reaction?.emoji || '❓';
+  const reaction = availableReactions.find(
+    (r) => r.symbol === symbol.toLowerCase(),
+  );
+  return reaction?.emoji || "❓";
 }
 
 function toggleReaction(reaction: Reaction) {
   if (reaction.userReacted) {
-    emit('remove', reaction.symbol);
+    emit("remove", reaction.symbol);
   } else {
-    emit('react', reaction.symbol, reaction.attitude || 0);
+    emit("react", reaction.symbol, reaction.attitude || 0);
   }
 }
 
 function addReaction(symbol: string) {
-  emit('react', symbol, 0);
+  emit("react", symbol, 0);
   showReactionPicker.value = false;
 }
 
 // Close picker when clicking outside
 onMounted(() => {
   const handleKeydown = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       showReactionPicker.value = false;
     }
   };
-  document.addEventListener('keydown', handleKeydown);
+  document.addEventListener("keydown", handleKeydown);
   onUnmounted(() => {
-    document.removeEventListener('keydown', handleKeydown);
+    document.removeEventListener("keydown", handleKeydown);
   });
 });
 </script>

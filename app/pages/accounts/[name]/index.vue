@@ -146,6 +146,15 @@
             <button class="btn btn-outline btn-square" @click="shareProfile">
               <IconShare2 class="w-4 h-4" />
             </button>
+
+            <!-- Report button for other users -->
+            <button
+              v-if="isAuthenticated && !isCurrentUser"
+              class="btn btn-error btn-outline btn-square"
+              @click="reportUser"
+            >
+              <IconFlag class="w-4 h-4" />
+            </button>
           </div>
         </div>
       </section>
@@ -154,97 +163,85 @@
       <div class="grid gap-4 px-4 py-4 lg:px-6 lg:grid-cols-3 min-w-0">
         <!-- Left Column - Main Content -->
         <div class="space-y-4 lg:col-span-2 min-w-0">
-          <!-- Bio Section -->
-          <div class="card">
+          <!-- Bio Section (Collapsible) -->
+          <div v-if="bioHtml" class="card">
             <div class="card-body p-4">
-              <h2 class="text-sm font-semibold text-base-content/70 mb-2">
-                Bio
-              </h2>
-              <!-- eslint-disable vue/no-v-html -->
-              <div
-                v-if="bioHtml"
-                class="prose prose-sm max-w-none break-words prose-headings:mb-2 prose-headings:mt-4 prose-p:my-1.5 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-a:break-all prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-sm prose-pre:overflow-x-auto prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-ul:my-1.5 prose-ol:my-1.5"
-                v-html="bioHtml"
-                @click="handleMarkdownClick"
-              />
-              <!-- eslint-enable vue/no-v-html -->
-              <p v-else class="text-sm text-base-content/60">No bio yet.</p>
+              <div class="flex items-center justify-between mb-2">
+                <h2 class="text-sm font-semibold text-base-content/70">
+                  Bio
+                </h2>
+                <button
+                  class="btn btn-ghost btn-xs text-primary"
+                  @click="isBioExpanded = !isBioExpanded"
+                >
+                  {{ isBioExpanded ? "Collapse" : "Expand" }}
+                </button>
+              </div>
+              <template v-if="isBioExpanded">
+                <!-- eslint-disable vue/no-v-html -->
+                <div
+                  class="prose prose-sm max-w-none break-words prose-headings:mb-2 prose-headings:mt-4 prose-p:my-1.5 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-a:break-all prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-base-200 prose-pre:text-sm prose-pre:overflow-x-auto prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-ul:my-1.5 prose-ol:my-1.5"
+                  v-html="bioHtml"
+                  @click="handleMarkdownClick"
+                />
+                <!-- eslint-enable vue/no-v-html -->
+              </template>
+              <p v-else class="text-sm text-base-content/80">
+                {{ bioFirstLine }}
+              </p>
             </div>
           </div>
 
-          <!-- Timeline Section with Filters -->
-          <section class="space-y-4">
-            <!-- Filter Controls -->
-            <div class="card">
-              <div class="card-body gap-4 p-4">
-                <div
-                  v-if="isLoadingTimeline"
-                  class="mb-1 flex items-center gap-2 text-sm text-base-content/60"
-                >
-                  <IconLoader class="w-3.5 h-3.5 animate-spin" />
-                  <span>Loading posts...</span>
-                </div>
-
-                <!-- Content Type Tabs -->
-                <div class="join w-full">
-                  <button
-                    class="btn join-item flex-1"
-                    :class="
-                      contentType === 'all'
-                        ? 'btn-primary'
-                        : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'
-                    "
-                    @click="setContentType('all')"
+          <!-- Bot Developer Info -->
+          <div
+            v-if="botDeveloper?.publisher"
+            class="card bg-secondary/5"
+          >
+            <div class="card-body p-4">
+              <div class="flex items-center gap-2">
+                <IconBot class="w-4 h-4 text-secondary" />
+                <span class="text-sm">
+                  Automated by
+                  <NuxtLink
+                    :to="`/publishers/${botDeveloper.publisher.name}`"
+                    class="font-semibold link link-hover"
                   >
-                    All
-                  </button>
-                  <button
-                    class="btn join-item flex-1"
-                    :class="
-                      contentType === 'posts'
-                        ? 'btn-primary'
-                        : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'
-                    "
-                    @click="setContentType('posts')"
-                  >
-                    Posts
-                  </button>
-                  <button
-                    class="btn join-item flex-1"
-                    :class="
-                      contentType === 'articles'
-                        ? 'btn-primary'
-                        : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'
-                    "
-                    @click="setContentType('articles')"
-                  >
-                    Articles
-                  </button>
-                </div>
+                    {{ botDeveloper.publisher.nick || botDeveloper.publisher.name }}
+                  </NuxtLink>
+                </span>
               </div>
             </div>
+          </div>
 
-            <!-- Posts List -->
+          <!-- Activity Timeline Section -->
+          <section class="space-y-3">
             <div
-              v-if="timelinePosts.length > 0"
-              class="space-y-4"
+              v-if="isLoadingTimeline"
+              class="flex items-center gap-2 text-sm text-base-content/60"
+            >
+              <IconLoader class="w-3.5 h-3.5 animate-spin" />
+              <span>Loading activity...</span>
+            </div>
+
+            <!-- Timeline Items -->
+            <div
+              v-if="timelineItems.length > 0"
+              class="space-y-2"
               :class="isLoadingTimeline ? 'opacity-60' : 'opacity-100'"
             >
-              <PostCard
-                v-for="post in timelinePosts"
-                :key="post.id"
-                :post="post"
-                @boost="handleBoost"
-                @share="handleShare"
-                @reply="handleReply"
+              <AccountTimelineItem
+                v-for="item in groupedTimelineItems"
+                :key="item.id"
+                :item="item.item"
+                :duplicate-count="item.count"
               />
             </div>
 
             <!-- Load More -->
-            <div v-if="timelinePosts.length > 0" class="py-2 text-center">
+            <div v-if="timelineItems.length > 0" class="py-2 text-center">
               <button
                 v-if="hasMoreTimeline"
-                class="btn btn-outline"
+                class="btn btn-outline btn-sm"
                 :disabled="isLoadingTimeline"
                 @click="loadMoreTimeline"
               >
@@ -254,15 +251,15 @@
                 />
                 <span>Load more</span>
               </button>
-              <p v-else class="text-sm text-base-content/50">No more posts</p>
+              <p v-else class="text-xs text-base-content/50">No more activity</p>
             </div>
 
             <!-- Empty State -->
             <div
               v-else-if="!isLoadingTimeline"
-              class="rounded-xl border border-base-300 bg-base-100 p-8 text-center text-base-content/60"
+              class="py-8 text-center text-sm text-base-content/50"
             >
-              No posts yet.
+              No activity yet.
             </div>
           </section>
         </div>
@@ -326,6 +323,20 @@
                   >
                 </div>
                 <div
+                  v-if="fullName"
+                  class="flex items-center gap-2 text-sm"
+                >
+                  <IconUser class="text-base-content/50 w-4 h-4" />
+                  <span>{{ fullName }}</span>
+                </div>
+                <div
+                  v-if="account.profile?.gender || account.profile?.pronouns"
+                  class="flex items-center gap-2 text-sm"
+                >
+                  <IconUser class="text-base-content/50 w-4 h-4" />
+                  <span>{{ account.profile?.gender || "Unspecified" }} · {{ account.profile?.pronouns || "Unspecified" }}</span>
+                </div>
+                <div
                   v-if="account.profile?.location"
                   class="flex items-center gap-2 text-sm"
                 >
@@ -333,12 +344,97 @@
                   <span>{{ account.profile.location }}</span>
                 </div>
                 <div
-                  v-if="account.profile?.timeZone"
+                  v-if="account.profile?.socialCredits !== undefined"
                   class="flex items-center gap-2 text-sm"
+                  :title="`Social credits: ${account.profile.socialCredits.toFixed(2)} pts`"
                 >
-                  <IconClock class="text-base-content/50 w-4 h-4" />
-                  <span>{{ account.profile.timeZone }}</span>
+                  <IconStar class="text-base-content/50 w-4 h-4" />
+                  <span>{{ account.profile.socialCredits.toFixed(2) }} pts · {{ getCreditsLevelText(account.profile.socialCreditsLevel) }}</span>
                 </div>
+                <div
+                  class="flex items-center gap-2 text-sm cursor-pointer hover:text-primary"
+                  @click="copyAccountId"
+                >
+                  <IconFingerprint class="text-base-content/50 w-4 h-4" />
+                  <span class="truncate">{{ account.id }}</span>
+                </div>
+              </div>
+              <!-- Timezone Info -->
+              <div
+                v-if="account.profile?.timeZone"
+                class="mt-4 p-3 rounded-lg bg-base-200/50"
+              >
+                <div class="flex items-center gap-2">
+                  <IconClock class="w-4 h-4 text-base-content/50" />
+                  <div class="flex-1">
+                    <p class="text-xs text-base-content/50">Timezone</p>
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-medium">{{ account.profile.timeZone }}</span>
+                      <span
+                        v-if="currentTimeInTz"
+                        class="badge badge-sm badge-primary"
+                      >
+                        {{ currentTimeInTz }}
+                      </span>
+                      <span class="text-xs text-base-content/50">
+                        UTC{{ tzOffset }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Public Contacts -->
+          <div
+            v-if="publicContacts.length > 0"
+            class="card"
+          >
+            <div class="card-body p-4">
+              <h3 class="text-sm font-semibold text-base-content/70 mb-3">
+                Contact Methods
+              </h3>
+              <div class="space-y-2">
+                <a
+                  v-for="contact in publicContacts"
+                  :key="contact.id"
+                  :href="getContactLink(contact)"
+                  class="flex items-center gap-3 p-3 rounded-lg bg-base-200/50 hover:bg-base-200 transition-colors"
+                  @click="handleContactClick($event, contact)"
+                >
+                  <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <IconMail v-if="contact.type === 0" class="w-4 h-4 text-primary" />
+                    <IconSmartphone v-else-if="contact.type === 1" class="w-4 h-4 text-primary" />
+                    <IconHome v-else class="w-4 h-4 text-primary" />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs text-base-content/50">
+                      {{ contact.type === 0 ? "Email" : contact.type === 1 ? "Phone" : "Address" }}
+                    </p>
+                    <p class="text-sm font-medium truncate">{{ contact.content }}</p>
+                  </div>
+                  <IconChevronRight class="w-4 h-4 text-base-content/30" />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Punishment/Restrictions -->
+          <div
+            v-if="punishment"
+            class="card border-error/20"
+          >
+            <div class="card-body p-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-error/10 flex items-center justify-center">
+                  <IconAlertTriangle class="w-5 h-5 text-error" />
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-sm font-semibold">Account Restrictions</h3>
+                  <p class="text-xs text-base-content/50">Tap to view details</p>
+                </div>
+                <IconChevronRight class="w-4 h-4 text-base-content/30" />
               </div>
             </div>
           </div>
@@ -360,10 +456,11 @@
                   "
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="flex items-center gap-2 text-sm hover:text-primary"
+                  class="flex items-center gap-3 p-3 rounded-lg bg-base-200/50 hover:bg-base-200 transition-colors"
                 >
-                  <IconLink class="text-base-content/50 w-4 h-4" />
-                  <span class="capitalize">{{ link.name }}</span>
+                  <IconLink class="text-primary w-4 h-4" />
+                  <span class="flex-1 text-sm font-medium capitalize">{{ link.name || link.label }}</span>
+                  <IconExternalLink class="text-base-content/30 w-4 h-4" />
                 </a>
               </div>
             </div>
@@ -405,8 +502,8 @@
                     <div class="w-10 h-10 rounded-xl">
                       <img
                         v-if="pub.picture?.id"
-                        :src="getFileUrl(pub.picture.id)"
-                        :alt="pub.nick"
+                        :src="getFileUrl(pub.picture.id) ?? undefined"
+                        :alt="pub.nick ?? undefined"
                       />
                       <div
                         v-else
@@ -435,8 +532,8 @@
 </template>
 
 <script setup lang="ts">
-import type { SnAccount } from "~/types/auth";
-import type { Post, Publisher } from "~/types/post";
+import type { SnAccount, SnContactMethod, SnAccountPunishment, SnAccountTimelineItem } from "~/types/auth";
+import type { Publisher } from "~/types/post";
 import {
   IconUserCheck,
   IconUserPlus,
@@ -452,14 +549,27 @@ import {
   IconMapPin,
   IconClock,
   IconLink,
+  IconBot,
+  IconUser,
+  IconStar,
+  IconFingerprint,
+  IconMail,
+  IconSmartphone,
+  IconHome,
+  IconChevronRight,
+  IconExternalLink,
+  IconAlertTriangle,
+  IconFlag,
 } from "#components";
 import {
   fetchAccount,
-  fetchAccountTimeline,
+  fetchAccountActivityTimeline,
   fetchAccountRelationship,
   addAccountAsFriend,
   blockAccount,
   unblockAccount,
+  fetchAccountPunishment,
+  fetchAccountBotDeveloper,
 } from "~/utils/api";
 import { getFileUrl } from "~/utils/files";
 import { renderMarkdown } from "~/utils/markdown";
@@ -470,7 +580,7 @@ const accountName = computed(() => route.params.name as string);
 
 const account = ref<SnAccount | null>(null);
 const publishers = ref<Publisher[]>([]);
-const timelinePosts = ref<Post[]>([]);
+const timelineItems = ref<SnAccountTimelineItem[]>([]);
 const relationship = ref<{
   status: number;
   isFriend: boolean;
@@ -482,17 +592,17 @@ const isLoadingTimeline = ref(false);
 const isActionLoading = ref(false);
 const timelineOffset = ref(0);
 const hasMoreTimeline = ref(false);
-
-// Filters
-const contentType = ref<"all" | "posts" | "articles">("all");
+const isBioExpanded = ref(false);
+const botDeveloper = ref<{ publisher?: { name: string; nick?: string } } | null>(null);
+const punishment = ref<SnAccountPunishment | null>(null);
 
 const accountStatus = computed(() =>
   account.value ? "success" : error.value ? "error" : "pending",
 );
-const isAuthenticated = computed(() => auth.isAuthenticated);
+const isAuthenticated = computed(() => auth.isAuthenticated.value);
 const isCurrentUser = computed(() => {
-  if (!auth.user || !account.value) return false;
-  return auth.user.id === account.value.id;
+  if (!auth.user.value || !account.value) return false;
+  return auth.user.value.id === account.value.id;
 });
 const displayName = computed(
   () => account.value?.nick || account.value?.name || "Unknown",
@@ -508,6 +618,58 @@ const bioHtml = computed(() => {
   return renderMarkdown(account.value.profile.bio);
 });
 
+const bioFirstLine = computed(() => {
+  if (!account.value?.profile?.bio) return "No bio yet.";
+  const lines = account.value.profile.bio.split("\n");
+  return lines[0]?.trim() || "No bio yet.";
+});
+
+const fullName = computed(() => {
+  const profile = account.value?.profile;
+  if (!profile) return "";
+  const parts = [profile.firstName, profile.middleName, profile.lastName].filter(
+    (p) => p && p.length > 0,
+  );
+  return parts.length > 0 ? parts.join(" ") : "";
+});
+
+const publicContacts = computed(() => {
+  return account.value?.contacts?.filter((c) => c.isPublic) || [];
+});
+
+const currentTimeInTz = ref<string>("");
+const tzOffset = ref<string>("");
+
+function updateTimezone() {
+  const tz = account.value?.profile?.timeZone;
+  if (!tz) {
+    currentTimeInTz.value = "";
+    tzOffset.value = "";
+    return;
+  }
+  try {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz,
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+    currentTimeInTz.value = formatter.format(now);
+
+    const tzFormatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz,
+      timeZoneName: "shortOffset",
+    });
+    const parts = tzFormatter.formatToParts(now);
+    const tzPart = parts.find((p) => p.type === "timeZoneName");
+    tzOffset.value = tzPart?.value?.replace("GMT", "") || "";
+  } catch {
+    currentTimeInTz.value = "";
+    tzOffset.value = "";
+  }
+}
+
 function getInitials(name: string): string {
   return (
     name
@@ -519,7 +681,8 @@ function getInitials(name: string): string {
   );
 }
 
-function formatDate(dateStr: string): string {
+function formatDate(dateStr?: string): string {
+  if (!dateStr) return "Unknown";
   return new Date(dateStr).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -537,6 +700,47 @@ function getAge(birthday: string): number {
   )
     age--;
   return age;
+}
+
+function getCreditsLevelText(level?: number): string {
+  switch (level) {
+    case -1:
+      return "Poor";
+    case 0:
+      return "Normal";
+    case 1:
+      return "Good";
+    case 2:
+      return "Excellent";
+    default:
+      return "Unknown";
+  }
+}
+
+function getContactLink(contact: SnContactMethod): string {
+  if (contact.type === 0) return `mailto:${contact.content}`;
+  if (contact.type === 1) return `tel:${contact.content}`;
+  return "#";
+}
+
+function handleContactClick(e: MouseEvent, contact: SnContactMethod) {
+  if (contact.type >= 2) {
+    e.preventDefault();
+    navigator.clipboard.writeText(contact.content);
+    alert("Address copied to clipboard");
+  }
+}
+
+async function copyAccountId() {
+  if (!account.value?.id) return;
+  await navigator.clipboard.writeText(account.value.id);
+  alert("Account ID copied to clipboard");
+}
+
+async function reportUser() {
+  if (!account.value?.id) return;
+  // TODO: Implement abuse report sheet
+  alert("Report feature coming soon!");
 }
 
 function handleMarkdownClick(e: MouseEvent) {
@@ -558,28 +762,64 @@ function handleMarkdownClick(e: MouseEvent) {
   }
 }
 
-function setContentType(type: "all" | "posts" | "articles") {
-  contentType.value = type;
-  timelineOffset.value = 0;
-  loadTimeline();
+// Group timeline items by type for display
+const groupedTimelineItems = computed(() => {
+  const items = timelineItems.value;
+  if (items.length === 0) return [];
+
+  const grouped: { id: string; item: SnAccountTimelineItem; count: number }[] = [];
+  let currentGroup: { item: SnAccountTimelineItem; count: number } | null = null;
+
+  for (const item of items) {
+    if (!currentGroup || !canGroupItems(currentGroup.item, item)) {
+      currentGroup = { item, count: 1 };
+      grouped.push({ id: item.id, item, count: 1 });
+    } else {
+      currentGroup.count++;
+      // Update the last entry's count
+      const lastEntry = grouped[grouped.length - 1];
+      if (lastEntry) {
+        lastEntry.count = currentGroup.count;
+      }
+    }
+  }
+
+  return grouped;
+});
+
+function canGroupItems(a: SnAccountTimelineItem, b: SnAccountTimelineItem): boolean {
+  if (a.eventType !== b.eventType) return false;
+  if (a.eventType === 0) return false; // Don't group status updates
+  if (a.eventType === 1 && a.activity && b.activity) {
+    // Don't group Spotify activities
+    if (a.activity.manualId === "spotify" || b.activity.manualId === "spotify") return false;
+    // Don't group different activity types
+    if (a.activity.manualId !== b.activity.manualId || a.activity.type !== b.activity.type) return false;
+    // For Steam, group by game_id
+    if (a.activity.manualId === "steam" && a.activity.meta && b.activity.meta) {
+      return a.activity.meta.game_id === b.activity.meta.game_id;
+    }
+    return a.activity.title === b.activity.title;
+  }
+  return false;
 }
 
 async function loadTimeline() {
   if (!accountName.value) return;
   isLoadingTimeline.value = true;
   try {
-    const result = await fetchAccountTimeline(
+    const result = await fetchAccountActivityTimeline(
       accountName.value,
       20,
       timelineOffset.value,
     );
     if (timelineOffset.value === 0) {
-      timelinePosts.value = result.posts;
+      timelineItems.value = result.items;
     } else {
-      timelinePosts.value.push(...result.posts);
+      timelineItems.value.push(...result.items);
     }
-    timelineOffset.value += result.posts.length;
-    hasMoreTimeline.value = timelinePosts.value.length < result.total;
+    timelineOffset.value += result.items.length;
+    hasMoreTimeline.value = timelineItems.value.length < result.total;
   } catch (err) {
     console.error("Failed to load timeline:", err);
   } finally {
@@ -598,6 +838,29 @@ async function loadRelationship() {
     relationship.value = rel;
   } catch {
     relationship.value = null;
+  }
+}
+
+async function loadBotDeveloper() {
+  if (!account.value?.automatedId) {
+    botDeveloper.value = null;
+    return;
+  }
+  try {
+    const dev = await fetchAccountBotDeveloper(account.value.automatedId);
+    botDeveloper.value = dev;
+  } catch {
+    botDeveloper.value = null;
+  }
+}
+
+async function loadPunishment() {
+  if (!accountName.value) return;
+  try {
+    const result = await fetchAccountPunishment(accountName.value);
+    punishment.value = result;
+  } catch {
+    punishment.value = null;
   }
 }
 
@@ -663,27 +926,23 @@ async function shareProfile() {
   }
 }
 
-function handleBoost(_post: Post) {
-  // TODO
-}
-
-function handleShare(post: Post) {
-  navigator.share?.({
-    title: post.title,
-    text: post.content.slice(0, 100),
-    url: `${window.location.origin}/posts/${post.id}`,
-  });
-}
-
-function handleReply(post: Post) {
-  navigateTo(`/posts/${post.id}`);
-}
-
 onMounted(async () => {
   try {
     const data = await fetchAccount(accountName.value);
     account.value = data;
-    await Promise.all([loadTimeline(), loadRelationship()]);
+
+    // Start timezone update interval
+    updateTimezone();
+    const tzInterval = setInterval(updateTimezone, 60000);
+
+    onUnmounted(() => clearInterval(tzInterval));
+
+    await Promise.all([
+      loadTimeline(),
+      loadRelationship(),
+      loadBotDeveloper(),
+      loadPunishment(),
+    ]);
 
     const title = `${displayName.value} (@${data.name})`;
     const description = data.profile?.bio || `View profile for @${data.name}`;
