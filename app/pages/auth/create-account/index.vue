@@ -184,7 +184,7 @@ import {
 
 definePageMeta({ layout: false });
 
-useSeoMeta({
+useSolarSeo({
     title: "Create Account",
     description: "Create a new account on Solar Network.",
 });

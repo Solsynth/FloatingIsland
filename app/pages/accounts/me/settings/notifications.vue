@@ -398,7 +398,7 @@ onMounted(() => {
     fetchNotificationTopics();
 });
 
-useSeoMeta({
+useSolarSeo({
     title: "Notification Settings",
 });
 </script>

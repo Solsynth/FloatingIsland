@@ -55,7 +55,7 @@
 import { fetchTags, type PostTag } from '~/utils/api'
 import { IconTag, IconLoader } from '#components'
 
-useSeoMeta({
+useSolarSeo({
   title: 'Tags',
   description: 'Browse tags on Solar Network.',
 })

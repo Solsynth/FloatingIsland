@@ -134,7 +134,7 @@ import {
   IconLoader,
 } from '#components'
 
-useSeoMeta({
+useSolarSeo({
   title: 'Categories & Tags',
   description: 'Browse categories and tags on Solar Network.',
 })

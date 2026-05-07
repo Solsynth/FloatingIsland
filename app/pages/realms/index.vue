@@ -96,7 +96,7 @@
 import type { Realm } from '~/types/realm';
 import { fetchRealms } from '~/utils/api';
 
-useSeoMeta({
+useSolarSeo({
 	title: 'Realms',
 	description: 'Explore and join realms on Solar Network',
 });

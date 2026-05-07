@@ -709,7 +709,7 @@ onMounted(async () => {
     isLoading.value = false;
 });
 
-useSeoMeta({
+useSolarSeo({
     title: "Relationships",
 });
 </script>

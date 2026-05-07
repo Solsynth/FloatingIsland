@@ -95,7 +95,7 @@ import {
     IconAlertCircle,
 } from "#components";
 
-useSeoMeta({
+useSolarSeo({
     title: "Explore",
     description: "Discover the latest posts, updates, and conversations on Solar Network.",
     url: "https://solian.app",

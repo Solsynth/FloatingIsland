@@ -319,7 +319,7 @@ onMounted(async () => {
         }
 
         // SEO
-        useSeoMeta({
+        useSolarSeo({
             title: `Boost - ${realmData.name}`,
             description: `Support ${realmData.name} with boost points`,
         })

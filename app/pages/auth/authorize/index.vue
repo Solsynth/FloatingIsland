@@ -212,7 +212,7 @@ definePageMeta({
 	middleware: 'auth',
 });
 
-useSeoMeta({
+useSolarSeo({
 	title: "Authorize App",
 	description: "Authorize an application to access your Solar Network account.",
 });

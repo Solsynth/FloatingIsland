@@ -43,12 +43,13 @@
         </div>
 
         <!-- Bio -->
-        <p
-          v-if="publisher.bio"
-          class="text-sm text-base-content/80 line-clamp-4 mb-3"
-        >
-          {{ publisher.bio }}
-        </p>
+        <!-- eslint-disable vue/no-v-html -->
+        <div
+          v-if="bioHtml"
+          class="prose prose-sm max-w-none break-words line-clamp-4 prose-headings:mb-2 prose-headings:mt-4 prose-p:my-1 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-a:break-all prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic mb-3"
+          v-html="bioHtml"
+        />
+        <!-- eslint-enable vue/no-v-html -->
 
         <!-- Verification Badge -->
         <div
@@ -82,6 +83,7 @@
 <script setup lang="ts">
 import type { Publisher } from "~/types/post";
 import { getFileUrl } from "~/utils/files";
+import { renderMarkdown } from "~/utils/markdown";
 
 const props = defineProps<{
   publisher: Publisher | null;
@@ -94,6 +96,10 @@ const avatarUrl = computed(() => getFileUrl(props.publisher?.picture?.id));
 const backgroundUrl = computed(() =>
   getFileUrl(props.publisher?.background?.id),
 );
+const bioHtml = computed(() => {
+  if (!props.publisher?.bio) return "";
+  return renderMarkdown(props.publisher.bio);
+});
 
 function getInitials(name: string): string {
   return (

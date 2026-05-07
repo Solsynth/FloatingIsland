@@ -62,7 +62,7 @@
 
 import { fetchLivestreams } from '~/utils/api'
 
-useSeoMeta({
+useSolarSeo({
   title: 'Livestreams',
   description: 'Watch livestreams on Solar Network',
 })

@@ -84,7 +84,7 @@ function isActiveRoute(path: string): boolean {
 	return route.path === path || route.path.startsWith(`${path}/`);
 }
 
-useSeoMeta({
+useSolarSeo({
 	title: 'Settings',
 });
 </script>

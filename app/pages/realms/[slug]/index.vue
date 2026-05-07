@@ -533,7 +533,7 @@ onMounted(async () => {
     await checkMembership();
 
     // SEO
-    useSeoMeta({
+    useSolarSeo({
       title: data.name,
       description: data.description || `Realm: ${data.name}`,
     });

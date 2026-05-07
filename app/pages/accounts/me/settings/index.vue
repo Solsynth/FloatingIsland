@@ -498,7 +498,7 @@ onMounted(() => {
     resetForms();
 });
 
-useSeoMeta({
+useSolarSeo({
     title: "Profile Settings",
 });
 </script>

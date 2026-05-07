@@ -127,7 +127,7 @@ definePageMeta({
   layout: false,
 })
 
-useSeoMeta({
+useSolarSeo({
     title: "File",
     description: "View file on Solar Network.",
 })

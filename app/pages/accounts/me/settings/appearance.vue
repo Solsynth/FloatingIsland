@@ -176,7 +176,7 @@ async function saveAppearance() {
     }
 }
 
-useSeoMeta({
+useSolarSeo({
     title: "Appearance Settings",
 });
 </script>

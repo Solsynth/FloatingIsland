@@ -235,7 +235,7 @@ definePageMeta({
     layout: false,
 });
 
-useSeoMeta({
+useSolarSeo({
     title: "Log In",
     description: "Log in to your Solar Network account.",
 });

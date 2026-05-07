@@ -100,12 +100,14 @@
 					<!-- Compact Bio -->
 					<div class="card mb-4">
 						<div class="card-body p-4">
-							<p
-								v-if="authStore.user.profile?.bio"
-								class="text-sm text-base-content/80 line-clamp-2"
-							>
-								{{ authStore.user.profile.bio }}
-							</p>
+							<!-- eslint-disable vue/no-v-html -->
+							<div
+								v-if="bioHtml"
+								class="prose prose-sm max-w-none break-words line-clamp-3 prose-headings:mb-2 prose-headings:mt-4 prose-p:my-1 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-a:break-all prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic"
+								v-html="bioHtml"
+								@click="handleMarkdownClick"
+							/>
+							<!-- eslint-enable vue/no-v-html -->
 							<p
 								v-else
 								class="text-sm text-base-content/50 italic"
@@ -311,6 +313,7 @@
 
 <script setup lang="ts">
 import { getFileUrl } from '~/utils/files';
+import { renderMarkdown } from '~/utils/markdown';
 import { useAuthStore } from '~/stores/auth';
 import {
 	IconUser,
@@ -342,6 +345,10 @@ const avatarUrl = computed(() =>
 const backgroundUrl = computed(() =>
 	getFileUrl(authStore.user?.profile?.background?.id)
 );
+const bioHtml = computed(() => {
+	if (!authStore.user?.profile?.bio) return '';
+	return renderMarkdown(authStore.user.profile.bio);
+});
 
 function getInitials(name: string): string {
 	return (
@@ -365,6 +372,21 @@ async function logout() {
 	}
 }
 
+function handleMarkdownClick(e: MouseEvent) {
+	const target = e.target as HTMLElement;
+	if (target.closest('.mention-chip')) {
+		e.preventDefault();
+		const href = target.closest('a')?.getAttribute('href');
+		if (href) {
+			navigateTo(href);
+		}
+		return;
+	}
+	if (target.classList.contains('spoiler')) {
+		target.classList.toggle('revealed');
+	}
+}
+
 onMounted(async () => {
 	isLoading.value = true;
 	try {
@@ -381,7 +403,7 @@ onMounted(async () => {
 	}
 });
 
-useSeoMeta({
+useSolarSeo({
 	title: 'My Account',
 });
 </script>

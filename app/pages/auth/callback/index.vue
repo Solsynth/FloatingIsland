@@ -21,7 +21,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 
-useSeoMeta({
+useSolarSeo({
     title: "Authenticating",
     description: "Completing authentication...",
 })

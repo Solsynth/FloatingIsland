@@ -11,7 +11,7 @@ const DEFAULT_DESCRIPTION = 'Explore posts, realms, publishers, and livestreams 
 const DEFAULT_URL = 'https://solian.app'
 const DEFAULT_IMAGE = '/og-image.png'
 
-export function useSeoMeta(options: SeoMetaOptions = {}) {
+export function useSolarSeo(options: SeoMetaOptions = {}) {
   const { title, description, image, url, type = 'website' } = options
 
   const pageTitle = computed(() => {

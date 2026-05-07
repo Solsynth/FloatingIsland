@@ -397,7 +397,7 @@ onMounted(() => {
     loadBadges();
 });
 
-useSeoMeta({
+useSolarSeo({
     title: "Badges",
 });
 </script>

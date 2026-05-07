@@ -33,7 +33,7 @@ import { IconShieldCheck } from '#components';
 
 definePageMeta({ layout: false });
 
-useSeoMeta({
+useSolarSeo({
     title: "Verification",
     description: "Complete verification to continue.",
 });

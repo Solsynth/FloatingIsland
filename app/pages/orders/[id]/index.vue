@@ -67,7 +67,7 @@
 
 import { getOrder, payOrder } from '~/utils/api'
 
-useSeoMeta({
+useSolarSeo({
     title: "Order Status",
     description: "View and manage your order on Solar Network.",
 })

@@ -938,7 +938,7 @@ async function logoutAllOtherSessions() {
     }
 }
 
-useSeoMeta({
+useSolarSeo({
     title: "Security Settings",
 });
 </script>

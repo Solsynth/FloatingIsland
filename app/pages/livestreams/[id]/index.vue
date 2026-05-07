@@ -89,7 +89,7 @@ const hlsUrl = computed(() => {
 
 watchEffect(() => {
   if (stream.value) {
-    useSeoMeta({
+    useSolarSeo({
       title: stream.value.title || 'Livestream',
       description: stream.value.description || `Watch ${publisherName.value}'s livestream`,
       image: stream.value.thumbnailUrl || undefined,

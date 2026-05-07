@@ -141,7 +141,7 @@ import {
 
 definePageMeta({ layout: false });
 
-useSeoMeta({
+useSolarSeo({
     title: "Join Realm",
     description: "You've been invited to join a realm on Solar Network.",
 });

@@ -128,7 +128,7 @@ const error = ref<string | null>(null)
 const postsOffset = ref(0)
 const totalPosts = ref(0)
 
-useSeoMeta({
+useSolarSeo({
   title: computed(() => tag.value?.name || 'Tag'),
   description: computed(() => `Browse posts tagged with ${tag.value?.name || 'this tag'} on Solar Network.`),
 })

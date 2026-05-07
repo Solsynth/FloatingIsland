@@ -512,7 +512,7 @@ watch(
 			const description = p.description || p.content.slice(0, 160);
 			const imageUrl = p.attachments[0]?.url || getFileUrl(p.attachments[0]?.id);
 
-			useSeoMeta({
+			useSolarSeo({
 				title,
 				description,
 				image: imageUrl || undefined,

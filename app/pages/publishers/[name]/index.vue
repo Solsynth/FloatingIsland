@@ -692,7 +692,7 @@ onMounted(async () => {
     }
 
     // SEO
-    useSeoMeta({
+    useSolarSeo({
       title: displayName.value,
       description: pubData.bio || `@${pubData.name} on Solar Network`,
       url: `https://solian.app/publishers/${pubData.name}`,

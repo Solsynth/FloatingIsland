@@ -535,7 +535,7 @@ onMounted(async () => {
     isLoading.value = false;
 });
 
-useSeoMeta({
+useSolarSeo({
     title: "Notifications",
 });
 </script>

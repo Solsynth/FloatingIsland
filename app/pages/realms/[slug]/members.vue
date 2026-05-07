@@ -123,9 +123,13 @@
 								<p class="text-sm text-base-content/60 truncate">
 									@{{ member.account?.name }}
 								</p>
-								<p v-if="member.bio" class="text-xs text-base-content/50 mt-1 line-clamp-2">
-									{{ member.bio }}
-								</p>
+								<!-- eslint-disable vue/no-v-html -->
+								<div
+									v-if="member.bio"
+									class="prose prose-xs max-w-none break-words line-clamp-2 prose-headings:mb-1 prose-headings:text-xs prose-p:my-0.5 prose-a:text-primary prose-a:no-underline prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs mt-1"
+									v-html="renderMarkdown(member.bio)"
+								/>
+								<!-- eslint-enable vue/no-v-html -->
 								<div class="flex items-center gap-3 mt-2 text-xs text-base-content/40">
                                     <span class="flex items-center gap-1">
                                         <IconZap class="w-3 h-3" />
@@ -203,6 +207,7 @@
 import type { Realm, RealmMember, RealmLabel } from '~/types/realm';
 import { fetchRealm, fetchRealmMembers, getMyRealmMembership } from '~/utils/api';
 import { getFileUrl } from '~/utils/files';
+import { renderMarkdown } from '~/utils/markdown';
 
 const route = useRoute();
 const auth = useAuth();
@@ -332,7 +337,7 @@ onMounted(async () => {
 		await reloadMembers();
 
 		// SEO
-		useSeoMeta({
+		useSolarSeo({
 			title: `Members - ${realmData.name}`,
 			description: `Members of ${realmData.name}`,
 		});

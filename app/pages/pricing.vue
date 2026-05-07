@@ -361,7 +361,7 @@ const comparisonRows: ComparisonRow[] = [
     },
 ];
 
-useSeoMeta({
+useSolarSeo({
     title: "Pricing - Stellar Program",
     description: "Pick the Stellar plan that matches how you use Solar Network.",
 });

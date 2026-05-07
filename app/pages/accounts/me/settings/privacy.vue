@@ -204,7 +204,7 @@ onMounted(() => {
     fetchBlockedUsers();
 });
 
-useSeoMeta({
+useSolarSeo({
     title: "Privacy Settings",
 });
 </script>

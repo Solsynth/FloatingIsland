@@ -1015,7 +1015,7 @@ onMounted(async () => {
     isLoading.value = false;
 });
 
-useSeoMeta({
+useSolarSeo({
     title: "Wallet",
 });
 </script>

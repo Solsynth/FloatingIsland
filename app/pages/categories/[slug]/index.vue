@@ -151,7 +151,7 @@ const title = computed(() => {
   return tag.value?.name || 'Tag'
 })
 
-useSeoMeta({
+useSolarSeo({
   title: title,
   description: computed(() => isCategory.value ? (category.value?.description || 'A category') : 'A tag'),
 })

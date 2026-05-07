@@ -18,7 +18,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 
-useSeoMeta({
+useSolarSeo({
     title: "Success",
     description: "Operation completed successfully.",
 })

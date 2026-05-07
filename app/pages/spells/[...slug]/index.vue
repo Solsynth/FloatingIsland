@@ -156,7 +156,7 @@ import { getSpell, applySpell, type SpellInfo } from '~/utils/api';
 
 definePageMeta({ layout: false });
 
-useSeoMeta({
+useSolarSeo({
     title: "Spells",
     description: "Discover and apply spells on Solar Network.",
 });

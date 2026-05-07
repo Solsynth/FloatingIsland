@@ -113,9 +113,13 @@
                 <p class="text-xs text-base-content/60 truncate">
                   @{{ result.data.name }}
                 </p>
-                <p v-if="getBio(result)" class="text-xs text-base-content/50 line-clamp-1 mt-0.5">
-                  {{ getBio(result) }}
-                </p>
+                <!-- eslint-disable vue/no-v-html -->
+                <div
+                  v-if="getBio(result)"
+                  class="prose prose-xs max-w-none break-words line-clamp-1 prose-headings:mb-0 prose-headings:text-xs prose-p:my-0 prose-a:text-primary prose-a:no-underline prose-code:text-primary prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs mt-0.5"
+                  v-html="renderMarkdown(getBio(result))"
+                />
+                <!-- eslint-enable vue/no-v-html -->
               </div>
 
               <!-- Arrow -->
@@ -161,6 +165,7 @@ import {
   searchRealms,
   type Publisher,
 } from '~/utils/api'
+import { renderMarkdown } from '~/utils/markdown'
 import type { SnAccount } from '~/types/auth'
 import type { Realm } from '~/types/realm'
 import type { Post } from '~/types/post'
@@ -178,7 +183,7 @@ import {
 
 type SearchTab = 'posts' | 'accounts' | 'realms'
 
-useSeoMeta({
+useSolarSeo({
   title: 'Search',
   description: 'Search for posts, accounts, and realms on Solar Network.',
 })
