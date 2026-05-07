@@ -482,6 +482,37 @@ export async function fetchPostReplies(id: string): Promise<Post[]> {
   return safeJsonParse<Post[]>(response);
 }
 
+export interface ThreadedReplyNode {
+  post: Post;
+  depth: number;
+  parentId: string | null;
+}
+
+export async function fetchPostRepliesThreaded(
+  id: string,
+  take = 3,
+  offset = 0,
+): Promise<{ nodes: ThreadedReplyNode[]; total: number }> {
+  const response = await apiFetch(
+    `/sphere/posts/${id}/replies/threaded?offset=${offset}&take=${take}`,
+    { skipAuth: true },
+  );
+
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<
+    Array<{ post: Post; depth?: number; parent_id?: string | null }>
+  >(response);
+
+  return {
+    total,
+    nodes: data.map((node) => ({
+      post: node.post,
+      depth: node.depth ?? 0,
+      parentId: node.parent_id ?? null,
+    })),
+  };
+}
+
 // Reactions API
 export interface Reaction {
   symbol: string;

@@ -60,15 +60,17 @@
                     />
                 </template>
 
-                <!-- Load More Trigger -->
-                <div
-                    ref="loadMoreRef"
-                    class="h-10 flex items-center justify-center"
-                >
-                    <ConfuseSpinner
-                        v-if="fetchingMore"
-                        message="Loading more..."
-                    />
+                <!-- Load More -->
+                <div class="py-2 flex items-center justify-center">
+                    <button
+                        v-if="hasMore && posts.length > 0"
+                        class="btn btn-outline"
+                        :disabled="fetchingMore"
+                        @click="loadMore"
+                    >
+                        <span v-if="fetchingMore">Loading...</span>
+                        <span v-else>Load more</span>
+                    </button>
                     <p
                         v-else-if="!hasMore && posts.length > 0"
                         class="text-base-content/40 text-sm"
@@ -87,7 +89,6 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick } from "vue";
 import type { Post } from "~/types/post";
 import { fetchPosts } from "~/utils/api";
 import { getFileUrl } from "~/utils/files";
@@ -109,7 +110,6 @@ const total = ref(0);
 const offset = ref(0);
 const hasMore = ref(true);
 const fetchingMore = ref(false);
-const loadMoreRef = ref<HTMLElement | null>(null);
 
 // User info
 const userName = computed(() => user.value?.nick || user.value?.name || "");
@@ -157,7 +157,14 @@ async function loadMore() {
         const result = await fetchPosts(20, offset.value, options);
 
         if (result?.posts) {
-            posts.value = [...posts.value, ...result.posts];
+            if (result.posts.length === 0) {
+                hasMore.value = false;
+                return;
+            }
+
+            const existing = new Set(posts.value.map((p) => p.id));
+            const appended = result.posts.filter((p) => !existing.has(p.id));
+            posts.value = [...posts.value, ...appended];
             offset.value += result.posts.length;
             hasMore.value = offset.value < result.total;
         }
@@ -195,47 +202,4 @@ function openCompose() {
     window.dispatchEvent(event);
 }
 
-// Intersection Observer for infinite scroll
-let observer: IntersectionObserver | null = null;
-
-onMounted(() => {
-    nextTick(() => {
-        if (!loadMoreRef.value) return;
-
-        observer = new IntersectionObserver(
-            (entries) => {
-                const entry = entries[0];
-                if (
-                    entry?.isIntersecting &&
-                    status.value !== "pending" &&
-                    hasMore.value &&
-                    !fetchingMore.value &&
-                    posts.value.length > 0
-                ) {
-                    loadMore();
-                }
-            },
-            { rootMargin: "100px" },
-        );
-
-        observer.observe(loadMoreRef.value);
-
-        // Trigger loadMore if element is already visible (large screens)
-        const rect = loadMoreRef.value.getBoundingClientRect();
-        const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-        if (
-            isVisible &&
-            status.value !== "pending" &&
-            hasMore.value &&
-            !fetchingMore.value &&
-            posts.value.length > 0
-        ) {
-            loadMore();
-        }
-    });
-});
-
-onBeforeUnmount(() => {
-    observer?.disconnect();
-});
 </script>

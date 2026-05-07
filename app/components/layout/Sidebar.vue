@@ -102,8 +102,6 @@
 import {
   IconCompass,
   IconBuilding,
-  IconFolder,
-  IconTag,
   IconLogIn,
   IconLogOut,
   IconUser,

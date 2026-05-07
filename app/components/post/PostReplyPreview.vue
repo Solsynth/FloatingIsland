@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="replies.length > 0"
+    v-if="totalReplies > 0"
     class="rounded-xl border border-base-300 bg-base-200/30 overflow-hidden"
   >
     <!-- Header -->
@@ -8,36 +8,92 @@
       <span class="text-sm font-semibold text-base-content/70">
         {{ totalReplies }} {{ totalReplies === 1 ? 'reply' : 'replies' }}
       </span>
-      <button
-        v-if="!isOpen"
-        class="btn btn-ghost btn-xs"
-        @click.stop="loadReplies"
-      >
-        View replies
-      </button>
     </div>
 
-    <!-- Reply list -->
-    <div v-if="isOpen" class="divide-y divide-base-300/50">
+    <!-- Explore page: featured reply only -->
+    <div
+      v-if="isExplorePage && featuredReply"
+      class="px-3 pb-3 cursor-pointer hover:bg-base-200/40 transition-colors"
+      @click.stop="navigateToPost(featuredReply.id)"
+    >
+      <div class="min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <div v-if="getAvatarUrl(featuredReply)" class="avatar">
+              <div class="h-6 w-6 rounded-full">
+                <img
+                  :src="getAvatarUrl(featuredReply)"
+                  :alt="getDisplayName(featuredReply.publisher)"
+                  class="h-full w-full rounded-full object-cover"
+                >
+              </div>
+            </div>
+            <div v-else class="avatar avatar-placeholder">
+              <div class="h-6 w-6 rounded-full bg-primary text-primary-content">
+                <span class="text-[10px] font-medium">
+                  {{ getInitials(getDisplayName(featuredReply.publisher)) }}
+                </span>
+              </div>
+            </div>
+            <span class="text-xs font-semibold truncate">
+              {{ getDisplayName(featuredReply.publisher) }}
+            </span>
+            <span class="text-xs text-base-content/40">
+              {{ formatRelativeTime(featuredReply.publishedAt) }}
+            </span>
+          </div>
+
+          <!-- eslint-disable vue/no-v-html -->
+          <div
+            v-if="featuredReply.content"
+            class="prose prose-xs max-w-none break-words text-xs line-clamp-2 prose-p:my-0.5 prose-a:text-primary"
+            v-html="renderMarkdown(featuredReply.content)"
+            @click="handleMarkdownClick"
+          />
+          <!-- eslint-enable vue/no-v-html -->
+
+          <div
+            v-if="featuredReply.attachments.length > 0"
+            class="mt-1 inline-flex items-center gap-1 text-xs text-base-content/50"
+          >
+            <IconPaperclip class="h-3 w-3" />
+            <span>{{ featuredReply.attachments.length }} attachment(s)</span>
+          </div>
+
+          <PostReactionList
+            v-if="featuredReactions.length > 0"
+            :reactions="featuredReactions"
+            :post-id="featuredReply.id"
+            :show-add-button="false"
+            :max-visible="3"
+            class="mt-1"
+            @react="handleReact"
+            @remove="handleRemoveReaction"
+          />
+      </div>
+    </div>
+
+    <!-- Nested reply list -->
+    <div v-else class="divide-y divide-base-300/50">
       <div
-        v-for="reply in displayReplies"
-        :key="reply.id"
+        v-for="node in displayReplyNodes"
+        :key="node.reply.id"
         class="px-3 py-2 hover:bg-base-200/50 cursor-pointer transition-colors"
-        @click.stop="navigateToPost(reply.id)"
+        :style="{ paddingLeft: `${12 + node.depth * 18}px` }"
+        @click.stop="navigateToPost(node.reply.id)"
       >
         <div class="flex gap-2">
           <!-- Avatar -->
           <NuxtLink
-            v-if="reply.publisher"
-            :to="`/publishers/${reply.publisher.name}`"
+            v-if="node.reply.publisher"
+            :to="`/publishers/${node.reply.publisher.name}`"
             class="shrink-0"
             @click.stop
           >
-            <div v-if="getAvatarUrl(reply)" class="avatar">
+            <div v-if="getAvatarUrl(node.reply)" class="avatar">
               <div class="h-8 w-8 rounded-full">
                 <img
-                  :src="getAvatarUrl(reply)"
-                  :alt="getDisplayName(reply.publisher)"
+                  :src="getAvatarUrl(node.reply)"
+                  :alt="getDisplayName(node.reply.publisher)"
                   class="h-full w-full rounded-full object-cover"
                 >
               </div>
@@ -45,7 +101,7 @@
             <div v-else class="avatar avatar-placeholder">
               <div class="h-8 w-8 rounded-full bg-primary text-primary-content">
                 <span class="text-xs font-medium">
-                  {{ getInitials(getDisplayName(reply.publisher)) }}
+                  {{ getInitials(getDisplayName(node.reply.publisher)) }}
                 </span>
               </div>
             </div>
@@ -55,58 +111,58 @@
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-1.5 mb-0.5">
               <NuxtLink
-                v-if="reply.publisher"
-                :to="`/publishers/${reply.publisher.name}`"
+                v-if="node.reply.publisher"
+                :to="`/publishers/${node.reply.publisher.name}`"
                 class="text-xs font-semibold truncate hover:underline"
                 @click.stop
               >
-                {{ getDisplayName(reply.publisher) }}
+                {{ getDisplayName(node.reply.publisher) }}
               </NuxtLink>
               <span
-                v-if="reply.publisher?.name"
+                v-if="node.reply.publisher?.name"
                 class="text-xs text-base-content/50 truncate"
               >
-                @{{ reply.publisher.name }}
+                @{{ node.reply.publisher.name }}
               </span>
               <span class="text-xs text-base-content/40">
-                {{ formatRelativeTime(reply.publishedAt) }}
+                {{ formatRelativeTime(node.reply.publishedAt) }}
               </span>
             </div>
 
             <!-- Reply content preview -->
             <!-- eslint-disable vue/no-v-html -->
             <div
-              v-if="reply.content"
+              v-if="node.reply.content"
               class="prose prose-xs max-w-none break-words text-xs line-clamp-2 prose-p:my-0.5 prose-a:text-primary"
-              v-html="renderMarkdown(reply.content)"
+              v-html="renderMarkdown(node.reply.content)"
               @click="handleMarkdownClick"
             />
             <!-- eslint-enable vue/no-v-html -->
 
             <!-- Attachments indicator -->
             <div
-              v-if="reply.attachments.length > 0"
+              v-if="node.reply.attachments.length > 0"
               class="mt-1 flex items-center gap-1 text-xs text-base-content/50"
             >
               <IconPaperclip class="h-3 w-3" />
-              <span>{{ reply.attachments.length }} attachment(s)</span>
+              <span>{{ node.reply.attachments.length }} attachment(s)</span>
             </div>
 
             <!-- Reply actions -->
             <div class="mt-1 flex items-center gap-2 text-xs text-base-content/50">
               <button
                 class="flex items-center gap-1 hover:text-primary transition-colors"
-                @click.stop="handleReplyToReply(reply)"
+                @click.stop="handleReplyToReply(node.reply)"
               >
                 <IconReply class="h-3 w-3" />
-                <span>{{ reply.repliesCount || 0 }}</span>
+                <span>{{ node.reply.repliesCount || 0 }}</span>
               </button>
               <button
                 class="flex items-center gap-1 hover:text-success transition-colors"
-                @click.stop="handleBoostReply(reply)"
+                @click.stop="handleBoostReply(node.reply)"
               >
                 <IconRepeat2 class="h-3 w-3" />
-                <span>{{ reply.boostCount || 0 }}</span>
+                <span>{{ node.reply.boostCount || 0 }}</span>
               </button>
             </div>
           </div>
@@ -115,12 +171,16 @@
 
       <!-- Load more -->
       <button
-        v-if="hasMore"
+        v-if="hasMore && !loading"
         class="w-full px-3 py-2 text-sm text-primary hover:bg-base-200/50 transition-colors"
         @click.stop="loadMore"
       >
         Load more replies...
       </button>
+
+      <div v-if="loading" class="px-3 py-2 text-xs text-base-content/50">
+        Loading replies...
+      </div>
 
       <!-- View all link -->
       <NuxtLink
@@ -137,7 +197,7 @@
 
 <script setup lang="ts">
 import type { Post } from '~/types/post';
-import { fetchPostReplies } from '~/utils/api';
+import { fetchPostRepliesThreaded, reactToPost, removeReaction } from '~/utils/api';
 import { getFileUrl } from '~/utils/files';
 import { renderMarkdown } from '~/utils/markdown';
 import {
@@ -161,29 +221,43 @@ const emit = defineEmits<{
   boost: [post: Post];
 }>();
 
-const isOpen = ref(false);
 const replies = ref<Post[]>(props.initialReplies);
+const replyNodes = ref<Array<{ reply: Post; depth: number; parentId: string | null }>>([]);
 const loading = ref(false);
-const offset = ref(props.initialReplies.length);
+const offset = ref(0);
 const hasMore = ref(true);
+const route = useRoute();
+const isExplorePage = computed(() => route.path === '/');
 
-const displayReplies = computed(() => {
-  return replies.value.slice(0, 3);
+const displayReplyNodes = computed(() => {
+  return replyNodes.value.slice(0, 24);
+});
+
+const featuredReply = computed(() => replies.value[0] ?? null);
+
+const featuredReactions = computed(() => {
+  if (!featuredReply.value?.reactionsCount) return [];
+  return Object.entries(featuredReply.value.reactionsCount)
+    .filter(([, count]) => (count as number) > 0)
+    .sort((a, b) => (b[1] as number) - (a[1] as number))
+    .slice(0, 3)
+    .map(([symbol, count]) => ({
+      symbol,
+      attitude: 0,
+      count: count as number,
+      userReacted: featuredReply.value?.reactionsMade?.[symbol] || false,
+    }));
 });
 
 async function loadReplies() {
-  if (replies.value.length > 0) {
-    isOpen.value = true;
-    return;
-  }
-
+  if (loading.value) return;
   loading.value = true;
   try {
-    const result = await fetchPostReplies(props.postId);
-    replies.value = result;
-    offset.value = result.length;
-    hasMore.value = result.length >= 10; // Assume 10 per page
-    isOpen.value = true;
+    const { nodes, total } = await fetchPostRepliesThreaded(props.postId, 6, 0);
+    replyNodes.value = nodes.map((n) => ({ reply: n.post, depth: n.depth, parentId: n.parentId }));
+    replies.value = nodes.map((n) => n.post);
+    offset.value = nodes.length;
+    hasMore.value = offset.value < total;
   } catch (e) {
     console.error('Failed to load replies:', e);
   } finally {
@@ -191,14 +265,20 @@ async function loadReplies() {
   }
 }
 
+async function prefetchReplies() {
+  await loadReplies();
+}
+
 async function loadMore() {
   if (loading.value || !hasMore.value) return;
   loading.value = true;
   try {
-    const result = await fetchPostReplies(props.postId);
-    replies.value = [...replies.value, ...result];
-    offset.value += result.length;
-    hasMore.value = result.length >= 10;
+    const { nodes, total } = await fetchPostRepliesThreaded(props.postId, 6, offset.value);
+    const mapped = nodes.map((n) => ({ reply: n.post, depth: n.depth, parentId: n.parentId }));
+    replyNodes.value = [...replyNodes.value, ...mapped];
+    replies.value = [...replies.value, ...nodes.map((n) => n.post)];
+    offset.value += nodes.length;
+    hasMore.value = offset.value < total;
   } catch (e) {
     console.error('Failed to load more replies:', e);
   } finally {
@@ -271,4 +351,18 @@ function handleReplyToReply(post: Post) {
 function handleBoostReply(post: Post) {
   emit('boost', post);
 }
+
+async function handleReact(symbol: string, attitude: number) {
+  if (!featuredReply.value) return;
+  await reactToPost(featuredReply.value.id, symbol, attitude);
+}
+
+async function handleRemoveReaction(symbol: string) {
+  if (!featuredReply.value) return;
+  await removeReaction(featuredReply.value.id, symbol);
+}
+
+onMounted(() => {
+  prefetchReplies();
+});
 </script>
