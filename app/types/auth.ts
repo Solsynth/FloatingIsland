@@ -13,6 +13,7 @@ export interface SnAuthChallenge {
   stepTotal?: number;
   riskLevel?: number;
   factors?: SnAuthFactor[];
+  blacklistFactors?: string[];
   doneAt?: string | null;
   grantAid?: string | null;
   grantToken?: string | null;
@@ -156,7 +157,7 @@ export const PLATFORM_TYPES: Record<number, { label: string; icon: string }> = {
 
 export const FACTOR_TYPES: Record<
   number,
-  { label: string; description: string; icon: string }
+  { label: string; description: string; icon: string; webUnavailable?: boolean }
 > = {
   0: {
     label: "Password",
@@ -180,7 +181,7 @@ export const FACTOR_TYPES: Record<
   },
   4: { label: "PIN", description: "Enter your security PIN", icon: "shield" },
   5: { label: "Recovery Code", description: "Single-use recovery code", icon: "key-round" },
-  6: { label: "WebAuthn", description: "Hardware security key or biometric", icon: "fingerprint" },
+  6: { label: "Physical Passport", description: "NFC-based authentication (unavailable on web)", icon: "nfc", webUnavailable: true },
   7: { label: "Passkey", description: "Platform authenticator", icon: "key-square" },
 };
 

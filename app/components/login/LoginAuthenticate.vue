@@ -10,35 +10,51 @@
             <span>{{ error }}</span>
         </div>
 
-        <fieldset class="fieldset">
-            <legend class="fieldset-legend">{{ inputPlaceholder }}</legend>
-            <input
-                ref="inputRef"
-                :type="isPassword ? 'password' : 'text'"
-                :placeholder="inputPlaceholder"
-                class="input input-bordered w-full"
-                :value="modelValue"
-                autocomplete="off"
-                @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-                @keydown.enter="$emit('submit')"
-            >
-        </fieldset>
-
-        <div class="flex gap-2">
-            <button class="btn btn-ghost flex-1" @click="$emit('back')">
-                <IconArrowLeft class="w-4 h-4" />
-                Back
-            </button>
+        <!-- Passkey: show button instead of input -->
+        <div v-if="isPasskey" class="space-y-4">
             <button
-                class="btn btn-primary flex-1"
-                :disabled="!modelValue || submitting"
-                @click="$emit('submit')"
+                class="btn btn-outline w-full gap-2"
+                :disabled="submitting"
+                @click="$emit('passkey')"
             >
                 <IconLoader v-if="submitting" class="w-4 h-4 animate-spin" />
-                <IconCheck v-else class="w-4 h-4" />
-                {{ submitLabel }}
+                <IconFingerprint v-else class="w-4 h-4" />
+                Authenticate with Passkey
             </button>
         </div>
+
+        <!-- Standard input for other factor types -->
+        <template v-else>
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">{{ inputPlaceholder }}</legend>
+                <input
+                    ref="inputRef"
+                    :type="isPassword ? 'password' : 'text'"
+                    :placeholder="inputPlaceholder"
+                    class="input input-bordered w-full"
+                    :value="modelValue"
+                    autocomplete="off"
+                    @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+                    @keydown.enter="$emit('submit')"
+                >
+            </fieldset>
+
+            <div class="flex gap-2">
+                <button class="btn btn-ghost flex-1" @click="$emit('back')">
+                    <IconArrowLeft class="w-4 h-4" />
+                    Back
+                </button>
+                <button
+                    class="btn btn-primary flex-1"
+                    :disabled="!modelValue || submitting"
+                    @click="$emit('submit')"
+                >
+                    <IconLoader v-if="submitting" class="w-4 h-4 animate-spin" />
+                    <IconCheck v-else class="w-4 h-4" />
+                    {{ submitLabel }}
+                </button>
+            </div>
+        </template>
     </div>
 </template>
 
@@ -48,6 +64,7 @@ import {
     IconLoader,
     IconArrowLeft,
     IconCheck,
+    IconFingerprint,
 } from "#components";
 import type { SnAuthFactor } from "~/types/auth";
 import { FACTOR_TYPES } from "~/types/auth";
@@ -62,9 +79,12 @@ defineEmits<{
     "update:modelValue": [value: string];
     submit: [];
     back: [];
+    passkey: [];
 }>();
 
 const inputRef = ref<HTMLInputElement | null>(null);
+
+const isPasskey = computed(() => props.factor?.type === 7);
 
 const isPassword = computed(() => {
     const type = props.factor?.type;
@@ -83,8 +103,10 @@ watch(() => props.factor, () => {
 }, { immediate: true });
 
 onMounted(() => {
-    nextTick(() => {
-        inputRef.value?.focus();
-    });
+    if (!isPasskey.value) {
+        nextTick(() => {
+            inputRef.value?.focus();
+        });
+    }
 });
 </script>

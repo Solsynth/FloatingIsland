@@ -141,6 +141,7 @@
                             <LoginFactorList
                                 :factors="auth.factors.value"
                                 :selected-factor="auth.selectedFactor.value"
+                                :challenge="auth.challenge.value"
                                 @select="auth.selectFactor($event)"
                             />
 
@@ -195,6 +196,7 @@
                                 :submitting="submitting"
                                 @submit="handleVerify"
                                 @back="goBackToFactors"
+                                @passkey="handlePasskeyAuth"
                             />
                         </div>
 
@@ -230,6 +232,10 @@ import {
     IconArrowLeft,
     IconCheck,
 } from "#components";
+import {
+    startPasskeyAuthentication,
+    completePasskeyAuthentication,
+} from "~/utils/api";
 
 definePageMeta({
     layout: false,
@@ -306,13 +312,27 @@ async function handleLookup() {
 }
 
 async function handleFactorSelect() {
-    if (auth.selectedFactor.value) {
-        step.value = "check";
-        updateQuery({
-            challenge: auth.challenge.value!.id,
-            step: "check",
-        });
+    const factor = auth.selectedFactor.value;
+    const challengeId = auth.challenge.value?.id;
+    if (!factor || !challengeId) return;
+
+    submitting.value = true;
+    error.value = null;
+
+    try {
+        await auth.requestCode(challengeId, factor.id);
+    } catch (e) {
+        // 400 errors are non-fatal (e.g. factor already verified), proceed anyway
+        if (!(e instanceof Error && e.message.includes("400"))) {
+            error.value = e instanceof Error ? e.message : "Failed to select factor";
+            submitting.value = false;
+            return;
+        }
     }
+
+    submitting.value = false;
+    step.value = "check";
+    updateQuery({ challenge: challengeId, step: "check" });
 }
 
 async function handleVerify() {
@@ -379,6 +399,88 @@ function goBackToFactors() {
     step.value = "picker";
     if (auth.challenge.value) {
         updateQuery({ challenge: auth.challenge.value.id, step: "picker" });
+    }
+}
+
+async function handlePasskeyAuth() {
+    const challenge = auth.challenge.value;
+    const factor = auth.selectedFactor.value;
+    if (!challenge || !factor) {
+        error.value = "Login session expired. Please try again.";
+        step.value = "lookup";
+        return;
+    }
+
+    submitting.value = true;
+    error.value = null;
+
+    try {
+        // Step 1: Get passkey authentication options from server
+        const options = await startPasskeyAuthentication(challenge.id);
+
+        // Step 2: Perform WebAuthn ceremony
+        const credential = await navigator.credentials.get({
+            publicKey: {
+                challenge: Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0)),
+                rpId: options.rpId,
+                allowCredentials: options.allowCredentials.map(cred => ({
+                    type: cred.type as PublicKeyCredentialType,
+                    id: Uint8Array.from(atob(cred.id), c => c.charCodeAt(0)),
+                    transports: cred.transports as AuthenticatorTransport[],
+                })),
+                userVerification: options.userVerification as UserVerificationRequirement,
+            },
+        }) as PublicKeyCredential;
+
+        if (!credential) {
+            throw new Error("Passkey authentication was cancelled");
+        }
+
+        const response = credential.response as AuthenticatorAssertionResponse;
+
+        // Step 3: Complete passkey authentication with server
+        const result = await completePasskeyAuthentication(
+            challenge.id,
+            factor.id,
+            credential.id,
+            btoa(String.fromCharCode(...new Uint8Array(response.clientDataJSON))),
+            btoa(String.fromCharCode(...new Uint8Array(response.authenticatorData))),
+            btoa(String.fromCharCode(...new Uint8Array(response.signature))),
+            response.userHandle
+                ? btoa(String.fromCharCode(...new Uint8Array(response.userHandle)))
+                : null,
+        );
+
+        // Update challenge state
+        auth.setChallengeState(result);
+
+        if (result.stepRemain && result.stepRemain > 0) {
+            // More steps needed - go back to factor picker
+            password.value = "";
+            clearFactor();
+            const factors = await loadFactors(result.id);
+            updateQuery({ challenge: result.id, step: "picker" });
+            if (factors.length === 1) {
+                auth.selectFactor(factors[0]!);
+                step.value = "check";
+            } else {
+                step.value = "picker";
+            }
+        } else {
+            // Login complete - show success and redirect
+            step.value = "success";
+            const code = result.id;
+            const redirectUrl = (route.query.redirect as string) || getRedirect();
+            await exchangeToken(code);
+            clearLoginFlow();
+            clearRedirect();
+            router.replace({ query: {} });
+            navigateTo(redirectUrl || "/");
+        }
+    } catch (e) {
+        error.value = e instanceof Error ? e.message : "Passkey authentication failed";
+    } finally {
+        submitting.value = false;
     }
 }
 

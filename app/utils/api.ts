@@ -217,6 +217,66 @@ export async function requestFactorCode(
   return safeJsonParse<unknown>(response);
 }
 
+export interface PasskeyAuthenticationOptions {
+  challenge: string;
+  rpId: string;
+  allowCredentials: { type: string; id: string; transports?: string[] }[];
+  userVerification: string;
+}
+
+export async function startPasskeyAuthentication(
+  challengeId: string,
+): Promise<PasskeyAuthenticationOptions> {
+  const response = await apiFetch(
+    `/padlock/auth/challenge/${challengeId}/passkey/start`,
+    {
+      method: "POST",
+      skipAuth: true,
+    },
+  );
+  const data = await safeJsonParse<{
+    challenge: string;
+    rp_id: string;
+    allow_credentials: { type: string; id: string; transports?: string[] }[];
+    user_verification: string;
+  }>(response);
+  return {
+    challenge: data.challenge,
+    rpId: data.rp_id,
+    allowCredentials: data.allow_credentials ?? [],
+    userVerification: data.user_verification ?? "preferred",
+  };
+}
+
+export async function completePasskeyAuthentication(
+  challengeId: string,
+  factorId: string,
+  credentialId: string,
+  clientDataJson: string,
+  authenticatorData: string,
+  signature: string,
+  userHandle?: string | null,
+): Promise<SnAuthChallenge> {
+  const response = await apiFetch(
+    `/padlock/auth/challenge/${challengeId}/passkey/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        camelToSnake({
+          factorId,
+          credentialId,
+          clientDataJson,
+          authenticatorData,
+          signature,
+          userHandle,
+        }),
+      ),
+      skipAuth: true,
+    },
+  );
+  return safeJsonParse<SnAuthChallenge>(response);
+}
+
 export async function verifyChallenge(
   challengeId: string,
   factorId: string,
