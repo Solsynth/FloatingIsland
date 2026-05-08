@@ -402,6 +402,37 @@ function goBackToFactors() {
     }
 }
 
+function base64UrlToBase64(str: string): string {
+    let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (base64.length % 4) base64 += "=";
+    return base64;
+}
+
+function base64ToBase64Url(str: string): string {
+    return str.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function arrayBufferToBase64Url(buffer: ArrayBuffer): string {
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+    const chunkSize = 8192;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.subarray(i, i + chunkSize);
+        binary += String.fromCharCode(...chunk);
+    }
+    return base64ToBase64Url(btoa(binary));
+}
+
+function base64UrlToArrayBuffer(str: string): ArrayBuffer {
+    const base64 = base64UrlToBase64(str);
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
+
 async function handlePasskeyAuth() {
     const challenge = auth.challenge.value;
     const factor = auth.selectedFactor.value;
@@ -421,11 +452,11 @@ async function handlePasskeyAuth() {
         // Step 2: Perform WebAuthn ceremony
         const credential = await navigator.credentials.get({
             publicKey: {
-                challenge: Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0)),
+                challenge: base64UrlToArrayBuffer(options.challenge),
                 rpId: options.rpId,
                 allowCredentials: options.allowCredentials.map(cred => ({
                     type: cred.type as PublicKeyCredentialType,
-                    id: Uint8Array.from(atob(cred.id), c => c.charCodeAt(0)),
+                    id: base64UrlToArrayBuffer(cred.id),
                     transports: cred.transports as AuthenticatorTransport[],
                 })),
                 userVerification: options.userVerification as UserVerificationRequirement,
@@ -443,11 +474,11 @@ async function handlePasskeyAuth() {
             challenge.id,
             factor.id,
             credential.id,
-            btoa(String.fromCharCode(...new Uint8Array(response.clientDataJSON))),
-            btoa(String.fromCharCode(...new Uint8Array(response.authenticatorData))),
-            btoa(String.fromCharCode(...new Uint8Array(response.signature))),
+            arrayBufferToBase64Url(response.clientDataJSON),
+            arrayBufferToBase64Url(response.authenticatorData),
+            arrayBufferToBase64Url(response.signature),
             response.userHandle
-                ? btoa(String.fromCharCode(...new Uint8Array(response.userHandle)))
+                ? arrayBufferToBase64Url(response.userHandle)
                 : null,
         );
 

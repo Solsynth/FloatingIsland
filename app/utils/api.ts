@@ -83,6 +83,15 @@ interface ApiFetchOptions extends RequestInit {
   retryCount?: number;
 }
 
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 export async function apiFetch(
   endpoint: string,
   options: ApiFetchOptions = {},
@@ -159,7 +168,7 @@ export async function apiFetch(
       typeof errorData === "object" && errorData && "message" in errorData
         ? String(errorData.message)
         : `HTTP ${response.status}`;
-    throw new Error(message);
+    throw new ApiError(message, response.status);
   }
 
   return response;
@@ -2020,4 +2029,55 @@ export async function fetchPostsByTag(
   const data = await safeJsonParse<Post[]>(response)
 
   return { posts: data, total }
+}
+
+// Check-In / Fortune API
+export interface FortuneReport {
+  version: number
+  poem: string
+  summary: string
+  summaryDetail: string | null
+  wish: string
+  love: string
+  study: string
+  career: string
+  health: string
+  lostItem: string
+  luckyColor: string
+  luckyDirection: string
+  luckyTime: string
+  luckyItem: string
+  luckyAction: string
+  avoidAction: string
+  ritual: string
+}
+
+export interface CheckInResult {
+  id: string
+  level: number
+  fortuneReport: FortuneReport | null
+  accountId: string
+  createdAt: string
+  updatedAt: string
+}
+
+export async function getCheckInResultToday(): Promise<CheckInResult | null> {
+  try {
+    const response = await apiFetch("/passport/accounts/me/check-in?version=2")
+    return safeJsonParse<CheckInResult>(response)
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) {
+      return null
+    }
+    throw err
+  }
+}
+
+export async function performCheckIn(captchaToken?: string): Promise<CheckInResult> {
+  const body = captchaToken ? JSON.stringify({ captcha_token: captchaToken }) : undefined
+  const response = await apiFetch("/passport/accounts/me/check-in?version=2", {
+    method: "POST",
+    body,
+  })
+  return safeJsonParse<CheckInResult>(response)
 }

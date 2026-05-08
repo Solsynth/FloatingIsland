@@ -1,5 +1,8 @@
 <template>
     <div class="flex flex-col gap-6">
+        <!-- Check-In Widget (authenticated only) -->
+        <CheckInWidget v-if="isAuthenticated" />
+
         <!-- Search -->
         <div class="relative">
             <input
@@ -107,6 +110,8 @@
 import { IconSearch, IconFolder } from "#components";
 import { fetchCategories, fetchTags, type PostCategory, type PostTag } from "~/utils/api";
 
+const auth = useAuth();
+const { isAuthenticated } = auth;
 const currentYear = new Date().getFullYear();
 const searchQuery = ref("");
 
