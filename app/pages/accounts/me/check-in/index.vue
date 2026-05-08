@@ -69,6 +69,12 @@
               :summary="result.fortuneReport?.summary"
             />
 
+            <!-- Tips -->
+            <FortuneTipsCard
+              v-if="result.tips.length > 0"
+              :tips="result.tips"
+            />
+
             <!-- Fortune Guidance -->
             <FortuneGuidanceCard
               v-if="result.fortuneReport?.summaryDetail"
@@ -101,12 +107,19 @@
               </span>
             </div>
           </template>
+
+          <!-- Fortune Trend (visible below xl breakpoint) -->
+          <div class="xl:hidden">
+            <FortuneTrendCard />
+          </div>
         </template>
       </div>
 
       <!-- Right Sidebar (Desktop only) -->
       <aside class="hidden xl:block sticky top-4 self-start ml-6 mr-4">
-        <!-- Reserved for future widgets -->
+        <div class="space-y-4">
+          <FortuneTrendCard />
+        </div>
       </aside>
     </div>
 

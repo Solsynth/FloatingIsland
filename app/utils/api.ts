@@ -2052,9 +2052,16 @@ export interface FortuneReport {
   ritual: string
 }
 
+export interface FortuneTip {
+  isPositive: boolean
+  title: string
+  content: string
+}
+
 export interface CheckInResult {
   id: string
   level: number
+  tips: FortuneTip[]
   fortuneReport: FortuneReport | null
   accountId: string
   createdAt: string
@@ -2080,4 +2087,27 @@ export async function performCheckIn(captchaToken?: string): Promise<CheckInResu
     body,
   })
   return safeJsonParse<CheckInResult>(response)
+}
+
+// Event Calendar API
+export interface EventCalendarEntry {
+  date: string
+  checkInResult: CheckInResult | null
+}
+
+export async function fetchEventCalendar(
+  year: number,
+  month: number,
+  username?: string,
+): Promise<EventCalendarEntry[]> {
+  const path = username
+    ? `/passport/accounts/${encodeURIComponent(username)}/calendar`
+    : "/passport/accounts/me/calendar"
+  const params = new URLSearchParams({
+    year: String(year),
+    month: String(month),
+    includeNotableDays: "false",
+  })
+  const response = await apiFetch(`${path}?${params.toString()}`)
+  return safeJsonParse<EventCalendarEntry[]>(response)
 }
