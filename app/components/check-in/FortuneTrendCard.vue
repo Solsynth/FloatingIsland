@@ -6,7 +6,13 @@
                     <IconTrendingUp class="w-5 h-5 text-primary" />
                     <h3 class="text-sm font-bold">Fortune Trend</h3>
                 </div>
-                <span class="text-xs text-base-content/50">{{ monthLabel }}</span>
+                <NuxtLink
+                    v-if="username"
+                    :to="`/accounts/${username}/fortune`"
+                    class="text-xs text-primary hover:underline"
+                >
+                    View all
+                </NuxtLink>
             </div>
 
             <!-- Loading -->
@@ -37,7 +43,6 @@
                     class="w-full"
                     :style="{ height: `${svgHeight}px` }"
                 >
-                    <!-- Gradient fill -->
                     <defs>
                         <linearGradient id="fortuneGrad" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stop-color="#6366f1" stop-opacity="0.3" />
@@ -45,13 +50,8 @@
                         </linearGradient>
                     </defs>
 
-                    <!-- Area -->
-                    <path
-                        :d="areaPath"
-                        fill="url(#fortuneGrad)"
-                    />
+                    <path :d="areaPath" fill="url(#fortuneGrad)" />
 
-                    <!-- Line -->
                     <path
                         :d="linePath"
                         fill="none"
@@ -61,7 +61,6 @@
                         stroke-linejoin="round"
                     />
 
-                    <!-- Dots -->
                     <circle
                         v-for="(pt, i) in points"
                         :key="i"
@@ -74,7 +73,6 @@
                     />
                 </svg>
 
-                <!-- Level labels -->
                 <div class="flex justify-between text-[10px] text-base-content/40">
                     <span v-for="label in levelLabels" :key="label">{{ label }}</span>
                 </div>
@@ -87,6 +85,10 @@
 import { IconTrendingUp } from "#components";
 import { fetchEventCalendar } from "~/utils/api";
 
+const props = defineProps<{
+    username?: string;
+}>();
+
 const loading = ref(true);
 const error = ref<string | null>(null);
 const dataPoints = ref<{ date: Date; level: number }[]>([]);
@@ -96,7 +98,6 @@ const levelLabels = ["Awful", "Bad", "Good", "Great", "Super", "Lucky"];
 const now = new Date();
 const year = now.getFullYear();
 const month = now.getMonth() + 1;
-const monthLabel = now.toLocaleDateString("en-US", { month: "long" });
 
 const svgWidth = 200;
 const svgHeight = 80;
@@ -109,10 +110,8 @@ const points = computed(() => {
         return [{ x: svgWidth / 2, y: svgHeight - padding - (pts[0].level / 5) * (svgHeight - padding * 2) }];
     }
 
-    const minX = 0;
-    const maxX = svgWidth;
     return pts.map((pt, i) => ({
-        x: minX + (i / (pts.length - 1)) * (maxX - minX),
+        x: (i / (pts.length - 1)) * svgWidth,
         y: svgHeight - padding - (pt.level / 5) * (svgHeight - padding * 2),
     }));
 });
@@ -146,7 +145,7 @@ async function loadData() {
     loading.value = true;
     error.value = null;
     try {
-        const entries = await fetchEventCalendar(year, month);
+        const entries = await fetchEventCalendar(year, month, props.username);
         const withResults = entries
             .filter((e) => e.checkInResult != null)
             .map((e) => ({

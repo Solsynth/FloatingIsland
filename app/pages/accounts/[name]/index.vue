@@ -266,6 +266,9 @@
 
         <!-- Right Column - Sidebar -->
         <div class="space-y-4">
+          <!-- Fortune Trend -->
+          <FortuneTrendCard :username="accountName" />
+
           <!-- Leveling Progress -->
           <LevelingProgress
             v-if="account.profile?.level"
