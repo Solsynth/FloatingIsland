@@ -1,0 +1,40 @@
+<template>
+  <div class="min-h-screen bg-base-200 flex items-center justify-center px-4">
+    <div class="card bg-base-100 shadow-xl max-w-md w-full">
+      <div class="card-body">
+        <ConfuseSpinner v-if="loading" message="Redirecting to provider callback..." />
+        <div v-else class="alert alert-error">
+          <IconAlertCircle class="w-4 h-4" />
+          <span>Failed to reach provider callback. Please try again.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { API_BASE_URL } from "~/utils/api";
+
+definePageMeta({ layout: false });
+
+useSolarSeo({
+  title: "Redirecting",
+  description: "Redirecting to provider callback...",
+});
+
+const route = useRoute();
+const loading = ref(true);
+
+onMounted(() => {
+  const provider = route.params.provider;
+  if (typeof provider !== "string" || !provider) {
+    navigateTo("/auth/login");
+    return;
+  }
+
+  const query = new URLSearchParams(route.query as Record<string, string>).toString();
+  const redirectUrl = `${API_BASE_URL}/padlock/auth/callback/${provider}${query ? `?${query}` : ""}`;
+
+  window.location.href = redirectUrl;
+});
+</script>
