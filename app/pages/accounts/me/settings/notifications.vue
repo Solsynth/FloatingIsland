@@ -1,11 +1,11 @@
 <template>
     <div class="max-w-3xl mx-auto space-y-6 min-w-0">
-        <h1 class="text-2xl font-bold mb-6 max-lg:px-4">Notification Settings</h1>
+        <h1 class="text-2xl font-bold mb-6 max-lg:px-4">{{ t('settings.notificationsTitle') }}</h1>
 
         <!-- Push Notifications -->
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
-                <h2 class="card-title text-lg mb-4">Push Notifications</h2>
+                <h2 class="card-title text-lg mb-4">{{ t('settings.pushNotifications') }}</h2>
 
                 <div class="form-control">
                     <label class="label cursor-pointer justify-start gap-4">
@@ -15,7 +15,7 @@
                             class="toggle toggle-primary"
                         >
                         <div>
-                            <span class="label-text font-medium">Enable Push Notifications</span>
+                            <span class="label-text font-medium">{{ t('settings.enablePush') }}</span>
                             <p class="text-sm text-base-content/60">Receive notifications in your browser</p>
                         </div>
                     </label>
@@ -26,7 +26,7 @@
         <!-- Email Notifications -->
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
-                <h2 class="card-title text-lg mb-4">Email Notifications</h2>
+                <h2 class="card-title text-lg mb-4">{{ t('settings.emailNotifications') }}</h2>
 
                 <div class="space-y-2">
                     <div class="form-control">
@@ -37,7 +37,7 @@
                                 class="checkbox checkbox-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">Mentions</span>
+                                <span class="label-text font-medium">{{ t('settings.mentions') }}</span>
                                 <p class="text-sm text-base-content/60">When someone mentions you in a post</p>
                             </div>
                         </label>
@@ -51,7 +51,7 @@
                                 class="checkbox checkbox-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">Replies</span>
+                                <span class="label-text font-medium">{{ t('settings.replies') }}</span>
                                 <p class="text-sm text-base-content/60">When someone replies to your posts</p>
                             </div>
                         </label>
@@ -65,7 +65,7 @@
                                 class="checkbox checkbox-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">Likes</span>
+                                <span class="label-text font-medium">{{ t('settings.likes') }}</span>
                                 <p class="text-sm text-base-content/60">When someone likes your posts</p>
                             </div>
                         </label>
@@ -79,7 +79,7 @@
                                 class="checkbox checkbox-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">New Followers</span>
+                                <span class="label-text font-medium">{{ t('settings.newFollowers') }}</span>
                                 <p class="text-sm text-base-content/60">When someone follows you</p>
                             </div>
                         </label>
@@ -93,7 +93,7 @@
                                 class="checkbox checkbox-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">Direct Messages</span>
+                                <span class="label-text font-medium">{{ t('settings.directMessages') }}</span>
                                 <p class="text-sm text-base-content/60">When you receive a direct message</p>
                             </div>
                         </label>
@@ -105,7 +105,7 @@
         <!-- In-App Notifications -->
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
-                <h2 class="card-title text-lg mb-4">In-App Notifications</h2>
+                <h2 class="card-title text-lg mb-4">{{ t('settings.inAppNotifications') }}</h2>
 
                 <div class="space-y-2">
                     <div class="form-control">
@@ -116,7 +116,7 @@
                                 class="checkbox checkbox-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">Mentions</span>
+                                <span class="label-text font-medium">{{ t('settings.mentions') }}</span>
                             </div>
                         </label>
                     </div>
@@ -129,7 +129,7 @@
                                 class="checkbox checkbox-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">Replies</span>
+                                <span class="label-text font-medium">{{ t('settings.replies') }}</span>
                             </div>
                         </label>
                     </div>
@@ -142,7 +142,7 @@
                                 class="checkbox checkbox-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">Likes</span>
+                                <span class="label-text font-medium">{{ t('settings.likes') }}</span>
                             </div>
                         </label>
                     </div>
@@ -168,7 +168,7 @@
                                 class="checkbox checkbox-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">Messages</span>
+                                <span class="label-text font-medium">{{ t('settings.directMessages') }}</span>
                             </div>
                         </label>
                     </div>
@@ -181,7 +181,7 @@
                                 class="checkbox checkbox-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">Realm Activity</span>
+                                <span class="label-text font-medium">{{ t('settings.realmActivity') }}</span>
                             </div>
                         </label>
                     </div>
@@ -192,15 +192,15 @@
         <!-- Digest -->
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
-                <h2 class="card-title text-lg mb-4">Email Digest</h2>
+                <h2 class="card-title text-lg mb-4">{{ t('settings.emailDigest') }}</h2>
 
                 <fieldset class="fieldset">
-                    <legend class="fieldset-legend">Digest Frequency</legend>
+                    <legend class="fieldset-legend">{{ t('settings.digestFrequency') }}</legend>
                     <select v-model="notifications.digestFrequency" class="select select-bordered w-full">
-                        <option value="never">Never</option>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
+                        <option value="never">{{ t('settings.never') }}</option>
+                        <option value="daily">{{ t('settings.daily') }}</option>
+                        <option value="weekly">{{ t('settings.weekly') }}</option>
+                        <option value="monthly">{{ t('settings.monthly') }}</option>
                     </select>
                 </fieldset>
             </div>
@@ -210,10 +210,10 @@
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="card-title text-lg">Notification Topics</h2>
+                    <h2 class="card-title text-lg">{{ t('settings.notificationTopics') }}</h2>
                     <button class="btn btn-sm btn-primary" @click="showAddTopic = true">
                         <IconPlus class="w-4 h-4" />
-                        Add Custom
+                        {{ t('settings.addCustom') }}
                     </button>
                 </div>
 
@@ -223,7 +223,7 @@
 
                 <div v-else-if="topics.length === 0" class="text-center py-8 text-base-content/60">
                     <IconBell class="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>No notification topics configured</p>
+                    <p>{{ t('settings.noTopics') }}</p>
                 </div>
 
                 <div v-else class="space-y-3">
@@ -241,9 +241,9 @@
                             class="select select-bordered select-sm"
                             @change="updateTopicPreference(topic.topic, $event.target?.value)"
                         >
-                            <option value="normal">Normal</option>
-                            <option value="silent">Silent</option>
-                            <option value="reject">Off</option>
+                            <option value="normal">{{ t('settings.normal') }}</option>
+                            <option value="silent">{{ t('settings.silent') }}</option>
+                            <option value="reject">{{ t('settings.off') }}</option>
                         </select>
                     </div>
                 </div>
@@ -258,7 +258,7 @@
             >
                 <IconLoader v-if="isSaving" class="w-4 h-4 animate-spin" />
                 <IconSave v-else class="w-4 h-4" />
-                Save Preferences
+                {{ t('settings.savePreferences') }}
             </button>
         </div>
 
@@ -268,7 +268,7 @@
                 <h3 class="font-bold text-lg mb-4">Add Custom Topic</h3>
 
                 <fieldset class="fieldset mb-4">
-                    <legend class="fieldset-legend">Topic</legend>
+                    <legend class="fieldset-legend">{{ t('settings.notificationTopics') }}</legend>
                     <input
                         v-model="newTopic.topic"
                         type="text"
@@ -278,7 +278,7 @@
                 </fieldset>
 
                 <fieldset class="fieldset mb-4">
-                    <legend class="fieldset-legend">Description</legend>
+                    <legend class="fieldset-legend">{{ t('settings.description') }}</legend>
                     <input
                         v-model="newTopic.description"
                         type="text"
@@ -288,7 +288,7 @@
                 </fieldset>
 
                 <div class="modal-action">
-                    <button class="btn btn-ghost" @click="showAddTopic = false">Cancel</button>
+                    <button class="btn btn-ghost" @click="showAddTopic = false">{{ t('settings.cancel') }}</button>
                     <button
                         class="btn btn-primary"
                         :disabled="!newTopic.topic || !newTopic.description || isAddingTopic"
@@ -307,6 +307,7 @@
 <script setup lang="ts">
 import { IconLoader, IconSave, IconBell, IconPlus } from "#components";
 
+const { t } = useI18n();
 const isSaving = ref(false);
 const isAddingTopic = ref(false);
 const showAddTopic = ref(false);
@@ -399,6 +400,6 @@ onMounted(() => {
 });
 
 useSolarSeo({
-    title: "Notification Settings",
+    title: t('settings.notificationsTitle'),
 });
 </script>

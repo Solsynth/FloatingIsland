@@ -6,8 +6,8 @@
 					<IconShieldCheck class="w-5 h-5" />
 				</div>
 				<div>
-					<h1 class="text-xl font-black">Solar Network Anti-Robot</h1>
-					<p class="text-xs text-base-content/60">Complete verification to continue</p>
+					<h1 class="text-xl font-black">{{ t("captcha.title") }}</h1>
+					<p class="text-xs text-base-content/60">{{ t("captcha.subtitle") }}</p>
 				</div>
 			</div>
 
@@ -16,7 +16,7 @@
 			</div>
 
 			<p class="mt-5 text-xs text-base-content/60">
-				Hosted by
+				{{ t("captcha.hostedBy") }}
 				<a
 					href="https://github.com/Solsynth/DysonNetwork"
 					class="link link-primary"
@@ -33,9 +33,11 @@ import { IconShieldCheck } from '#components';
 
 definePageMeta({ layout: false });
 
+const { t } = useI18n();
+
 useSolarSeo({
-    title: "Verification",
-    description: "Complete verification to continue.",
+    title: t("captcha.seoTitle"),
+    description: t("captcha.seoDescription"),
 });
 
 const route = useRoute();

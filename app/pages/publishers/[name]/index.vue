@@ -72,17 +72,7 @@
                 <IconShieldCheck class="w-3 h-3" />
                 {{ publisher.verification.title || "Verified" }}
               </span>
-              <!-- Livestream indicator -->
-              <span
-                v-if="hasActiveLivestream"
-                class="badge badge-error gap-1 cursor-pointer hover:opacity-80"
-                @click="goToLivestream"
-              >
-                <span
-                  class="w-2 h-2 rounded-full bg-error-content animate-pulse"
-                />
-                LIVE
-              </span>
+              <!-- Livestream indicator removed -->
             </div>
             <p class="truncate text-sm text-base-content/60">
               @{{ publisher.name }}
@@ -647,10 +637,6 @@ async function shareProfile() {
       await navigator.clipboard.writeText(url);
     }
   }
-}
-
-function goToLivestream() {
-  // TODO: Navigate to livestream
 }
 
 function handleBoost(_post: Post) {

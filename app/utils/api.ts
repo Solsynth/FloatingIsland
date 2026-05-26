@@ -23,7 +23,7 @@ import type {
   RealmInvite,
   RealmChatRoom,
 } from "~/types/realm";
-import type { LivestreamDetail } from "~/types/livestream";
+
 import { snakeToCamel, camelToSnake } from "~/utils/case";
 import {
   getValidToken,
@@ -865,46 +865,6 @@ export async function fetchRealmPosts(
   const data = await safeJsonParse<Post[]>(response);
 
   return { posts: data, total };
-}
-
-// Data API - Livestreams
-export async function fetchLivestreams(): Promise<LivestreamDetail[]> {
-  const response = await apiFetch("/sphere/livestreams", { skipAuth: true });
-  return safeJsonParse<LivestreamDetail[]>(response);
-}
-
-export async function fetchLivestream(id: string): Promise<LivestreamDetail> {
-  const response = await apiFetch(`/sphere/livestreams/${id}`, {
-    skipAuth: true,
-  });
-  return safeJsonParse<LivestreamDetail>(response);
-}
-
-export async function fetchLivestreamChatHistory(
-  livestreamId: string,
-): Promise<unknown[]> {
-  const response = await apiFetch(
-    `/sphere/livestreams/${livestreamId}/chat/history`,
-  );
-  return safeJsonParse<unknown[]>(response);
-}
-
-export async function fetchLivestreamLeaderboard(
-  livestreamId: string,
-): Promise<unknown[]> {
-  const response = await apiFetch(
-    `/sphere/livestreams/${livestreamId}/leaderboard`,
-  );
-  return safeJsonParse<unknown[]>(response);
-}
-
-export async function fetchLivestreamCredentials(
-  livestreamId: string,
-): Promise<{ url: string; token: string }> {
-  const response = await apiFetch(
-    `/sphere/livestreams/${livestreamId}/credentials`,
-  );
-  return safeJsonParse(response);
 }
 
 // Heatmap data for publisher activity

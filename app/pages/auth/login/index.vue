@@ -9,10 +9,10 @@
                     <div>
                         <img src="/favicon.png" alt="Solar Network" class="h-12 w-12 rounded-full">
                         <h1 class="mt-4 text-3xl leading-tight font-black">
-                            {{ step === 'lookup' ? 'Sign in' : 'Welcome back' }}
+                            {{ step === 'lookup' ? t("auth.signIn") : t("auth.welcomeBack") }}
                         </h1>
                         <p class="mt-3 max-w-sm text-sm text-base-content/70">
-                            Use your Solarpass account to login the Floating Island.
+                            {{ t("auth.description") }}
                         </p>
                     </div>
                     <div class="mt-6">
@@ -21,18 +21,18 @@
                             v-if="route.query.redirect"
                             class="p-3 bg-base-200/60 rounded-xl border border-base-300 text-sm overflow-hidden"
                         >
-                            <p class="text-base-content/70 mb-1">Login to continue</p>
+                            <p class="text-base-content/70 mb-1">{{ t("auth.loginToContinue") }}</p>
                             <p class="font-medium text-primary break-all">
                                 {{ decodeURIComponent(route.query.redirect as string) }}
                             </p>
                         </div>
                         <p v-else class="text-sm">
-                            No account?
+                            {{ t("auth.noAccount") }}
                             <NuxtLink
                                 :to="getRedirect() ? `/auth/create-account?redirect=${encodeURIComponent(getRedirect()!)}` : '/auth/create-account'"
                                 class="link font-semibold link-primary"
                             >
-                                Create one
+                                {{ t("auth.createOne") }}
                             </NuxtLink>
                         </p>
                     </div>
@@ -46,9 +46,9 @@
                         <!-- Step 1: Username Entry -->
                         <div v-if="step === 'lookup'" class="space-y-6">
                             <div class="space-y-1">
-                                <h2 class="text-xl font-bold">Enter your username</h2>
+                                <h2 class="text-xl font-bold">{{ t("auth.enterUsername") }}</h2>
                                 <p class="text-sm text-base-content/60">
-                                    Login with your Solarpass and continue
+                                    {{ t("auth.loginSubtitle") }}
                                 </p>
                             </div>
 
@@ -61,11 +61,11 @@
                             </div>
 
                             <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Username or email</legend>
+                                <legend class="fieldset-legend">{{ t("auth.usernameOrEmail") }}</legend>
                                 <input
                                     v-model="account"
                                     type="text"
-                                    placeholder="your@email.com"
+                                    :placeholder="t('auth.emailPlaceholder')"
                                     class="input input-bordered w-full"
                                     @keydown.enter="handleLookup"
                                 >
@@ -81,12 +81,12 @@
                                     class="w-4 h-4 animate-spin"
                                 />
                                 <IconArrowRight v-else class="w-4 h-4" />
-                                Continue
+                                {{ t("auth.continue") }}
                             </button>
 
                             <!-- OIDC Buttons -->
                             <div class="divider text-base-content/40 text-sm">
-                                or sign in with
+                                {{ t("auth.orSignInWith") }}
                             </div>
                             <div class="flex gap-2">
                                 <button
@@ -118,7 +118,7 @@
                             <!-- Progress -->
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="text-base-content/60">Verification</span>
+                                    <span class="text-base-content/60">{{ t("auth.verification") }}</span>
                                     <span class="text-primary font-medium">{{ Math.round(auth.loginProgress.value * 100) }}%</span>
                                 </div>
                                 <div class="w-full bg-base-200 rounded-full h-1.5">
@@ -132,9 +132,9 @@
                             </div>
 
                             <div class="space-y-1">
-                                <h2 class="text-xl font-bold">Select verification method</h2>
+                                <h2 class="text-xl font-bold">{{ t("auth.selectMethod") }}</h2>
                                 <p class="text-sm text-base-content/60">
-                                    Choose how you want to verify your identity
+                                    {{ t("auth.selectMethodHint") }}
                                 </p>
                             </div>
 
@@ -151,7 +151,7 @@
                                     @click="goBackToLookup"
                                 >
                                     <IconArrowLeft class="w-4 h-4" />
-                                    Back
+                                    {{ t("auth.back") }}
                                 </button>
                                 <button
                                     class="btn btn-primary flex-1"
@@ -159,7 +159,7 @@
                                     @click="handleFactorSelect"
                                 >
                                     <IconArrowRight class="w-4 h-4" />
-                                    Continue
+                                    {{ t("auth.continue") }}
                                 </button>
                             </div>
                         </div>
@@ -169,7 +169,7 @@
                             <!-- Progress -->
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="text-base-content/60">Verification</span>
+                                    <span class="text-base-content/60">{{ t("auth.verification") }}</span>
                                     <span class="text-primary font-medium">{{ Math.round(auth.loginProgress.value * 100) }}%</span>
                                 </div>
                                 <div class="w-full bg-base-200 rounded-full h-1.5">
@@ -211,9 +211,9 @@
                                 <IconCheck class="w-8 h-8 text-success" />
                             </div>
                             <div class="space-y-1">
-                                <h2 class="text-2xl font-bold">Login Successful</h2>
+                                <h2 class="text-2xl font-bold">{{ t("auth.loginSuccessful") }}</h2>
                                 <p class="text-base-content/60">
-                                    Redirecting you to the app...
+                                    {{ t("auth.redirecting") }}
                                 </p>
                             </div>
                         </div>
@@ -241,9 +241,11 @@ definePageMeta({
     layout: false,
 });
 
+const { t } = useI18n();
+
 useSolarSeo({
-    title: "Log In",
-    description: "Log in to your Solar Network account.",
+    title: t("auth.seoTitleLogIn"),
+    description: t("auth.seoDescriptionLogIn"),
 });
 
 const route = useRoute();
@@ -302,10 +304,10 @@ async function handleLookup() {
         } else if (factors.length > 1) {
             step.value = "picker";
         } else {
-            error.value = "No verification methods available";
+            error.value = t("auth.noMethods");
         }
     } catch (e) {
-        error.value = e instanceof Error ? e.message : "Failed to start login";
+        error.value = e instanceof Error ? e.message : t("auth.failedToStartLogin");
     } finally {
         submitting.value = false;
     }
@@ -324,7 +326,7 @@ async function handleFactorSelect() {
     } catch (e) {
         // 400 errors are non-fatal (e.g. factor already verified), proceed anyway
         if (!(e instanceof Error && e.message.includes("400"))) {
-            error.value = e instanceof Error ? e.message : "Failed to select factor";
+            error.value = e instanceof Error ? e.message : t("auth.failedSelectFactor");
             submitting.value = false;
             return;
         }
@@ -337,16 +339,16 @@ async function handleFactorSelect() {
 
 async function handleVerify() {
     if (!password.value) {
-        error.value = "Password is required";
+        error.value = t("auth.passwordRequired");
         return;
     }
     if (!auth.challenge.value) {
-        error.value = "Login session expired. Please try again.";
+        error.value = t("auth.sessionExpired");
         step.value = "lookup";
         return;
     }
     if (!auth.selectedFactor.value) {
-        error.value = "Please select a verification method.";
+        error.value = t("auth.selectMethodFirst");
         step.value = "picker";
         return;
     }
@@ -387,7 +389,7 @@ async function handleVerify() {
             navigateTo(redirectUrl || "/");
         }
     } catch (e) {
-        error.value = e instanceof Error ? e.message : "Verification failed";
+        error.value = e instanceof Error ? e.message : t("auth.verificationFailed");
     } finally {
         submitting.value = false;
     }
@@ -437,7 +439,7 @@ async function handlePasskeyAuth() {
     const challenge = auth.challenge.value;
     const factor = auth.selectedFactor.value;
     if (!challenge || !factor) {
-        error.value = "Login session expired. Please try again.";
+        error.value = t("auth.sessionExpired");
         step.value = "lookup";
         return;
     }
@@ -464,7 +466,7 @@ async function handlePasskeyAuth() {
         }) as PublicKeyCredential;
 
         if (!credential) {
-            throw new Error("Passkey authentication was cancelled");
+            throw new Error(t("auth.passkeyAuthCancelled"));
         }
 
         const response = credential.response as AuthenticatorAssertionResponse;
@@ -509,7 +511,7 @@ async function handlePasskeyAuth() {
             navigateTo(redirectUrl || "/");
         }
     } catch (e) {
-        error.value = e instanceof Error ? e.message : "Passkey authentication failed";
+        error.value = e instanceof Error ? e.message : t("auth.verificationFailed");
     } finally {
         submitting.value = false;
     }

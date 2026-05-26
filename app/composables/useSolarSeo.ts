@@ -8,7 +8,7 @@ interface SeoMetaOptions {
 
 const SITE_NAME = "Solar Network";
 const DEFAULT_DESCRIPTION =
-  "Explore posts, realms, publishers, and livestreams on Solar Network.";
+  "Explore posts, realms, and publishers on Solar Network.";
 const DEFAULT_URL = "https://solian.app";
 const DEFAULT_IMAGE = "/og-image.png";
 

@@ -7,7 +7,7 @@
                 <aside class="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto py-4">
                     <div class="card">
                         <div class="card-body p-4">
-                            <h2 class="text-lg font-bold mb-4">Settings</h2>
+                            <h2 class="text-lg font-bold mb-4">{{ t("settings.title") }}</h2>
                             <nav class="space-y-1">
                                 <NuxtLink
                                     v-for="item in menuItems"
@@ -28,7 +28,7 @@
                                 class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-base-200 transition-colors"
                             >
                                 <IconArrowLeft class="w-5 h-5" />
-                                <span>Back to Profile</span>
+                                <span>{{ t("settings.backToProfile") }}</span>
                             </NuxtLink>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
                     <div class="flex items-center justify-between px-4 h-14">
                         <NuxtLink to="/" class="flex items-center gap-2">
                             <img src="/favicon.png" alt="Solar Network" class="w-8 h-8" >
-                            <span class="font-bold text-lg">Settings</span>
+                            <span class="font-bold text-lg">{{ t("settings.title") }}</span>
                         </NuxtLink>
                     </div>
                 </header>
@@ -65,7 +65,7 @@
                             class="flex flex-col items-center gap-0.5 p-2 text-base-content/60 hover:text-primary"
                         >
                             <IconArrowLeft class="w-5 h-5" />
-                            <span class="text-xs">Back</span>
+                            <span class="text-xs">{{ t("settings.back") }}</span>
                         </NuxtLink>
                     </div>
                 </nav>
@@ -85,15 +85,16 @@ import {
     IconArrowLeft,
 } from "#components";
 
+const { t } = useI18n();
 const { user } = useAuth();
 
 const menuItems = [
-    { to: "/accounts/me/settings", label: "Profile", icon: IconUser },
-    { to: "/accounts/me/settings/security", label: "Security", icon: IconShield },
-    { to: "/accounts/me/settings/privacy", label: "Privacy", icon: IconLock },
-    { to: "/accounts/me/settings/notifications", label: "Notifications", icon: IconBell },
-    { to: "/accounts/me/settings/appearance", label: "Appearance", icon: IconPalette },
-    { to: "/accounts/me/settings/billing", label: "Billing", icon: IconCreditCard },
+    { to: "/accounts/me/settings", label: t("settings.profile"), icon: IconUser },
+    { to: "/accounts/me/settings/security", label: t("settings.security"), icon: IconShield },
+    { to: "/accounts/me/settings/privacy", label: t("settings.privacy"), icon: IconLock },
+    { to: "/accounts/me/settings/notifications", label: t("settings.notifications"), icon: IconBell },
+    { to: "/accounts/me/settings/appearance", label: t("settings.appearance"), icon: IconPalette },
+    { to: "/accounts/me/settings/billing", label: t("settings.billing"), icon: IconCreditCard },
 ];
 </script>
 

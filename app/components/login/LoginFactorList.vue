@@ -50,7 +50,7 @@
                 <div class="text-xs text-base-content/50">
                     {{ getFactorDescription(factor.type) }}
                     <span v-if="isBlacklisted(factor.id)" class="text-warning">
-                        (already used)
+                        {{ t("login.alreadyUsed") }}
                     </span>
                 </div>
             </div>
@@ -70,6 +70,8 @@ import {
 } from "#components";
 import type { SnAuthFactor, SnAuthChallenge } from "~/types/auth";
 import { FACTOR_TYPES } from "~/types/auth";
+
+const { t } = useI18n();
 
 const props = defineProps<{
     factors: SnAuthFactor[];

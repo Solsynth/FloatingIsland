@@ -13,7 +13,7 @@
                             class="flex items-center gap-2 text-sm text-base-content/60"
                         >
                             <IconSparkles class="h-4 w-4 text-primary" />
-                            <span>Stellar Program</span>
+                            <span>{{ t('pricing.stellarProgram') }}</span>
                         </div>
                         <div
                             class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between"
@@ -22,21 +22,16 @@
                                 <h1
                                     class="text-3xl font-black tracking-tight text-base-content"
                                 >
-                                    Membership tiers
+                                    {{ t('pricing.membershipTiers') }}
                                 </h1>
                                 <p
                                     class="mt-2 text-sm leading-6 text-base-content/70 md:text-base"
                                 >
-                                    Pick the Stellar plan that matches how you
-                                    use Solar Network. Every tier improves
-                                    storage, progression, and account
-                                    capabilities without changing the core
-                                    experience.
+                                    {{ t('pricing.description') }}
                                 </p>
                             </div>
                             <div class="text-sm text-base-content/55">
-                                Billing details can be added when memberships
-                                open.
+                                {{ t('pricing.billingNote') }}
                             </div>
                         </div>
                     </div>
@@ -84,44 +79,44 @@
                                     <div
                                         class="rounded-box border border-base-300 bg-base-200/60 p-3"
                                     >
-                                        <div
-                                            class="text-xs font-semibold text-base-content/45"
-                                        >
-                                            Storage
-                                        </div>
-                                        <div
-                                            class="mt-1 text-sm font-semibold"
-                                        >
-                                            {{ tier.storage }}
-                                        </div>
+                                    <div
+                                        class="text-xs font-semibold text-base-content/45"
+                                    >
+                                        {{ t('pricing.storage') }}
                                     </div>
                                     <div
-                                        class="rounded-box border border-base-300 bg-base-200/60 p-3"
+                                        class="mt-1 text-sm font-semibold"
                                     >
-                                        <div
-                                            class="text-xs font-semibold text-base-content/45"
-                                        >
-                                            Progression
-                                        </div>
-                                        <div
-                                            class="mt-1 text-sm font-semibold"
-                                        >
-                                            {{ tier.levelBoost }}
-                                        </div>
+                                        {{ tier.storage }}
+                                    </div>
+                                </div>
+                                <div
+                                    class="rounded-box border border-base-300 bg-base-200/60 p-3"
+                                >
+                                    <div
+                                        class="text-xs font-semibold text-base-content/45"
+                                    >
+                                        {{ t('pricing.progression') }}
                                     </div>
                                     <div
-                                        class="rounded-box border border-base-300 bg-base-200/60 p-3 sm:col-span-2"
+                                        class="mt-1 text-sm font-semibold"
                                     >
-                                        <div
-                                            class="text-xs font-semibold text-base-content/45"
-                                        >
-                                            Username style
-                                        </div>
-                                        <div
-                                            class="mt-1 text-sm font-semibold"
-                                        >
-                                            {{ tier.usernameStyle }}
-                                        </div>
+                                        {{ tier.levelBoost }}
+                                    </div>
+                                </div>
+                                <div
+                                    class="rounded-box border border-base-300 bg-base-200/60 p-3 sm:col-span-2"
+                                >
+                                    <div
+                                        class="text-xs font-semibold text-base-content/45"
+                                    >
+                                        {{ t('pricing.usernameStyle') }}
+                                    </div>
+                                    <div
+                                        class="mt-1 text-sm font-semibold"
+                                    >
+                                        {{ tier.usernameStyle }}
+                                    </div>
                                     </div>
                                 </div>
 
@@ -143,7 +138,7 @@
                                         to="/auth/login"
                                         :class="`btn w-full ${tier.ctaClass}`"
                                     >
-                                        Choose {{ tier.name }}
+                                        {{ t('pricing.choose', { name: tier.name }) }}
                                     </NuxtLink>
                                 </div>
                             </div>
@@ -158,16 +153,14 @@
                             >
                                 <div>
                                     <h2 class="text-xl font-bold">
-                                        Compare membership benefits
+                                        {{ t('pricing.compareTitle') }}
                                     </h2>
                                     <p class="mt-1 text-sm text-base-content/65">
-                                        A quick view of how each Stellar Program
-                                        tier scales up.
+                                        {{ t('pricing.compareDesc') }}
                                     </p>
                                 </div>
                                 <div class="text-sm text-base-content/55">
-                                    All tiers include the base Solar Network
-                                    experience.
+                                    {{ t('pricing.compareNote') }}
                                 </div>
                             </div>
 
@@ -175,7 +168,7 @@
                                 <table class="table">
                                     <thead>
                                         <tr class="text-sm text-base-content/55">
-                                            <th>Benefit</th>
+                                            <th>{{ t('pricing.benefit') }}</th>
                                             <th>Stellar</th>
                                             <th>Nova</th>
                                             <th>Supernova</th>
@@ -361,8 +354,10 @@ const comparisonRows: ComparisonRow[] = [
     },
 ];
 
+const { t } = useI18n();
+
 useSolarSeo({
-    title: "Pricing - Stellar Program",
-    description: "Pick the Stellar plan that matches how you use Solar Network.",
+    title: t('pricing.seoTitle'),
+    description: t('pricing.seoDescription'),
 });
 </script>

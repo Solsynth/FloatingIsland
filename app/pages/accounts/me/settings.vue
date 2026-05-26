@@ -27,7 +27,7 @@
 			<!-- Right Sidebar - Settings Navigation -->
 			<aside class="hidden xl:block sticky top-4 self-start max-h-[calc(100vh-2rem)] overflow-y-auto">
 				<div class="mt-4">
-					<h2 class="card-title text-lg mb-4 px-2">Settings</h2>
+					<h2 class="card-title text-lg mb-4 px-2">{{ t('settings.title') }}</h2>
 					<ul class="menu menu-vertical p-0 gap-1 w-full">
 						<li v-for="item in menuItems" :key="item.to">
 							<NuxtLink
@@ -46,7 +46,7 @@
 						class="btn btn-ghost btn-sm justify-start gap-3 mt-4"
 					>
 						<IconArrowLeft class="w-5 h-5" />
-						<span>Back to Profile</span>
+						<span>{{ t('settings.backToProfile') }}</span>
 					</NuxtLink>
 				</div>
 			</aside>
@@ -64,27 +64,26 @@ import {
 	IconArrowLeft
 } from '#components';
 
+const { t } = useI18n();
 const route = useRoute();
 const { user } = useAuth();
 
 const menuItems = [
-	{ to: '/accounts/me/settings', label: 'Profile', icon: IconUser },
-	{ to: '/accounts/me/settings/security', label: 'Security', icon: IconShield },
-	{ to: '/accounts/me/settings/privacy', label: 'Privacy', icon: IconLock },
-	{ to: '/accounts/me/settings/notifications', label: 'Notifications', icon: IconBell },
-	{ to: '/accounts/me/settings/appearance', label: 'Appearance', icon: IconPalette }
+	{ to: '/accounts/me/settings', label: t('settings.profile'), icon: IconUser },
+	{ to: '/accounts/me/settings/security', label: t('settings.security'), icon: IconShield },
+	{ to: '/accounts/me/settings/privacy', label: t('settings.privacy'), icon: IconLock },
+	{ to: '/accounts/me/settings/notifications', label: t('settings.notifications'), icon: IconBell },
+	{ to: '/accounts/me/settings/appearance', label: t('settings.appearance'), icon: IconPalette }
 ];
 
 function isActiveRoute(path: string): boolean {
-	// Exact match for the base settings page
 	if (path === '/accounts/me/settings') {
 		return route.path === path || route.path === `${path}/index`;
 	}
-	// For other pages, check if the current route starts with this path
 	return route.path === path || route.path.startsWith(`${path}/`);
 }
 
 useSolarSeo({
-	title: 'Settings',
+	title: t('settings.title'),
 });
 </script>

@@ -1,14 +1,14 @@
 <template>
     <NuxtLayout name="app">
         <!-- Loading -->
-        <ConfuseSpinner v-if="status === 'pending'" message="Loading boost status..." />
+        <ConfuseSpinner v-if="status === 'pending'" :message="t('realms.loadingBoost')" />
 
         <!-- Not Found -->
         <div v-else-if="notFound" class="mx-auto max-w-2xl p-6">
             <div class="card">
                 <div class="card-body items-center text-center">
                     <IconRocket class="text-base-content/50 w-10 h-10" />
-                    <h1 class="text-xl font-bold">Realm not found</h1>
+                    <h1 class="text-xl font-bold">{{ t("realms.notFound") }}</h1>
                 </div>
             </div>
         </div>
@@ -28,9 +28,9 @@
                     <IconArrowLeft class="w-5 h-5" />
                 </NuxtLink>
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-xl font-bold truncate">Boost {{ realm.name }}</h1>
+                    <h1 class="text-xl font-bold truncate">{{ t("realms.boostTitle", { name: realm.name }) }}</h1>
                     <p class="text-sm text-base-content/60">
-                        Support this realm with boost points
+                        {{ t("realms.boostSubtitle") }}
                     </p>
                 </div>
             </div>
@@ -40,15 +40,15 @@
                 <div class="card-body p-6">
                     <div class="grid gap-6 md:grid-cols-3">
                         <div class="text-center md:text-left">
-                            <div class="text-sm text-base-content/60 mb-1">Current Level</div>
+                            <div class="text-sm text-base-content/60 mb-1">{{ t("realms.currentLevel") }}</div>
                             <div class="text-4xl font-black">{{ boostStatus.boostLevel }}</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-sm text-base-content/60 mb-1">Boost Points</div>
+                            <div class="text-sm text-base-content/60 mb-1">{{ t("realms.boostPoints") }}</div>
                             <div class="text-4xl font-black">{{ boostStatus.boostPoints.toLocaleString() }}</div>
                         </div>
                         <div class="text-center md:text-right">
-                            <div class="text-sm text-base-content/60 mb-1">Label Cap</div>
+                            <div class="text-sm text-base-content/60 mb-1">{{ t("realms.labelCap") }}</div>
                             <div class="text-4xl font-black">{{ boostStatus.labelCap }}</div>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
 
                     <div class="space-y-2">
                         <div class="flex justify-between text-sm">
-                            <span>Progress to Level {{ boostStatus.boostLevel + 1 }}</span>
+                            <span>{{ t("realms.progressToLevel", { level: boostStatus.boostLevel + 1 }) }}</span>
                             <span>{{ progressPercent }}%</span>
                         </div>
                         <progress class="progress progress-primary w-full h-3" :value="progressPercent" max="100" />
@@ -68,24 +68,24 @@
             <!-- Boost Form -->
             <div v-if="isMember" class="card">
                 <div class="card-body p-6">
-                    <h2 class="text-lg font-bold mb-4">Boost This Realm</h2>
+                    <h2 class="text-lg font-bold mb-4">{{ t("realms.boostThisRealm") }}</h2>
 
                     <div class="grid gap-4 md:grid-cols-2 mb-4">
                         <div class="form-control">
                             <label class="label">
-                                <span class="label-text">Points to Boost</span>
+                                <span class="label-text">{{ t("realms.pointsToBoost") }}</span>
                             </label>
                             <input
                                 v-model.number="boostAmount"
                                 type="number"
                                 min="1"
                                 class="input input-bordered w-full"
-                                placeholder="Enter amount"
+                                :placeholder="t('realms.enterAmount')"
                             >
                         </div>
                         <div class="form-control">
                             <label class="label">
-                                <span class="label-text">Currency</span>
+                                <span class="label-text">{{ t("realms.currency") }}</span>
                             </label>
                             <select v-model="selectedCurrency" class="select select-bordered w-full">
                                 <option v-for="currency in boostStatus.supportedCurrencies" :key="currency" :value="currency">
@@ -98,8 +98,8 @@
                     <div class="alert alert-info mb-4">
                         <IconInfoCircle class="w-5 h-5" />
                         <div>
-                            <p class="font-semibold">Boost expires after {{ boostStatus.expiresAfterDays }} days</p>
-                            <p class="text-sm">Boost points help realms unlock features and visibility</p>
+                            <p class="font-semibold">{{ t("realms.boostExpiresAfter", { days: boostStatus.expiresAfterDays }) }}</p>
+                            <p class="text-sm">{{ t("realms.boostHelp") }}</p>
                         </div>
                     </div>
 
@@ -115,7 +115,7 @@
                     >
                         <IconLoader v-if="isBoosting" class="w-5 h-5 animate-spin" />
                         <IconZap v-else class="w-5 h-5" />
-                        Boost {{ boostAmount > 0 ? boostAmount : '' }} Points
+                        {{ t("realms.boostPointsBtn", { amount: boostAmount > 0 ? boostAmount : '' }) }}
                     </button>
                 </div>
             </div>
@@ -123,7 +123,7 @@
             <!-- Leaderboard -->
             <div class="card">
                 <div class="card-body p-6">
-                    <h2 class="text-lg font-bold mb-4">Top Boosters</h2>
+                    <h2 class="text-lg font-bold mb-4">{{ t("realms.topBoosters") }}</h2>
 
                     <div v-if="leaderboard.length > 0" class="space-y-2">
                         <div
@@ -176,7 +176,7 @@
                                 <div class="font-bold text-primary text-lg">
                                     {{ entry.totalPoints.toLocaleString() }}
                                 </div>
-                                <div class="text-xs text-base-content/60">points</div>
+                                <div class="text-xs text-base-content/60">{{ t("realms.points") }}</div>
                             </div>
                         </div>
                     </div>
@@ -189,14 +189,14 @@
                             @click="loadMoreLeaderboard"
                         >
                             <IconLoader v-if="isLoadingMore" class="w-4 h-4 animate-spin" />
-                            <span>Load more</span>
+                            <span>{{ t("common.loadMore") }}</span>
                         </button>
                     </div>
 
                     <!-- Empty State -->
                     <div v-else-if="leaderboard.length === 0" class="text-center py-8 text-base-content/60">
                         <IconTrophy class="w-12 h-12 mx-auto mb-3 opacity-50" />
-                        <p>No boosters yet. Be the first to boost!</p>
+                        <p>{{ t("realms.noBoosters") }}</p>
                     </div>
                 </div>
             </div>
@@ -208,6 +208,8 @@
 import type { Realm, RealmBoostStatus, RealmBoostLeaderboardEntry, RealmMember } from '~/types/realm'
 import { fetchRealm, fetchRealmBoostStatus, fetchRealmBoostLeaderboard, getMyRealmMembership, boostRealm } from '~/utils/api'
 import { getFileUrl } from '~/utils/files'
+
+const { t } = useI18n();
 
 const route = useRoute()
 const realmSlug = computed(() => route.params.slug as string)

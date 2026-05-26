@@ -12,8 +12,12 @@
 
     <footer class="footer footer-center bg-base-100 p-6 text-base-content/60">
       <aside>
-        <p>Floating Island &mdash; Solar Network</p>
+        <p>{{ t("auth.footer") }}</p>
       </aside>
     </footer>
   </div>
 </template>
+
+<script setup lang="ts">
+const { t } = useI18n();
+</script>

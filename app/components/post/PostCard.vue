@@ -412,30 +412,6 @@
             </div>
           </div>
 
-          <!-- Livestream Embed -->
-          <NuxtLink
-            v-else-if="
-              getEmbedType(embed) === 'livestream' && getEmbedId(embed)
-            "
-            :to="`/livestreams/${getEmbedId(embed)}`"
-            class="card bg-base-200/40 block hover:no-underline transition-shadow hover:shadow-sm"
-            @click.stop
-          >
-            <div class="card-body p-3">
-              <div
-                class="flex items-center gap-2 text-sm font-medium text-primary"
-              >
-                <IconRadio class="h-4 w-4" />
-                <span>{{ getEmbedTitle(embed) || "Livestream" }}</span>
-              </div>
-              <div
-                v-if="getEmbedDescription(embed)"
-                class="text-xs text-base-content/70 line-clamp-2"
-              >
-                {{ getEmbedDescription(embed) }}
-              </div>
-            </div>
-          </NuxtLink>
         </div>
       </div>
 

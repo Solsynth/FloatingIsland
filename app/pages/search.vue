@@ -10,7 +10,7 @@
             ref="searchInputRef"
             v-model="searchQuery"
             type="text"
-            placeholder="Search..."
+            :placeholder="t('search.placeholder')"
             class="input-bordered input w-full bg-base-200/50 focus:bg-base-100 pl-10 pr-10"
             @input="onInput"
             @keyup.enter="onSubmit"
@@ -41,7 +41,7 @@
         <!-- Empty State -->
         <div v-if="!debouncedQuery" class="text-center py-16">
           <IconSearch class="w-16 h-16 mx-auto mb-4 text-base-content/20" />
-          <p class="text-base-content/50 text-lg">Search for posts, accounts, and realms</p>
+          <p class="text-base-content/50 text-lg">{{ t('search.emptyState') }}</p>
         </div>
 
         <!-- Posts Tab -->
@@ -52,7 +52,7 @@
 
           <div v-else-if="posts.length === 0 && !postsLoading" class="text-center py-12">
             <IconFileText class="w-12 h-12 mx-auto mb-4 text-base-content/30" />
-            <p class="text-base-content/60">No posts found</p>
+            <p class="text-base-content/60">{{ t('search.noPosts') }}</p>
           </div>
 
           <template v-else>
@@ -67,7 +67,7 @@
             </div>
 
             <div v-else-if="!hasMorePosts && posts.length > 0" class="text-center py-4">
-              <p class="text-base-content/40 text-sm">No more results</p>
+              <p class="text-base-content/40 text-sm">{{ t('search.noMoreResults') }}</p>
             </div>
           </template>
         </template>
@@ -80,7 +80,7 @@
 
           <div v-else-if="allAccountResults.length === 0 && !accountsLoading" class="text-center py-12">
             <IconUsers class="w-12 h-12 mx-auto mb-4 text-base-content/30" />
-            <p class="text-base-content/60">No accounts found</p>
+            <p class="text-base-content/60">{{ t('search.noAccounts') }}</p>
           </div>
 
           <div v-else class="space-y-2">
@@ -108,7 +108,7 @@
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2">
                   <span class="font-semibold text-sm truncate">{{ getDisplayName(result) }}</span>
-                  <span v-if="result.type === 'publisher'" class="badge badge-xs badge-outline">Publisher</span>
+                  <span v-if="result.type === 'publisher'" class="badge badge-xs badge-outline">{{ t('search.publisherBadge') }}</span>
                 </div>
                 <p class="text-xs text-base-content/60 truncate">
                   @{{ result.data.name }}
@@ -136,7 +136,7 @@
 
           <div v-else-if="realms.length === 0 && !realmsLoading" class="text-center py-12">
             <IconCastle class="w-12 h-12 mx-auto mb-4 text-base-content/30" />
-            <p class="text-base-content/60">No realms found</p>
+            <p class="text-base-content/60">{{ t('search.noRealms') }}</p>
           </div>
 
           <div v-else class="space-y-2">
@@ -183,18 +183,20 @@ import {
 
 type SearchTab = 'posts' | 'accounts' | 'realms'
 
+const { t } = useI18n()
+
 useSolarSeo({
-  title: 'Search',
-  description: 'Search for posts, accounts, and realms on Solar Network.',
+  title: t('search.seoTitle'),
+  description: t('search.seoDescription'),
 })
 
 const route = useRoute()
 const searchInputRef = ref<HTMLInputElement | null>(null)
 
 const tabs = [
-  { key: 'posts', label: 'Posts', icon: IconFileCode },
-  { key: 'accounts', label: 'Accounts', icon: IconUser },
-  { key: 'realms', label: 'Realms', icon: IconCastle },
+  { key: 'posts', label: t('search.tabPosts'), icon: IconFileCode },
+  { key: 'accounts', label: t('search.tabAccounts'), icon: IconUser },
+  { key: 'realms', label: t('search.tabRealms'), icon: IconCastle },
 ]
 
 // State

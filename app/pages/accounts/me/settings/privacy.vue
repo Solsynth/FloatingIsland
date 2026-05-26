@@ -1,11 +1,11 @@
 <template>
     <div class="max-w-3xl mx-auto space-y-6 min-w-0">
-        <h1 class="text-2xl font-bold mb-6">Privacy Settings</h1>
+        <h1 class="text-2xl font-bold mb-6">{{ t('settings.privacyTitle') }}</h1>
 
         <!-- Profile Visibility -->
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
-                <h2 class="card-title text-lg mb-4">Profile Visibility</h2>
+                <h2 class="card-title text-lg mb-4">{{ t('settings.profileVisibility') }}</h2>
 
                 <div class="space-y-4">
                     <div class="form-control">
@@ -16,8 +16,8 @@
                                 class="toggle toggle-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">Public Profile</span>
-                                <p class="text-sm text-base-content/60">Allow anyone to view your profile</p>
+                                <span class="label-text font-medium">{{ t('settings.publicProfile') }}</span>
+                                <p class="text-sm text-base-content/60">{{ t('settings.publicProfileDesc') }}</p>
                             </div>
                         </label>
                     </div>
@@ -30,7 +30,7 @@
                                 class="toggle toggle-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">Show Email</span>
+                                <span class="label-text font-medium">{{ t('settings.showEmail') }}</span>
                                 <p class="text-sm text-base-content/60">Display your email on your profile</p>
                             </div>
                         </label>
@@ -44,7 +44,7 @@
                                 class="toggle toggle-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">Show Birthday</span>
+                                <span class="label-text font-medium">{{ t('settings.showBirthday') }}</span>
                                 <p class="text-sm text-base-content/60">Display your birthday on your profile</p>
                             </div>
                         </label>
@@ -58,7 +58,7 @@
                         >
                             <IconLoader v-if="isSaving" class="w-4 h-4 animate-spin" />
                             <IconSave v-else class="w-4 h-4" />
-                            Save Privacy Settings
+                            {{ t('settings.savePrivacy') }}
                         </button>
                     </div>
                 </div>
@@ -68,16 +68,16 @@
         <!-- Post Defaults -->
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
-                <h2 class="card-title text-lg mb-4">Post Defaults</h2>
+                <h2 class="card-title text-lg mb-4">{{ t('settings.postDefaults') }}</h2>
 
                 <div class="space-y-4">
                     <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Default Visibility</legend>
+                        <legend class="fieldset-legend">{{ t('settings.defaultVisibility') }}</legend>
                         <select v-model="privacy.defaultVisibility" class="select select-bordered w-full">
-                            <option :value="0">Public</option>
+                            <option :value="0">{{ t('compose.public') }}</option>
                             <option :value="1">Friends Only</option>
-                            <option :value="2">Unlisted</option>
-                            <option :value="3">Private</option>
+                            <option :value="2">{{ t('compose.unlisted') }}</option>
+                            <option :value="3">{{ t('compose.private') }}</option>
                         </select>
                     </fieldset>
 
@@ -89,7 +89,7 @@
                                 class="toggle toggle-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">Allow Comments</span>
+                                <span class="label-text font-medium">{{ t('settings.allowComments') }}</span>
                                 <p class="text-sm text-base-content/60">Let others comment on your posts</p>
                             </div>
                         </label>
@@ -103,7 +103,7 @@
                                 class="toggle toggle-primary"
                             >
                             <div>
-                                <span class="label-text font-medium">Allow Replies</span>
+                                <span class="label-text font-medium">{{ t('settings.allowReplies') }}</span>
                                 <p class="text-sm text-base-content/60">Let others reply to your posts</p>
                             </div>
                         </label>
@@ -115,11 +115,11 @@
         <!-- Blocking -->
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
-                <h2 class="card-title text-lg mb-4">Blocked Users</h2>
+                <h2 class="card-title text-lg mb-4">{{ t('settings.blockedUsers') }}</h2>
 
                 <div v-if="blockedUsers.length === 0" class="text-center py-8 text-base-content/60">
                     <IconBan class="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>No blocked users</p>
+                    <p>{{ t('settings.noBlockedUsers') }}</p>
                 </div>
 
                 <div v-else class="space-y-3">
@@ -144,7 +144,7 @@
                         </div>
                         <button class="btn btn-sm btn-ghost text-error" @click="unblock(user.id)">
                             <IconX class="w-4 h-4" />
-                            Unblock
+                            {{ t('settings.unblock') }}
                         </button>
                     </div>
                 </div>
@@ -159,6 +159,7 @@ import { getFileUrl } from "~/utils/files";
 import { unblockAccount } from "~/utils/api";
 import type { SnAccount } from "~/types/auth";
 
+const { t } = useI18n();
 const isSaving = ref(false);
 
 const privacy = reactive({
@@ -205,6 +206,6 @@ onMounted(() => {
 });
 
 useSolarSeo({
-    title: "Privacy Settings",
+    title: t('settings.privacyTitle'),
 });
 </script>

@@ -19,7 +19,7 @@
             >
                 <IconLoader v-if="submitting" class="w-4 h-4 animate-spin" />
                 <IconFingerprint v-else class="w-4 h-4" />
-                Authenticate with Passkey
+                {{ t("login.authenticateWithPasskey") }}
             </button>
         </div>
 
@@ -42,7 +42,7 @@
             <div class="flex gap-2">
                 <button class="btn btn-ghost flex-1" @click="$emit('back')">
                     <IconArrowLeft class="w-4 h-4" />
-                    Back
+                    {{ t("auth.back") }}
                 </button>
                 <button
                     class="btn btn-primary flex-1"
@@ -69,6 +69,8 @@ import {
 import type { SnAuthFactor } from "~/types/auth";
 import { FACTOR_TYPES } from "~/types/auth";
 
+const { t } = useI18n();
+
 const props = defineProps<{
     factor: SnAuthFactor | null;
     modelValue: string;
@@ -93,8 +95,8 @@ const isPassword = computed(() => {
 
 const factorLabel = computed(() => FACTOR_TYPES[props.factor?.type ?? -1]?.label || "Verification");
 const factorDescription = computed(() => FACTOR_TYPES[props.factor?.type ?? -1]?.description || "");
-const inputPlaceholder = computed(() => isPassword.value ? "Enter your password" : "Enter verification code");
-const submitLabel = computed(() => isPassword.value ? "Verify" : "Submit");
+const inputPlaceholder = computed(() => isPassword.value ? t("login.enterPassword") : t("login.enterCode"));
+const submitLabel = computed(() => isPassword.value ? t("login.verify") : t("login.submit"));
 
 const error = ref<string | null>(null);
 

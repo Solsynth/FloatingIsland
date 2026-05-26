@@ -89,7 +89,7 @@
                       @click="closeMenu"
                     >
                       <IconUser class="w-5 h-5 text-base-content/70" />
-                      <span class="font-medium">Account</span>
+                      <span class="font-medium">{{ t("nav.account") }}</span>
                     </NuxtLink>
                     <NuxtLink
                       to="/accounts/me/settings"
@@ -97,14 +97,14 @@
                       @click="closeMenu"
                     >
                       <IconSettings class="w-5 h-5 text-base-content/70" />
-                      <span class="font-medium">Settings</span>
+                      <span class="font-medium">{{ t("nav.settings") }}</span>
                     </NuxtLink>
                     <button
                       class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-base-200"
                       @click="handleLogout"
                     >
                       <IconLogOut class="w-5 h-5 text-base-content/70" />
-                      <span class="font-medium">Logout</span>
+                      <span class="font-medium">{{ t("nav.logout") }}</span>
                     </button>
                   </template>
                   <template v-else>
@@ -128,7 +128,7 @@
                       @click="closeMenu"
                     >
                       <IconLogIn class="w-5 h-5" />
-                      <span class="font-medium">Sign In</span>
+                      <span class="font-medium">{{ t("nav.signIn") }}</span>
                     </NuxtLink>
                   </template>
                 </div>
@@ -178,6 +178,8 @@ import {
   IconPlus,
 } from "#components";
 
+const { t } = useI18n();
+
 const auth = useAuth();
 const { isAuthenticated, user } = auth;
 
@@ -185,10 +187,10 @@ const menuOpen = ref(false);
 const menuContainer = ref<HTMLElement | null>(null);
 const composeOpen = ref(false);
 
-const navItems = [
-  { to: "/", label: "Explore", icon: IconCompass },
-  { to: "/realms", label: "Realms", icon: IconBuilding },
-];
+const navItems = computed(() => [
+  { to: "/", label: t("nav.explore"), icon: IconCompass },
+  { to: "/realms", label: t("nav.realms"), icon: IconBuilding },
+]);
 
 const displayName = computed(() => user.value?.nick || user.value?.name || "");
 const avatarUrl = computed(() => getFileUrl(user.value?.profile?.picture?.id));

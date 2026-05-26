@@ -13,6 +13,7 @@ export default defineNuxtConfig({
       { code: "zh", language: "zh-CN", name: "简体中文", file: "zh-CN.json" },
     ],
     lazy: true,
+    bundle: { strictMessage: false },
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: "i18n_locale",
@@ -43,7 +44,7 @@ export default defineNuxtConfig({
         {
           name: "description",
           content:
-            "Explore posts, realms, publishers, and livestreams on Solar Network.",
+            "Explore posts, realms, and publishers on Solar Network.",
         },
         { name: "theme-color", content: "#4f46e5" },
         { property: "og:type", content: "website" },
@@ -51,7 +52,7 @@ export default defineNuxtConfig({
         { property: "og:title", content: "Solar Network" },
         {
           property: "og:description",
-          content: "Explore posts, realms, publishers, and livestreams on Solar Network.",
+          content: "Explore posts, realms, and publishers on Solar Network.",
         },
         { property: "og:image", content: "/og-image.png" },
         { property: "og:url", content: "https://solian.app" },
@@ -59,7 +60,7 @@ export default defineNuxtConfig({
         { name: "twitter:title", content: "Solar Network" },
         {
           name: "twitter:description",
-          content: "Explore posts, realms, publishers, and livestreams on Solar Network.",
+          content: "Explore posts, realms, and publishers on Solar Network.",
         },
         { name: "twitter:image", content: "/og-image.png" },
       ],

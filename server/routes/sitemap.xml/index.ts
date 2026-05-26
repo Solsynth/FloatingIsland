@@ -13,11 +13,6 @@ export default defineEventHandler(async (event) => {
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>${origin}/livestreams</loc>
-    <changefreq>hourly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>${origin}/pricing</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

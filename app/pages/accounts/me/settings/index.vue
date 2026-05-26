@@ -1,6 +1,6 @@
 <template>
     <div class="max-w-3xl mx-auto space-y-6 min-w-0">
-        <h1 class="text-2xl font-bold mb-6 pt-4">Profile Settings</h1>
+        <h1 class="text-2xl font-bold mb-6 pt-4">{{ t('settings.profileTitle') }}</h1>
 
         <!-- Profile Header Preview with Images -->
         <div class="card bg-base-100 shadow-sm">
@@ -25,10 +25,10 @@
                     <div
                         class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                     >
-                        <span class="text-white flex items-center gap-2">
-                            <IconCamera class="w-5 h-5" />
-                            Change Background
-                        </span>
+                            <span class="text-white flex items-center gap-2">
+                                <IconCamera class="w-5 h-5" />
+                                {{ t('settings.changeBackground') }}
+                            </span>
                     </div>
                 </div>
 
@@ -86,33 +86,33 @@
         <!-- Basic Info Form -->
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
-                <h2 class="card-title text-lg mb-4">Basic Information</h2>
+                <h2 class="card-title text-lg mb-4">{{ t('settings.basicInfo') }}</h2>
 
                 <div class="space-y-4">
                     <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Username</legend>
+                        <legend class="fieldset-legend">{{ t('settings.username') }}</legend>
                         <input
                             v-model="basicForm.name"
                             type="text"
                             class="input input-bordered w-full"
                             disabled
                         >
-                        <p class="label">Username cannot be changed</p>
+                        <p class="label">{{ t('settings.usernameCannotChange') }}</p>
                     </fieldset>
 
                     <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Nickname</legend>
+                        <legend class="fieldset-legend">{{ t('settings.nickname') }}</legend>
                         <input
                             v-model="basicForm.nick"
                             type="text"
                             class="input input-bordered w-full"
-                            placeholder="Your display name"
+                            :placeholder="t('settings.nicknamePlaceholder')"
                         >
                     </fieldset>
 
                     <div class="grid grid-cols-2 gap-4">
                         <fieldset class="fieldset">
-                            <legend class="fieldset-legend">Language</legend>
+                            <legend class="fieldset-legend">{{ t('compose.language') }}</legend>
                             <select v-model="basicForm.language" class="select select-bordered w-full">
                                 <option value="en-us">English (US)</option>
                                 <option value="zh-hans">简体中文</option>
@@ -120,7 +120,7 @@
                         </fieldset>
 
                         <fieldset class="fieldset">
-                            <legend class="fieldset-legend">Region</legend>
+                            <legend class="fieldset-legend">{{ t('settings.region') }}</legend>
                             <select v-model="basicForm.region" class="select select-bordered w-full">
                                 <option value="US">United States</option>
                                 <option value="CN">China</option>
@@ -137,7 +137,7 @@
                         >
                             <IconLoader v-if="isSavingBasic" class="w-4 h-4 animate-spin" />
                             <IconSave v-else class="w-4 h-4" />
-                            Save Changes
+                            {{ t('settings.saveChanges') }}
                         </button>
                     </div>
                 </div>
@@ -147,12 +147,12 @@
         <!-- Profile Details Form -->
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
-                <h2 class="card-title text-lg mb-4">Profile Details</h2>
+                <h2 class="card-title text-lg mb-4">{{ t('settings.profileDetails') }}</h2>
 
                 <div class="space-y-4">
                     <div class="grid grid-cols-3 gap-4">
                         <fieldset class="fieldset">
-                            <legend class="fieldset-legend">First Name</legend>
+                            <legend class="fieldset-legend">{{ t('settings.firstName') }}</legend>
                             <input
                                 v-model="profileForm.firstName"
                                 type="text"
@@ -161,7 +161,7 @@
                         </fieldset>
 
                         <fieldset class="fieldset">
-                            <legend class="fieldset-legend">Middle Name</legend>
+                            <legend class="fieldset-legend">{{ t('settings.middleName') }}</legend>
                             <input
                                 v-model="profileForm.middleName"
                                 type="text"
@@ -170,7 +170,7 @@
                         </fieldset>
 
                         <fieldset class="fieldset">
-                            <legend class="fieldset-legend">Last Name</legend>
+                            <legend class="fieldset-legend">{{ t('settings.lastName') }}</legend>
                             <input
                                 v-model="profileForm.lastName"
                                 type="text"
@@ -180,17 +180,17 @@
                     </div>
 
                     <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Bio</legend>
+                        <legend class="fieldset-legend">{{ t('account.bio') }}</legend>
                         <textarea
                             v-model="profileForm.bio"
                             class="textarea textarea-bordered h-32 w-full"
-                            placeholder="Tell us about yourself..."
+                            :placeholder="t('settings.bioPlaceholder')"
                         />
                     </fieldset>
 
                     <div class="grid grid-cols-2 gap-4">
                         <fieldset class="fieldset">
-                            <legend class="fieldset-legend">Gender</legend>
+                            <legend class="fieldset-legend">{{ t('settings.gender') }}</legend>
                             <input
                                 v-model="profileForm.gender"
                                 type="text"
@@ -207,7 +207,7 @@
                         </fieldset>
 
                         <fieldset class="fieldset">
-                            <legend class="fieldset-legend">Pronouns</legend>
+                            <legend class="fieldset-legend">{{ t('settings.pronouns') }}</legend>
                             <input
                                 v-model="profileForm.pronouns"
                                 type="text"
@@ -219,7 +219,7 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <fieldset class="fieldset">
-                            <legend class="fieldset-legend">Location</legend>
+                            <legend class="fieldset-legend">{{ t('settings.location') }}</legend>
                             <input
                                 v-model="profileForm.location"
                                 type="text"
@@ -229,7 +229,7 @@
                         </fieldset>
 
                         <fieldset class="fieldset">
-                            <legend class="fieldset-legend">Time Zone</legend>
+                            <legend class="fieldset-legend">{{ t('settings.timeZone') }}</legend>
                             <div class="join w-full">
                                 <input
                                     v-model="profileForm.timeZone"
@@ -250,7 +250,7 @@
                     </div>
 
                     <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Birthday</legend>
+                        <legend class="fieldset-legend">{{ t('settings.birthday') }}</legend>
                         <input
                             v-model="profileForm.birthday"
                             type="date"
@@ -258,9 +258,8 @@
                         >
                     </fieldset>
 
-                    <!-- Links Section -->
                     <div class="pt-4">
-                        <h3 class="font-semibold mb-3">Links</h3>
+                        <h3 class="font-semibold mb-3">{{ t('settings.links') }}</h3>
                         <div class="space-y-3">
                             <div
                                 v-for="(link, index) in links"
@@ -295,7 +294,7 @@
                                 @click="addLink"
                             >
                                 <IconPlus class="w-4 h-4" />
-                                Add Link
+                                {{ t('settings.addLink') }}
                             </button>
                         </div>
                     </div>
@@ -308,7 +307,7 @@
                         >
                             <IconLoader v-if="isSavingProfile" class="w-4 h-4 animate-spin" />
                             <IconSave v-else class="w-4 h-4" />
-                            Save Profile
+                            {{ t('settings.saveProfile') }}
                         </button>
                     </div>
                 </div>
@@ -330,6 +329,7 @@ import {
 import { getFileUrl } from "~/utils/files";
 import { updateAccount, updateProfile } from "~/utils/api";
 
+const { t } = useI18n();
 const auth = useAuthStore();
 const user = computed(() => auth.user);
 
@@ -499,6 +499,6 @@ onMounted(() => {
 });
 
 useSolarSeo({
-    title: "Profile Settings",
+    title: t('settings.profileTitle'),
 });
 </script>

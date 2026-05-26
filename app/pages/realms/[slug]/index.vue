@@ -5,9 +5,9 @@
       <div class="card">
         <div class="card-body items-center text-center">
           <IconUsers class="text-base-content/50 w-10 h-10" />
-          <h1 class="text-xl font-bold">Realm not found</h1>
+          <h1 class="text-xl font-bold">{{ t("realms.notFound") }}</h1>
           <p class="text-base-content/60">
-            The realm you requested does not exist.
+            {{ t("realms.notFoundDesc") }}
           </p>
         </div>
       </div>
@@ -16,7 +16,7 @@
     <!-- Error State -->
     <div v-else-if="!realm" class="mx-auto max-w-2xl p-6">
       <div class="alert alert-error">
-        <span>{{ error || "Failed to load realm" }}</span>
+        <span>{{ error || t("realms.failedToLoad") }}</span>
       </div>
     </div>
 
@@ -60,7 +60,7 @@
               </h1>
               <span v-if="realm.verification" class="badge gap-1 badge-primary">
                 <IconShieldCheck class="w-3 h-3" />
-                Verified
+                {{ t("realms.verified") }}
               </span>
             </div>
             <p class="truncate text-sm text-base-content/60">
@@ -73,13 +73,13 @@
               class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 hover:bg-base-200 transition-colors"
             >
               <div class="font-semibold">{{ memberCount }}</div>
-              <div class="text-base-content/60">Members</div>
+              <div class="text-base-content/60">{{ t("realms.members") }}</div>
             </NuxtLink>
             <div
               class="rounded-xl border border-base-300 bg-base-100 px-3 py-2"
             >
               <div class="font-semibold">{{ total }}</div>
-              <div class="text-base-content/60">Posts</div>
+              <div class="text-base-content/60">{{ t("realms.posts") }}</div>
             </div>
           </div>
         </div>
@@ -100,14 +100,14 @@
                   {{ realm.description }}
                 </p>
                 <p v-else class="text-sm text-base-content/60">
-                  No description yet.
+                  {{ t("realms.noDescription") }}
                 </p>
                 <div class="flex flex-wrap gap-2 pt-1">
                   <span class="badge gap-1 border-info/30 bg-info/15 text-info">
                     <IconUsers v-if="realm.isCommunity" class="w-3 h-3" />
                     <IconBuilding2 v-else class="w-3 h-3" />
-                    <span v-if="realm.isCommunity">Community</span>
-                    <span v-else>Organization</span>
+                    <span v-if="realm.isCommunity">{{ t("realms.community") }}</span>
+                    <span v-else>{{ t("realms.organization") }}</span>
                   </span>
                   <span
                     :class="`badge gap-1 ${
@@ -118,8 +118,8 @@
                   >
                     <IconGlobe v-if="realm.isPublic" class="w-3 h-3" />
                     <IconLock v-else class="w-3 h-3" />
-                    <span v-if="realm.isPublic">Public</span>
-                    <span v-else>Private</span>
+                    <span v-if="realm.isPublic">{{ t("realms.realmPublic") }}</span>
+                    <span v-else>{{ t("realms.realmPrivate") }}</span>
                   </span>
                 </div>
               </div>
@@ -129,7 +129,7 @@
             <div v-if="realm.verification" class="card">
               <div class="card-body p-4">
                 <p class="text-sm font-semibold">
-                  {{ realm.verification.title || "Verified realm" }}
+                  {{ realm.verification.title || t("realms.verified") }}
                 </p>
                 <p
                   v-if="realm.verification.description"
@@ -141,7 +141,7 @@
                   v-if="realm.verification.verifiedBy"
                   class="text-xs text-base-content/60"
                 >
-                  By {{ realm.verification.verifiedBy }}
+                  {{ t("realms.by", { name: realm.verification.verifiedBy }) }}
                 </p>
               </div>
             </div>
@@ -155,7 +155,7 @@
             >
               <IconLoader v-if="isJoining" class="w-4 h-4 animate-spin" />
               <IconUserPlus v-else class="w-4 h-4" />
-              Join Realm
+              {{ t("realms.joinRealm") }}
             </button>
           </section>
 
@@ -169,7 +169,7 @@
                   class="mb-1 flex items-center gap-2 text-sm text-base-content/60"
                 >
                   <IconLoader class="w-3.5 h-3.5 animate-spin" />
-                  <span>Refreshing feed...</span>
+                  <span>{{ t("realms.refreshing") }}</span>
                 </div>
 
                 <!-- Content Type Tabs -->
@@ -183,7 +183,7 @@
                     "
                     @click="setContentType('all')"
                   >
-                    All
+                    {{ t("realms.all") }}
                   </button>
                   <button
                     class="btn join-item flex-1"
@@ -194,7 +194,7 @@
                     "
                     @click="setContentType('posts')"
                   >
-                    Posts
+                    {{ t("realms.postsTab") }}
                   </button>
                   <button
                     class="btn join-item flex-1"
@@ -205,7 +205,7 @@
                     "
                     @click="setContentType('articles')"
                   >
-                    Articles
+                    {{ t("realms.articles") }}
                   </button>
                 </div>
 
@@ -216,36 +216,27 @@
                     @click="cycleRepliesFilter"
                   >
                     <IconMessageCircle class="w-3.5 h-3.5" />
-                    <span
-                      >Replies:
-                      {{
-                        includeReplies === null
-                          ? "Auto"
-                          : includeReplies
-                            ? "On"
-                            : "Off"
-                      }}</span
-                    >
+                    <span>{{ t("realms.replies", { value: repliesLabel }) }}</span>
                   </button>
                   <button
                     class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
                     @click="toggleMediaOnly"
                   >
                     <IconImage class="w-3.5 h-3.5" />
-                    <span>Media only: {{ mediaOnly ? "On" : "Off" }}</span>
+                    <span>{{ t("realms.mediaOnly", { value: mediaOnly ? t("realms.on") : t("realms.off") }) }}</span>
                   </button>
                   <button
                     class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
                     @click="toggleOrder"
                   >
                     <IconArrowDownUp class="w-3.5 h-3.5" />
-                    <span>Order: {{ orderDesc ? "Newest" : "Oldest" }}</span>
+                    <span>{{ t("realms.order", { value: orderDesc ? t("realms.newest") : t("realms.oldest") }) }}</span>
                   </button>
                   <div class="join">
                     <input
                       v-model="query"
                       class="input-bordered input join-item w-full"
-                      placeholder="Search posts"
+                      :placeholder="t('realms.searchPosts')"
                       @keydown.enter="reloadWithFilters"
                     >
                     <button
@@ -289,9 +280,9 @@
                 @click="loadMore"
               >
                 <IconLoader v-if="isLoading" class="w-4 h-4 animate-spin" />
-                <span>Load more</span>
+                <span>{{ t("common.loadMore") }}</span>
               </button>
-              <p v-else class="text-sm text-base-content/50">No more posts</p>
+              <p v-else class="text-sm text-base-content/50">{{ t("realms.noMorePosts") }}</p>
             </div>
 
             <!-- Empty State -->
@@ -299,7 +290,7 @@
               v-else-if="!error"
               class="rounded-xl border border-base-300 bg-base-100 p-8 text-center text-base-content/60"
             >
-              No posts for this realm with current filters.
+              {{ t("realms.noPostsWithFilters") }}
             </div>
           </section>
         </div>
@@ -342,6 +333,8 @@ import {
   IconUserPlus,
 } from "#components";
 
+const { t } = useI18n();
+
 const route = useRoute();
 const realmSlug = computed(() => route.params.slug as string);
 
@@ -371,6 +364,11 @@ const query = ref("");
 const displayName = computed(() => realm.value?.name || "Unknown Realm");
 const avatarUrl = computed(() => getFileUrl(realm.value?.picture?.id));
 const backgroundUrl = computed(() => getFileUrl(realm.value?.background?.id));
+
+const repliesLabel = computed(() => {
+  if (includeReplies.value === null) return t("realms.auto");
+  return includeReplies.value ? t("realms.on") : t("realms.off");
+});
 
 function getInitials(name: string): string {
   return (

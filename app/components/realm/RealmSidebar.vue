@@ -7,12 +7,12 @@
                 <div class="card-body p-3">
                     <div class="flex items-center gap-1.5 mb-2">
                         <IconRocket class="w-4 h-4 text-primary" />
-                        <h3 class="font-semibold text-sm">Level {{ boostStatus?.boostLevel || 0 }}</h3>
+                        <h3 class="font-semibold text-sm">{{ t("realms.lv", { level: boostStatus?.boostLevel || 0 }) }}</h3>
                     </div>
-                    <div v-if="boostStatus" class="text-lg font-bold">{{ boostStatus.boostPoints.toLocaleString() }} pts</div>
+                    <div v-if="boostStatus" class="text-lg font-bold">{{ boostStatus.boostPoints.toLocaleString() }} {{ t("realms.points") }}</div>
                     <NuxtLink :to="`/realms/${realmSlug}/boost`" class="btn btn-primary btn-xs w-full mt-2">
                         <IconZap class="w-3 h-3" />
-                        Boost
+                        {{ t("realms.boostRealm") }}
                     </NuxtLink>
                 </div>
             </div>
@@ -20,12 +20,12 @@
             <!-- Quick Links -->
             <NuxtLink :to="`/realms/${realmSlug}/members`" class="card bg-base-200 shrink-0 w-32 flex flex-col items-center justify-center p-3">
                 <IconUsers class="w-6 h-6 text-base-content/60 mb-1" />
-                <span class="text-sm font-medium">Members</span>
+                <span class="text-sm font-medium">{{ t("realms.membersLink") }}</span>
             </NuxtLink>
 
             <button v-if="isMember" class="card bg-base-200 shrink-0 w-32 flex flex-col items-center justify-center p-3" @click="copyInviteLink">
                 <IconLink class="w-6 h-6 text-base-content/60 mb-1" />
-                <span class="text-sm font-medium">Invite</span>
+                <span class="text-sm font-medium">{{ t("realms.inviteBtn") }}</span>
             </button>
         </div>
 
@@ -36,25 +36,25 @@
                 <div class="card-body p-4">
                     <div class="flex items-center gap-2 mb-3">
                         <IconRocket class="w-5 h-5 text-primary" />
-                        <h3 class="font-semibold">Boost Status</h3>
+                        <h3 class="font-semibold">{{ t("realms.boostStatus") }}</h3>
                     </div>
 
                     <div v-if="boostStatus" class="space-y-3">
                         <div class="flex items-end justify-between">
                             <div>
                                 <div class="text-3xl font-black">{{ boostStatus.boostLevel }}</div>
-                                <div class="text-xs text-base-content/60">Current Level</div>
+                                <div class="text-xs text-base-content/60">{{ t("realms.currentLevel") }}</div>
                             </div>
                             <div class="text-right">
                                 <div class="text-xl font-bold">{{ boostStatus.boostPoints.toLocaleString() }}</div>
-                                <div class="text-xs text-base-content/60">Points</div>
+                                <div class="text-xs text-base-content/60">{{ t("realms.points") }}</div>
                             </div>
                         </div>
 
                         <!-- Progress Bar -->
                         <div class="space-y-1">
                             <div class="flex justify-between text-xs text-base-content/60">
-                                <span>Progress to next level</span>
+                                <span>{{ t("realms.progressToNextLevel") }}</span>
                                 <span>{{ progressPercent }}%</span>
                             </div>
                             <progress class="progress progress-primary w-full" :value="progressPercent" max="100" />
@@ -66,7 +66,7 @@
                             class="btn btn-primary btn-sm w-full"
                         >
                             <IconZap class="w-4 h-4" />
-                            Boost Realm
+                            {{ t("realms.boostRealm") }}
                         </NuxtLink>
                     </div>
 
@@ -75,7 +75,7 @@
                     </div>
 
                     <div v-else class="text-center py-4 text-sm text-base-content/60">
-                        Failed to load boost status
+                        {{ t("realms.failedToLoadBoostStatus") }}
                     </div>
                 </div>
             </div>
@@ -86,13 +86,13 @@
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                         <IconTrophy class="w-5 h-5 text-warning" />
-                        <h3 class="font-semibold">Top Boosters</h3>
+                        <h3 class="font-semibold">{{ t("realms.topBoosters") }}</h3>
                     </div>
                     <NuxtLink
                         :to="`/realms/${realmSlug}/boost`"
                         class="btn btn-ghost btn-xs"
                     >
-                        View all
+                        {{ t("realms.viewAll") }}
                     </NuxtLink>
                 </div>
 
@@ -131,14 +131,14 @@
         <!-- Quick Actions -->
         <div class="card">
             <div class="card-body p-4">
-                <h3 class="font-semibold mb-3">Quick Links</h3>
+                <h3 class="font-semibold mb-3">{{ t("realms.quickLinks") }}</h3>
                 <div class="space-y-1">
                     <NuxtLink
                         :to="`/realms/${realmSlug}/members`"
                         class="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 transition-colors"
                     >
                         <IconUsers class="w-5 h-5 text-base-content/60" />
-                        <span class="text-sm">Members</span>
+                        <span class="text-sm">{{ t("realms.membersLink") }}</span>
                     </NuxtLink>
                     <NuxtLink
                         v-if="isMember"
@@ -146,7 +146,7 @@
                         class="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 transition-colors"
                     >
                         <IconSettings class="w-5 h-5 text-base-content/60" />
-                        <span class="text-sm">Settings</span>
+                        <span class="text-sm">{{ t("realms.settings") }}</span>
                     </NuxtLink>
                     <button
                         v-if="isMember"
@@ -154,7 +154,7 @@
                         @click="copyInviteLink"
                     >
                         <IconLink class="w-5 h-5 text-base-content/60" />
-                        <span class="text-sm">Copy Invite Link</span>
+                        <span class="text-sm">{{ t("realms.copyInviteLink") }}</span>
                     </button>
                 </div>
             </div>
@@ -163,7 +163,7 @@
         <!-- My Identity Card -->
         <div v-if="membership" class="card bg-base-200/50">
             <div class="card-body p-4">
-                <h3 class="font-semibold mb-3">My Identity</h3>
+                <h3 class="font-semibold mb-3">{{ t("realms.myIdentity") }}</h3>
                 <div class="flex items-start gap-3">
                     <div v-if="auth.user.value?.profile?.picture?.id" class="avatar">
                         <div class="w-10 h-10 rounded-xl">
@@ -188,7 +188,7 @@
                             </span>
                         </div>
                         <div class="text-xs text-base-content/40 mt-2">
-                            Lv {{ membership.level }} • {{ membership.experience }} XP
+                            {{ t("realms.lv", { level: membership.level }) }} &bull; {{ t("realms.xp", { xp: membership.experience }) }}
                         </div>
                     </div>
                 </div>
@@ -198,7 +198,7 @@
                     class="btn btn-ghost btn-xs w-full mt-3"
                 >
                     <IconPencil class="w-3 h-3" />
-                    Edit Identity
+                    {{ t("realms.editIdentity") }}
                 </NuxtLink>
             </div>
         </div>
@@ -210,7 +210,7 @@
         v-if="showCopied"
         class="fixed bottom-4 right-4 bg-success text-success-content px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in-up"
     >
-        Invite link copied!
+        {{ t("realms.inviteLinkCopied") }}
     </div>
 </template>
 
@@ -218,6 +218,8 @@
 import type { RealmBoostStatus, RealmBoostLeaderboardEntry, RealmMember, RealmLabel } from '~/types/realm'
 import { fetchRealmBoostStatus, fetchRealmBoostLeaderboard, fetchRealmLabels } from '~/utils/api'
 import { getFileUrl } from '~/utils/files'
+
+const { t } = useI18n();
 
 const props = defineProps<{
     realmSlug: string
@@ -259,8 +261,8 @@ function getInitials(name: string): string {
 }
 
 function getRoleLabel(role: number): string {
-    const roles = ['Member', 'Moderator', 'Admin', 'Owner']
-    return roles[role] || 'Member'
+    const roles = [t("realms.roleMember"), t("realms.roleModerator"), t("realms.roleAdmin"), t("realms.roleOwner")]
+    return roles[role] || t("realms.roleMember")
 }
 
 function getRoleBadgeClass(role: number): string {

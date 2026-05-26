@@ -9,11 +9,11 @@
 					<IconArrowLeft class="w-5 h-5" />
 				</button>
 				<div class="flex-1">
-					<h1 class="text-lg font-bold">Post</h1>
+					<h1 class="text-lg font-bold">{{ t('post.title') }}</h1>
 				</div>
 				<button class="btn btn-sm btn-primary gap-1" @click="handleReply">
 					<IconReply class="w-4 h-4" />
-					<span class="hidden sm:inline">Reply</span>
+					<span class="hidden sm:inline">{{ t('post.replyBtn') }}</span>
 				</button>
 			</div>
 		</div>
@@ -23,7 +23,7 @@
 			<div class="min-w-0">
 				<ConfuseSpinner
 					v-if="postStatus === 'pending'"
-					message="Loading post..."
+					:message="t('post.loading')"
 				/>
 
 				<template v-else-if="post">
@@ -82,7 +82,7 @@
 										<div class="flex-1">
 											<textarea
 												v-model="replyContent"
-												placeholder="Write a reply..."
+												:placeholder="t('post.replyPlaceholder')"
 												class="textarea textarea-bordered w-full min-h-[80px] resize-none"
 											/>
 											<div class="flex justify-end mt-2">
@@ -92,7 +92,7 @@
 													@click="submitReply"
 												>
 													<IconSend class="w-4 h-4" />
-													Reply
+													{{ t('post.replySubmit') }}
 												</button>
 											</div>
 										</div>
@@ -120,7 +120,7 @@
 							>
 								<IconMessageCircle class="w-12 h-12 mx-auto text-base-content/20 mb-4" />
 								<p class="text-base-content/50">
-									No replies yet. Be the first to reply!
+									{{ t('post.noReplies') }}
 								</p>
 							</div>
 						</div>
@@ -145,7 +145,7 @@
 							>
 								<IconForward class="w-12 h-12 mx-auto text-base-content/20 mb-4" />
 								<p class="text-base-content/50">
-									No forwards yet.
+									{{ t('post.noForwards') }}
 								</p>
 							</div>
 						</div>
@@ -190,7 +190,7 @@
 												{{ boost.account.nick || boost.account.name }}
 											</NuxtLink>
 											<p class="text-xs text-base-content/50">
-												Boosted {{ formatRelativeTime(boost.boostedAt) }}
+												{{ t('post.boostedTime', { time: formatRelativeTime(boost.boostedAt) }) }}
 											</p>
 										</div>
 									</div>
@@ -203,7 +203,7 @@
 							>
 								<IconRepeat2 class="w-12 h-12 mx-auto text-base-content/20 mb-4" />
 								<p class="text-base-content/50">
-									No boosts yet.
+									{{ t('post.noBoosts') }}
 								</p>
 							</div>
 						</div>
@@ -275,7 +275,7 @@
 							>
 								<IconSmilePlus class="w-12 h-12 mx-auto text-base-content/20 mb-4" />
 								<p class="text-base-content/50">
-									No reactions yet.
+									{{ t('post.noReactions') }}
 								</p>
 							</div>
 						</div>
@@ -285,7 +285,7 @@
 				<!-- Error State -->
 				<div v-else class="alert alert-warning">
 					<IconAlertTriangle class="w-5 h-5" />
-					<span>Post not found</span>
+					<span>{{ t('post.notFound') }}</span>
 				</div>
 			</div>
 
@@ -393,28 +393,30 @@ const { data: reactionList } = await useAsyncData(
 );
 
 // Tab configuration
+const { t } = useI18n();
+
 const interactionTabs = computed(() => [
 	{
 		value: 'replies',
-		label: 'Replies',
+		label: t('post.tabReplies'),
 		icon: IconMessageCircle,
 		count: replies.value?.length,
 	},
 	{
 		value: 'forwards',
-		label: 'Forwards',
+		label: t('post.tabForwards'),
 		icon: IconForward,
 		count: forwards.value?.length,
 	},
 	{
 		value: 'boosts',
-		label: 'Boosts',
+		label: t('post.tabBoosts'),
 		icon: IconRepeat2,
 		count: boosts.value?.length,
 	},
 	{
 		value: 'reactions',
-		label: 'Reactions',
+		label: t('post.tabReactions'),
 		icon: IconSmilePlus,
 		count: reactionList.value?.length,
 	},
@@ -452,23 +454,23 @@ function getReactionEmoji(symbol: string): string {
 
 function getReactionLabel(symbol: string): string {
 	const labelMap: Record<string, string> = {
-		thumb_up: 'Like',
-		heart: 'Heart',
-		clap: 'Clap',
-		party: 'Party',
-		laugh: 'Laugh',
-		cry: 'Cry',
-		angry: 'Angry',
-		confuse: 'Confused',
-		pray: 'Pray',
-		thumb_down: 'Dislike',
-		thinking: 'Thinking',
-		speechless: 'Speechless',
-		hello: 'Hello',
-		eat: 'Eat',
-		onegai: 'Please',
-		sleepy: 'Sleepy',
-		sorry: 'Sorry',
+		thumb_up: t('post.reactionLike'),
+		heart: t('post.reactionHeart'),
+		clap: t('post.reactionClap'),
+		party: t('post.reactionParty'),
+		laugh: t('post.reactionLaugh'),
+		cry: t('post.reactionCry'),
+		angry: t('post.reactionAngry'),
+		confuse: t('post.reactionConfused'),
+		pray: t('post.reactionPray'),
+		thumb_down: t('post.reactionDislike'),
+		thinking: t('post.reactionThinking'),
+		speechless: t('post.reactionSpeechless'),
+		hello: t('post.reactionHello'),
+		eat: t('post.reactionEat'),
+		onegai: t('post.reactionPlease'),
+		sleepy: t('post.reactionSleepy'),
+		sorry: t('post.reactionSorry'),
 	};
 	return labelMap[symbol.toLowerCase()] || symbol;
 }
@@ -496,10 +498,10 @@ function formatRelativeTime(dateStr: string): string {
 	const hours = Math.floor(diff / 3600000);
 	const days = Math.floor(diff / 86400000);
 
-	if (minutes < 1) return 'just now';
-	if (minutes < 60) return `${minutes}m ago`;
-	if (hours < 24) return `${hours}h ago`;
-	if (days < 7) return `${days}d ago`;
+	if (minutes < 1) return t('post.justNow');
+	if (minutes < 60) return t('post.minutesAgo', { m: minutes });
+	if (hours < 24) return t('post.hoursAgo', { h: hours });
+	if (days < 7) return t('post.daysAgo', { d: days });
 	return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
@@ -551,7 +553,7 @@ function handleBoost(_p: Post) {
 function handleShare(p: Post) {
 	if (navigator.share) {
 		navigator.share({
-			title: p.title || 'Post on Floating Island',
+			title: p.title || t('home.sharePostFallbackTitle'),
 			text: p.content.slice(0, 100),
 			url: window.location.href,
 		});

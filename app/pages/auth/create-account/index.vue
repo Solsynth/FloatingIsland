@@ -10,13 +10,13 @@
 						<img src="/favicon.png" alt="Solar Network" class="h-12 w-12 rounded-full">
 						<div>
 							<p class="text-xs font-semibold tracking-[0.2em] text-base-content/70 uppercase">
-								Step {{ stepIndex }} / 5
+								{{ t("auth.createAccount.step", { step: stepIndex }) }}
 							</p>
 						</div>
 						<div>
-							<h1 class="text-3xl leading-tight font-black">Create your account</h1>
+							<h1 class="text-3xl leading-tight font-black">{{ t("auth.createAccount.title") }}</h1>
 							<p class="text-sm text-base-content/70 mt-2">
-								Fast setup with username, email, password, captcha, and terms confirmation.
+								{{ t("auth.createAccount.subtitle") }}
 							</p>
 						</div>
 					</div>
@@ -43,24 +43,24 @@
 					<!-- Step 1: Username & Nickname -->
 					<div v-if="stage === 'username-nick'" class="space-y-4">
 						<fieldset class="fieldset">
-							<legend class="fieldset-legend">Username</legend>
+							<legend class="fieldset-legend">{{ t("auth.createAccount.username") }}</legend>
 							<input
 								v-model="form.name"
 								type="text"
 								class="input input-bordered w-full"
-								placeholder="Choose a username"
+								:placeholder="t('auth.createAccount.usernamePlaceholder')"
 							>
 							<p class="fieldset-label text-xs text-base-content/50">
-								2-256 characters, letters, numbers, _ or -
+								{{ t("auth.createAccount.usernameHint") }}
 							</p>
 						</fieldset>
 						<fieldset class="fieldset">
-							<legend class="fieldset-legend">Nickname</legend>
+							<legend class="fieldset-legend">{{ t("auth.createAccount.nickname") }}</legend>
 							<input
 								v-model="form.nick"
 								type="text"
 								class="input input-bordered w-full"
-								placeholder="Your display name"
+								:placeholder="t('auth.createAccount.nicknamePlaceholder')"
 							>
 						</fieldset>
 					</div>
@@ -68,15 +68,15 @@
 					<!-- Step 2: Email -->
 					<div v-if="stage === 'email'" class="space-y-4">
 						<fieldset class="fieldset">
-							<legend class="fieldset-legend">Email</legend>
+							<legend class="fieldset-legend">{{ t("auth.createAccount.email") }}</legend>
 							<input
 								v-model="form.email"
 								type="email"
 								class="input input-bordered w-full"
-								placeholder="your@email.com"
+								:placeholder="t('auth.createAccount.emailPlaceholder')"
 							>
 							<p class="fieldset-label text-xs text-base-content/50">
-								We'll send a verification email
+								{{ t("auth.createAccount.emailHint") }}
 							</p>
 						</fieldset>
 					</div>
@@ -84,15 +84,15 @@
 					<!-- Step 3: Password -->
 					<div v-if="stage === 'password'" class="space-y-4">
 						<fieldset class="fieldset">
-							<legend class="fieldset-legend">Password</legend>
+							<legend class="fieldset-legend">{{ t("auth.createAccount.password") }}</legend>
 							<input
 								v-model="form.password"
 								type="password"
 								class="input input-bordered w-full"
-								placeholder="At least 4 characters"
+								:placeholder="t('auth.createAccount.passwordPlaceholder')"
 							>
 							<p class="fieldset-label text-xs text-base-content/50">
-								4-128 characters
+								{{ t("auth.createAccount.passwordHint") }}
 							</p>
 						</fieldset>
 					</div>
@@ -100,12 +100,12 @@
 					<!-- Step 4: Captcha -->
 					<div v-if="stage === 'captcha'" class="space-y-3">
 						<p class="text-center text-sm text-base-content/70">
-							Complete captcha to continue.
+							{{ t("auth.createAccount.captchaTitle") }}
 						</p>
 						<CaptchaWidget @verified="onCaptchaVerified" />
 						<p v-if="form.captchaToken" class="text-xs text-success text-center">
 							<IconCheckCircle class="w-3 h-3 inline mr-1" />
-							Captcha verified successfully.
+							{{ t("auth.createAccount.captchaSuccess") }}
 						</p>
 					</div>
 
@@ -113,14 +113,14 @@
 					<div v-if="stage === 'terms'" class="space-y-4">
 						<div class="rounded-xl border border-base-300 bg-base-200/60 p-4 text-sm text-base-content/80">
 							<ul class="list-disc space-y-1 pl-5">
-								<li>One account per person under Solar Network terms.</li>
-								<li>Activate your account via email before full access.</li>
-								<li>Support: lily@solsynth.dev</li>
+								<li>{{ t("auth.createAccount.termsList1") }}</li>
+								<li>{{ t("auth.createAccount.termsList2") }}</li>
+								<li>{{ t("auth.createAccount.termsList3") }}</li>
 							</ul>
 						</div>
 						<div class="flex items-center gap-2 text-sm text-base-content/70">
 							<IconShieldCheck class="w-4 h-4 text-success" />
-							<span>By creating an account, you agree to our Terms of Service</span>
+							<span>{{ t("auth.createAccount.termsAgree") }}</span>
 						</div>
 					</div>
 
@@ -131,7 +131,7 @@
 							:to="redirectUrl ? `/auth/login?redirect=${encodeURIComponent(redirectUrl)}` : '/auth/login'"
 							class="btn btn-ghost btn-sm"
 						>
-							Login
+							{{ t("auth.createAccount.login") }}
 						</NuxtLink>
 						<button
 							v-else
@@ -140,7 +140,7 @@
 							@click="back"
 						>
 							<IconArrowLeft class="w-4 h-4" />
-							Back
+							{{ t("auth.back") }}
 						</button>
 
 						<button
@@ -149,7 +149,7 @@
 							:disabled="!canProceed || submitting"
 							@click="next"
 						>
-							Next
+							{{ t("auth.createAccount.next") }}
 							<IconArrowRight class="w-4 h-4" />
 						</button>
 						<button
@@ -163,7 +163,7 @@
 								class="w-4 h-4 animate-spin"
 							/>
 							<IconCheckCircle v-else class="w-4 h-4" />
-							Create Account
+							{{ t("auth.createAccount.createAccount") }}
 						</button>
 					</div>
 				</section>
@@ -184,9 +184,11 @@ import {
 
 definePageMeta({ layout: false });
 
+const { t } = useI18n();
+
 useSolarSeo({
-    title: "Create Account",
-    description: "Create a new account on Solar Network.",
+    title: t("auth.seoTitleCreateAccount"),
+    description: t("auth.seoDescriptionCreateAccount"),
 });
 
 type Stage = 'username-nick' | 'email' | 'password' | 'captcha' | 'terms';
@@ -229,24 +231,24 @@ const canProceed = computed(() => {
 function validateCurrentStage(): string | null {
 	if (stage.value === 'username-nick') {
 		if (!/^[A-Za-z0-9_-]{2,256}$/.test(form.name)) {
-			return 'Username must be 2-256 chars and contain only letters, numbers, _ or -.';
+			return t("auth.validation.username");
 		}
 		if (!form.nick.trim() || form.nick.length > 256) {
-			return 'Nickname is required and must be at most 256 chars.';
+			return t("auth.validation.nickname");
 		}
 	}
 	if (stage.value === 'email') {
 		if (!form.email.trim() || form.email.includes('+') || !/.+@.+\..+/.test(form.email)) {
-			return 'Please enter a valid email address (without + alias).';
+			return t("auth.validation.email");
 		}
 	}
 	if (stage.value === 'password') {
 		if (form.password.length < 4 || form.password.length > 128) {
-			return 'Password length must be between 4 and 128 characters.';
+			return t("auth.validation.password");
 		}
 	}
 	if (stage.value === 'captcha' && !form.captchaToken.trim()) {
-		return 'Please complete captcha and get a token first.';
+		return t("auth.validation.captcha");
 	}
 	return null;
 }
@@ -282,7 +284,7 @@ function onCaptchaVerified(token: string) {
 
 async function handleSubmit() {
 	if (!form.captchaToken.trim()) {
-		error.value = 'Please complete captcha before submitting.';
+		error.value = t("auth.validation.captchaSubmit");
 		stage.value = 'captcha';
 		return;
 	}
@@ -306,7 +308,7 @@ async function handleSubmit() {
 			: '/auth/login';
 		navigateTo(loginUrl);
 	} catch (e) {
-		error.value = e instanceof Error ? e.message : 'Failed to create account';
+		error.value = e instanceof Error ? e.message : t("auth.validation.failedCreate");
 	} finally {
 		submitting.value = false;
 	}

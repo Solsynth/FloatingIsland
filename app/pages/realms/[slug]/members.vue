@@ -1,14 +1,14 @@
 <template>
 	<NuxtLayout name="app">
 		<!-- Loading -->
-		<ConfuseSpinner v-if="status === 'pending'" message="Loading members..." />
+		<ConfuseSpinner v-if="status === 'pending'" :message="t('realms.loading')" />
 
 		<!-- Not Found -->
 		<div v-else-if="notFound" class="mx-auto max-w-2xl p-6">
 			<div class="card">
 				<div class="card-body items-center text-center">
 					<IconUsers class="text-base-content/50 w-10 h-10" />
-					<h1 class="text-xl font-bold">Realm not found</h1>
+					<h1 class="text-xl font-bold">{{ t("realms.notFound") }}</h1>
 				</div>
 			</div>
 		</div>
@@ -30,7 +30,7 @@
 				<div class="min-w-0 flex-1">
 					<h1 class="text-xl font-bold truncate">{{ realm.name }}</h1>
 					<p class="text-sm text-base-content/60">
-						{{ total }} members
+						{{ t("realms.membersCount", { count: total }) }}
 					</p>
 				</div>
 				<button
@@ -39,7 +39,7 @@
 					@click="showInviteModal = true"
 				>
 					<IconUserPlus class="w-4 h-4" />
-					Invite
+					{{ t("realms.inviteBtn") }}
 				</button>
 			</div>
 
@@ -51,7 +51,7 @@
 							<input
 								v-model="searchQuery"
 								type="text"
-								placeholder="Search members..."
+								:placeholder="t('realms.searchMembers')"
 								class="input input-bordered join-item w-full"
 								@keydown.enter="reloadMembers"
 							>
@@ -60,11 +60,11 @@
 							</button>
 						</div>
 						<select v-model="roleFilter" class="select select-bordered" @change="reloadMembers">
-							<option value="">All roles</option>
-							<option value="0">Member</option>
-							<option value="1">Moderator</option>
-							<option value="2">Admin</option>
-							<option value="3">Owner</option>
+							<option value="">{{ t("realms.allRoles") }}</option>
+							<option value="0">{{ t("realms.roleMember") }}</option>
+							<option value="1">{{ t("realms.roleModerator") }}</option>
+							<option value="2">{{ t("realms.roleAdmin") }}</option>
+							<option value="3">{{ t("realms.roleOwner") }}</option>
 						</select>
 					</div>
 				</div>
@@ -133,10 +133,10 @@
 								<div class="flex items-center gap-3 mt-2 text-xs text-base-content/40">
                                     <span class="flex items-center gap-1">
                                         <IconZap class="w-3 h-3" />
-                                        Lv {{ member.level }}
+                                        {{ t("realms.lv", { level: member.level }) }}
                                     </span>
 									<span v-if="member.experience > 0">
-                                        {{ member.experience }} XP
+                                        {{ t("realms.xp", { xp: member.experience }) }}
                                     </span>
 								</div>
 							</div>
@@ -150,20 +150,20 @@
 									<li v-if="myRole && myRole > member.role">
 										<button @click="promoteMember(member)">
 											<IconArrowUp class="w-4 h-4" />
-											Promote
+											{{ t("realms.promote") }}
 										</button>
 									</li>
 									<li v-if="myRole && myRole > member.role">
 										<button @click="demoteMember(member)">
 											<IconArrowDown class="w-4 h-4" />
-											Demote
+											{{ t("realms.demote") }}
 										</button>
 									</li>
 									<li class="divider" />
 									<li>
 										<button class="text-error" @click="kickMember(member)">
 											<IconUserX class="w-4 h-4" />
-											Remove
+											{{ t("realms.remove") }}
 										</button>
 									</li>
 								</ul>
@@ -182,10 +182,10 @@
 					@click="loadMore"
 				>
 					<IconLoader v-if="isLoading" class="w-4 h-4 animate-spin" />
-					<span>Load more</span>
+					<span>{{ t("common.loadMore") }}</span>
 				</button>
 				<p v-else-if="members.length > 10" class="text-sm text-base-content/50">
-					No more members
+					{{ t("realms.noMoreMembers") }}
 				</p>
 			</div>
 
@@ -193,9 +193,9 @@
 			<div v-else class="card bg-base-200/50">
 				<div class="card-body items-center text-center py-12">
 					<IconSearch class="w-12 h-12 text-base-content/30 mb-4" />
-					<h2 class="text-lg font-bold">No members found</h2>
+					<h2 class="text-lg font-bold">{{ t("realms.noMembersFound") }}</h2>
 					<p class="text-base-content/60 text-sm">
-						Try adjusting your search or filters
+						{{ t("realms.noMembersHint") }}
 					</p>
 				</div>
 			</div>
@@ -208,6 +208,8 @@ import type { Realm, RealmMember, RealmLabel } from '~/types/realm';
 import { fetchRealm, fetchRealmMembers, getMyRealmMembership } from '~/utils/api';
 import { getFileUrl } from '~/utils/files';
 import { renderMarkdown } from '~/utils/markdown';
+
+const { t } = useI18n();
 
 const route = useRoute();
 const auth = useAuth();
@@ -247,8 +249,8 @@ function getInitials(name: string): string {
 }
 
 function getRoleLabel(role: number): string {
-	const roles = ['Member', 'Moderator', 'Admin', 'Owner'];
-	return roles[role] || 'Member';
+	const roles = [t("realms.roleMember"), t("realms.roleModerator"), t("realms.roleAdmin"), t("realms.roleOwner")];
+	return roles[role] || t("realms.roleMember");
 }
 
 function getRoleBadgeClass(role: number): string {
@@ -285,7 +287,7 @@ async function reloadMembers() {
 		offset.value = result.members.length;
 		hasMore.value = result.members.length < result.total;
 	} catch (err) {
-		error.value = err instanceof Error ? err.message : 'Failed to load members';
+		error.value = err instanceof Error ? err.message : t("realms.failedToLoadMembers");
 	} finally {
 		isLoading.value = false;
 	}
@@ -302,7 +304,7 @@ async function loadMore() {
 		offset.value += more.length;
 		hasMore.value = members.value.length < result.total;
 	} catch (err) {
-		error.value = err instanceof Error ? err.message : 'Failed to load more members';
+		error.value = err instanceof Error ? err.message : t("realms.failedToLoadMembers");
 	} finally {
 		isLoading.value = false;
 	}
@@ -338,14 +340,14 @@ onMounted(async () => {
 
 		// SEO
 		useSolarSeo({
-			title: `Members - ${realmData.name}`,
-			description: `Members of ${realmData.name}`,
+			title: t("realms.membersTitle", { name: realmData.name }),
+			description: t("realms.seoMembersDescription", { name: realmData.name }),
 		});
 	} catch (err) {
 		if (err instanceof Error && err.message.includes('404')) {
 			notFound.value = true;
 		} else {
-			error.value = err instanceof Error ? err.message : 'Failed to load realm';
+			error.value = err instanceof Error ? err.message : t("realms.failedToLoad");
 		}
 	}
 });

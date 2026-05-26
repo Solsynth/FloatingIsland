@@ -6,7 +6,7 @@
       class="w-full max-w-md rounded-3xl border border-base-300/70 bg-base-100/90 p-8 text-center shadow-2xl backdrop-blur-xl"
     >
       <IconUsers class="mx-auto text-base-content/50 w-9 h-9" />
-      <h1 class="mt-3 text-xl font-black">Realm not found</h1>
+      <h1 class="mt-3 text-xl font-black">{{ t("realms.notFound") }}</h1>
     </div>
 
     <!-- Error State -->
@@ -15,7 +15,7 @@
       class="w-full max-w-md rounded-3xl border border-base-300/70 bg-base-100/90 p-8 shadow-2xl backdrop-blur-xl"
     >
       <div class="alert alert-error">
-        <span>{{ error || "Failed to load invite" }}</span>
+        <span>{{ error || t("realms.failedToLoadInvite") }}</span>
       </div>
     </div>
 
@@ -38,7 +38,7 @@
         <p
           class="mb-3 text-xs font-semibold tracking-[0.2em] text-base-content/60 uppercase"
         >
-          You're invited
+          {{ t("realms.youreInvited") }}
         </p>
 
         <!-- Realm Info -->
@@ -60,7 +60,7 @@
             </div>
           </div>
           <div class="min-w-0">
-            <p class="text-sm text-base-content/60">Join the realm</p>
+            <p class="text-sm text-base-content/60">{{ t("realms.joinTheRealm") }}</p>
             <h1 class="truncate text-2xl font-black">{{ realm.name }}</h1>
             <p class="truncate text-sm text-base-content/60">
               @{{ realm.slug }}
@@ -77,8 +77,8 @@
         <div class="mb-3 flex flex-wrap gap-2">
           <span class="badge gap-1 border-info/30 bg-info/15 text-info">
             <IconUsers class="w-3 h-3" />
-            <span v-if="realm.isCommunity">Community</span>
-            <span v-else>Organization</span>
+            <span v-if="realm.isCommunity">{{ t("realms.community") }}</span>
+            <span v-else>{{ t("realms.organization") }}</span>
           </span>
           <span
             :class="`badge gap-1 ${
@@ -89,8 +89,8 @@
           >
             <IconGlobe v-if="realm.isPublic" class="w-3 h-3" />
             <IconLock v-else class="w-3 h-3" />
-            <span v-if="realm.isPublic">Public</span>
-            <span v-else>Private</span>
+            <span v-if="realm.isPublic">{{ t("realms.realmPublic") }}</span>
+            <span v-else>{{ t("realms.realmPrivate") }}</span>
           </span>
         </div>
 
@@ -106,7 +106,7 @@
           @click="navigateTo(`/realms/${realm.slug}`)"
         >
           <IconCheck class="w-4 h-4" />
-          Open Realm
+          {{ t("realms.openRealm") }}
         </button>
         <button
           v-else
@@ -119,7 +119,7 @@
             class="w-4 h-4 animate-spin"
           />
           <IconUserPlus v-else class="w-4 h-4" />
-          Join Realm
+          {{ t("realms.joinRealm") }}
         </button>
       </div>
     </div>
@@ -141,9 +141,11 @@ import {
 
 definePageMeta({ layout: false });
 
+const { t } = useI18n();
+
 useSolarSeo({
-    title: "Join Realm",
-    description: "You've been invited to join a realm on Solar Network.",
+    title: t("realms.inviteSeoTitle"),
+    description: t("realms.inviteSeoDescription"),
 });
 
 const route = useRoute();
@@ -199,7 +201,7 @@ async function joinRealm() {
     isMember.value = true;
     navigateTo(`/realms/${realm.value.slug}`);
   } catch (err) {
-    error.value = err instanceof Error ? err.message : "Failed to join realm";
+    error.value = err instanceof Error ? err.message : t("realms.failedToJoinRealm");
   } finally {
     isJoining.value = false;
   }
@@ -215,7 +217,7 @@ onMounted(async () => {
       notFound.value = true;
     } else {
       error.value =
-        err instanceof Error ? err.message : "Failed to load invite";
+        err instanceof Error ? err.message : t("realms.failedToLoadInvite");
     }
   }
 });

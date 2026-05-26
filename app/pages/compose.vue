@@ -4,18 +4,18 @@
             <div class="card bg-base-100 border border-base-300">
                 <div class="card-body p-4 sm:p-6 space-y-4">
                     <div class="flex items-center justify-between gap-3">
-                        <h1 class="text-lg font-semibold">Compose</h1>
+                        <h1 class="text-lg font-semibold">{{ t('compose.title') }}</h1>
                         <div class="flex items-center gap-2">
-                            <button class="btn btn-sm" @click="navigateTo('/')">Cancel</button>
+                            <button class="btn btn-sm" @click="navigateTo('/')">{{ t('compose.cancel') }}</button>
                             <button class="btn btn-sm btn-primary" :disabled="!canSubmit" @click="handleSubmit">
                                 <IconLoader v-if="submitting" class="w-4 h-4 animate-spin" />
-                                <span>{{ submitting ? "Posting..." : "Post" }}</span>
+                                <span>{{ submitting ? t('compose.posting') : t('compose.post') }}</span>
                             </button>
                         </div>
                     </div>
 
                     <div v-if="!currentPublisher" class="alert alert-info text-sm">
-                        <span>Pick a publisher to start composing.</span>
+                        <span>{{ t('compose.noPublisher') }}</span>
                     </div>
 
                     <div class="flex items-center gap-3" v-if="publishers.length > 0">
@@ -46,14 +46,14 @@
                         </div>
                     </div>
 
-                    <input v-model="title" class="input input-bordered w-full" placeholder="Title (optional)" :disabled="!currentPublisher" />
-                    <input v-model="description" class="input input-bordered w-full" placeholder="Description (optional)" :disabled="!currentPublisher" />
+                    <input v-model="title" class="input input-bordered w-full" :placeholder="t('compose.titlePlaceholder')" :disabled="!currentPublisher" />
+                    <input v-model="description" class="input input-bordered w-full" :placeholder="t('compose.descriptionPlaceholder')" :disabled="!currentPublisher" />
 
                     <textarea
                         ref="contentRef"
                         v-model="content"
                         class="textarea textarea-bordered w-full min-h-[240px]"
-                        placeholder="What's on your mind?"
+                        :placeholder="t('compose.contentPlaceholder')"
                         :disabled="!currentPublisher"
                         @keydown="handleKeyDown"
                     />
@@ -71,36 +71,36 @@
             <aside class="space-y-4 xl:sticky xl:top-4 xl:self-start">
                 <div class="card bg-base-100 border border-base-300">
                     <div class="card-body p-4 space-y-3">
-                        <h2 class="text-sm font-semibold">Post settings</h2>
+                        <h2 class="text-sm font-semibold">{{ t('compose.postSettings') }}</h2>
                         <div>
-                            <label class="text-xs text-base-content/70">Visibility</label>
+                            <label class="text-xs text-base-content/70">{{ t('compose.visibility') }}</label>
                             <select v-model="visibility" class="select select-bordered select-sm w-full mt-1">
-                                <option :value="0">Public</option>
-                                <option :value="1">Friends</option>
-                                <option :value="2">Unlisted</option>
-                                <option :value="3">Private</option>
+                                <option :value="0">{{ t('compose.public') }}</option>
+                                <option :value="1">{{ t('compose.friends') }}</option>
+                                <option :value="2">{{ t('compose.unlisted') }}</option>
+                                <option :value="3">{{ t('compose.private') }}</option>
                             </select>
                         </div>
                         <div>
-                            <label class="text-xs text-base-content/70">Language</label>
+                            <label class="text-xs text-base-content/70">{{ t('compose.language') }}</label>
                             <select v-model="language" class="select select-bordered select-sm w-full mt-1">
-                                <option :value="null">Auto-detect</option>
-                                <option value="en">English</option>
-                                <option value="zh">Chinese</option>
-                                <option value="ja">Japanese</option>
-                                <option value="ko">Korean</option>
-                                <option value="es">Spanish</option>
-                                <option value="fr">French</option>
-                                <option value="de">German</option>
-                                <option value="ru">Russian</option>
+                                <option :value="null">{{ t('compose.autoDetect') }}</option>
+                                <option value="en">{{ t('compose.languageEn') }}</option>
+                                <option value="zh">{{ t('compose.languageZh') }}</option>
+                                <option value="ja">{{ t('compose.languageJa') }}</option>
+                                <option value="ko">{{ t('compose.languageKo') }}</option>
+                                <option value="es">{{ t('compose.languageEs') }}</option>
+                                <option value="fr">{{ t('compose.languageFr') }}</option>
+                                <option value="de">{{ t('compose.languageDe') }}</option>
+                                <option value="ru">{{ t('compose.languageRu') }}</option>
                             </select>
                         </div>
                         <div>
-                            <label class="text-xs text-base-content/70">Slug</label>
+                            <label class="text-xs text-base-content/70">{{ t('compose.slug') }}</label>
                             <input
                                 v-model="resourceIdentifier"
                                 class="input input-bordered input-sm w-full mt-1"
-                                placeholder="custom-slug"
+                                :placeholder="t('compose.slugPlaceholder')"
                             >
                         </div>
                     </div>
@@ -108,7 +108,7 @@
 
                 <div class="card bg-base-100 border border-base-300">
                     <div class="card-body p-4 space-y-3">
-                        <h2 class="text-sm font-semibold">Tags</h2>
+                        <h2 class="text-sm font-semibold">{{ t('compose.tags') }}</h2>
                         <div class="flex items-center gap-2 flex-wrap min-h-6">
                             <span v-for="tag in tags" :key="tag" class="badge badge-primary gap-1">
                                 #{{ tag }}
@@ -121,11 +121,11 @@
                             <input
                                 v-model="newTag"
                                 class="input input-bordered input-sm flex-1"
-                                placeholder="Add tag"
+                                :placeholder="t('compose.addTagPlaceholder')"
                                 list="compose-tag-suggestions"
                                 @keydown.enter.prevent="addNewTag"
                             >
-                            <button class="btn btn-sm" @click="addNewTag">Add</button>
+                            <button class="btn btn-sm" @click="addNewTag">{{ t('compose.addTag') }}</button>
                         </div>
                         <datalist id="compose-tag-suggestions">
                             <option v-for="slug in tagSuggestions" :key="slug" :value="slug" />
@@ -135,11 +135,11 @@
 
                 <div class="card bg-base-100 border border-base-300">
                     <div class="card-body p-4 space-y-3">
-                        <h2 class="text-sm font-semibold">Categories</h2>
+                        <h2 class="text-sm font-semibold">{{ t('compose.categories') }}</h2>
                         <input
                             v-model="categoryQuery"
                             class="input input-bordered input-sm w-full"
-                            placeholder="Search categories"
+                            :placeholder="t('compose.searchCategories')"
                         >
                         <div class="max-h-56 overflow-y-auto border border-base-300 rounded-md">
                             <button
@@ -153,7 +153,7 @@
                             </button>
                         </div>
                         <p class="text-xs text-base-content/60">
-                            Selected: {{ selectedCategorySlugs.length }}
+                            {{ t('compose.selected', { count: selectedCategorySlugs.length }) }}
                         </p>
                     </div>
                 </div>
@@ -168,9 +168,11 @@ import { API_BASE_URL, fetchCategories, fetchJson, fetchTags, type PostCategory,
 import { getValidToken } from "~/utils/token";
 import { getFileUrl } from "~/utils/files";
 
+const { t } = useI18n();
+
 useSolarSeo({
-    title: "Compose",
-    description: "Write a new post",
+    title: t('compose.seoTitle'),
+    description: t('compose.seoDescription'),
 });
 
 const compose = useCompose();

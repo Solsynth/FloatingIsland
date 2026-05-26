@@ -6,12 +6,12 @@
 					<!-- Header -->
 					<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4">
 						<div>
-							<h1 class="text-2xl font-bold">Realms</h1>
-							<p class="text-base-content/60 text-sm">Join communities and explore new worlds</p>
+							<h1 class="text-2xl font-bold">{{ t("realms.title") }}</h1>
+							<p class="text-base-content/60 text-sm">{{ t("realms.subtitle") }}</p>
 						</div>
 						<button class="btn btn-primary" @click="showCreateModal = true">
 							<IconPlus class="w-4 h-4" />
-							Create Realm
+							{{ t("realms.createRealm") }}
 						</button>
 					</div>
 
@@ -21,19 +21,19 @@
 							<div class="w-16 h-16 rounded-2xl bg-base-300 flex items-center justify-center mb-4">
 								<IconLogIn class="w-8 h-8 text-base-content/40" />
 							</div>
-							<h2 class="text-lg font-bold">Sign in to view Realms</h2>
+							<h2 class="text-lg font-bold">{{ t("realms.signInToView") }}</h2>
 							<p class="text-base-content/60 text-sm max-w-sm mb-4">
-								Realms are community spaces for you and your friends. Sign in to explore and join realms.
+								{{ t("realms.signInToViewDesc") }}
 							</p>
 							<NuxtLink to="/auth/login" class="btn btn-primary">
 								<IconLogIn class="w-4 h-4" />
-								Sign In
+								{{ t("nav.signIn") }}
 							</NuxtLink>
 						</div>
 					</div>
 
 					<!-- Loading State -->
-					<ConfuseSpinner v-else-if="status === 'pending' && realms.length === 0" message="Loading realms..." />
+					<ConfuseSpinner v-else-if="status === 'pending' && realms.length === 0" :message="t('realms.loading')" />
 
 					<!-- Error State -->
 					<div v-else-if="error" class="alert alert-error">
@@ -52,13 +52,13 @@
 							<div class="w-16 h-16 rounded-2xl bg-base-300 flex items-center justify-center mb-4">
 								<IconUsers class="w-8 h-8 text-base-content/40" />
 							</div>
-							<h2 class="text-lg font-bold">No Realms Yet</h2>
+							<h2 class="text-lg font-bold">{{ t("realms.emptyTitle") }}</h2>
 							<p class="text-base-content/60 text-sm max-w-sm">
-								You haven't joined any realms yet. Create your own or wait for invitations from others.
+								{{ t("realms.emptyDesc") }}
 							</p>
 							<button class="btn btn-primary mt-4" @click="showCreateModal = true">
 								<IconPlus class="w-4 h-4" />
-								Create Your First Realm
+								{{ t("realms.createYourFirst") }}
 							</button>
 						</div>
 					</div>
@@ -72,10 +72,10 @@
 							@click="loadMore"
 						>
 							<IconLoader v-if="fetchingMore" class="w-4 h-4 animate-spin" />
-							<span>Load more</span>
+							<span>{{ t("common.loadMore") }}</span>
 						</button>
 						<p v-else-if="realms.length > 5" class="text-sm text-base-content/50">
-							No more realms
+							{{ t("realms.noMore") }}
 						</p>
 					</div>
 				</div>
@@ -96,9 +96,11 @@
 import type { Realm } from '~/types/realm';
 import { fetchRealms } from '~/utils/api';
 
+const { t } = useI18n();
+
 useSolarSeo({
-	title: 'Realms',
-	description: 'Explore and join realms on Solar Network',
+	title: t("realms.title"),
+	description: t("realms.seoDescription"),
 });
 
 const auth = useAuth();

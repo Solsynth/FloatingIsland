@@ -1,40 +1,40 @@
 <template>
     <div class="max-w-3xl mx-auto space-y-6 min-w-0">
-        <h1 class="text-2xl font-bold mb-6 max-lg:px-4">Security Settings</h1>
+        <h1 class="text-2xl font-bold mb-6 max-lg:px-4">{{ t('settings.securityTitle') }}</h1>
 
         <!-- Password -->
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
-                <h2 class="card-title text-lg mb-4">Change Password</h2>
+                <h2 class="card-title text-lg mb-4">{{ t('settings.changePassword') }}</h2>
 
                 <div class="space-y-4">
                     <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Current Password</legend>
+                        <legend class="fieldset-legend">{{ t('settings.currentPassword') }}</legend>
                         <input
                             v-model="passwordForm.current"
                             type="password"
                             class="input input-bordered w-full"
-                            placeholder="Enter current password"
+                            :placeholder="t('settings.currentPasswordPlaceholder')"
                         >
                     </fieldset>
 
                     <fieldset class="fieldset">
-                        <legend class="fieldset-legend">New Password</legend>
+                        <legend class="fieldset-legend">{{ t('settings.newPassword') }}</legend>
                         <input
                             v-model="passwordForm.new"
                             type="password"
                             class="input input-bordered w-full"
-                            placeholder="Enter new password"
+                            :placeholder="t('settings.newPasswordPlaceholder')"
                         >
                     </fieldset>
 
                     <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Confirm New Password</legend>
+                        <legend class="fieldset-legend">{{ t('settings.confirmNewPassword') }}</legend>
                         <input
                             v-model="passwordForm.confirm"
                             type="password"
                             class="input input-bordered w-full"
-                            placeholder="Confirm new password"
+                            :placeholder="t('settings.confirmNewPasswordPlaceholder')"
                         >
                     </fieldset>
 
@@ -46,7 +46,7 @@
                         >
                             <IconLoader v-if="isChangingPassword" class="w-4 h-4 animate-spin" />
                             <IconKey v-else class="w-4 h-4" />
-                            Update Password
+                            {{ t('settings.updatePassword') }}
                         </button>
                     </div>
                 </div>
@@ -57,10 +57,10 @@
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="card-title text-lg">Two-Factor Authentication</h2>
+                    <h2 class="card-title text-lg">{{ t('settings.twoFactor') }}</h2>
                     <button class="btn btn-sm btn-primary" @click="showAddFactor = true">
                         <IconPlus class="w-4 h-4" />
-                        Add Factor
+                        {{ t('settings.addFactor') }}
                     </button>
                 </div>
 
@@ -70,16 +70,16 @@
 
                 <div v-else-if="factorsError" class="alert alert-error">
                     <IconAlertCircle class="w-5 h-5" />
-                    <span>Failed to load auth factors</span>
+                    <span>{{ t('settings.loadedFactorsFail') }}</span>
                     <button class="btn btn-sm" @click="() => refreshFactors()">
-                        Retry
+                        {{ t('settings.retry') }}
                     </button>
                 </div>
 
                 <div v-else-if="factors.length === 0" class="text-center py-8 text-base-content/60">
                     <IconShield class="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>No authentication factors set up yet.</p>
-                    <p class="text-sm">Add a factor to improve your account security.</p>
+                    <p>{{ t('settings.noFactors') }}</p>
+                    <p class="text-sm">{{ t('settings.noFactorsHint') }}</p>
                 </div>
 
                 <div v-else class="space-y-3">
@@ -101,7 +101,7 @@
                             <div>
                                 <p class="font-medium">{{ getFactorLabel(factor.type) }}</p>
                                 <p class="text-sm text-base-content/60">
-                                    {{ factor.enabledAt ? 'Enabled' : 'Disabled' }}
+                                    {{ factor.enabledAt ? t('settings.enabled') : t('settings.disabled') }}
                                 </p>
                             </div>
                         </div>
@@ -114,7 +114,7 @@
                             >
                                 <IconLoader v-if="isProcessing === factor.id" class="w-4 h-4 animate-spin" />
                                 <IconX v-else class="w-4 h-4" />
-                                Disable
+                                {{ t('settings.disable') }}
                             </button>
                             <button
                                 v-else
@@ -124,7 +124,7 @@
                             >
                                 <IconLoader v-if="isProcessing === factor.id" class="w-4 h-4 animate-spin" />
                                 <IconCheck v-else class="w-4 h-4" />
-                                Enable
+                                {{ t('settings.enable') }}
                             </button>
                             <button
                                 class="btn btn-sm btn-ghost text-error"
@@ -142,7 +142,7 @@
         <!-- Recovery Codes -->
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
-                <h2 class="card-title text-lg mb-4">Recovery Codes</h2>
+                <h2 class="card-title text-lg mb-4">{{ t('settings.recoveryCodes') }}</h2>
                 <p class="text-base-content/70 mb-4">
                     Recovery codes allow you to regain access to your account if you lose access to your authentication factors.
                 </p>
@@ -156,11 +156,11 @@
                     >
                         <IconLoader v-if="isCreatingRecovery" class="w-4 h-4 animate-spin" />
                         <IconKeyRound v-else class="w-4 h-4" />
-                        Generate Recovery Codes
+                        {{ t('settings.generateRecoveryCodes') }}
                     </button>
                     <div v-else class="flex items-center gap-2 text-success">
                         <IconCheck class="w-5 h-5" />
-                        <span>Recovery codes are set up</span>
+                        <span>{{ t('settings.recoveryCodesSet') }}</span>
                     </div>
                 </div>
             </div>
@@ -170,7 +170,7 @@
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="card-title text-lg">Active Sessions</h2>
+                    <h2 class="card-title text-lg">{{ t('settings.activeSessions') }}</h2>
                     <button
                         v-if="hasOtherSessions"
                         class="btn btn-sm btn-error btn-outline"
@@ -179,11 +179,10 @@
                     >
                         <IconLoader v-if="isLoggingOutAll" class="w-4 h-4 animate-spin" />
                         <IconLogOut v-else class="w-4 h-4" />
-                        Logout All Others
+                        {{ t('settings.logoutAllOthers') }}
                     </button>
                 </div>
 
-                <!-- Tabs -->
                 <div class="tabs tabs-bordered mb-4">
                     <button
                         class="tab"
@@ -191,7 +190,7 @@
                         @click="activeTab = 'devices'"
                     >
                         <IconSmartphone class="w-4 h-4 mr-1" />
-                        Devices
+                        {{ t('settings.devices') }}
                     </button>
                     <button
                         class="tab"
@@ -199,7 +198,7 @@
                         @click="activeTab = 'sessions'"
                     >
                         <IconKey class="w-4 h-4 mr-1" />
-                        Sessions
+                        {{ t('settings.sessions') }}
                     </button>
                 </div>
 
@@ -211,15 +210,15 @@
 
                     <div v-else-if="devicesError" class="alert alert-error">
                         <IconAlertCircle class="w-5 h-5" />
-                        <span>Failed to load devices</span>
+                        <span>{{ t('settings.loadedFactorsFail') }}</span>
                         <button class="btn btn-sm" @click="() => refreshDevices()">
-                            Retry
+                            {{ t('settings.retry') }}
                         </button>
                     </div>
 
                     <div v-else-if="devices.length === 0" class="text-center py-8 text-base-content/60">
                         <IconSmartphone class="w-12 h-12 mx-auto mb-3 opacity-50" />
-                        <p>No devices found</p>
+                        <p>{{ t('settings.noDevices') }}</p>
                     </div>
 
                     <div v-else class="space-y-3">
@@ -238,7 +237,7 @@
                                          <p class="font-medium truncate">
                                              {{ device.deviceLabel || device.deviceName }}
                                          </p>
-                                         <span v-if="device.isCurrent" class="badge badge-primary badge-sm">Current</span>
+                                         <span v-if="device.isCurrent" class="badge badge-primary badge-sm">{{ t('settings.current') }}</span>
                                          <span v-if="device.sessions?.length" class="badge badge-secondary badge-sm">
                                              <IconKey class="w-3 h-3 mr-1" />
                                              {{ device.sessions.length }}
@@ -247,7 +246,7 @@
                                     <p class="text-sm text-base-content/60">
                                         {{ getPlatformLabel(device.platform) }}
                                         <span v-if="device.sessions?.length">
-                                            · Last active {{ formatDate(device.sessions[0]!.createdAt) }}
+                                            · {{ t('settings.lastActiveLabel', { date: formatDate(device.sessions[0]!.createdAt) }) }}
                                         </span>
                                     </p>
                                  </div>
@@ -259,14 +258,13 @@
 
                 <!-- Sessions Tab -->
                 <div v-if="activeTab === 'sessions'">
-                    <!-- Session Type Filter -->
                     <div class="flex flex-wrap gap-2 mb-4">
                         <button
                             class="btn btn-xs"
                             :class="sessionTypeFilter === null ? 'btn-primary' : 'btn-ghost'"
                             @click="sessionTypeFilter = null"
                         >
-                            All
+                            {{ t('settings.all') }}
                         </button>
                         <button
                             v-for="(info, type) in SESSION_TYPES"
@@ -285,15 +283,15 @@
 
                     <div v-else-if="sessionsError" class="alert alert-error">
                         <IconAlertCircle class="w-5 h-5" />
-                        <span>Failed to load sessions</span>
+                        <span>{{ t('settings.loadedFactorsFail') }}</span>
                         <button class="btn btn-sm" @click="() => refreshSessions()">
-                            Retry
+                            {{ t('settings.retry') }}
                         </button>
                     </div>
 
                     <div v-else-if="filteredSessions.length === 0" class="text-center py-8 text-base-content/60">
                         <IconKey class="w-12 h-12 mx-auto mb-3 opacity-50" />
-                        <p>No sessions found</p>
+                        <p>{{ t('settings.noSessions') }}</p>
                     </div>
 
                     <div v-else class="space-y-3">
@@ -314,17 +312,17 @@
                                         <p class="font-medium">
                                             {{ session.label || session.userAgent || 'Unknown' }}
                                         </p>
-                                        <span v-if="session.isCurrent" class="badge badge-primary badge-sm">Current</span>
+                                        <span v-if="session.isCurrent" class="badge badge-primary badge-sm">{{ t('settings.current') }}</span>
                                         <span v-if="session.childrenCount" class="badge badge-secondary badge-sm">
-                                            {{ session.childrenCount }} children
+                                            {{ t('settings.children', { count: session.childrenCount }) }}
                                         </span>
                                     </div>
                                     <div class="text-sm text-base-content/60 mt-1 space-y-1">
-                                        <p>Created: {{ formatDate(session.createdAt) }}</p>
-                                        <p>Last active: {{ formatDate(session.lastGrantedAt) }}</p>
+                                        <p>{{ t('settings.created', { date: formatDate(session.createdAt) }) }}</p>
+                                        <p>{{ t('settings.lastActiveLabel', { date: formatDate(session.lastGrantedAt) }) }}</p>
                                         <p v-if="session.location?.city">
                                             <IconMapPin class="w-3 h-3 inline mr-1" />
-                                            {{ session.location.city }}
+                                            {{ t('settings.location', { city: session.location.city }) }}
                                         </p>
                                         <p v-if="session.ipAddress">
                                             <IconGlobe class="w-3 h-3 inline mr-1" />
@@ -347,22 +345,21 @@
                 </div>
             </div>
         </div>
-    </div>
 
     <!-- Add Factor Modal -->
     <dialog class="modal" :class="{ 'modal-open': showAddFactor }">
         <div class="modal-box max-w-md">
-            <h3 class="font-bold text-lg mb-4">Add Authentication Factor</h3>
+            <h3 class="font-bold text-lg mb-4">{{ t('settings.addFactorModalTitle') }}</h3>
 
             <div v-if="!hasRecoveryCode" class="alert alert-warning mb-4">
                 <IconAlertTriangle class="w-5 h-5" />
-                <span>Recovery code is required before adding other factors</span>
+                <span>{{ t('settings.recoveryCodeRequired') }}</span>
             </div>
 
             <fieldset class="fieldset mb-4">
-                <legend class="fieldset-legend">Factor Type</legend>
+                <legend class="fieldset-legend">{{ t('settings.factorType') }}</legend>
                 <select v-model="newFactorType" class="select select-bordered w-full">
-                    <option value="">Select a factor type</option>
+                    <option value="">{{ t('settings.selectFactorType') }}</option>
                     <option
                         v-for="(info, type) in availableFactorTypes"
                         :key="type"
@@ -374,22 +371,22 @@
             </fieldset>
 
             <fieldset v-if="newFactorType === '0'" class="fieldset mb-4">
-                <legend class="fieldset-legend">Secret</legend>
+                <legend class="fieldset-legend">{{ t('settings.secret') }}</legend>
                 <input
                     v-model="newFactorSecret"
                     type="password"
                     class="input input-bordered w-full"
-                    placeholder="Enter secret"
+                    :placeholder="t('settings.enterSecret')"
                 >
             </fieldset>
 
             <fieldset v-if="newFactorType === '4'" class="fieldset mb-4">
-                <legend class="fieldset-legend">PIN</legend>
+                <legend class="fieldset-legend">{{ t('settings.pin') }}</legend>
                 <input
                     v-model="newFactorPin"
                     type="password"
                     class="input input-bordered w-full"
-                    placeholder="6-digit PIN"
+                    :placeholder="t('settings.pinPlaceholder')"
                     maxlength="6"
                 >
             </fieldset>
@@ -399,18 +396,160 @@
             </div>
 
             <div class="modal-action">
-                <button class="btn btn-ghost" @click="showAddFactor = false">Cancel</button>
+                <button class="btn btn-ghost" @click="showAddFactor = false">{{ t('settings.cancel') }}</button>
                 <button
                     class="btn btn-primary"
                     :disabled="!canAddFactor || isAddingFactor"
                     @click="addFactor"
                 >
                     <IconLoader v-if="isAddingFactor" class="w-4 h-4 animate-spin" />
-                    Add Factor
+                    {{ t('settings.addFactor') }}
                 </button>
             </div>
         </div>
         <div class="modal-backdrop" @click="showAddFactor = false" />
+    </dialog>
+
+    <!-- Enable Factor Modal -->
+    <dialog class="modal" :class="{ 'modal-open': showEnableFactor }">
+        <div class="modal-box max-w-md">
+            <h3 class="font-bold text-lg mb-4">{{ t('settings.enableFactorTitle') }}</h3>
+            <p class="text-base-content/70 mb-4">
+                {{ t('settings.enableFactorDesc') }}
+            </p>
+
+            <fieldset class="fieldset mb-4">
+                <legend class="fieldset-legend">{{ t('settings.verificationCode') }}</legend>
+                <input
+                    v-model="verificationCode"
+                    type="text"
+                    class="input input-bordered w-full text-center text-2xl tracking-widest"
+                    :placeholder="t('settings.verificationCodePlaceholder')"
+                    maxlength="6"
+                >
+            </fieldset>
+
+            <div class="modal-action">
+                <button class="btn btn-ghost" @click="showEnableFactor = false">{{ t('settings.cancel') }}</button>
+                <button
+                    class="btn btn-primary"
+                    :disabled="verificationCode.length < 6 || isEnabling"
+                    @click="confirmEnableFactor"
+                >
+                    <IconLoader v-if="isEnabling" class="w-4 h-4 animate-spin" />
+                    {{ t('settings.enable') }}
+                </button>
+            </div>
+        </div>
+        <div class="modal-backdrop" @click="showEnableFactor = false" />
+    </dialog>
+
+    <!-- Recovery Code Display Modal -->
+    <dialog class="modal" :class="{ 'modal-open': showRecoveryCode }">
+        <div class="modal-box max-w-md">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-primary text-primary-content rounded-full flex items-center justify-center mx-auto mb-4">
+                    <IconKeyRound class="w-8 h-8" />
+                </div>
+                <h3 class="font-bold text-lg">{{ t('settings.recoveryCodeCreated') }}</h3>
+            </div>
+
+            <p class="text-base-content/70 mb-4 text-center">
+                {{ t('settings.recoveryCodeSave') }}
+            </p>
+
+            <div
+                v-if="recoveryCode"
+                class="bg-base-200 p-4 rounded-lg mb-6"
+            >
+                <code class="text-lg font-mono block text-center break-all">{{ recoveryCode }}</code>
+            </div>
+
+            <div class="modal-action">
+                <button class="btn btn-primary w-full" @click="showRecoveryCode = false">
+                    <IconCheck class="w-4 h-4 mr-2" />
+                    {{ t('settings.iHaveSavedIt') }}
+                </button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Device Detail Modal -->
+    <dialog class="modal" :class="{ 'modal-open': selectedDevice !== null }">
+        <div v-if="selectedDevice" class="modal-box max-w-lg">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-lg">{{ t('settings.deviceDetails') }}</h3>
+                <button class="btn btn-sm btn-ghost" @click="selectedDevice = null">
+                    <IconX class="w-4 h-4" />
+                </button>
+            </div>
+
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-primary text-primary-content flex items-center justify-center">
+                    <component :is="getPlatformIcon(selectedDevice.platform)" class="w-6 h-6" />
+                </div>
+                <div>
+                    <p class="font-semibold">{{ selectedDevice.deviceLabel || selectedDevice.deviceName }}</p>
+                    <p class="text-sm text-base-content/60">{{ getPlatformLabel(selectedDevice.platform) }}</p>
+                </div>
+                <span v-if="selectedDevice.isCurrent" class="badge badge-primary ml-auto">{{ t('settings.current') }}</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="bg-base-200 p-3 rounded-lg">
+                    <p class="text-xs text-base-content/60">{{ t('settings.deviceId') }}</p>
+                    <p class="font-mono text-sm truncate">{{ selectedDevice.deviceId.slice(0, 12) }}</p>
+                </div>
+                <div class="bg-base-200 p-3 rounded-lg">
+                    <p class="text-xs text-base-content/60">{{ t('settings.activeSessionsCount') }}</p>
+                    <p class="font-semibold">{{ selectedDevice.sessions?.length ?? 0 }}</p>
+                </div>
+                <div class="bg-base-200 p-3 rounded-lg">
+                    <p class="text-xs text-base-content/60">{{ t('settings.firstSeen') }}</p>
+                    <p class="text-sm">{{ selectedDevice.sessions?.length ? formatDate(selectedDevice.sessions[0]!.createdAt) : '-' }}</p>
+                </div>
+                <div class="bg-base-200 p-3 rounded-lg">
+                    <p class="text-xs text-base-content/60">{{ t('settings.lastActive') }}</p>
+                    <p class="text-sm">{{ selectedDevice.sessions?.length ? formatDate(selectedDevice.sessions[0]!.lastGrantedAt) : '-' }}</p>
+                </div>
+            </div>
+
+            <h4 class="font-semibold mb-3">{{ t('settings.sessionsList') }}</h4>
+            <div v-if="selectedDevice.sessions?.length" class="space-y-2 max-h-60 overflow-y-auto">
+                <div
+                    v-for="session in selectedDevice.sessions"
+                    :key="session.id"
+                    class="p-3 bg-base-200 rounded-lg"
+                >
+                    <div class="flex items-center gap-2">
+                        <component :is="getSessionTypeIcon(session.type)" class="w-4 h-4" />
+                        <span class="font-medium text-sm">{{ session.label || session.userAgent || 'Unknown' }}</span>
+                        <span v-if="session.isCurrent" class="badge badge-primary badge-sm">{{ t('settings.current') }}</span>
+                    </div>
+                    <div class="text-xs text-base-content/60 mt-1">
+                        <p>{{ t('settings.created', { date: formatDate(session.createdAt) }) }}</p>
+                        <p v-if="session.location?.city">{{ t('settings.location', { city: session.location.city }) }}</p>
+                    </div>
+                </div>
+            </div>
+            <div v-else class="text-center py-4 text-base-content/60">
+                <p>{{ t('settings.noActiveSessions') }}</p>
+            </div>
+
+            <div class="modal-action">
+                <button
+                    v-if="!selectedDevice.isCurrent"
+                    class="btn btn-error w-full"
+                    :disabled="isProcessing === selectedDevice.deviceId"
+                    @click="logoutDevice(selectedDevice)"
+                >
+                    <IconLoader v-if="isProcessing === selectedDevice.deviceId" class="w-4 h-4 animate-spin" />
+                    <IconLogOut v-else class="w-4 h-4 mr-2" />
+                    {{ t('settings.logoutDevice') }}
+                </button>
+            </div>
+        </div>
+        <div class="modal-backdrop" @click="selectedDevice = null" />
     </dialog>
 
     <!-- Enable Factor Modal -->
@@ -557,6 +696,7 @@
         </div>
         <div class="modal-backdrop" @click="selectedDevice = null" />
     </dialog>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -598,6 +738,8 @@ import {
     revokeAllOtherSessions,
 } from "~/utils/api";
 import { FACTOR_TYPES, SESSION_TYPES, PLATFORM_TYPES, type SnAuthFactor, type SnAuthDevice, type SnAuthSession } from "~/types/auth";
+
+const { t } = useI18n();
 
 const passwordForm = reactive({
     current: "",
@@ -939,6 +1081,6 @@ async function logoutAllOtherSessions() {
 }
 
 useSolarSeo({
-    title: "Security Settings",
+    title: t('settings.securityTitle'),
 });
 </script>

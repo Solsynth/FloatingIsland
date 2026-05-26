@@ -16,22 +16,22 @@
                 </button>
             </form>
 
-            <h3 class="text-lg font-bold mb-1">Create Realm</h3>
+            <h3 class="text-lg font-bold mb-1">{{ t("realms.createModalTitle") }}</h3>
             <p class="text-sm text-base-content/60 mb-6">
-                Create a new community space for you and your friends
+                {{ t("realms.createModalDesc") }}
             </p>
 
             <form class="space-y-4" @submit.prevent="handleSubmit">
                 <!-- Name -->
                 <div class="form-control">
                     <label class="label">
-                        <span class="label-text font-medium">Name</span>
+                        <span class="label-text font-medium">{{ t("realms.name") }}</span>
                         <span v-if="errors.name" class="label-text-alt text-error">{{ errors.name }}</span>
                     </label>
                     <input
                         v-model="form.name"
                         type="text"
-                        placeholder="My Awesome Community"
+                        :placeholder="t('realms.namePlaceholder')"
                         class="input input-bordered w-full"
                         :class="{ 'input-error': errors.name }"
                         maxlength="100"
@@ -42,13 +42,13 @@
                 <!-- Slug -->
                 <div class="form-control">
                     <label class="label">
-                        <span class="label-text font-medium">Slug</span>
+                        <span class="label-text font-medium">{{ t("realms.slug") }}</span>
                         <span class="label-text-alt">@{{ form.slug || 'slug' }}</span>
                     </label>
                     <input
                         v-model="form.slug"
                         type="text"
-                        placeholder="my-community"
+                        :placeholder="t('realms.slugPlaceholder')"
                         class="input input-bordered w-full"
                         :class="{ 'input-error': errors.slug }"
                         maxlength="50"
@@ -60,19 +60,19 @@
                         <span class="label-text-alt text-error">{{ errors.slug }}</span>
                     </label>
                     <label v-else class="label">
-                        <span class="label-text-alt">Lowercase letters, numbers, and hyphens only</span>
+                        <span class="label-text-alt">{{ t("realms.slugHint") }}</span>
                     </label>
                 </div>
 
                 <!-- Description -->
                 <div class="form-control">
                     <label class="label">
-                        <span class="label-text font-medium">Description</span>
+                        <span class="label-text font-medium">{{ t("realms.description") }}</span>
                         <span class="label-text-alt">{{ form.description?.length || 0 }}/500</span>
                     </label>
                     <textarea
                         v-model="form.description"
-                        placeholder="What is this realm about?"
+                        :placeholder="t('realms.descriptionPlaceholder')"
                         class="textarea textarea-bordered w-full h-24 resize-none"
                         maxlength="500"
                     />
@@ -81,7 +81,7 @@
                 <!-- Type -->
                 <div class="form-control">
                     <label class="label">
-                        <span class="label-text font-medium">Type</span>
+                        <span class="label-text font-medium">{{ t("realms.type") }}</span>
                     </label>
                     <div class="flex gap-3">
                         <label
@@ -100,8 +100,8 @@
                             >
                                 <div class="card-body items-center text-center">
                                     <IconUsers class="w-8 h-8" />
-                                    <h4 class="font-bold">Community</h4>
-                                    <p class="text-xs text-base-content/60">For groups and discussions</p>
+                                    <h4 class="font-bold">{{ t("realms.community") }}</h4>
+                                    <p class="text-xs text-base-content/60">{{ t("realms.communityDesc") }}</p>
                                 </div>
                             </div>
                         </label>
@@ -121,8 +121,8 @@
                             >
                                 <div class="card-body items-center text-center">
                                     <IconBuilding2 class="w-8 h-8" />
-                                    <h4 class="font-bold">Organization</h4>
-                                    <p class="text-xs text-base-content/60">For official entities</p>
+                                    <h4 class="font-bold">{{ t("realms.organization") }}</h4>
+                                    <p class="text-xs text-base-content/60">{{ t("realms.organizationDesc") }}</p>
                                 </div>
                             </div>
                         </label>
@@ -134,11 +134,11 @@
                     <label class="label cursor-pointer justify-start gap-3">
                         <input v-model="form.isPublic" type="checkbox" class="toggle toggle-primary" >
                         <div>
-                            <span class="label-text font-medium">Public Realm</span>
+                            <span class="label-text font-medium">{{ t("realms.publicRealm") }}</span>
                             <p class="text-xs text-base-content/60">
                                 {{ form.isPublic
-                                    ? 'Anyone can discover and join this realm'
-                                    : 'Only invited members can join'
+                                    ? t("realms.publicRealmOn")
+                                    : t("realms.publicRealmOff")
                             }}
                             </p>
                         </div>
@@ -159,7 +159,7 @@
                         :disabled="isCreating"
                         @click="handleClose"
                     >
-                        Cancel
+                        {{ t("realms.cancel") }}
                     </button>
                     <button
                         type="submit"
@@ -168,7 +168,7 @@
                     >
                         <IconLoader v-if="isCreating" class="w-4 h-4 animate-spin" />
                         <IconCheck v-else class="w-4 h-4" />
-                        Create Realm
+                        {{ t("realms.createRealmBtn") }}
                     </button>
                 </div>
             </form>
@@ -184,6 +184,8 @@
 <script setup lang="ts">
 import type { Realm } from '~/types/realm'
 import { createRealm } from '~/utils/api'
+
+const { t } = useI18n();
 
 const props = defineProps<{
     modelValue: boolean
@@ -256,13 +258,13 @@ async function handleSubmit() {
         emit('update:modelValue', false)
         resetForm()
     } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to create realm'
+        const message = err instanceof Error ? err.message : t("realms.failedToCreate")
 
         // Parse specific errors
         if (message.toLowerCase().includes('slug')) {
-            errors.value.slug = 'This slug is already taken'
+            errors.value.slug = t("realms.slugTaken")
         } else if (message.toLowerCase().includes('name')) {
-            errors.value.name = 'Invalid name'
+            errors.value.name = t("realms.invalidName")
         } else {
             errors.value.general = message
         }
