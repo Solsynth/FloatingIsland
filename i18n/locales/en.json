@@ -1,0 +1,50 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "loadMore": "Load more",
+    "noMore": "No more posts to load"
+  },
+  "nav": {
+    "explore": "Explore",
+    "realms": "Realms",
+    "account": "Account",
+    "settings": "Settings",
+    "logout": "Logout",
+    "signIn": "Sign In",
+    "joinCommunity": "Join the community"
+  },
+  "home": {
+    "seoTitle": "Explore",
+    "seoDescription": "Discover the latest posts, updates, and conversations on Solar Network.",
+    "composePlaceholder": "What's on your mind?",
+    "loadingPosts": "Loading posts...",
+    "loadFailed": "Failed to load posts: {error}",
+    "sharePostFallbackTitle": "Post on Floating Island"
+  },
+  "appearance": {
+    "title": "Appearance Settings",
+    "theme": {
+      "heading": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "fontSize": {
+      "heading": "Font Size",
+      "legend": "Base Font Size",
+      "small": "Small",
+      "large": "Large"
+    },
+    "display": {
+      "heading": "Display Options",
+      "reducedMotion": "Reduced Motion",
+      "reducedMotionHint": "Minimize animations"
+    },
+    "language": {
+      "heading": "Language",
+      "description": "Choose your preferred display language. Detection from your browser is used by default."
+    },
+    "save": "Save Preferences",
+    "saved": "Appearance settings saved"
+  }
+}

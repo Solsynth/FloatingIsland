@@ -31,7 +31,7 @@
                 <div
                   class="w-full rounded-field bg-base-200/60 px-4 py-2.5 text-sm text-base-content/50"
                 >
-                  What's on your mind?
+                  {{ t("home.composePlaceholder") }}
                 </div>
               </div>
             </div>
@@ -41,13 +41,13 @@
         <!-- Loading State -->
         <ConfuseSpinner
           v-if="status === 'pending' && posts.length === 0"
-          message="Loading posts..."
+          :message="t('home.loadingPosts')"
         />
 
         <!-- Error State -->
         <div v-else-if="error" class="alert alert-soft alert-error shadow-sm">
           <IconAlertCircle class="h-5 w-5" />
-          <span>Failed to load posts: {{ error }}</span>
+          <span>{{ t("home.loadFailed", { error: String(error) }) }}</span>
         </div>
 
         <!-- Posts List -->
@@ -70,14 +70,14 @@
             :disabled="fetchingMore"
             @click="loadMore"
           >
-            <span v-if="fetchingMore">Loading...</span>
-            <span v-else>Load more</span>
+            <span v-if="fetchingMore">{{ t("common.loading") }}</span>
+            <span v-else>{{ t("common.loadMore") }}</span>
           </button>
           <p
             v-else-if="!hasMore && posts.length > 0"
             class="text-base-content/40 text-sm"
           >
-            No more posts to load
+            {{ t("common.noMore") }}
           </p>
         </div>
       </div>
@@ -96,10 +96,11 @@ import { fetchPosts } from "~/utils/api";
 import { getFileUrl } from "~/utils/files";
 import { IconAlertCircle } from "#components";
 
+const { t } = useI18n();
+
 useSolarSeo({
-  title: "Explore",
-  description:
-    "Discover the latest posts, updates, and conversations on Solar Network.",
+  title: t("home.seoTitle"),
+  description: t("home.seoDescription"),
   url: "https://solian.app",
 });
 
@@ -181,7 +182,7 @@ function handleBoost(_post: Post) {}
 function handleShare(post: Post) {
   if (navigator.share) {
     navigator.share({
-      title: post.title || "Post on Floating Island",
+      title: post.title || t("home.sharePostFallbackTitle"),
       text: post.content.slice(0, 100),
       url: `${window.location.origin}/posts/${post.id}`,
     });

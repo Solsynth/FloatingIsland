@@ -4,7 +4,23 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  modules: ["nuxt-lucide-icons", "@nuxt/eslint", "@pinia/nuxt"],
+  modules: ["nuxt-lucide-icons", "@nuxt/eslint", "@pinia/nuxt", "@nuxtjs/i18n"],
+  i18n: {
+    strategy: "no_prefix",
+    defaultLocale: "en",
+    locales: [
+      { code: "en", language: "en-US", name: "English", file: "en.json" },
+      { code: "zh", language: "zh-CN", name: "简体中文", file: "zh-CN.json" },
+    ],
+    lazy: true,
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: "i18n_locale",
+      redirectOn: "root",
+      fallbackLocale: "en",
+      alwaysRedirect: false,
+    },
+  },
   css: ["~/assets/css/main.css"],
   components: [
     {

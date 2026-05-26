@@ -61,20 +61,20 @@
           <li>
             <NuxtLink to="/accounts/me">
               <IconUser class="w-4.5" />
-              Account
+              {{ t("nav.account") }}
             </NuxtLink>
           </li>
           <li>
             <NuxtLink to="/accounts/me/settings">
               <IconSettings class="w-4.5" />
-              Settings
+              {{ t("nav.settings") }}
             </NuxtLink>
           </li>
           <li class="my-1 border-t border-base-300" />
           <li>
             <button @click="handleLogout">
               <IconLogOut class="w-4.5" />
-              Logout
+              {{ t("nav.logout") }}
             </button>
           </li>
         </ul>
@@ -90,8 +90,10 @@
           </div>
         </div>
         <div class="text-left">
-          <div class="text-sm font-semibold">Sign In</div>
-          <div class="text-xs text-base-content/50">Join the community</div>
+          <div class="text-sm font-semibold">{{ t("nav.signIn") }}</div>
+          <div class="text-xs text-base-content/50">
+            {{ t("nav.joinCommunity") }}
+          </div>
         </div>
       </NuxtLink>
     </div>
@@ -109,6 +111,8 @@ import {
 } from "#components";
 import { getFileUrl } from "~/utils/files";
 
+const { t } = useI18n();
+
 const {
   isAuthenticated,
   user,
@@ -116,10 +120,10 @@ const {
   displayName: authDisplayName,
 } = useAuth();
 
-const navItems = [
-  { icon: IconCompass, label: "Explore", href: "/" },
-  { icon: IconBuilding, label: "Realms", href: "/realms" },
-];
+const navItems = computed(() => [
+  { icon: IconCompass, label: t("nav.explore"), href: "/" },
+  { icon: IconBuilding, label: t("nav.realms"), href: "/realms" },
+]);
 
 const displayName = computed(() => authDisplayName.value);
 const username = computed(() => user.value?.name || "");

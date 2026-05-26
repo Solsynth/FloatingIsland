@@ -1,0 +1,50 @@
+{
+  "common": {
+    "loading": "加载中...",
+    "loadMore": "加载更多",
+    "noMore": "没有更多内容了"
+  },
+  "nav": {
+    "explore": "探索",
+    "realms": "领域",
+    "account": "账户",
+    "settings": "设置",
+    "logout": "退出登录",
+    "signIn": "登录",
+    "joinCommunity": "加入社区"
+  },
+  "home": {
+    "seoTitle": "探索",
+    "seoDescription": "在 Solar Network 上发现最新的帖子、动态与对话。",
+    "composePlaceholder": "有什么新鲜事？",
+    "loadingPosts": "正在加载帖子...",
+    "loadFailed": "加载帖子失败：{error}",
+    "sharePostFallbackTitle": "Floating Island 上的帖子"
+  },
+  "appearance": {
+    "title": "外观设置",
+    "theme": {
+      "heading": "主题",
+      "light": "浅色",
+      "dark": "深色",
+      "system": "跟随系统"
+    },
+    "fontSize": {
+      "heading": "字号",
+      "legend": "基础字号",
+      "small": "小",
+      "large": "大"
+    },
+    "display": {
+      "heading": "显示选项",
+      "reducedMotion": "减少动效",
+      "reducedMotionHint": "尽量减少动画"
+    },
+    "language": {
+      "heading": "语言",
+      "description": "选择你的显示语言。默认会根据浏览器语言自动判断。"
+    },
+    "save": "保存设置",
+    "saved": "外观设置已保存"
+  }
+}

@@ -15,6 +15,9 @@ const DEFAULT_IMAGE = "/og-image.png";
 export function useSolarSeo(options: SeoMetaOptions = {}) {
   const { title, description, image, url, type = "website" } = options;
 
+  const i18n = useI18n();
+  const localeProperties = computed(() => i18n.localeProperties.value);
+
   const pageTitle = computed(() => {
     if (!title) return SITE_NAME;
     return `${title} • ${SITE_NAME}`;
@@ -25,6 +28,11 @@ export function useSolarSeo(options: SeoMetaOptions = {}) {
   const metaUrl = computed(() => url || DEFAULT_URL);
 
   useHead({
+    htmlAttrs: {
+      lang: computed(
+        () => localeProperties.value.language || localeProperties.value.code,
+      ),
+    },
     title: title || SITE_NAME,
     meta: [
       { name: "description", content: metaDescription },
