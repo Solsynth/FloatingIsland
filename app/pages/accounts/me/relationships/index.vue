@@ -33,7 +33,7 @@
                     <!-- Friend Requests Summary (if any) -->
                     <div
                         v-if="pendingRequests.length > 0"
-                        class="card bg-primary/5 border border-primary/20"
+                        class="card bg-primary/5 shadow-sm"
                     >
                         <div class="card-body p-4">
                             <div

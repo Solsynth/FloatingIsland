@@ -426,7 +426,7 @@
           <!-- Punishment/Restrictions -->
           <div
             v-if="punishment"
-            class="card border-error/20"
+            class="card bg-error/5 shadow-sm"
           >
             <div class="card-body p-4">
               <div class="flex items-center gap-3">

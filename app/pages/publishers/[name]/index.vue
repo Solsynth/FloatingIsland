@@ -37,7 +37,7 @@
             :src="backgroundUrl"
             :alt="`${displayName} background`"
             class="h-full w-full object-cover"
-          >
+          />
         </div>
         <div
           class="mx-auto -mt-20 flex max-w-5xl flex-col gap-4 px-4 pb-4 sm:-mt-20 sm:flex-row sm:items-end"
@@ -47,7 +47,7 @@
               <div
                 class="h-24 w-24 rounded-full ring ring-base-300 ring-offset-2 ring-offset-base-100 sm:h-28 sm:w-28 mb-8"
               >
-                <img :src="avatarUrl" :alt="displayName" >
+                <img :src="avatarUrl" :alt="displayName" />
               </div>
             </div>
             <div v-else class="avatar avatar-placeholder">
@@ -159,7 +159,7 @@
       <!-- Content Grid -->
       <div class="grid gap-4 px-4 py-4 lg:px-6 lg:grid-cols-3">
         <!-- Left Column - Main Content -->
-        <div class="space-y-4 lg:col-span-2">
+        <div class="space-y-4 lg:col-span-2 min-w-0">
           <!-- Bio Section -->
           <div class="card">
             <div class="card-body p-4">
@@ -206,7 +206,7 @@
                     :class="
                       contentType === 'all'
                         ? 'btn-primary'
-                        : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'
+                        : 'bg-base-100 text-base-content hover:bg-base-200 shadow-sm'
                     "
                     @click="setContentType('all')"
                   >
@@ -217,7 +217,7 @@
                     :class="
                       contentType === 'posts'
                         ? 'btn-primary'
-                        : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'
+                        : 'bg-base-100 text-base-content hover:bg-base-200 shadow-sm'
                     "
                     @click="setContentType('posts')"
                   >
@@ -228,7 +228,7 @@
                     :class="
                       contentType === 'articles'
                         ? 'btn-primary'
-                        : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'
+                        : 'bg-base-100 text-base-content hover:bg-base-200 shadow-sm'
                     "
                     @click="setContentType('articles')"
                   >
@@ -239,7 +239,7 @@
                 <!-- Filter Buttons -->
                 <div class="grid gap-2 sm:grid-cols-2">
                   <button
-                    class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
+                    class="btn justify-start bg-base-100 text-base-content hover:bg-base-200 shadow-sm"
                     @click="cycleRepliesFilter"
                   >
                     <IconMessageCircle class="w-3.5 h-3.5" />
@@ -255,14 +255,14 @@
                     >
                   </button>
                   <button
-                    class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
+                    class="btn justify-start bg-base-100 text-base-content hover:bg-base-200 shadow-sm"
                     @click="toggleMediaOnly"
                   >
                     <IconImage class="w-3.5 h-3.5" />
                     <span>Media only: {{ mediaOnly ? "On" : "Off" }}</span>
                   </button>
                   <button
-                    class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
+                    class="btn justify-start bg-base-100 text-base-content hover:bg-base-200 shadow-sm"
                     @click="toggleOrder"
                   >
                     <IconArrowDownUp class="w-3.5 h-3.5" />
@@ -274,7 +274,7 @@
                       class="input-bordered input join-item w-full"
                       placeholder="Search posts"
                       @keydown.enter="reloadWithFilters"
-                    >
+                    />
                     <button
                       class="btn join-item btn-primary"
                       @click="reloadWithFilters"
@@ -324,7 +324,7 @@
             <!-- Empty State -->
             <div
               v-else-if="!error"
-              class="rounded-xl border border-base-300 bg-base-100 p-8 text-center text-base-content/60"
+              class="card shadow-sm p-8 text-center text-base-content/60"
             >
               No posts from this publisher with current filters.
             </div>
@@ -389,7 +389,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Post, Publisher  } from "~/types/post";
+import type { Post, Publisher } from "~/types/post";
 import type { HeatmapData } from "~/utils/api";
 import {
   fetchPublisher,
@@ -465,10 +465,32 @@ const seoUrl = ref<string>("");
 useHead({
   title: computed(() => seoTitle.value || "Solar Network"),
   meta: [
-    { name: "description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
-    { property: "og:title", content: computed(() => seoTitle.value ? `${seoTitle.value} • Solar Network` : "Solar Network") },
-    { property: "og:description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
-    { property: "og:url", content: computed(() => seoUrl.value || "https://solian.app") },
+    {
+      name: "description",
+      content: computed(
+        () =>
+          seoDescription.value ||
+          "Explore posts, realms, and publishers on Solar Network.",
+      ),
+    },
+    {
+      property: "og:title",
+      content: computed(() =>
+        seoTitle.value ? `${seoTitle.value} • Solar Network` : "Solar Network",
+      ),
+    },
+    {
+      property: "og:description",
+      content: computed(
+        () =>
+          seoDescription.value ||
+          "Explore posts, realms, and publishers on Solar Network.",
+      ),
+    },
+    {
+      property: "og:url",
+      content: computed(() => seoUrl.value || "https://solian.app"),
+    },
   ],
 });
 
@@ -488,9 +510,9 @@ function handleMarkdownClick(e: MouseEvent) {
   const target = e.target as HTMLElement;
 
   // Handle mention chip clicks
-  if (target.closest('.mention-chip')) {
+  if (target.closest(".mention-chip")) {
     e.preventDefault();
-    const href = target.closest('a')?.getAttribute('href');
+    const href = target.closest("a")?.getAttribute("href");
     if (href) {
       navigateTo(href);
     }
@@ -498,8 +520,8 @@ function handleMarkdownClick(e: MouseEvent) {
   }
 
   // Handle spoiler toggles
-  if (target.classList.contains('spoiler')) {
-    target.classList.toggle('revealed');
+  if (target.classList.contains("spoiler")) {
+    target.classList.toggle("revealed");
   }
 }
 

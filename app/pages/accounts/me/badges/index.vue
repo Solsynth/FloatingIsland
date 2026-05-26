@@ -43,7 +43,7 @@
                 <!-- Left Column - Main Content -->
                 <div class="lg:col-span-2 space-y-4">
                     <!-- Active Badge Section -->
-                    <div v-if="activeBadge" class="card bg-primary/5 border border-primary/20">
+                    <div v-if="activeBadge" class="card bg-primary/5 shadow-sm">
                         <div class="card-body p-4">
                             <div class="flex items-center gap-2 mb-3">
                                 <IconCheckCircle class="w-4 h-4 text-primary" />

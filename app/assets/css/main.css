@@ -8,15 +8,15 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --font-sans: 'Nunito', sans-serif;
+  --font-sans: "Nunito", sans-serif;
   --default-font-family: var(--font-sans);
 }
 
 @plugin 'daisyui/theme' {
-  name: 'light';
+  name: "light";
   default: true;
   prefersdark: false;
-  color-scheme: 'light';
+  color-scheme: "light";
   --color-base-100: oklch(100% 0 0);
   --color-base-200: oklch(98% 0 0);
   --color-base-300: oklch(95% 0 0);
@@ -48,10 +48,10 @@
 }
 
 @plugin 'daisyui/theme' {
-  name: 'dark';
+  name: "dark";
   default: false;
   prefersdark: true;
-  color-scheme: 'dark';
+  color-scheme: "dark";
   --color-base-100: oklch(0% 0 0);
   --color-base-200: oklch(20% 0.016 285.938);
   --color-base-300: oklch(25% 0.013 285.805);
@@ -86,10 +86,9 @@
   .app-shell .card {
     background-color: color-mix(in oklch, var(--color-base-100) 52%, transparent) !important;
     backdrop-filter: blur(30px) saturate(130%);
-    border-color: color-mix(in oklch, var(--color-base-content) 18%, transparent) !important;
-    box-shadow:
-      0 4px 12px color-mix(in oklch, black 8%, transparent),
-      0 0 0 1px color-mix(in oklch, white 20%, transparent);
+    border: none !important;
+    outline: none !important;
+    box-shadow: 0 4px 12px color-mix(in oklch, black 8%, transparent);
   }
 
   .route-progress {
@@ -116,7 +115,8 @@
       var(--color-primary),
       color-mix(in oklch, var(--color-primary) 55%, white)
     );
-    box-shadow: 0 0 12px color-mix(in oklch, var(--color-primary) 55%, transparent);
+    box-shadow: 0 0 12px
+      color-mix(in oklch, var(--color-primary) 55%, transparent);
     transform-origin: left center;
     transform: scaleX(0);
     transition: transform 130ms ease-out;
@@ -129,7 +129,11 @@
     gap: 0.25rem;
     padding: 0.125rem 0.5rem;
     border-radius: 9999px;
-    background-color: color-mix(in oklch, var(--color-primary) 10%, transparent);
+    background-color: color-mix(
+      in oklch,
+      var(--color-primary) 10%,
+      transparent
+    );
     color: var(--color-primary);
     font-size: 0.875rem;
     font-weight: 500;
@@ -139,11 +143,20 @@
   }
 
   .mention-chip:hover {
-    background-color: color-mix(in oklch, var(--color-primary) 20%, transparent);
+    background-color: color-mix(
+      in oklch,
+      var(--color-primary) 20%,
+      transparent
+    );
   }
 
-  .highlight, mark.highlight {
-    background-color: color-mix(in oklch, var(--color-warning) 20%, transparent);
+  .highlight,
+  mark.highlight {
+    background-color: color-mix(
+      in oklch,
+      var(--color-warning) 20%,
+      transparent
+    );
     padding: 0 0.25rem;
     border-radius: 0.25rem;
   }

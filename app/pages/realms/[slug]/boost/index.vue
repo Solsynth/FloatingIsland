@@ -36,7 +36,7 @@
             </div>
 
             <!-- Boost Status Card -->
-            <div class="card bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
+            <div class="card bg-gradient-to-br from-primary/10 to-secondary/10 shadow-sm">
                 <div class="card-body p-6">
                     <div class="grid gap-6 md:grid-cols-3">
                         <div class="text-center md:text-left">

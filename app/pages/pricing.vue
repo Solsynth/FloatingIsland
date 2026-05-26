@@ -2,7 +2,7 @@
     <NuxtLayout name="app">
         <div class="w-full max-w-7xl mx-auto">
             <div
-                class="card border border-base-300 bg-base-100/88 shadow-xl backdrop-blur-xl"
+                class="card bg-base-100/88 shadow-xl backdrop-blur-xl"
             >
                 <div class="card-body gap-6 p-5 md:p-8">
                     <!-- Header -->
@@ -41,7 +41,7 @@
                         <div
                             v-for="tier in tiers"
                             :key="tier.name"
-                            class="card border border-base-300 bg-base-100"
+                            class="card bg-base-100"
                         >
                             <div class="card-body gap-5">
                                 <div
@@ -146,7 +146,7 @@
                     </div>
 
                     <!-- Comparison Table -->
-                    <div class="card border border-base-300 bg-base-100">
+                    <div class="card bg-base-100">
                         <div class="card-body gap-5">
                             <div
                                 class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between"

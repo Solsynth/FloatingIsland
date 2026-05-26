@@ -1,7 +1,7 @@
 <template>
     <NuxtLayout name="app">
         <div class="mx-auto w-full max-w-6xl grid gap-4 xl:grid-cols-[1fr_20rem]">
-            <div class="card bg-base-100 border border-base-300">
+            <div class="card bg-base-100">
                 <div class="card-body p-4 sm:p-6 space-y-4">
                     <div class="flex items-center justify-between gap-3">
                         <h1 class="text-lg font-semibold">{{ t('compose.title') }}</h1>
@@ -69,7 +69,7 @@
             </div>
 
             <aside class="space-y-4 xl:sticky xl:top-4 xl:self-start">
-                <div class="card bg-base-100 border border-base-300">
+                <div class="card bg-base-100">
                     <div class="card-body p-4 space-y-3">
                         <h2 class="text-sm font-semibold">{{ t('compose.postSettings') }}</h2>
                         <div>
@@ -106,7 +106,7 @@
                     </div>
                 </div>
 
-                <div class="card bg-base-100 border border-base-300">
+                <div class="card bg-base-100">
                     <div class="card-body p-4 space-y-3">
                         <h2 class="text-sm font-semibold">{{ t('compose.tags') }}</h2>
                         <div class="flex items-center gap-2 flex-wrap min-h-6">
@@ -133,7 +133,7 @@
                     </div>
                 </div>
 
-                <div class="card bg-base-100 border border-base-300">
+                <div class="card bg-base-100">
                     <div class="card-body p-4 space-y-3">
                         <h2 class="text-sm font-semibold">{{ t('compose.categories') }}</h2>
                         <input

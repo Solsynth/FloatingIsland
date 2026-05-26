@@ -23,7 +23,7 @@
     <!-- Realm Profile -->
     <div v-else class="mx-auto max-w-5xl">
       <!-- Header Section -->
-      <section class="relative overflow-hidden border-base-300">
+      <section class="relative overflow-hidden">
         <div class="h-40 w-full bg-base-200 sm:h-52">
           <img
             v-if="backgroundUrl"
@@ -70,13 +70,13 @@
           <div class="flex gap-3 text-sm">
             <NuxtLink
               :to="`/realms/${realm.slug}/members`"
-              class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 hover:bg-base-200 transition-colors"
+              class="rounded-xl bg-base-100 px-3 py-2 hover:bg-base-200 transition-colors shadow-sm"
             >
               <div class="font-semibold">{{ memberCount }}</div>
               <div class="text-base-content/60">{{ t("realms.members") }}</div>
             </NuxtLink>
             <div
-              class="rounded-xl border border-base-300 bg-base-100 px-3 py-2"
+              class="rounded-xl bg-base-100 px-3 py-2 shadow-sm"
             >
               <div class="font-semibold">{{ total }}</div>
               <div class="text-base-content/60">{{ t("realms.posts") }}</div>
@@ -179,7 +179,7 @@
                     :class="
                       contentType === 'all'
                         ? 'btn-primary'
-                        : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'
+                        : 'bg-base-100 text-base-content hover:bg-base-200 shadow-sm'
                     "
                     @click="setContentType('all')"
                   >
@@ -190,7 +190,7 @@
                     :class="
                       contentType === 'posts'
                         ? 'btn-primary'
-                        : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'
+                        : 'bg-base-100 text-base-content hover:bg-base-200 shadow-sm'
                     "
                     @click="setContentType('posts')"
                   >
@@ -201,7 +201,7 @@
                     :class="
                       contentType === 'articles'
                         ? 'btn-primary'
-                        : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'
+                        : 'bg-base-100 text-base-content hover:bg-base-200 shadow-sm'
                     "
                     @click="setContentType('articles')"
                   >
@@ -212,21 +212,21 @@
                 <!-- Filter Buttons -->
                 <div class="grid gap-2 sm:grid-cols-2">
                   <button
-                    class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
+                    class="btn justify-start bg-base-100 text-base-content hover:bg-base-200 shadow-sm"
                     @click="cycleRepliesFilter"
                   >
                     <IconMessageCircle class="w-3.5 h-3.5" />
                     <span>{{ t("realms.replies", { value: repliesLabel }) }}</span>
                   </button>
                   <button
-                    class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
+                    class="btn justify-start bg-base-100 text-base-content hover:bg-base-200 shadow-sm"
                     @click="toggleMediaOnly"
                   >
                     <IconImage class="w-3.5 h-3.5" />
                     <span>{{ t("realms.mediaOnly", { value: mediaOnly ? t("realms.on") : t("realms.off") }) }}</span>
                   </button>
                   <button
-                    class="btn justify-start border-base-300 bg-base-100 text-base-content hover:bg-base-200"
+                    class="btn justify-start bg-base-100 text-base-content hover:bg-base-200 shadow-sm"
                     @click="toggleOrder"
                   >
                     <IconArrowDownUp class="w-3.5 h-3.5" />
@@ -288,7 +288,7 @@
             <!-- Empty State -->
             <div
               v-else-if="!error"
-              class="rounded-xl border border-base-300 bg-base-100 p-8 text-center text-base-content/60"
+              class="card shadow-sm p-8 text-center text-base-content/60"
             >
               {{ t("realms.noPostsWithFilters") }}
             </div>
