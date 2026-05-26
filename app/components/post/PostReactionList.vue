@@ -82,6 +82,7 @@
 
 <script setup lang="ts">
 import { IconSmilePlus } from "#components";
+import { camelToSnake } from "~/utils/case";
 
 interface Reaction {
   symbol: string;
@@ -156,26 +157,27 @@ const pickerStyle = computed(() => {
   };
 });
 
+function normalizeSymbol(symbol: string): string {
+  return camelToSnake<string>(symbol).toLowerCase();
+}
+
 function hasSticker(symbol: string): boolean {
-  // Case-insensitive check
-  return stickerSymbols.has(symbol.toLowerCase());
+  return stickerSymbols.has(normalizeSymbol(symbol));
 }
 
 function getStickerUrl(symbol: string): string {
-  return `/images/stickers/${symbol.toLowerCase()}.webp`;
+  return `/images/stickers/${normalizeSymbol(symbol)}.webp`;
 }
 
 function getReactionLabel(symbol: string): string {
-  const reaction = availableReactions.find(
-    (r) => r.symbol === symbol.toLowerCase(),
-  );
+  const normalized = normalizeSymbol(symbol);
+  const reaction = availableReactions.find((r) => r.symbol === normalized);
   return reaction?.label || symbol;
 }
 
 function getReactionEmoji(symbol: string): string {
-  const reaction = availableReactions.find(
-    (r) => r.symbol === symbol.toLowerCase(),
-  );
+  const normalized = normalizeSymbol(symbol);
+  const reaction = availableReactions.find((r) => r.symbol === normalized);
   return reaction?.emoji || "❓";
 }
 
