@@ -6,7 +6,7 @@
         <!-- Compose Quick Input -->
         <div
           v-if="isAuthenticated"
-          class="card bg-base-100 cursor-pointer transition-all hover:shadow-md"
+          class="card bg-base-100 shadow-sm cursor-pointer transition-shadow hover:shadow-md"
           @click="openCompose"
         >
           <div class="card-body p-4">
@@ -29,7 +29,7 @@
               </div>
               <div class="flex-1">
                 <div
-                  class="input input-bordered w-full bg-base-200/50 flex items-center text-base-content/50"
+                  class="w-full rounded-field bg-base-200/60 px-4 py-2.5 text-sm text-base-content/50"
                 >
                   What's on your mind?
                 </div>
@@ -45,7 +45,7 @@
         />
 
         <!-- Error State -->
-        <div v-else-if="error" class="alert alert-error">
+        <div v-else-if="error" class="alert alert-soft alert-error shadow-sm">
           <IconAlertCircle class="h-5 w-5" />
           <span>Failed to load posts: {{ error }}</span>
         </div>
@@ -66,7 +66,7 @@
         <div class="py-2 flex items-center justify-center">
           <button
             v-if="hasMore && posts.length > 0"
-            class="btn btn-outline"
+            class="btn btn-ghost bg-base-100 shadow-sm hover:shadow-md"
             :disabled="fetchingMore"
             @click="loadMore"
           >

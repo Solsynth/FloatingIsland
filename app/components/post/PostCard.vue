@@ -1,7 +1,9 @@
 <template>
   <article
-    class="card transition-all"
-    :class="[embedded ? 'bg-base-200 border-0' : 'bg-base-100']"
+    class="card transition-shadow"
+    :class="[
+      embedded ? 'bg-base-200' : 'bg-base-100 shadow-sm hover:shadow-md',
+    ]"
   >
     <div class="card-body p-4">
       <!-- Reference Post (Reply/Forward) -->
@@ -193,7 +195,7 @@
             @click.stop
           >
             <ul
-              class="menu w-48 rounded-box border border-base-300 bg-base-100 shadow-lg"
+              class="menu w-48 rounded-box bg-base-100 shadow-lg"
             >
               <li v-if="isAuthor">
                 <button @click.stop="handleEdit">
@@ -241,7 +243,7 @@
       <!-- Article type header (only in list view) -->
       <div
         v-if="isArticle && !isDetail"
-        class="mt-2 rounded-lg border border-base-300 bg-base-200/30 overflow-hidden"
+        class="mt-2 rounded-box bg-base-200/40 overflow-hidden"
       >
         <NuxtLink
           :to="`/posts/${post.id}`"
@@ -341,7 +343,7 @@
           <button
             v-if="getEmbedType(embed) === 'link'"
             type="button"
-            class="card w-full cursor-pointer border border-base-300 bg-base-100 text-left"
+            class="card w-full cursor-pointer bg-base-200/40 text-left transition-shadow hover:shadow-sm"
             @click.stop="openExternal(getEmbedUrl(embed)!)"
           >
             <div
@@ -395,7 +397,7 @@
           <!-- Poll Embed -->
           <div
             v-else-if="getEmbedType(embed) === 'poll'"
-            class="card border border-base-300"
+            class="card bg-base-200/40"
           >
             <div class="card-body p-3">
               <div class="flex items-center gap-2 text-sm font-medium">
@@ -416,7 +418,7 @@
               getEmbedType(embed) === 'livestream' && getEmbedId(embed)
             "
             :to="`/livestreams/${getEmbedId(embed)}`"
-            class="card border border-base-300 bg-base-100 block hover:no-underline"
+            class="card bg-base-200/40 block hover:no-underline transition-shadow hover:shadow-sm"
             @click.stop
           >
             <div class="card-body p-3">

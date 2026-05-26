@@ -1,7 +1,7 @@
 <template>
     <NuxtLink
         to="/accounts/me/check-in"
-        class="card bg-base-100 hover:shadow-md transition-shadow cursor-pointer block"
+        class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer block"
     >
         <div class="card-body p-4 gap-3">
             <div class="flex items-center gap-2">

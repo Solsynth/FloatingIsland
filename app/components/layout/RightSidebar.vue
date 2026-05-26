@@ -6,7 +6,7 @@
         v-model="searchQuery"
         type="text"
         placeholder="Search..."
-        class="input-bordered input w-full bg-base-200/50 focus:bg-base-100"
+        class="input w-full bg-base-100 shadow-sm border-0 focus:bg-base-100 focus:shadow-md focus:outline-none"
         @keyup.enter="handleSearch"
       />
       <button
@@ -21,7 +21,7 @@
     <CheckInWidget v-if="isAuthenticated" />
 
     <!-- Categories -->
-    <div v-if="categories.length > 0" class="card">
+    <div v-if="categories.length > 0" class="card bg-base-100 shadow-sm">
       <div class="card-body p-4">
         <div class="flex items-center justify-between mb-3">
           <h3 class="text-sm font-semibold text-base-content/70">Categories</h3>
@@ -52,7 +52,7 @@
     </div>
 
     <!-- Tags -->
-    <div v-if="tags.length > 0" class="card">
+    <div v-if="tags.length > 0" class="card bg-base-100 shadow-sm">
       <div class="card-body p-4">
         <div class="flex items-center justify-between mb-3">
           <h3 class="text-sm font-semibold text-base-content/70">Tags</h3>
@@ -68,7 +68,7 @@
             v-for="tag in tags.slice(0, 10)"
             :key="tag.id"
             :to="`/tags/${tag.slug}`"
-            class="badge badge-sm badge-outline hover:badge-primary transition-colors"
+            class="badge badge-sm badge-ghost hover:badge-primary transition-colors"
           >
             #{{ tag.name || tag.slug }}
           </NuxtLink>
