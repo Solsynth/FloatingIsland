@@ -232,6 +232,18 @@ const selectedCurrency = ref('')
 const isBoosting = ref(false)
 const boostError = ref<string | null>(null)
 
+const seoTitle = ref<string>("")
+const seoDescription = ref<string>("")
+
+useHead({
+  title: computed(() => seoTitle.value || "Solar Network"),
+  meta: [
+    { name: "description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
+    { property: "og:title", content: computed(() => seoTitle.value ? `${seoTitle.value} • Solar Network` : "Solar Network") },
+    { property: "og:description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
+  ],
+})
+
 // Computed
 const status = computed(() =>
     realm.value && boostStatus.value ? 'success' : error.value ? 'error' : 'pending',
@@ -321,10 +333,8 @@ onMounted(async () => {
         }
 
         // SEO
-        useSolarSeo({
-            title: `Boost - ${realmData.name}`,
-            description: `Support ${realmData.name} with boost points`,
-        })
+        seoTitle.value = `Boost - ${realmData.name}`
+        seoDescription.value = `Support ${realmData.name} with boost points`
     } catch (err) {
         if (err instanceof Error && err.message.includes('404')) {
             notFound.value = true

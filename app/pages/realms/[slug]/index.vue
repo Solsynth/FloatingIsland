@@ -360,6 +360,18 @@ const mediaOnly = ref(false);
 const orderDesc = ref(true);
 const query = ref("");
 
+const seoTitle = ref<string>("");
+const seoDescription = ref<string>("");
+
+useHead({
+  title: computed(() => seoTitle.value || "Solar Network"),
+  meta: [
+    { name: "description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
+    { property: "og:title", content: computed(() => seoTitle.value ? `${seoTitle.value} • Solar Network` : "Solar Network") },
+    { property: "og:description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
+  ],
+});
+
 // Computed
 const displayName = computed(() => realm.value?.name || "Unknown Realm");
 const avatarUrl = computed(() => getFileUrl(realm.value?.picture?.id));
@@ -531,10 +543,8 @@ onMounted(async () => {
     await checkMembership();
 
     // SEO
-    useSolarSeo({
-      title: data.name,
-      description: data.description || `Realm: ${data.name}`,
-    });
+    seoTitle.value = data.name;
+    seoDescription.value = data.description || `Realm: ${data.name}`;
   } catch (err) {
     if (err instanceof Error && err.message.includes("404")) {
       notFound.value = true;

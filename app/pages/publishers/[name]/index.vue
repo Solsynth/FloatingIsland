@@ -458,6 +458,20 @@ const bioHtml = computed(() => {
 });
 const hasActiveLivestream = ref(false); // TODO: fetch from API
 
+const seoTitle = ref<string>("");
+const seoDescription = ref<string>("");
+const seoUrl = ref<string>("");
+
+useHead({
+  title: computed(() => seoTitle.value || "Solar Network"),
+  meta: [
+    { name: "description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
+    { property: "og:title", content: computed(() => seoTitle.value ? `${seoTitle.value} • Solar Network` : "Solar Network") },
+    { property: "og:description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
+    { property: "og:url", content: computed(() => seoUrl.value || "https://solian.app") },
+  ],
+});
+
 // Methods
 function getInitials(name: string): string {
   return (
@@ -678,11 +692,9 @@ onMounted(async () => {
     }
 
     // SEO
-    useSolarSeo({
-      title: displayName.value,
-      description: pubData.bio || `@${pubData.name} on Solar Network`,
-      url: `https://solian.app/publishers/${pubData.name}`,
-    });
+    seoTitle.value = displayName.value;
+    seoDescription.value = pubData.bio || `@${pubData.name} on Solar Network`;
+    seoUrl.value = `https://solian.app/publishers/${pubData.name}`;
   } catch (err) {
     if (err instanceof Error && err.message.includes("404")) {
       notFound.value = true;

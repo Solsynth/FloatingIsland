@@ -229,6 +229,18 @@ const searchQuery = ref('');
 const roleFilter = ref('');
 const showInviteModal = ref(false);
 
+const seoTitle = ref<string>("");
+const seoDescription = ref<string>("");
+
+useHead({
+  title: computed(() => seoTitle.value || "Solar Network"),
+  meta: [
+    { name: "description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
+    { property: "og:title", content: computed(() => seoTitle.value ? `${seoTitle.value} • Solar Network` : "Solar Network") },
+    { property: "og:description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
+  ],
+});
+
 // Computed
 const status = computed(() =>
 	realm.value ? 'success' : error.value ? 'error' : 'pending'
@@ -339,10 +351,8 @@ onMounted(async () => {
 		await reloadMembers();
 
 		// SEO
-		useSolarSeo({
-			title: t("realms.membersTitle", { name: realmData.name }),
-			description: t("realms.seoMembersDescription", { name: realmData.name }),
-		});
+		seoTitle.value = t("realms.membersTitle", { name: realmData.name });
+		seoDescription.value = t("realms.seoMembersDescription", { name: realmData.name });
 	} catch (err) {
 		if (err instanceof Error && err.message.includes('404')) {
 			notFound.value = true;

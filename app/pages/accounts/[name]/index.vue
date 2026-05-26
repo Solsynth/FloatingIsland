@@ -643,6 +643,27 @@ const publicContacts = computed(() => {
 const currentTimeInTz = ref<string>("");
 const tzOffset = ref<string>("");
 
+const seoTitle = ref<string>("");
+const seoDescription = ref<string>("");
+const seoImage = ref<string | undefined>();
+const seoUrl = ref<string>("");
+
+useHead({
+  title: computed(() => seoTitle.value || "Solar Network"),
+  meta: [
+    { name: "description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
+    { property: "og:title", content: computed(() => seoTitle.value ? `${seoTitle.value} • Solar Network` : "Solar Network") },
+    { property: "og:description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
+    { property: "og:type", content: "profile" },
+    { property: "og:url", content: computed(() => seoUrl.value || "https://solian.app") },
+    { property: "og:image", content: computed(() => seoImage.value || "/og-image.png") },
+    { name: "twitter:card", content: computed(() => seoImage.value ? "summary_large_image" : "summary") },
+    { name: "twitter:title", content: computed(() => seoTitle.value ? `${seoTitle.value} • Solar Network` : "Solar Network") },
+    { name: "twitter:description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
+    { name: "twitter:image", content: computed(() => seoImage.value || "/og-image.png") },
+  ],
+});
+
 function updateTimezone() {
   const tz = account.value?.profile?.timeZone;
   if (!tz) {
@@ -947,17 +968,10 @@ onMounted(async () => {
       loadPunishment(),
     ]);
 
-    const title = `${displayName.value} (@${data.name})`;
-    const description = data.profile?.bio || `View profile for @${data.name}`;
-    const avatarUrl = getFileUrl(data.profile?.picture?.id);
-
-    useSolarSeo({
-      title,
-      description,
-      image: avatarUrl || undefined,
-      url: `https://solian.app/@${data.name}`,
-      type: "profile",
-    });
+    seoTitle.value = `${displayName.value} (@${data.name})`;
+    seoDescription.value = data.profile?.bio || `View profile for @${data.name}`;
+    seoImage.value = getFileUrl(data.profile?.picture?.id) || undefined;
+    seoUrl.value = `https://solian.app/@${data.name}`;
   } catch (err) {
     if (err instanceof Error && err.message.includes("404")) {
       notFound.value = true;
