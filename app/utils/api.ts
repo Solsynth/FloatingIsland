@@ -13,7 +13,7 @@ import type {
   SnAccountPunishment,
   SnAccountTimelineItem,
 } from "~/types/auth";
-import type { Publisher, Post } from "~/types/post";
+import type { Publisher, Post, SnTimelineEvent, TimelineResult } from "~/types/post";
 import type {
   Realm,
   RealmMember,
@@ -537,6 +537,41 @@ export async function fetchPosts(
   const data = await safeJsonParse<Post[]>(response);
 
   return { posts: data, total };
+}
+
+// Data API - Timeline
+export async function fetchTimeline(
+  take = 20,
+  options: {
+    cursor?: string | null;
+    mode?: string;
+    filter?: string;
+    aggressive?: boolean;
+  } = {},
+): Promise<TimelineResult> {
+  const params = new URLSearchParams({
+    take: String(take),
+  });
+
+  if (options.cursor) params.set("cursor", options.cursor);
+  if (options.mode) params.set("mode", options.mode);
+  if (options.filter) params.set("filter", options.filter);
+  if (options.aggressive !== undefined) params.set("aggressive", String(options.aggressive));
+
+  const response = await apiFetch(`/sphere/timeline?${params.toString()}`, {
+    skipAuth: true,
+  });
+
+  const payload = (await parseResponse(response)) as Record<string, unknown>;
+  const rawItems = (payload.items as unknown[]) ?? [];
+  const nextCursor = (payload.next_cursor as string) ?? null;
+  const mode = (payload.mode as string) ?? "personalized";
+
+  const items = rawItems
+    .filter((e): e is Record<string, unknown> => typeof e === "object" && e !== null)
+    .map((e) => snakeToCamel(e) as SnTimelineEvent);
+
+  return { items, nextCursor, mode };
 }
 
 export async function fetchPost(id: string): Promise<Post> {

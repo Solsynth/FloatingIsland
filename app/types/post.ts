@@ -94,4 +94,67 @@ export interface Post {
   createdAt: string
   editedAt: string | null
   updatedAt: string
+  type?: number
+}
+
+// Timeline types
+export interface SnTimelineEvent {
+  id: string
+  type: string
+  resourceIdentifier: string
+  data: unknown
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
+}
+
+export interface SnPresenceActivity {
+  id: string
+  type: number
+  manualId: string | null
+  title: string | null
+  subtitle: string | null
+  caption: string | null
+  titleUrl: string | null
+  subtitleUrl: string | null
+  smallImage: string | null
+  largeImage: string | null
+  meta: Record<string, unknown> | null
+  leaseMinutes: number
+  leaseExpiresAt: string
+  accountId: string
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
+}
+
+export interface SnWebArticle {
+  id: string
+  url: string
+  title: string | null
+  description: string | null
+  image: string | null
+  siteName: string | null
+  author: string | null
+  publishedAt: string | null
+  createdAt: string
+}
+
+export interface DiscoveryItem {
+  type: string
+  data: Record<string, unknown>
+  rank?: string
+  reasons?: string[]
+  score?: number
+}
+
+export interface DiscoveryData {
+  items: DiscoveryItem[]
+  kind?: string
+}
+
+export interface TimelineResult {
+  items: SnTimelineEvent[]
+  nextCursor: string | null
+  mode: string
 }

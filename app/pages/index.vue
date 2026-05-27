@@ -40,7 +40,7 @@
 
         <!-- Loading State -->
         <ConfuseSpinner
-          v-if="status === 'pending' && posts.length === 0"
+          v-if="status === 'pending' && timelineEvents.length === 0"
           :message="t('home.loadingPosts')"
         />
 
@@ -50,12 +50,12 @@
           <span>{{ t("home.loadFailed", { error: String(error) }) }}</span>
         </div>
 
-        <!-- Posts List -->
-        <template v-if="posts.length > 0">
-          <PostCard
-            v-for="post in posts"
-            :key="post.id"
-            :post="post"
+        <!-- Timeline Events -->
+        <template v-if="timelineEvents.length > 0">
+          <TimelineEventRenderer
+            v-for="event in timelineEvents"
+            :key="event.id"
+            :event="event"
             @boost="handleBoost"
             @share="handleShare"
             @reply="handleReply"
@@ -65,7 +65,7 @@
         <!-- Load More -->
         <div class="py-2 flex items-center justify-center">
           <button
-            v-if="hasMore && posts.length > 0"
+            v-if="hasMore && timelineEvents.length > 0"
             class="btn btn-ghost bg-base-100 shadow-sm hover:shadow-md"
             :disabled="fetchingMore"
             @click="loadMore"
@@ -74,7 +74,7 @@
             <span v-else>{{ t("common.loadMore") }}</span>
           </button>
           <p
-            v-else-if="!hasMore && posts.length > 0"
+            v-else-if="!hasMore && timelineEvents.length > 0"
             class="text-base-content/40 text-sm"
           >
             {{ t("common.noMore") }}
@@ -91,8 +91,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Post } from "~/types/post";
-import { fetchPosts } from "~/utils/api";
+import type { Post, SnTimelineEvent } from "~/types/post";
+import { fetchTimeline } from "~/utils/api";
 import { getFileUrl } from "~/utils/files";
 import { IconAlertCircle } from "#components";
 
@@ -107,9 +107,9 @@ useSolarSeo({
 const auth = useAuth();
 const { isAuthenticated, user } = auth;
 
-const posts = useState<Post[]>("home-posts", () => []);
-const total = ref(0);
-const offset = ref(0);
+const timelineEvents = useState<SnTimelineEvent[]>("home-timeline", () => []);
+const cursor = ref<string | null>(null);
+const timelineMode = ref("personalized");
 const hasMore = ref(true);
 const fetchingMore = ref(false);
 
@@ -127,51 +127,50 @@ const {
   status,
   error,
 } = await useAsyncData(
-  "home-posts-fetch",
-  () => {
-    const options: Parameters<typeof fetchPosts>[2] = { replies: false };
-    return fetchPosts(20, 0, options);
-  },
+  "home-timeline-fetch",
+  () => fetchTimeline(20),
   {
-    default: () => ({ posts: [], total: 0 }),
+    default: () => ({ items: [], nextCursor: null, mode: "personalized" }),
   },
 );
 
 watch(
   initialData,
   (data) => {
-    if (data?.posts) {
-      posts.value = data.posts;
-      total.value = data.total;
-      offset.value = data.posts.length;
-      hasMore.value = offset.value < data.total;
+    if (data?.items) {
+      timelineEvents.value = data.items;
+      cursor.value = data.nextCursor;
+      timelineMode.value = data.mode;
+      hasMore.value = data.nextCursor !== null;
     }
   },
   { immediate: true },
 );
 
 async function loadMore() {
-  if (!hasMore.value || fetchingMore.value) return;
+  if (!hasMore.value || fetchingMore.value || !cursor.value) return;
   fetchingMore.value = true;
 
   try {
-    const options: Parameters<typeof fetchPosts>[2] = { replies: false };
-    const result = await fetchPosts(20, offset.value, options);
+    const result = await fetchTimeline(20, {
+      cursor: cursor.value,
+      mode: timelineMode.value,
+    });
 
-    if (result?.posts) {
-      if (result.posts.length === 0) {
+    if (result?.items) {
+      if (result.items.length === 0) {
         hasMore.value = false;
         return;
       }
 
-      const existing = new Set(posts.value.map((p) => p.id));
-      const appended = result.posts.filter((p) => !existing.has(p.id));
-      posts.value = [...posts.value, ...appended];
-      offset.value += result.posts.length;
-      hasMore.value = offset.value < result.total;
+      const existing = new Set(timelineEvents.value.map((e) => e.id));
+      const appended = result.items.filter((e) => !existing.has(e.id));
+      timelineEvents.value = [...timelineEvents.value, ...appended];
+      cursor.value = result.nextCursor;
+      hasMore.value = result.nextCursor !== null;
     }
   } catch (e) {
-    console.error("Failed to load more posts:", e);
+    console.error("Failed to load more timeline events:", e);
   } finally {
     fetchingMore.value = false;
   }
