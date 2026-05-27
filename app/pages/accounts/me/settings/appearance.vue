@@ -1,156 +1,169 @@
 <template>
-    <div class="max-w-3xl mx-auto space-y-6 min-w-0">
-        <h1 class="text-2xl font-bold mb-6">{{ t("appearance.title") }}</h1>
+  <div class="max-w-3xl mx-auto space-y-6 min-w-0">
+    <h1 class="text-2xl font-bold mb-6 pt-4">{{ t("appearance.title") }}</h1>
 
-        <!-- Theme -->
-        <div class="card bg-base-100 shadow-sm">
-            <div class="card-body">
-                <h2 class="card-title text-lg mb-4">
-                    {{ t("appearance.theme.heading") }}
-                </h2>
+    <!-- Theme -->
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title text-lg mb-4">
+          {{ t("appearance.theme.heading") }}
+        </h2>
 
-                <div class="grid grid-cols-3 gap-3">
-                    <button
-                        class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2"
-                        :class="theme === 'light' ? 'border-primary bg-primary/10' : 'border-base-300 hover:border-base-400'"
-                        @click="setTheme('light')"
-                    >
-                        <IconSun class="w-6 h-6" />
-                        <span class="text-sm">{{ t("appearance.theme.light") }}</span>
-                    </button>
-                    <button
-                        class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2"
-                        :class="theme === 'dark' ? 'border-primary bg-primary/10' : 'border-base-300 hover:border-base-400'"
-                        @click="setTheme('dark')"
-                    >
-                        <IconMoon class="w-6 h-6" />
-                        <span class="text-sm">{{ t("appearance.theme.dark") }}</span>
-                    </button>
-                    <button
-                        class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2"
-                        :class="theme === 'system' ? 'border-primary bg-primary/10' : 'border-base-300 hover:border-base-400'"
-                        @click="setTheme('system')"
-                    >
-                        <IconMonitor class="w-6 h-6" />
-                        <span class="text-sm">{{ t("appearance.theme.system") }}</span>
-                    </button>
-                </div>
-            </div>
+        <div class="grid grid-cols-3 gap-3">
+          <button
+            class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2"
+            :class="
+              theme === 'light'
+                ? 'border-primary bg-primary/10'
+                : 'border-base-300 hover:border-base-400'
+            "
+            @click="setTheme('light')"
+          >
+            <IconSun class="w-6 h-6" />
+            <span class="text-sm">{{ t("appearance.theme.light") }}</span>
+          </button>
+          <button
+            class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2"
+            :class="
+              theme === 'dark'
+                ? 'border-primary bg-primary/10'
+                : 'border-base-300 hover:border-base-400'
+            "
+            @click="setTheme('dark')"
+          >
+            <IconMoon class="w-6 h-6" />
+            <span class="text-sm">{{ t("appearance.theme.dark") }}</span>
+          </button>
+          <button
+            class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2"
+            :class="
+              theme === 'system'
+                ? 'border-primary bg-primary/10'
+                : 'border-base-300 hover:border-base-400'
+            "
+            @click="setTheme('system')"
+          >
+            <IconMonitor class="w-6 h-6" />
+            <span class="text-sm">{{ t("appearance.theme.system") }}</span>
+          </button>
         </div>
-
-        <!-- Language -->
-        <div class="card bg-base-100 shadow-sm">
-            <div class="card-body">
-                <h2 class="card-title text-lg mb-1">
-                    {{ t("appearance.language.heading") }}
-                </h2>
-                <p class="text-sm text-base-content/60 mb-4">
-                    {{ t("appearance.language.description") }}
-                </p>
-
-                <div class="grid sm:grid-cols-2 gap-3">
-                    <button
-                        v-for="loc in availableLocales"
-                        :key="loc.code"
-                        class="p-4 rounded-xl border-2 transition-all flex items-center gap-3 text-left"
-                        :class="loc.code === locale ? 'border-primary bg-primary/10' : 'border-base-300 hover:border-base-400'"
-                        @click="switchLocale(loc.code)"
-                    >
-                        <IconCheck
-                            v-if="loc.code === locale"
-                            class="w-5 h-5 text-primary shrink-0"
-                        />
-                        <IconGlobe
-                            v-else
-                            class="w-5 h-5 text-base-content/60 shrink-0"
-                        />
-                        <span class="font-medium">{{ loc.name }}</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Font Size -->
-        <div class="card bg-base-100 shadow-sm">
-            <div class="card-body">
-                <h2 class="card-title text-lg mb-4">
-                    {{ t("appearance.fontSize.heading") }}
-                </h2>
-
-                <fieldset class="fieldset">
-                    <legend class="fieldset-legend">
-                        {{ t("appearance.fontSize.legend") }}
-                    </legend>
-                    <input
-                        v-model="fontSize"
-                        type="range"
-                        min="14"
-                        max="20"
-                        class="range range-primary w-full"
-                        @change="updateFontSize"
-                    >
-                    <p class="label flex justify-between">
-                        <span>{{ t("appearance.fontSize.small") }}</span>
-                        <span>{{ fontSize }}px</span>
-                        <span>{{ t("appearance.fontSize.large") }}</span>
-                    </p>
-                </fieldset>
-            </div>
-        </div>
-
-        <!-- Display Options -->
-        <div class="card bg-base-100 shadow-sm">
-            <div class="card-body">
-                <h2 class="card-title text-lg mb-4">
-                    {{ t("appearance.display.heading") }}
-                </h2>
-
-                <div class="space-y-4">
-                    <div class="form-control">
-                        <label class="label cursor-pointer justify-start gap-4">
-                            <input
-                                v-model="display.reducedMotion"
-                                type="checkbox"
-                                class="toggle toggle-primary"
-                                @change="updateDisplay"
-                            >
-                            <div>
-                                <span class="label-text font-medium">
-                                    {{ t("appearance.display.reducedMotion") }}
-                                </span>
-                                <p class="text-sm text-base-content/60">
-                                    {{ t("appearance.display.reducedMotionHint") }}
-                                </p>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="flex gap-2">
-            <button
-                class="btn btn-primary"
-                :disabled="isSaving"
-                @click="saveAppearance"
-            >
-                <IconLoader v-if="isSaving" class="w-4 h-4 animate-spin" />
-                <IconSave v-else class="w-4 h-4" />
-                {{ t("appearance.save") }}
-            </button>
-        </div>
+      </div>
     </div>
+
+    <!-- Language -->
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title text-lg mb-1">
+          {{ t("appearance.language.heading") }}
+        </h2>
+        <p class="text-sm text-base-content/60 mb-4">
+          {{ t("appearance.language.description") }}
+        </p>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+          <button
+            v-for="loc in availableLocales"
+            :key="loc.code"
+            class="p-4 rounded-xl border-2 transition-all flex items-center gap-3 text-left"
+            :class="
+              loc.code === locale
+                ? 'border-primary bg-primary/10'
+                : 'border-base-300 hover:border-base-400'
+            "
+            @click="switchLocale(loc.code)"
+          >
+            <IconCheck
+              v-if="loc.code === locale"
+              class="w-5 h-5 text-primary shrink-0"
+            />
+            <IconGlobe v-else class="w-5 h-5 text-base-content/60 shrink-0" />
+            <span class="font-medium">{{ loc.name }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Font Size -->
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title text-lg mb-4">
+          {{ t("appearance.fontSize.heading") }}
+        </h2>
+
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">
+            {{ t("appearance.fontSize.legend") }}
+          </legend>
+          <input
+            v-model="fontSize"
+            type="range"
+            min="14"
+            max="20"
+            class="range range-primary w-full"
+            @change="updateFontSize"
+          />
+          <p class="label flex justify-between">
+            <span>{{ t("appearance.fontSize.small") }}</span>
+            <span>{{ fontSize }}px</span>
+            <span>{{ t("appearance.fontSize.large") }}</span>
+          </p>
+        </fieldset>
+      </div>
+    </div>
+
+    <!-- Display Options -->
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title text-lg mb-4">
+          {{ t("appearance.display.heading") }}
+        </h2>
+
+        <div class="space-y-4">
+          <div class="form-control">
+            <label class="label cursor-pointer justify-start gap-4">
+              <input
+                v-model="display.reducedMotion"
+                type="checkbox"
+                class="toggle toggle-primary"
+                @change="updateDisplay"
+              />
+              <div>
+                <span class="label-text font-medium">
+                  {{ t("appearance.display.reducedMotion") }}
+                </span>
+                <p class="text-sm text-base-content/60">
+                  {{ t("appearance.display.reducedMotionHint") }}
+                </p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-2">
+      <button
+        class="btn btn-primary"
+        :disabled="isSaving"
+        @click="saveAppearance"
+      >
+        <IconLoader v-if="isSaving" class="w-4 h-4 animate-spin" />
+        <IconSave v-else class="w-4 h-4" />
+        {{ t("appearance.save") }}
+      </button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import {
-    IconSun,
-    IconMoon,
-    IconMonitor,
-    IconLoader,
-    IconSave,
-    IconGlobe,
-    IconCheck,
+  IconSun,
+  IconMoon,
+  IconMonitor,
+  IconLoader,
+  IconSave,
+  IconGlobe,
+  IconCheck,
 } from "#components";
 
 const { t, locale, locales, setLocale } = useI18n();
@@ -161,87 +174,89 @@ const theme = ref("system");
 const fontSize = ref(16);
 
 const display = reactive({
-    reducedMotion: false,
+  reducedMotion: false,
 });
 
 const availableLocales = computed(() =>
-    (locales.value as Array<{ code: string; name?: string }>).map((l) => ({
-        code: l.code,
-        name: l.name || l.code,
-    })),
+  (locales.value as Array<{ code: string; name?: string }>).map((l) => ({
+    code: l.code,
+    name: l.name || l.code,
+  })),
 );
 
 async function switchLocale(code: string) {
-    await setLocale(code as typeof locale.value);
+  await setLocale(code as typeof locale.value);
 }
 
 // Load settings from localStorage on mount
 onMounted(() => {
-    const savedTheme = localStorage.getItem("theme") || "system";
-    const savedFontSize = localStorage.getItem("font-size") || "16";
-    const savedDisplay = localStorage.getItem("display-options");
+  const savedTheme = localStorage.getItem("theme") || "system";
+  const savedFontSize = localStorage.getItem("font-size") || "16";
+  const savedDisplay = localStorage.getItem("display-options");
 
-    theme.value = savedTheme;
-    fontSize.value = parseInt(savedFontSize, 10);
+  theme.value = savedTheme;
+  fontSize.value = parseInt(savedFontSize, 10);
 
-    if (savedDisplay) {
-        try {
-            const parsed = JSON.parse(savedDisplay);
-            display.reducedMotion = parsed.reducedMotion || false;
-        } catch {
-            // Ignore parse errors
-        }
+  if (savedDisplay) {
+    try {
+      const parsed = JSON.parse(savedDisplay);
+      display.reducedMotion = parsed.reducedMotion || false;
+    } catch {
+      // Ignore parse errors
     }
+  }
 
-    applyTheme(savedTheme);
+  applyTheme(savedTheme);
 });
 
 function setTheme(newTheme: string) {
-    theme.value = newTheme;
-    applyTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
+  theme.value = newTheme;
+  applyTheme(newTheme);
+  localStorage.setItem("theme", newTheme);
 }
 
 function applyTheme(newTheme: string) {
-    const root = document.documentElement;
-    if (newTheme === "system") {
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        root.setAttribute("data-theme", prefersDark ? "dark" : "light");
-    } else {
-        root.setAttribute("data-theme", newTheme);
-    }
+  const root = document.documentElement;
+  if (newTheme === "system") {
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)",
+    ).matches;
+    root.setAttribute("data-theme", prefersDark ? "dark" : "light");
+  } else {
+    root.setAttribute("data-theme", newTheme);
+  }
 }
 
 function updateFontSize() {
-    localStorage.setItem("font-size", String(fontSize.value));
-    document.documentElement.style.fontSize = `${fontSize.value}px`;
+  localStorage.setItem("font-size", String(fontSize.value));
+  document.documentElement.style.fontSize = `${fontSize.value}px`;
 }
 
 function updateDisplay() {
-    localStorage.setItem("display-options", JSON.stringify(display));
-    if (display.reducedMotion) {
-        document.documentElement.classList.add("reduce-motion");
-    } else {
-        document.documentElement.classList.remove("reduce-motion");
-    }
+  localStorage.setItem("display-options", JSON.stringify(display));
+  if (display.reducedMotion) {
+    document.documentElement.classList.add("reduce-motion");
+  } else {
+    document.documentElement.classList.remove("reduce-motion");
+  }
 }
 
 async function saveAppearance() {
-    isSaving.value = true;
-    try {
-        // Save to localStorage
-        localStorage.setItem("theme", theme.value);
-        localStorage.setItem("font-size", String(fontSize.value));
-        localStorage.setItem("display-options", JSON.stringify(display));
+  isSaving.value = true;
+  try {
+    // Save to localStorage
+    localStorage.setItem("theme", theme.value);
+    localStorage.setItem("font-size", String(fontSize.value));
+    localStorage.setItem("display-options", JSON.stringify(display));
 
-        await new Promise(r => setTimeout(r, 500));
-        alert(t("appearance.saved"));
-    } finally {
-        isSaving.value = false;
-    }
+    await new Promise((r) => setTimeout(r, 500));
+    alert(t("appearance.saved"));
+  } finally {
+    isSaving.value = false;
+  }
 }
 
 useSolarSeo({
-    title: t("appearance.title"),
+  title: t("appearance.title"),
 });
 </script>
