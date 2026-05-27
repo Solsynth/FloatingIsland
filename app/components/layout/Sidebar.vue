@@ -105,6 +105,7 @@ import {
   IconCompass,
   IconBuilding,
   IconPalette,
+  IconCode,
   IconLogIn,
   IconLogOut,
   IconUser,
@@ -125,6 +126,7 @@ const navItems = computed(() => [
   { icon: IconCompass, label: t("nav.explore"), href: "/" },
   { icon: IconBuilding, label: t("nav.realms"), href: "/realms" },
   { icon: IconPalette, label: t("nav.creatorHub"), href: "/creators" },
+  { icon: IconCode, label: t("nav.developerHub"), href: "/developers" },
 ]);
 
 const displayName = computed(() => authDisplayName.value);

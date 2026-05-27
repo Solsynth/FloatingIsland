@@ -3,7 +3,13 @@
     "loading": "加载中...",
     "loadMore": "加载更多",
     "noMore": "没有更多内容了",
-    "search": "搜索..."
+    "search": "搜索...",
+    "close": "关闭",
+    "cancel": "取消",
+    "create": "创建",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑"
   },
   "nav": {
     "explore": "探索",
@@ -14,7 +20,8 @@
     "signIn": "登录",
     "joinCommunity": "加入社区",
     "home": "首页",
-    "creatorHub": "创作者中心"
+    "creatorHub": "创作者中心",
+    "developerHub": "开发者中心"
   },
   "home": {
     "seoTitle": "探索",
@@ -568,6 +575,106 @@
     "savePreferences": "保存偏好",
     "noTopics": "没有配置通知主题",
     "description": "描述"
+  },
+  "developer": {
+    "title": "开发者中心",
+    "selectDeveloper": "选择开发者",
+    "clearSelection": "清除选择",
+    "enrollDeveloper": "注册成为开发者",
+    "enrollDeveloperHint": "使用您的发布者之一来访问开发者功能",
+    "noPublishersToEnroll": "您需要先创建一个发布者，然后才能注册成为开发者。",
+    "noDevelopers": "未找到开发者。注册成为开发者以开始使用。",
+    "backToApp": "返回应用",
+    "dashboard": "仪表盘",
+    "settings": "设置",
+    "overview": "概览",
+    "hubDescription": "开发者中心让您可以管理 Solar Network 平台上的项目、应用和机器人。",
+    "dashboardDescription": "查看您的开发者统计数据并管理您的项目。",
+    "stats": {
+      "totalCustomApps": "自定义应用"
+    },
+    "projects": {
+      "title": "项目",
+      "create": "创建项目",
+      "edit": "编辑项目",
+      "detail": "项目详情",
+      "name": "项目名称",
+      "slug": "标识符",
+      "description": "描述",
+      "noProjects": "暂无项目。创建您的第一个项目以开始使用。",
+      "notFound": "未找到项目",
+      "backToList": "返回项目列表",
+      "deleteConfirm": "确定要删除此项目吗？",
+      "createdAt": "创建时间",
+      "updatedAt": "更新时间"
+    },
+    "apps": {
+      "title": "自定义应用",
+      "create": "创建应用",
+      "detail": "应用详情",
+      "viewAll": "查看全部",
+      "name": "应用名称",
+      "slug": "标识符",
+      "description": "描述",
+      "project": "项目",
+      "selectProject": "选择项目（可选）",
+      "noApps": "暂无自定义应用。创建您的第一个应用以开始使用。",
+      "notFound": "未找到应用",
+      "backToList": "返回应用列表",
+      "deleteConfirm": "确定要删除此应用吗？",
+      "secrets": {
+        "title": "密钥",
+        "create": "创建密钥",
+        "description": "描述",
+        "noDescription": "无描述",
+        "isOidc": "OIDC",
+        "expires": "过期时间",
+        "noSecrets": "暂无密钥。",
+        "deleteConfirm": "确定要删除此密钥吗？"
+      },
+      "oauth": {
+        "title": "OAuth 配置",
+        "clientUri": "客户端 URI",
+        "redirectUris": "重定向 URI",
+        "allowedScopes": "允许的范围",
+        "requirePkce": "要求 PKCE",
+        "allowOfflineAccess": "允许离线访问",
+        "isPublicClient": "公共客户端"
+      },
+      "links": {
+        "title": "链接",
+        "noLinks": "未配置链接。"
+      }
+    },
+    "bots": {
+      "title": "机器人",
+      "create": "创建机器人",
+      "detail": "机器人详情",
+      "viewAll": "查看全部",
+      "slug": "机器人标识符",
+      "project": "项目",
+      "selectProject": "选择项目",
+      "noBots": "暂无机器人。创建您的第一个机器人以开始使用。",
+      "notFound": "未找到机器人",
+      "backToList": "返回机器人列表",
+      "deleteConfirm": "确定要删除此机器人吗？",
+      "activate": "激活",
+      "deactivate": "停用",
+      "createdAt": "创建时间",
+      "updatedAt": "更新时间",
+      "keys": {
+        "title": "API 密钥",
+        "create": "创建密钥",
+        "description": "描述",
+        "noDescription": "无描述",
+        "expires": "过期时间",
+        "noKeys": "暂无 API 密钥。",
+        "deleteConfirm": "确定要删除此密钥吗？"
+      },
+      "info": {
+        "title": "机器人信息"
+      }
+    }
   },
   "creator": {
     "title": "创作者中心",

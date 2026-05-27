@@ -3,7 +3,13 @@
     "loading": "Loading...",
     "loadMore": "Load more",
     "noMore": "No more posts to load",
-    "search": "Search..."
+    "search": "Search...",
+    "close": "Close",
+    "cancel": "Cancel",
+    "create": "Create",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit"
   },
   "nav": {
     "explore": "Explore",
@@ -14,7 +20,8 @@
     "signIn": "Sign In",
     "joinCommunity": "Join the community",
     "home": "Home",
-    "creatorHub": "Creator Hub"
+    "creatorHub": "Creator Hub",
+    "developerHub": "Developer Hub"
   },
   "home": {
     "seoTitle": "Explore",
@@ -569,6 +576,106 @@
     "savePreferences": "Save Preferences",
     "noTopics": "No notification topics configured",
     "description": "Description"
+  },
+  "developer": {
+    "title": "Developer Hub",
+    "selectDeveloper": "Select Developer",
+    "clearSelection": "Clear Selection",
+    "enrollDeveloper": "Enroll as Developer",
+    "enrollDeveloperHint": "Use one of your publishers to access developer features",
+    "noPublishersToEnroll": "You need to create a publisher first before enrolling as a developer.",
+    "noDevelopers": "No developers found. Enroll as a developer to get started.",
+    "backToApp": "Back to App",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "overview": "Overview",
+    "hubDescription": "The Developer Hub lets you manage your projects, apps, and bots for the Solar Network platform.",
+    "dashboardDescription": "View your developer statistics and manage your projects.",
+    "stats": {
+      "totalCustomApps": "Custom Apps"
+    },
+    "projects": {
+      "title": "Projects",
+      "create": "Create Project",
+      "edit": "Edit Project",
+      "detail": "Project Detail",
+      "name": "Project Name",
+      "slug": "Slug",
+      "description": "Description",
+      "noProjects": "No projects yet. Create your first project to get started.",
+      "notFound": "Project not found",
+      "backToList": "Back to Projects",
+      "deleteConfirm": "Are you sure you want to delete this project?",
+      "createdAt": "Created",
+      "updatedAt": "Updated"
+    },
+    "apps": {
+      "title": "Custom Apps",
+      "create": "Create App",
+      "detail": "App Detail",
+      "viewAll": "View All",
+      "name": "App Name",
+      "slug": "Slug",
+      "description": "Description",
+      "project": "Project",
+      "selectProject": "Select a project (optional)",
+      "noApps": "No custom apps yet. Create your first app to get started.",
+      "notFound": "App not found",
+      "backToList": "Back to Apps",
+      "deleteConfirm": "Are you sure you want to delete this app?",
+      "secrets": {
+        "title": "Secrets",
+        "create": "Create Secret",
+        "description": "Description",
+        "noDescription": "No description",
+        "isOidc": "Is OIDC",
+        "expires": "Expires",
+        "noSecrets": "No secrets yet.",
+        "deleteConfirm": "Are you sure you want to delete this secret?"
+      },
+      "oauth": {
+        "title": "OAuth Configuration",
+        "clientUri": "Client URI",
+        "redirectUris": "Redirect URIs",
+        "allowedScopes": "Allowed Scopes",
+        "requirePkce": "Require PKCE",
+        "allowOfflineAccess": "Allow Offline Access",
+        "isPublicClient": "Public Client"
+      },
+      "links": {
+        "title": "Links",
+        "noLinks": "No links configured."
+      }
+    },
+    "bots": {
+      "title": "Bots",
+      "create": "Create Bot",
+      "detail": "Bot Detail",
+      "viewAll": "View All",
+      "slug": "Bot Slug",
+      "project": "Project",
+      "selectProject": "Select a project",
+      "noBots": "No bots yet. Create your first bot to get started.",
+      "notFound": "Bot not found",
+      "backToList": "Back to Bots",
+      "deleteConfirm": "Are you sure you want to delete this bot?",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "createdAt": "Created",
+      "updatedAt": "Updated",
+      "keys": {
+        "title": "API Keys",
+        "create": "Create Key",
+        "description": "Description",
+        "noDescription": "No description",
+        "expires": "Expires",
+        "noKeys": "No API keys yet.",
+        "deleteConfirm": "Are you sure you want to delete this key?"
+      },
+      "info": {
+        "title": "Bot Information"
+      }
+    }
   },
   "creator": {
     "title": "Creator Hub",
