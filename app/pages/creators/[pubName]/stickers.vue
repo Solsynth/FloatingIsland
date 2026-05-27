@@ -48,13 +48,13 @@
       </div>
 
       <!-- Create Modal -->
-      <dialog ref="createModalRef" class="modal">
+      <dialog class="modal" :class="{ 'modal-open': createModalOpen }" @close="createModalOpen = false">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-4">{{ t('creator.stickers.create') }}</h3>
           <StickerPackForm :pub-name="pubName" @close="closeCreateModal" @saved="handlePackCreated" />
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button>close</button>
+          <button @click="createModalOpen = false">close</button>
         </form>
       </dialog>
     </div>
@@ -95,7 +95,7 @@ const packs = ref<SnStickerPack[]>([])
 const offset = ref(0)
 const total = ref(0)
 const hasMore = computed(() => packs.value.length < total.value)
-const createModalRef = ref<HTMLDialogElement | null>(null)
+const createModalOpen = ref(false)
 
 const { status, error } = await useAsyncData(
   `creator-sticker-packs-${pubName.value}`,
@@ -109,11 +109,11 @@ const { status, error } = await useAsyncData(
 )
 
 function openCreateModal() {
-  createModalRef.value?.showModal()
+  createModalOpen.value = true
 }
 
 function closeCreateModal() {
-  createModalRef.value?.close()
+  createModalOpen.value = false
 }
 
 async function loadMore() {

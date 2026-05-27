@@ -42,7 +42,7 @@
       </div>
 
       <!-- Editor Modal -->
-      <dialog ref="editorModalRef" class="modal">
+      <dialog class="modal" :class="{ 'modal-open': editorModalOpen }" @close="editorModalOpen = false">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-4">
             {{ editingFeed ? t('creator.edit') : t('creator.feeds.create') }}
@@ -55,7 +55,7 @@
           />
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button>close</button>
+          <button @click="editorModalOpen = false">close</button>
         </form>
       </dialog>
     </div>
@@ -98,15 +98,15 @@ const { data: feeds, status, error, refresh } = await useAsyncData(
 
 const showEditor = ref(false)
 const editingFeed = ref<SnWebFeed | null>(null)
-const editorModalRef = ref<HTMLDialogElement | null>(null)
+const editorModalOpen = ref(false)
 
 function openEditor(feed: SnWebFeed | null) {
   editingFeed.value = feed
-  editorModalRef.value?.showModal()
+  editorModalOpen.value = true
 }
 
 function closeEditor() {
-  editorModalRef.value?.close()
+  editorModalOpen.value = false
 }
 
 function handleSaved() {

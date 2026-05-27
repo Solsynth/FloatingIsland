@@ -112,7 +112,7 @@
       </div>
 
       <!-- Post Detail Modal -->
-      <dialog ref="detailModalRef" class="modal">
+      <dialog class="modal" :class="{ 'modal-open': detailModalOpen }" @close="detailModalOpen = false">
         <div class="modal-box max-w-2xl">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-bold text-lg">{{ t('creator.posts.detail') }}</h3>
@@ -159,12 +159,12 @@
           </template>
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button>close</button>
+          <button @click="detailModalOpen = false">close</button>
         </form>
       </dialog>
 
       <!-- Visibility Modal -->
-      <dialog ref="visibilityModalRef" class="modal">
+      <dialog class="modal" :class="{ 'modal-open': visibilityModalOpen }" @close="visibilityModalOpen = false">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-4">{{ t('creator.posts.batchVisibility') }}</h3>
           <div class="space-y-2">
@@ -191,12 +191,12 @@
           </div>
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button>close</button>
+          <button @click="visibilityModalOpen = false">close</button>
         </form>
       </dialog>
 
       <!-- Collection Modal -->
-      <dialog ref="collectionModalRef" class="modal">
+      <dialog class="modal" :class="{ 'modal-open': collectionModalOpen }" @close="collectionModalOpen = false">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-4">
             {{ collectionAction === 'add' ? t('creator.posts.batchAddToCollection') : t('creator.posts.batchRemoveFromCollection') }}
@@ -226,7 +226,7 @@
           </div>
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button>close</button>
+          <button @click="collectionModalOpen = false">close</button>
         </form>
       </dialog>
     </div>
@@ -285,18 +285,18 @@ useSolarSeo({ title: computed(() => `${t('creator.posts.title')} - ${currentPubl
 const selectionMode = ref(false)
 const selectedIds = ref<Set<string>>(new Set())
 const selectedPost = ref<Post | null>(null)
-const detailModalRef = ref<HTMLDialogElement | null>(null)
+const detailModalOpen = ref(false)
 const loadingMore = ref(false)
 const offset = ref(0)
 const pageSize = 20
 const batchLoading = ref(false)
 
 // Visibility modal
-const visibilityModalRef = ref<HTMLDialogElement | null>(null)
+const visibilityModalOpen = ref(false)
 const selectedVisibility = ref<string>('public')
 
 // Collection modal
-const collectionModalRef = ref<HTMLDialogElement | null>(null)
+const collectionModalOpen = ref(false)
 const collectionAction = ref<'add' | 'remove'>('add')
 const collections = ref<SnPostCollection[]>([])
 const collectionsLoading = ref(false)
@@ -310,24 +310,24 @@ const visibilityOptions = computed(() => [
 
 function openDetail(post: Post) {
   selectedPost.value = post
-  detailModalRef.value?.showModal()
+  detailModalOpen.value = true
 }
 
 function closeDetail() {
-  detailModalRef.value?.close()
+  detailModalOpen.value = false
 }
 
 function openVisibilityModal() {
-  visibilityModalRef.value?.showModal()
+  visibilityModalOpen.value = true
 }
 
 function closeVisibilityModal() {
-  visibilityModalRef.value?.close()
+  visibilityModalOpen.value = false
 }
 
 async function openCollectionModal(action: 'add' | 'remove') {
   collectionAction.value = action
-  collectionModalRef.value?.showModal()
+  collectionModalOpen.value = true
   collectionsLoading.value = true
   try {
     collections.value = await fetchCollections(pubName.value)
@@ -339,7 +339,7 @@ async function openCollectionModal(action: 'add' | 'remove') {
 }
 
 function closeCollectionModal() {
-  collectionModalRef.value?.close()
+  collectionModalOpen.value = false
 }
 
 const { data: postResult, status, error, refresh } = await useAsyncData(

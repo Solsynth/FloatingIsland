@@ -139,14 +139,14 @@ const navItems = computed(() => {
   const p = pubName.value
   return [
     { icon: IconLayoutDashboard, label: t('creator.dashboard'), href: `/creators/${p}` },
-    { icon: IconFileText, label: t('creator.posts'), href: `/creators/${p}/posts` },
-    { icon: IconFolder, label: t('creator.collections'), href: `/creators/${p}/collections` },
-    { icon: IconSticker, label: t('creator.stickers'), href: `/creators/${p}/stickers` },
-    { icon: IconChartBar, label: t('creator.polls'), href: `/creators/${p}/polls` },
-    { icon: IconRss, label: t('creator.feeds'), href: `/creators/${p}/feeds` },
-    { icon: IconTrophy, label: t('creator.leaderboard'), href: `/creators/${p}/leaderboard` },
-    { icon: IconUsers, label: t('creator.members'), href: `/creators/${p}/members` },
-    { icon: IconUserPlus, label: t('creator.subscribers'), href: `/creators/${p}/subscribers` },
+    { icon: IconFileText, label: t('creator.posts.title'), href: `/creators/${p}/posts` },
+    { icon: IconFolder, label: t('creator.collections.title'), href: `/creators/${p}/collections` },
+    { icon: IconSticker, label: t('creator.stickers.title'), href: `/creators/${p}/stickers` },
+    { icon: IconChartBar, label: t('creator.polls.title'), href: `/creators/${p}/polls` },
+    { icon: IconRss, label: t('creator.feeds.title'), href: `/creators/${p}/feeds` },
+    { icon: IconTrophy, label: t('creator.leaderboard.title'), href: `/creators/${p}/leaderboard` },
+    { icon: IconUsers, label: t('creator.members.title'), href: `/creators/${p}/members` },
+    { icon: IconUserPlus, label: t('creator.subscribers.title'), href: `/creators/${p}/subscribers` },
     { icon: IconSettings, label: t('creator.settings'), href: `/creators/${p}/settings` },
   ]
 })

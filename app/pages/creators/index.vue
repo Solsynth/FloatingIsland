@@ -138,13 +138,13 @@
       </div>
 
       <!-- Create Publisher Modal -->
-      <dialog ref="createModalRef" class="modal">
+      <dialog class="modal" :class="{ 'modal-open': createModalOpen }" @close="createModalOpen = false">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-4">{{ t('creator.createPublisher') }}</h3>
           <PublisherForm @close="closeCreateModal" @created="handlePublisherCreated" />
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button>close</button>
+          <button @click="createModalOpen = false">close</button>
         </form>
       </dialog>
     </div>
@@ -185,16 +185,16 @@ const { managedPublishers, invites, isLoading } = creator
 
 const quota = ref<PublisherQuotaInfo | null>(null)
 const showQuotaInfo = ref(false)
-const createModalRef = ref<HTMLDialogElement | null>(null)
+const createModalOpen = ref(false)
 
 useSolarSeo({ title: t('creator.title') })
 
 function openCreateModal() {
-  createModalRef.value?.showModal()
+  createModalOpen.value = true
 }
 
 function closeCreateModal() {
-  createModalRef.value?.close()
+  createModalOpen.value = false
 }
 
 onMounted(async () => {

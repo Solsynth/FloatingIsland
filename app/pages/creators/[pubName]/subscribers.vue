@@ -94,13 +94,13 @@
       </div>
 
       <!-- Add Subscriber Modal -->
-      <dialog ref="addModalRef" class="modal">
+      <dialog class="modal" :class="{ 'modal-open': addModalOpen }" @close="addModalOpen = false">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-4">{{ t('creator.subscribers.add') }}</h3>
           <AccountPicker @select="handleAddSubscriber" />
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button>close</button>
+          <button @click="addModalOpen = false">close</button>
         </form>
       </dialog>
     </div>
@@ -171,10 +171,10 @@ const { data: followRequests } = await useAsyncData(
   () => fetchFollowRequests(pubName.value),
 )
 
-const addModalRef = ref<HTMLDialogElement | null>(null)
+const addModalOpen = ref(false)
 
 function openAddModal() {
-  addModalRef.value?.showModal()
+  addModalOpen.value = true
 }
 
 function closeAddModal() {

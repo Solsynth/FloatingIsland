@@ -58,7 +58,7 @@
       </div>
 
       <!-- Role Editor Modal -->
-      <dialog ref="roleModalRef" class="modal">
+      <dialog class="modal" :class="{ 'modal-open': roleModalOpen }" @close="roleModalOpen = false">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-4">
             {{ t('creator.members.role') }}: {{ editingMember?.account?.name }}
@@ -81,18 +81,18 @@
           </div>
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button>close</button>
+          <button @click="roleModalOpen = false">close</button>
         </form>
       </dialog>
 
       <!-- Invite Modal -->
-      <dialog ref="inviteModalRef" class="modal">
+      <dialog class="modal" :class="{ 'modal-open': inviteModalOpen }" @close="inviteModalOpen = false">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-4">{{ t('creator.members.invite') }}</h3>
           <AccountPicker @select="handleInviteSelect" />
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button>close</button>
+          <button @click="inviteModalOpen = false">close</button>
         </form>
       </dialog>
     </div>
@@ -154,25 +154,25 @@ const { status, error } = await useAsyncData(
 
 const editingMember = ref<PublisherMember | null>(null)
 const editRole = ref(0)
-const roleModalRef = ref<HTMLDialogElement | null>(null)
-const inviteModalRef = ref<HTMLDialogElement | null>(null)
+const roleModalOpen = ref(false)
+const inviteModalOpen = ref(false)
 
 function openRoleEditor(member: PublisherMember) {
   editingMember.value = member
   editRole.value = member.role
-  roleModalRef.value?.showModal()
+  roleModalOpen.value = true
 }
 
 function closeRoleEditor() {
-  roleModalRef.value?.close()
+  roleModalOpen.value = false
 }
 
 function openInviteModal() {
-  inviteModalRef.value?.showModal()
+  inviteModalOpen.value = true
 }
 
 function closeInviteModal() {
-  inviteModalRef.value?.close()
+  inviteModalOpen.value = false
 }
 
 function roleLabel(role: number): string {

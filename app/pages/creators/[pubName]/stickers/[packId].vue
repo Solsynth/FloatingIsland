@@ -143,7 +143,7 @@
       </template>
 
       <!-- Add/Edit Sticker Modal -->
-      <dialog ref="stickerModalRef" class="modal">
+      <dialog class="modal" :class="{ 'modal-open': stickerModalOpen }" @close="stickerModalOpen = false">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-4">
             {{ editingSticker ? t('creator.edit') : t('creator.stickers.create') }}
@@ -156,12 +156,12 @@
           />
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button>close</button>
+          <button @click="stickerModalOpen = false">close</button>
         </form>
       </dialog>
 
       <!-- Edit Pack Modal -->
-      <dialog ref="packModalRef" class="modal">
+      <dialog class="modal" :class="{ 'modal-open': packModalOpen }" @close="packModalOpen = false">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-4">{{ t('creator.edit') }}</h3>
           <StickerPackForm
@@ -172,12 +172,12 @@
           />
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button>close</button>
+          <button @click="packModalOpen = false">close</button>
         </form>
       </dialog>
 
       <!-- Batch Edit Modal -->
-      <dialog ref="batchModalRef" class="modal">
+      <dialog class="modal" :class="{ 'modal-open': batchModalOpen }" @close="batchModalOpen = false">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-4">{{ t('creator.stickers.batchEdit') }}</h3>
           <BatchStickerEdit
@@ -188,7 +188,7 @@
           />
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button>close</button>
+          <button @click="batchModalOpen = false">close</button>
         </form>
       </dialog>
     </div>
@@ -255,9 +255,9 @@ const { data: stickers, refresh: refreshStickers } = await useAsyncData(
 const selectedIds = ref<Set<string>>(new Set())
 const pendingOrder = ref<string[] | null>(null)
 const editingSticker = ref<SnSticker | null>(null)
-const stickerModalRef = ref<HTMLDialogElement | null>(null)
-const packModalRef = ref<HTMLDialogElement | null>(null)
-const batchModalRef = ref<HTMLDialogElement | null>(null)
+const stickerModalOpen = ref(false)
+const packModalOpen = ref(false)
+const batchModalOpen = ref(false)
 
 const displayList = computed(() => {
   const order = pendingOrder.value
@@ -268,64 +268,27 @@ const displayList = computed(() => {
 
 function openStickerModal(sticker?: SnSticker) {
   editingSticker.value = sticker ?? null
-  stickerModalRef.value?.showModal()
+  stickerModalOpen.value = true
 }
 
 function closeStickerModal() {
-  stickerModalRef.value?.close()
-  editingSticker.value = null
+  stickerModalOpen.value = false
 }
 
 function openPackModal() {
-  packModalRef.value?.showModal()
+  packModalOpen.value = true
 }
 
 function closePackModal() {
-  packModalRef.value?.close()
+  packModalOpen.value = false
 }
 
 function openBatchModal() {
-  batchModalRef.value?.showModal()
+  batchModalOpen.value = true
 }
 
 function closeBatchModal() {
-  batchModalRef.value?.close()
-}
-
-function sizeLabel(size: number): string {
-  const map: Record<number, string> = { 1: 'S', 2: 'M', 3: 'L' }
-  return map[size] || 'Auto'
-}
-
-function modeLabel(mode: number): string {
-  return mode === 1 ? 'Emote' : 'Sticker'
-}
-
-function toggleSelect(id: string) {
-  const next = new Set(selectedIds.value)
-  if (next.has(id)) next.delete(id)
-  else next.add(id)
-  selectedIds.value = next
-}
-
-function moveItem(from: number, to: number) {
-  const current = pendingOrder.value ?? (stickers.value?.map((s) => s.id) ?? [])
-  const list = [...current]
-  const item = list.splice(from, 1)[0]
-  list.splice(to, 0, item)
-  pendingOrder.value = list
-}
-
-async function saveOrder() {
-  if (!pendingOrder.value) return
-  const items = pendingOrder.value.map((id, order) => ({ id, order }))
-  await reorderStickers(packId.value, items)
-  pendingOrder.value = null
-  await refreshStickers()
-}
-
-function editSticker(sticker: SnSticker) {
-  openStickerModal(sticker)
+  batchModalOpen.value = false
 }
 
 function handleStickerSaved() {

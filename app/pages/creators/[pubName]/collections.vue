@@ -45,7 +45,7 @@
       </div>
 
       <!-- Editor Modal -->
-      <dialog ref="editorModalRef" class="modal">
+      <dialog class="modal" :class="{ 'modal-open': editorModalOpen }" @close="editorModalOpen = false">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-4">
             {{ editingCollection ? t('creator.edit') : t('creator.collections.create') }}
@@ -58,12 +58,12 @@
           />
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button>close</button>
+          <button @click="editorModalOpen = false">close</button>
         </form>
       </dialog>
 
       <!-- Detail Modal -->
-      <dialog ref="detailModalRef" class="modal">
+      <dialog class="modal" :class="{ 'modal-open': detailModalOpen }" @close="detailModalOpen = false">
         <div class="modal-box max-w-2xl">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-bold text-lg">{{ detailCollection?.name || detailCollection?.slug }}</h3>
@@ -87,7 +87,7 @@
           </div>
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button>close</button>
+          <button @click="detailModalOpen = false">close</button>
         </form>
       </dialog>
     </div>
@@ -138,25 +138,25 @@ const { data: collections, status, error, refresh } = await useAsyncData(
 
 const editingCollection = ref<SnPostCollection | null>(null)
 const detailCollection = ref<SnPostCollection | null>(null)
-const editorModalRef = ref<HTMLDialogElement | null>(null)
-const detailModalRef = ref<HTMLDialogElement | null>(null)
+const editorModalOpen = ref(false)
+const detailModalOpen = ref(false)
 
 function openEditor(col: SnPostCollection | null) {
   editingCollection.value = col
-  editorModalRef.value?.showModal()
+  editorModalOpen.value = true
 }
 
 function closeEditor() {
-  editorModalRef.value?.close()
+  editorModalOpen.value = false
 }
 
 function openDetail(col: SnPostCollection) {
   detailCollection.value = col
-  detailModalRef.value?.showModal()
+  detailModalOpen.value = true
 }
 
 function closeDetail() {
-  detailModalRef.value?.close()
+  detailModalOpen.value = false
 }
 
 function handleSaved() {
