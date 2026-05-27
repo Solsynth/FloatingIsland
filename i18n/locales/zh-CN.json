@@ -13,7 +13,8 @@
     "logout": "退出登录",
     "signIn": "登录",
     "joinCommunity": "加入社区",
-    "home": "首页"
+    "home": "首页",
+    "creatorHub": "创作者中心"
   },
   "home": {
     "seoTitle": "探索",
@@ -567,5 +568,196 @@
     "savePreferences": "保存偏好",
     "noTopics": "没有配置通知主题",
     "description": "描述"
+  },
+  "creator": {
+    "title": "创作者中心",
+    "selectPublisher": "选择发布者",
+    "clearSelection": "清除选择",
+    "createPublisher": "创建发布者",
+    "editPublisher": "编辑发布者",
+    "deletePublisher": "删除发布者",
+    "deletePublisherConfirm": "确定要删除此发布者吗？此操作不可撤销。",
+    "backToApp": "返回应用",
+    "dashboard": "仪表盘",
+    "posts": "帖子",
+    "collections": "合集",
+    "stickers": "贴纸包",
+    "polls": "投票",
+    "feeds": "网络订阅",
+    "members": "成员",
+    "subscribers": "订阅者",
+    "settings": "设置",
+    "leaderboard": "排行榜",
+    "username": "用户名",
+    "usernameHint": "创建后不可更改",
+    "nickname": "昵称",
+    "bio": "简介",
+    "realm": "领域",
+    "individual": "个人",
+    "create": "创建",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "confirm": "确认",
+    "noResults": "未找到结果",
+    "quota": {
+      "title": "发布者配额",
+      "used": "已使用 {used} / {total} 个槽位",
+      "info": "您可以在配额限制内创建发布者。升级账户以获取更多槽位。"
+    },
+    "stats": {
+      "postsCreated": "帖子",
+      "stickerPacksCreated": "贴纸包",
+      "stickersCreated": "贴纸",
+      "upvoteReceived": "点赞",
+      "downvoteReceived": "踩"
+    },
+    "rating": {
+      "title": "评分",
+      "rank": "排名 #{rank}",
+      "percentile": "前 {percentile}%"
+    },
+    "features": {
+      "title": "功能标志",
+      "followRequiresApproval": "关注需要审批",
+      "followRequiresApprovalDesc": "新关注者需要经过批准才能关注",
+      "postsRequireFollow": "帖子需要关注",
+      "postsRequireFollowDesc": "只有关注者可以看到帖子"
+    },
+    "fediverse": {
+      "title": "联邦宇宙",
+      "enabled": "联邦宇宙已启用",
+      "disabled": "联邦宇宙已禁用",
+      "enableHint": "启用 ActivityPub 集成以允许联邦宇宙用户关注此发布者",
+      "disableHint": "禁用联邦宇宙集成",
+      "followerCount": "关注者",
+      "actorUri": "Actor URI",
+      "whatIs": "什么是联邦宇宙？",
+      "about": "联邦宇宙集成允许您的发布者被 Mastodon、Pleroma 和其他 ActivityPub 兼容平台关注。"
+    },
+    "members": {
+      "title": "成员",
+      "invite": "邀请成员",
+      "role": "角色",
+      "owner": "所有者",
+      "moderator": "管理员",
+      "member": "成员",
+      "remove": "移除",
+      "removeConfirm": "确定要移除此成员吗？",
+      "pending": "待确认"
+    },
+    "subscribers": {
+      "title": "订阅者",
+      "add": "添加订阅者",
+      "remove": "移除",
+      "removeConfirm": "确定要移除此订阅者吗？",
+      "requests": "关注请求",
+      "noRequests": "没有待处理的请求",
+      "approve": "批准",
+      "reject": "拒绝",
+      "rejectReason": "拒绝原因"
+    },
+    "invites": {
+      "title": "协作邀请",
+      "count": "{count} 个邀请",
+      "empty": "没有待处理的邀请",
+      "accept": "接受",
+      "decline": "拒绝"
+    },
+    "posts": {
+      "title": "帖子管理",
+      "selectAll": "全选",
+      "batchDelete": "删除所选",
+      "batchVisibility": "更改可见性",
+      "batchAddToCollection": "添加到合集",
+      "batchRemoveFromCollection": "从合集移除",
+      "visibility": {
+        "public": "公开",
+        "friends": "好友",
+        "unlisted": "不公开列出",
+        "private": "私密"
+      },
+      "detail": "帖子详情",
+      "analytics": "分析",
+      "views": "浏览量",
+      "uniqueViews": "独立浏览",
+      "replies": "回复",
+      "created": "创建时间",
+      "edited": "编辑时间"
+    },
+    "collections": {
+      "title": "合集",
+      "create": "创建合集",
+      "slug": "标识符",
+      "slugHint": "合集的唯一标识符",
+      "name": "名称",
+      "description": "描述",
+      "empty": "还没有合集",
+      "deleteConfirm": "确定要删除此合集吗？"
+    },
+    "stickers": {
+      "title": "贴纸包",
+      "create": "创建贴纸包",
+      "packName": "包名称",
+      "packDescription": "描述",
+      "prefix": "前缀",
+      "prefixHint": "用于贴纸代码，如 :前缀+标识:",
+      "count": "{count}/24 个贴纸",
+      "stickerSlug": "贴纸标识",
+      "stickerSlugHint": "包内的唯一标识符",
+      "size": "大小",
+      "mode": "模式",
+      "sizeAuto": "自动",
+      "sizeSmall": "小",
+      "sizeMedium": "中",
+      "sizeLarge": "大",
+      "modeSticker": "贴纸",
+      "modeEmote": "表情",
+      "reorder": "重新排序",
+      "batchEdit": "批量编辑",
+      "deleteSticker": "删除贴纸",
+      "deletePack": "删除贴纸包",
+      "deletePackConfirm": "确定要删除此贴纸包吗？"
+    },
+    "polls": {
+      "title": "投票",
+      "questions": "问题",
+      "noEnd": "无结束日期",
+      "deleteConfirm": "确定要删除此投票吗？"
+    },
+    "feeds": {
+      "title": "网络订阅",
+      "create": "创建网络订阅",
+      "url": "URL",
+      "scrapPage": "抓取网页内容",
+      "scrapPageHint": "启用后，系统将尝试从网页中提取完整内容",
+      "scrapNow": "立即抓取",
+      "empty": "还没有网络订阅",
+      "deleteConfirm": "确定要删除此网络订阅吗？"
+    },
+    "leaderboard": {
+      "title": "发布者排行榜"
+    },
+    "common": {
+      "selected": "已选择 {count} 项",
+      "clear": "清除",
+      "reset": "重置",
+      "saveOrder": "保存排序",
+      "reordered": "已重新排序 {count} 个贴纸",
+      "published": "已发布",
+      "scheduled": "定时发布",
+      "untitled": "无标题",
+      "name": "名称",
+      "slug": "标识",
+      "code": "代码",
+      "preview": "预览",
+      "apply": "应用",
+      "updateSize": "更新大小",
+      "updateMode": "更新模式",
+      "status": "状态",
+      "actions": "操作",
+      "noEnd": "无结束日期"
+    }
   }
 }

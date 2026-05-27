@@ -67,7 +67,7 @@ async function parseResponse(response: Response): Promise<unknown> {
 }
 
 // Helper to safely parse JSON and convert case
-async function safeJsonParse<T>(response: Response): Promise<T> {
+export async function safeJsonParse<T>(response: Response): Promise<T> {
   const data = await parseResponse(response);
   return snakeToCamel(data) as T;
 }

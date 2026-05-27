@@ -584,9 +584,10 @@ const thumbnailUrl = computed(() => {
 });
 
 // Content
-const displayContent = computed(() =>
-  props.post.isTruncated ? `${props.post.content}...` : props.post.content,
-);
+const displayContent = computed(() => {
+  const content = props.post.content ?? '';
+  return props.post.isTruncated ? `${content}...` : content;
+});
 const renderedContent = computed(() => renderMarkdown(displayContent.value));
 
 // Handle markdown element clicks
@@ -617,10 +618,11 @@ const hasReference = computed(() => Boolean(referencePost.value));
 const referenceIsReply = computed(() => Boolean(props.post.repliedPost));
 const renderedReferenceContent = computed(() => {
   if (!referencePost.value) return "";
-  const content = referencePost.value.isTruncated
-    ? `${referencePost.value.content}...`
-    : referencePost.value.content;
-  return renderMarkdown(content);
+  const content = referencePost.value.content ?? '';
+  const displayContent = referencePost.value.isTruncated
+    ? `${content}...`
+    : content;
+  return renderMarkdown(displayContent);
 });
 
 // Scores

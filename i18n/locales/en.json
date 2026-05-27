@@ -13,7 +13,8 @@
     "logout": "Logout",
     "signIn": "Sign In",
     "joinCommunity": "Join the community",
-    "home": "Home"
+    "home": "Home",
+    "creatorHub": "Creator Hub"
   },
   "home": {
     "seoTitle": "Explore",
@@ -568,5 +569,196 @@
     "savePreferences": "Save Preferences",
     "noTopics": "No notification topics configured",
     "description": "Description"
+  },
+  "creator": {
+    "title": "Creator Hub",
+    "selectPublisher": "Select Publisher",
+    "clearSelection": "Clear Selection",
+    "createPublisher": "Create Publisher",
+    "editPublisher": "Edit Publisher",
+    "deletePublisher": "Delete Publisher",
+    "deletePublisherConfirm": "Are you sure you want to delete this publisher? This action cannot be undone.",
+    "backToApp": "Back to App",
+    "dashboard": "Dashboard",
+    "posts": "Posts",
+    "collections": "Collections",
+    "stickers": "Stickers",
+    "polls": "Polls",
+    "feeds": "Web Feeds",
+    "members": "Members",
+    "subscribers": "Subscribers",
+    "settings": "Settings",
+    "leaderboard": "Leaderboard",
+    "username": "Username",
+    "usernameHint": "Cannot be changed after creation",
+    "nickname": "Nickname",
+    "bio": "Bio",
+    "realm": "Realm",
+    "individual": "Individual",
+    "create": "Create",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "noResults": "No results found",
+    "quota": {
+      "title": "Publisher Quota",
+      "used": "{used} / {total} slots used",
+      "info": "You can create publishers up to your quota limit. Upgrade your account for more slots."
+    },
+    "stats": {
+      "postsCreated": "Posts",
+      "stickerPacksCreated": "Sticker Packs",
+      "stickersCreated": "Stickers",
+      "upvoteReceived": "Upvotes",
+      "downvoteReceived": "Downvotes"
+    },
+    "rating": {
+      "title": "Rating",
+      "rank": "Rank #{rank}",
+      "percentile": "Top {percentile}%"
+    },
+    "features": {
+      "title": "Feature Flags",
+      "followRequiresApproval": "Follow Requires Approval",
+      "followRequiresApprovalDesc": "New followers must be approved before they can follow",
+      "postsRequireFollow": "Posts Require Follow",
+      "postsRequireFollowDesc": "Only followers can see posts"
+    },
+    "fediverse": {
+      "title": "Fediverse",
+      "enabled": "Fediverse Enabled",
+      "disabled": "Fediverse Disabled",
+      "enableHint": "Enable ActivityPub integration to allow fediverse users to follow this publisher",
+      "disableHint": "Disable fediverse integration",
+      "followerCount": "Followers",
+      "actorUri": "Actor URI",
+      "whatIs": "What is Fediverse?",
+      "about": "Fediverse integration allows your publisher to be followed from Mastodon, Pleroma, and other ActivityPub-compatible platforms."
+    },
+    "members": {
+      "title": "Members",
+      "invite": "Invite Member",
+      "role": "Role",
+      "owner": "Owner",
+      "moderator": "Moderator",
+      "member": "Member",
+      "remove": "Remove",
+      "removeConfirm": "Are you sure you want to remove this member?",
+      "pending": "Pending"
+    },
+    "subscribers": {
+      "title": "Subscribers",
+      "add": "Add Subscriber",
+      "remove": "Remove",
+      "removeConfirm": "Are you sure you want to remove this subscriber?",
+      "requests": "Follow Requests",
+      "noRequests": "No pending requests",
+      "approve": "Approve",
+      "reject": "Reject",
+      "rejectReason": "Reason for rejection"
+    },
+    "invites": {
+      "title": "Collaboration Invites",
+      "count": "{count} invite(s)",
+      "empty": "No pending invites",
+      "accept": "Accept",
+      "decline": "Decline"
+    },
+    "posts": {
+      "title": "Post Management",
+      "selectAll": "Select All",
+      "batchDelete": "Delete Selected",
+      "batchVisibility": "Change Visibility",
+      "batchAddToCollection": "Add to Collection",
+      "batchRemoveFromCollection": "Remove from Collection",
+      "visibility": {
+        "public": "Public",
+        "friends": "Friends",
+        "unlisted": "Unlisted",
+        "private": "Private"
+      },
+      "detail": "Post Detail",
+      "analytics": "Analytics",
+      "views": "Views",
+      "uniqueViews": "Unique Views",
+      "replies": "Reactions",
+      "created": "Created",
+      "edited": "Edited"
+    },
+    "collections": {
+      "title": "Collections",
+      "create": "Create Collection",
+      "slug": "Slug",
+      "slugHint": "Unique identifier for the collection",
+      "name": "Name",
+      "description": "Description",
+      "empty": "No collections yet",
+      "deleteConfirm": "Are you sure you want to delete this collection?"
+    },
+    "stickers": {
+      "title": "Sticker Packs",
+      "create": "Create Sticker Pack",
+      "packName": "Pack Name",
+      "packDescription": "Description",
+      "prefix": "Prefix",
+      "prefixHint": "Used for sticker codes like :prefix+slug:",
+      "count": "{count}/24 stickers",
+      "stickerSlug": "Sticker Slug",
+      "stickerSlugHint": "Unique identifier within the pack",
+      "size": "Size",
+      "mode": "Mode",
+      "sizeAuto": "Auto",
+      "sizeSmall": "Small",
+      "sizeMedium": "Medium",
+      "sizeLarge": "Large",
+      "modeSticker": "Sticker",
+      "modeEmote": "Emote",
+      "reorder": "Reorder",
+      "batchEdit": "Batch Edit",
+      "deleteSticker": "Delete Sticker",
+      "deletePack": "Delete Sticker Pack",
+      "deletePackConfirm": "Are you sure you want to delete this sticker pack?"
+    },
+    "polls": {
+      "title": "Polls",
+      "questions": "Questions",
+      "noEnd": "No end date",
+      "deleteConfirm": "Are you sure you want to delete this poll?"
+    },
+    "feeds": {
+      "title": "Web Feeds",
+      "create": "Create Web Feed",
+      "url": "URL",
+      "scrapPage": "Scrape web page for content",
+      "scrapPageHint": "When enabled, the system will attempt to extract full content from the web page",
+      "scrapNow": "Scrape Now",
+      "empty": "No web feeds yet",
+      "deleteConfirm": "Are you sure you want to delete this web feed?"
+    },
+    "leaderboard": {
+      "title": "Publisher Leaderboard"
+    },
+    "common": {
+      "selected": "{count} selected",
+      "clear": "Clear",
+      "reset": "Reset",
+      "saveOrder": "Save Order",
+      "reordered": "{count} stickers reordered",
+      "published": "Published",
+      "scheduled": "Scheduled",
+      "untitled": "Untitled",
+      "name": "Name",
+      "slug": "Slug",
+      "code": "Code",
+      "preview": "Preview",
+      "apply": "Apply",
+      "updateSize": "Update size",
+      "updateMode": "Update mode",
+      "status": "Status",
+      "actions": "Actions",
+      "noEnd": "No end date"
+    }
   }
 }
