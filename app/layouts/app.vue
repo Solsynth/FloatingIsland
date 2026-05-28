@@ -171,6 +171,7 @@ import {
   IconMenu,
   IconCompass,
   IconBuilding,
+  IconHardDrive,
   IconUser,
   IconSettings,
   IconLogOut,
@@ -190,6 +191,7 @@ const composeOpen = ref(false);
 const navItems = computed(() => [
   { to: "/", label: t("nav.explore"), icon: IconCompass },
   { to: "/realms", label: t("nav.realms"), icon: IconBuilding },
+  { to: "/drive", label: t("nav.drive"), icon: IconHardDrive },
 ]);
 
 const displayName = computed(() => user.value?.nick || user.value?.name || "");

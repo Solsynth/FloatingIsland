@@ -2106,3 +2106,258 @@ export async function fetchEventCalendar(
   const response = await apiFetch(`${path}?${params.toString()}`)
   return safeJsonParse<EventCalendarEntry[]>(response)
 }
+
+// Drive API
+import type {
+  SnCloudFile,
+  SnFilePool,
+  DriveUsage,
+  DriveQuota,
+  DriveFilePermission,
+  PaginatedResult,
+} from "~/types/drive"
+
+export async function fetchDriveRootChildren(options: {
+  query?: string
+  order?: string
+  orderDesc?: boolean
+  poolId?: string
+  usage?: string
+  applicationType?: string
+  take?: number
+  offset?: number
+} = {}): Promise<PaginatedResult<SnCloudFile>> {
+  const params = new URLSearchParams()
+  if (options.query) params.set("query", options.query)
+  if (options.order) params.set("order", options.order)
+  if (options.orderDesc !== undefined) params.set("orderDesc", String(options.orderDesc))
+  if (options.poolId) params.set("pool", options.poolId)
+  if (options.usage) params.set("usage", options.usage)
+  if (options.applicationType) params.set("applicationType", options.applicationType)
+  if (options.take) params.set("take", String(options.take))
+  if (options.offset) params.set("offset", String(options.offset))
+
+  const qs = params.toString()
+  const endpoint = `/drive/files/root/children${qs ? `?${qs}` : ""}`
+  const response = await apiFetch(endpoint)
+  const total = parseInt(response.headers.get("x-total") || "0", 10)
+  const data = await safeJsonParse<SnCloudFile[]>(response)
+  return { items: data, totalCount: total }
+}
+
+export async function fetchDriveFolderChildren(
+  folderId: string,
+  options: {
+    query?: string
+    order?: string
+    orderDesc?: boolean
+    poolId?: string
+    usage?: string
+    applicationType?: string
+    take?: number
+    offset?: number
+  } = {},
+): Promise<PaginatedResult<SnCloudFile>> {
+  const params = new URLSearchParams()
+  if (options.query) params.set("query", options.query)
+  if (options.order) params.set("order", options.order)
+  if (options.orderDesc !== undefined) params.set("orderDesc", String(options.orderDesc))
+  if (options.poolId) params.set("pool", options.poolId)
+  if (options.usage) params.set("usage", options.usage)
+  if (options.applicationType) params.set("applicationType", options.applicationType)
+  if (options.take) params.set("take", String(options.take))
+  if (options.offset) params.set("offset", String(options.offset))
+
+  const qs = params.toString()
+  const endpoint = `/drive/files/${folderId}/children${qs ? `?${qs}` : ""}`
+  const response = await apiFetch(endpoint)
+  const total = parseInt(response.headers.get("x-total") || "0", 10)
+  const data = await safeJsonParse<SnCloudFile[]>(response)
+  return { items: data, totalCount: total }
+}
+
+export async function fetchDriveFileInfo(fileId: string): Promise<SnCloudFile> {
+  const response = await apiFetch(`/drive/files/${fileId}/info`)
+  return safeJsonParse<SnCloudFile>(response)
+}
+
+export async function fetchDriveFilePermissions(
+  fileId: string,
+): Promise<DriveFilePermission[]> {
+  const response = await apiFetch(`/drive/files/${fileId}/permissions`)
+  return safeJsonParse<DriveFilePermission[]>(response)
+}
+
+export async function createDriveFolder(options: {
+  name: string
+  parentId?: string | null
+  poolId?: string | null
+}): Promise<SnCloudFile> {
+  const body: Record<string, unknown> = { name: options.name }
+  if (options.parentId) body.parent_id = options.parentId
+  if (options.poolId) body.pool_id = options.poolId
+  const response = await apiFetch("/drive/files/folders", {
+    method: "POST",
+    body: JSON.stringify(body),
+  })
+  return safeJsonParse<SnCloudFile>(response)
+}
+
+export async function renameDriveFile(
+  fileId: string,
+  newName: string,
+): Promise<SnCloudFile> {
+  const response = await apiFetch(`/drive/files/${fileId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ name: newName }),
+  })
+  return safeJsonParse<SnCloudFile>(response)
+}
+
+export async function moveDriveFile(
+  fileId: string,
+  parentId: string | null,
+  indexed?: boolean,
+): Promise<SnCloudFile> {
+  const body: Record<string, unknown> = { parent_id: parentId }
+  if (indexed !== undefined) body.indexed = indexed
+  const response = await apiFetch(`/drive/files/${fileId}/move`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  })
+  return safeJsonParse<SnCloudFile>(response)
+}
+
+export async function deleteDriveFile(fileId: string): Promise<void> {
+  await apiFetch(`/drive/files/${fileId}`, { method: "DELETE" })
+}
+
+export async function batchDeleteDriveFiles(fileIds: string[]): Promise<number> {
+  const response = await apiFetch("/drive/files/batch", {
+    method: "DELETE",
+    body: JSON.stringify({ ids: fileIds }),
+  })
+  const data = await safeJsonParse<{ count: number }>(response)
+  return data.count
+}
+
+export async function updateDriveFileSensitiveMarks(
+  fileId: string,
+  marks: string[],
+): Promise<SnCloudFile> {
+  const response = await apiFetch(`/drive/files/${fileId}/sensitive`, {
+    method: "PATCH",
+    body: JSON.stringify({ marks }),
+  })
+  return safeJsonParse<SnCloudFile>(response)
+}
+
+export async function updateDriveFileUserMeta(
+  fileId: string,
+  meta: Record<string, unknown>,
+): Promise<SnCloudFile> {
+  const response = await apiFetch(`/drive/files/${fileId}/meta`, {
+    method: "PATCH",
+    body: JSON.stringify({ meta }),
+  })
+  return safeJsonParse<SnCloudFile>(response)
+}
+
+export async function fetchDriveUsage(): Promise<DriveUsage> {
+  const response = await apiFetch("/drive/billing/usage")
+  return safeJsonParse<DriveUsage>(response)
+}
+
+export async function fetchDriveQuota(): Promise<DriveQuota> {
+  const response = await apiFetch("/drive/billing/quota")
+  return safeJsonParse<DriveQuota>(response)
+}
+
+export async function fetchDrivePools(): Promise<SnFilePool[]> {
+  const response = await apiFetch("/drive/pools")
+  return safeJsonParse<SnFilePool[]>(response)
+}
+
+export async function fetchDriveUnindexedFiles(options: {
+  poolId?: string
+  recycled?: boolean
+  query?: string
+  order?: string
+  orderDesc?: boolean
+  usage?: string
+  applicationType?: string
+  take?: number
+  offset?: number
+} = {}): Promise<PaginatedResult<SnCloudFile>> {
+  const params = new URLSearchParams()
+  if (options.poolId) params.set("pool", options.poolId)
+  if (options.recycled !== undefined) params.set("recycled", String(options.recycled))
+  if (options.query) params.set("query", options.query)
+  if (options.order) params.set("order", options.order)
+  if (options.orderDesc !== undefined) params.set("orderDesc", String(options.orderDesc))
+  if (options.usage) params.set("usage", options.usage)
+  if (options.applicationType) params.set("applicationType", options.applicationType)
+  if (options.take) params.set("take", String(options.take))
+  if (options.offset) params.set("offset", String(options.offset))
+
+  const qs = params.toString()
+  const endpoint = `/drive/files/unindexed${qs ? `?${qs}` : ""}`
+  const response = await apiFetch(endpoint)
+  const total = parseInt(response.headers.get("x-total") || "0", 10)
+  const data = await safeJsonParse<SnCloudFile[]>(response)
+  return { items: data, totalCount: total }
+}
+
+export async function uploadDriveFile(file: File, options: {
+  parentId?: string | null
+  poolId?: string | null
+  usage?: string
+  applicationType?: string
+} = {}): Promise<SnCloudFile> {
+  const formData = new FormData()
+  formData.append("file", file)
+  if (options.parentId) formData.append("parent_id", options.parentId)
+  if (options.poolId) formData.append("pool_id", options.poolId)
+  if (options.usage) formData.append("usage", options.usage)
+  if (options.applicationType) formData.append("application_type", options.applicationType)
+
+  const url = `${API_BASE_URL}/drive/files/upload/direct`
+  const headers: Record<string, string> = {}
+
+  if (import.meta.client && getAuthMode() === "bearer") {
+    const token = await getAuthToken()
+    if (token) headers["Authorization"] = `Bearer ${token}`
+  }
+
+  const credentials = import.meta.client && getAuthMode() === "cookie" ? "include" : undefined
+  const response = await fetch(url, { method: "POST", body: formData, headers, credentials })
+
+  if (!response.ok) {
+    const errorData = await parseResponse(response)
+    const message =
+      typeof errorData === "object" && errorData && "message" in errorData
+        ? String(errorData.message)
+        : `HTTP ${response.status}`
+    throw new ApiError(message, response.status)
+  }
+
+  return safeJsonParse<SnCloudFile>(response)
+}
+
+export async function deleteDriveRecycledFiles(): Promise<number> {
+  const response = await apiFetch("/drive/files/recycled", { method: "DELETE" })
+  const data = await safeJsonParse<{ count: number }>(response)
+  return data.count
+}
+
+export interface DriveBreadcrumb {
+  id: string
+  name: string
+  parentId: string | null
+  isFolder: boolean
+}
+
+export async function fetchDriveBreadcrumb(fileId: string): Promise<DriveBreadcrumb[]> {
+  const response = await apiFetch(`/drive/files/${fileId}/breadcrumb`)
+  return safeJsonParse<DriveBreadcrumb[]>(response)
+}

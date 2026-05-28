@@ -106,6 +106,7 @@ import {
   IconBuilding,
   IconPalette,
   IconCode,
+  IconHardDrive,
   IconLogIn,
   IconLogOut,
   IconUser,
@@ -125,6 +126,7 @@ const {
 const navItems = computed(() => [
   { icon: IconCompass, label: t("nav.explore"), href: "/" },
   { icon: IconBuilding, label: t("nav.realms"), href: "/realms" },
+  { icon: IconHardDrive, label: t("nav.drive"), href: "/drive" },
   { icon: IconPalette, label: t("nav.creatorHub"), href: "/creators" },
   { icon: IconCode, label: t("nav.developerHub"), href: "/developers" },
 ]);
