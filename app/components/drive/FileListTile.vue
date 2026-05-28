@@ -60,7 +60,7 @@
       >
         <IconDownload class="w-4 h-4" />
       </button>
-      <div class="dropdown dropdown-end">
+      <div class="dropdown dropdown-end" @click.stop>
         <button class="btn btn-ghost btn-xs" :title="t('drive.more')">
           <IconMoreHorizontal class="w-4 h-4" />
         </button>
@@ -68,40 +68,40 @@
           class="dropdown-content menu p-2 shadow-lg bg-base-100 rounded-box w-48 z-50"
         >
           <li v-if="file.isFolder">
-            <a @click="$emit('open')">
+            <button @click.stop="$emit('open')">
               <IconFolderOpen class="w-4 h-4" />
               {{ t("drive.open") }}
-            </a>
+            </button>
           </li>
           <li v-if="!file.isFolder">
-            <a :href="fileUrl" target="_blank">
+            <a :href="fileUrl" target="_blank" @click.stop>
               <IconExternalLink class="w-4 h-4" />
               {{ t("drive.openInNewTab") }}
             </a>
           </li>
           <li>
-            <a @click="$emit('rename')">
+            <button @click.stop="$emit('rename')">
               <IconPencil class="w-4 h-4" />
               {{ t("drive.rename") }}
-            </a>
+            </button>
           </li>
           <li v-if="!file.isFolder">
-            <a @click="$emit('download')">
+            <button @click.stop="$emit('download')">
               <IconDownload class="w-4 h-4" />
               {{ t("drive.download") }}
-            </a>
+            </button>
           </li>
           <li>
-            <a @click="$emit('move')">
+            <button @click.stop="$emit('move')">
               <IconFolderInput class="w-4 h-4" />
               {{ t("drive.move") }}
-            </a>
+            </button>
           </li>
           <li>
-            <a class="text-error" @click="$emit('delete')">
+            <button class="text-error" @click.stop="$emit('delete')">
               <IconTrash class="w-4 h-4" />
               {{ t("drive.delete") }}
-            </a>
+            </button>
           </li>
         </ul>
       </div>

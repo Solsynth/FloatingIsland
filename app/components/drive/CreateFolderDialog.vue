@@ -1,7 +1,7 @@
 <template>
-  <dialog ref="dialogRef" class="modal" :open="open">
+  <dialog ref="dialogRef" class="modal" :open="props.open">
     <div class="modal-box">
-      <h3 class="font-bold text-lg">{{ t('drive.createFolder') }}</h3>
+      <h3 class="font-bold text-lg">{{ t("drive.createFolder") }}</h3>
       <div class="py-4">
         <input
           ref="inputRef"
@@ -13,9 +13,15 @@
         />
       </div>
       <div class="modal-action">
-        <button class="btn btn-ghost" @click="$emit('close')">{{ t('common.cancel') }}</button>
-        <button class="btn btn-primary" :disabled="!folderName.trim()" @click="handleConfirm">
-          {{ t('drive.create') }}
+        <button class="btn btn-ghost" @click="$emit('close')">
+          {{ t("common.cancel") }}
+        </button>
+        <button
+          class="btn btn-primary"
+          :disabled="!folderName.trim()"
+          @click="handleConfirm"
+        >
+          {{ t("drive.create") }}
         </button>
       </div>
     </div>
@@ -26,30 +32,33 @@
 </template>
 
 <script setup lang="ts">
-const { t } = useI18n()
+const { t } = useI18n();
 
 const props = defineProps<{
-  open: boolean
-}>()
+  open: boolean;
+}>();
 
 const emit = defineEmits<{
-  close: []
-  confirm: [name: string]
-}>()
+  close: [];
+  confirm: [name: string];
+}>();
 
-const folderName = ref('')
-const inputRef = ref<HTMLInputElement | null>(null)
+const folderName = ref("");
+const inputRef = ref<HTMLInputElement | null>(null);
 
-watch(() => props.open, (isOpen) => {
-  if (isOpen) {
-    folderName.value = ''
-    nextTick(() => inputRef.value?.focus())
-  }
-})
+watch(
+  () => props.open,
+  (isOpen) => {
+    if (isOpen) {
+      folderName.value = "";
+      nextTick(() => inputRef.value?.focus());
+    }
+  },
+);
 
 function handleConfirm() {
   if (folderName.value.trim()) {
-    emit('confirm', folderName.value.trim())
+    emit("confirm", folderName.value.trim());
   }
 }
 </script>

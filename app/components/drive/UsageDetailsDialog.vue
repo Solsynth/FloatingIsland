@@ -1,15 +1,14 @@
 <template>
-  <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-black/50" @click="$emit('close')" />
-    <div class="relative w-full max-w-md bg-base-100 rounded-xl shadow-lg overflow-hidden">
-      <div class="flex items-center justify-between px-4 py-3 border-b border-base-300">
-        <h2 class="font-semibold">{{ t('drive.storageDetails') }}</h2>
+  <dialog ref="dialogRef" class="modal" :open="open">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-semibold text-lg">{{ t('drive.storageDetails') }}</h2>
         <button class="btn btn-ghost btn-xs btn-circle" @click="$emit('close')">
           <IconX class="w-4 h-4" />
         </button>
       </div>
 
-      <div class="p-4 space-y-4">
+      <div class="space-y-4">
         <!-- Total usage -->
         <div class="stat bg-base-200 rounded-lg p-3">
           <div class="stat-title text-xs">{{ t('drive.totalUsage') }}</div>
@@ -54,8 +53,15 @@
           </div>
         </div>
       </div>
+
+      <div class="modal-action">
+        <button class="btn" @click="$emit('close')">{{ t('common.close') }}</button>
+      </div>
     </div>
-  </div>
+    <form method="dialog" class="modal-backdrop">
+      <button @click="$emit('close')">close</button>
+    </form>
+  </dialog>
 </template>
 
 <script setup lang="ts">

@@ -1,5 +1,5 @@
 <template>
-  <dialog ref="dialogRef" class="modal" :open="open">
+  <dialog ref="dialogRef" class="modal" :open="!!file">
     <div class="modal-box">
       <h3 class="font-bold text-lg">{{ t('drive.rename') }}</h3>
       <div class="py-4">
@@ -26,11 +26,14 @@
 </template>
 
 <script setup lang="ts">
+import type { SnCloudFile } from '~/types/drive'
+
 const { t } = useI18n()
 
 const props = defineProps<{
   open: boolean
   currentName: string
+  file: SnCloudFile | null
 }>()
 
 const emit = defineEmits<{
@@ -41,9 +44,9 @@ const emit = defineEmits<{
 const newName = ref(props.currentName)
 const inputRef = ref<HTMLInputElement | null>(null)
 
-watch(() => props.open, (isOpen) => {
-  if (isOpen) {
-    newName.value = props.currentName
+watch(() => props.file, (file) => {
+  if (file) {
+    newName.value = file.name
     nextTick(() => {
       inputRef.value?.focus()
       inputRef.value?.select()

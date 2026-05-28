@@ -150,16 +150,16 @@
                   class="dropdown-content menu p-2 shadow-lg bg-base-100 rounded-box w-52 z-50"
                 >
                   <li v-if="state.mode === 'indexed'">
-                    <a @click="showCreateFolder = true">
+                    <button @click="showCreateFolder = true">
                       <IconFolderPlus class="w-4 h-4" />
                       {{ t("drive.createFolder") }}
-                    </a>
+                    </button>
                   </li>
                   <li>
-                    <a @click="triggerFileUpload">
+                    <button @click="triggerFileUpload">
                       <IconUpload class="w-4 h-4" />
                       {{ t("drive.uploadFile") }}
-                    </a>
+                    </button>
                   </li>
                 </ul>
               </div>
@@ -309,6 +309,7 @@
               @open="handleNavigateToFolder(file)"
               @download="handleDownload(file)"
               @rename="openRename(file)"
+              @move="openMove(file)"
               @delete="handleDelete(file)"
               @toggle-select="toggleFileSelection(file.id)"
             />
@@ -328,6 +329,7 @@
               @open="handleNavigateToFolder(file)"
               @download="handleDownload(file)"
               @rename="openRename(file)"
+              @move="openMove(file)"
               @delete="handleDelete(file)"
               @toggle-select="toggleFileSelection(file.id)"
             />
@@ -350,6 +352,12 @@
         <div class="border-t border-base-300">
           <StorageBar :usage="state.usage" @details="showUsageDetails = true" />
         </div>
+
+        <!-- Upload progress -->
+        <UploadProgress
+          :uploads="state.uploads"
+          @clear="clearCompletedUploads"
+        />
 
         <!-- Floating upload button -->
         <button
@@ -377,8 +385,16 @@
         <RenameDialog
           :open="!!renamingFile"
           :current-name="renamingFile?.name || ''"
+          :file="renamingFile"
           @close="renamingFile = null"
           @confirm="handleRename"
+        />
+        <MoveDialog
+          :open="!!movingFile"
+          :file="movingFile"
+          :current-path="state.currentPath"
+          @close="movingFile = null"
+          @confirm="handleMove"
         />
         <UsageDetailsDialog
           :open="showUsageDetails"
@@ -409,7 +425,6 @@ const {
   navigateToFolder,
   navigateToPathIndex,
   loadUsage,
-  refresh,
   setMode,
   setRecycled,
   setViewMode,
@@ -422,13 +437,16 @@ const {
   renameFile,
   deleteFile,
   batchDelete,
+  moveFile,
   uploadFiles,
+  clearCompletedUploads,
 } = useDrive();
 
 const searchQuery = ref("");
 const showCreateFolder = ref(false);
 const showUsageDetails = ref(false);
 const renamingFile = ref<SnCloudFile | null>(null);
+const movingFile = ref<SnCloudFile | null>(null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 let searchDebounce: ReturnType<typeof setTimeout> | null = null;
 
@@ -628,6 +646,18 @@ async function handleBatchDelete() {
     )
   ) {
     await batchDelete();
+  }
+}
+
+function openMove(file: SnCloudFile) {
+  movingFile.value = file;
+}
+
+async function handleMove(targetFolderId: string | null) {
+  if (!movingFile.value) return;
+  const success = await moveFile(movingFile.value.id, targetFolderId);
+  if (success) {
+    movingFile.value = null;
   }
 }
 

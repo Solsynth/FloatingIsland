@@ -1,4 +1,5 @@
 import type { SnCloudFile, DriveUsage, DriveQuota, PaginatedResult } from '~/types/drive'
+import type { UploadItem } from '~/components/drive/UploadProgress.vue'
 import {
   fetchDriveRootChildren,
   fetchDriveFolderChildren,
@@ -37,6 +38,7 @@ export interface DriveState {
   quota: DriveQuota | null
   mode: DriveMode
   recycled: boolean
+  uploads: UploadItem[]
 }
 
 export function useDrive() {
@@ -58,6 +60,7 @@ export function useDrive() {
     quota: null,
     mode: 'indexed',
     recycled: false,
+    uploads: [],
   })
 
   async function loadFiles(folderId: string | null = null, reset = true) {
@@ -265,16 +268,52 @@ export function useDrive() {
   }
 
   async function uploadFile(file: File) {
+    const uploadId = `upload-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    const uploadItem: UploadItem = {
+      id: uploadId,
+      name: file.name,
+      progress: 0,
+      status: 'uploading',
+    }
+    state.uploads.push(uploadItem)
+
     try {
+      // Simulate progress (since we don't have real progress from the API)
+      const progressInterval = setInterval(() => {
+        const upload = state.uploads.find(u => u.id === uploadId)
+        if (upload && upload.progress < 90) {
+          upload.progress += 10
+        }
+      }, 200)
+
       await uploadDriveFile(file, {
         parentId: state.currentFolderId,
       })
+
+      clearInterval(progressInterval)
+
+      // Mark as done
+      const upload = state.uploads.find(u => u.id === uploadId)
+      if (upload) {
+        upload.progress = 100
+        upload.status = 'done'
+      }
+
       await refresh()
       return true
     } catch (err) {
+      // Mark as error
+      const upload = state.uploads.find(u => u.id === uploadId)
+      if (upload) {
+        upload.status = 'error'
+      }
       console.error('Failed to upload file:', err)
       return false
     }
+  }
+
+  function clearCompletedUploads() {
+    state.uploads = state.uploads.filter(u => u.status === 'uploading')
   }
 
   async function uploadFiles(files: FileList | File[]) {
@@ -310,5 +349,6 @@ export function useDrive() {
     moveFile,
     uploadFile,
     uploadFiles,
+    clearCompletedUploads,
   }
 }

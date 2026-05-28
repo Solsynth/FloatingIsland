@@ -66,7 +66,20 @@
     "showActive": "显示活跃文件",
     "showRecycled": "显示回收站文件",
     "emptyAttachments": "暂无附件",
-    "emptyAttachmentsHint": "来自帖子和其他内容的附件将显示在这里"
+    "emptyAttachmentsHint": "来自帖子和其他内容的附件将显示在这里",
+    "storageDetails": "存储详情",
+    "totalUsage": "总用量",
+    "totalFiles": "文件总数",
+    "quota": "配额",
+    "used": "已使用",
+    "poolUsage": "存储池用量",
+    "uploading": "上传中",
+    "moveTo": "移动到",
+    "currentLocation": "当前位置",
+    "selectDestination": "选择目标位置",
+    "noFoldersAvailable": "没有可用的文件夹",
+    "root": "根目录",
+    "moveHere": "移动到这里"
   },
   "nav": {
     "explore": "探索",
