@@ -123,7 +123,7 @@
               v-if="isOffice"
               class="btn btn-circle btn-ghost btn-sm"
               :title="t('drive.editDocument')"
-              @click="showEditor = true"
+              @click="navigateTo(`/drive/files/${fileId}/edit`)"
             >
               <IconPencil class="h-5 w-5" />
             </button>
@@ -169,13 +169,11 @@
 
       <!-- Content area -->
       <div class="relative">
-        <div :class="isOffice && showEditor ? 'w-full' : 'max-w-5xl mx-auto'">
+        <div class="max-w-5xl mx-auto">
           <!-- Main content -->
           <div>
             <div
-              :class="isOffice && showEditor
-                ? 'flex h-[calc(100vh-57px)] items-stretch'
-                : 'flex min-h-[calc(100vh-65px)] items-center justify-center overflow-auto p-4'"
+              class="flex min-h-[calc(100vh-65px)] items-center justify-center overflow-auto p-4"
             >
               <!-- Image -->
               <div
@@ -229,38 +227,31 @@
                 </div>
               </div>
               <!-- Office (Collabora Editor) -->
-              <div v-else-if="isOffice" class="w-full h-[calc(100vh-57px)]">
-                <CollaboraEditor
-                  v-if="showEditor"
-                  :file-id="fileId"
-                  @close="showEditor = false"
-                />
-                <div v-else class="text-center py-20">
-                  <div
-                    class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4"
+              <div v-else-if="isOffice" class="text-center py-20">
+                <div
+                  class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4"
+                >
+                  <IconFileText class="w-12 h-12 text-primary" />
+                </div>
+                <p class="text-lg font-semibold">{{ file.name }}</p>
+                <p class="text-sm text-base-content/50 mt-1">
+                  {{ file.mimeType }}
+                </p>
+                <div class="flex items-center justify-center gap-2 mt-4">
+                  <button
+                    class="btn btn-primary btn-sm"
+                    @click="navigateTo(`/drive/files/${fileId}/edit`)"
                   >
-                    <IconFileText class="w-12 h-12 text-primary" />
-                  </div>
-                  <p class="text-lg font-semibold">{{ file.name }}</p>
-                  <p class="text-sm text-base-content/50 mt-1">
-                    {{ file.mimeType }}
-                  </p>
-                  <div class="flex items-center justify-center gap-2 mt-4">
-                    <button
-                      class="btn btn-primary btn-sm"
-                      @click="showEditor = true"
-                    >
-                      <IconPencil class="w-4 h-4" />
-                      {{ t("drive.editDocument") }}
-                    </button>
-                    <button
-                      class="btn btn-outline btn-sm"
-                      @click="handleDownload"
-                    >
-                      <IconDownload class="w-4 h-4" />
-                      {{ t("drive.download") }}
-                    </button>
-                  </div>
+                    <IconPencil class="w-4 h-4" />
+                    {{ t("drive.editDocument") }}
+                  </button>
+                  <button
+                    class="btn btn-outline btn-sm"
+                    @click="handleDownload"
+                  >
+                    <IconDownload class="w-4 h-4" />
+                    {{ t("drive.download") }}
+                  </button>
                 </div>
               </div>
               <!-- Generic -->
@@ -553,7 +544,6 @@ const file = ref<SnCloudFile | null>(null);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
 const showInfo = ref(false);
-const showEditor = ref(false);
 
 // Fetch file info
 onMounted(async () => {

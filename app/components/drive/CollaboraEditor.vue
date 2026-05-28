@@ -57,9 +57,9 @@ async function openEditor() {
     const session = await createWopiEditSession(props.fileId);
 
     // Build URL with form fields as query parameters
-    const url = new URL(session.actionUrl);
+    const url = new URL(session.actionUrl)
     for (const [key, value] of Object.entries(session.formFields || {})) {
-      url.searchParams.set(key, value);
+      url.searchParams.set(key, value)
     }
 
     editorUrl.value = url.toString();
