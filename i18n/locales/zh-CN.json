@@ -79,7 +79,10 @@
     "selectDestination": "选择目标位置",
     "noFoldersAvailable": "没有可用的文件夹",
     "root": "根目录",
-    "moveHere": "移动到这里"
+    "moveHere": "移动到这里",
+    "editDocument": "编辑文档",
+    "editingDocument": "正在编辑文档",
+    "failedToOpenEditor": "无法打开编辑器，请重试。"
   },
   "nav": {
     "explore": "探索",

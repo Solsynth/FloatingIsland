@@ -79,7 +79,10 @@
     "selectDestination": "Select destination",
     "noFoldersAvailable": "No folders available",
     "root": "Root",
-    "moveHere": "Move here"
+    "moveHere": "Move here",
+    "editDocument": "Edit Document",
+    "editingDocument": "Editing Document",
+    "failedToOpenEditor": "Failed to open editor. Please try again."
   },
   "nav": {
     "explore": "Explore",

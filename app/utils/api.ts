@@ -13,7 +13,12 @@ import type {
   SnAccountPunishment,
   SnAccountTimelineItem,
 } from "~/types/auth";
-import type { Publisher, Post, SnTimelineEvent, TimelineResult } from "~/types/post";
+import type {
+  Publisher,
+  Post,
+  SnTimelineEvent,
+  TimelineResult,
+} from "~/types/post";
 import type {
   Realm,
   RealmMember,
@@ -120,7 +125,8 @@ export async function apiFetch(
   }
 
   // Client cookie mode: Include credentials for cookies
-  const credentials = import.meta.client && getAuthMode() === "cookie" ? "include" : undefined;
+  const credentials =
+    import.meta.client && getAuthMode() === "cookie" ? "include" : undefined;
 
   const response = await fetch(url, { ...fetchOptions, headers, credentials });
 
@@ -131,11 +137,14 @@ export async function apiFetch(
     if (mode === "cookie") {
       // Cookie mode: Call refresh endpoint (uses HttpOnly refresh cookie)
       try {
-        const refreshResponse = await fetch(`${API_BASE_URL}/padlock/auth/refresh`, {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-        });
+        const refreshResponse = await fetch(
+          `${API_BASE_URL}/padlock/auth/refresh`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+          },
+        );
 
         if (refreshResponse.ok) {
           return apiFetch(endpoint, { ...options, retryCount: retryCount + 1 });
@@ -556,7 +565,8 @@ export async function fetchTimeline(
   if (options.cursor) params.set("cursor", options.cursor);
   if (options.mode) params.set("mode", options.mode);
   if (options.filter) params.set("filter", options.filter);
-  if (options.aggressive !== undefined) params.set("aggressive", String(options.aggressive));
+  if (options.aggressive !== undefined)
+    params.set("aggressive", String(options.aggressive));
 
   const response = await apiFetch(`/sphere/timeline?${params.toString()}`, {
     skipAuth: true,
@@ -568,7 +578,9 @@ export async function fetchTimeline(
   const mode = (payload.mode as string) ?? "personalized";
 
   const items = rawItems
-    .filter((e): e is Record<string, unknown> => typeof e === "object" && e !== null)
+    .filter(
+      (e): e is Record<string, unknown> => typeof e === "object" && e !== null,
+    )
     .map((e) => snakeToCamel(e) as SnTimelineEvent);
 
   return { items, nextCursor, mode };
@@ -603,9 +615,10 @@ export async function fetchPostRepliesThreaded(
   );
 
   const total = parseInt(response.headers.get("x-total") || "0", 10);
-  const data = await safeJsonParse<
-    Array<{ post: Post; depth?: number; parent_id?: string | null }>
-  >(response);
+  const data =
+    await safeJsonParse<
+      Array<{ post: Post; depth?: number; parent_id?: string | null }>
+    >(response);
 
   return {
     total,
@@ -674,9 +687,12 @@ export async function fetchPostReactionList(
     take: String(take),
     offset: String(offset),
   });
-  const response = await apiFetch(`/sphere/posts/${postId}/reactions?${params.toString()}`, {
-    skipAuth: true,
-  });
+  const response = await apiFetch(
+    `/sphere/posts/${postId}/reactions?${params.toString()}`,
+    {
+      skipAuth: true,
+    },
+  );
   const total = parseInt(response.headers.get("x-total") || "0", 10);
   const data = await safeJsonParse<PostReaction[]>(response);
   return { items: data, total };
@@ -711,9 +727,12 @@ export async function fetchPostBoosts(
     take: String(take),
     offset: String(offset),
   });
-  const response = await apiFetch(`/sphere/posts/${postId}/boosts?${params.toString()}`, {
-    skipAuth: true,
-  });
+  const response = await apiFetch(
+    `/sphere/posts/${postId}/boosts?${params.toString()}`,
+    {
+      skipAuth: true,
+    },
+  );
   const total = parseInt(response.headers.get("x-total") || "0", 10);
   const data = await safeJsonParse<Boost[]>(response);
   return { items: data, total };
@@ -728,9 +747,12 @@ export async function fetchPostForwards(
     take: String(take),
     offset: String(offset),
   });
-  const response = await apiFetch(`/sphere/posts/${postId}/forwards?${params.toString()}`, {
-    skipAuth: true,
-  });
+  const response = await apiFetch(
+    `/sphere/posts/${postId}/forwards?${params.toString()}`,
+    {
+      skipAuth: true,
+    },
+  );
   const total = parseInt(response.headers.get("x-total") || "0", 10);
   const data = await safeJsonParse<Post[]>(response);
   return { posts: data, total };
@@ -809,10 +831,7 @@ export async function searchPublishers(
   return safeJsonParse<Publisher[]>(response);
 }
 
-export async function searchRealms(
-  query: string,
-  take = 20,
-): Promise<Realm[]> {
+export async function searchRealms(query: string, take = 20): Promise<Realm[]> {
   const params = new URLSearchParams({ query, take: String(take) });
   const response = await apiFetch(
     `/passport/realms/search?${params.toString()}`,
@@ -1388,7 +1407,9 @@ export async function fetchNotificationCount(): Promise<number> {
   }
 }
 
-export async function markNotificationRead(notificationId: string): Promise<void> {
+export async function markNotificationRead(
+  notificationId: string,
+): Promise<void> {
   await apiFetch(`/ring/notifications/${notificationId}/read`, {
     method: "POST",
   });
@@ -1766,7 +1787,9 @@ export async function verifyContactMethod(contactId: string): Promise<void> {
   });
 }
 
-export async function setPrimaryContactMethod(contactId: string): Promise<void> {
+export async function setPrimaryContactMethod(
+  contactId: string,
+): Promise<void> {
   await apiFetch(`/padlock/contacts/${contactId}/primary`, {
     method: "POST",
   });
@@ -1785,12 +1808,16 @@ export async function makeContactPrivate(contactId: string): Promise<void> {
 }
 
 // Settings API - Account Connections
-export async function fetchAccountConnections(): Promise<SnAccountConnection[]> {
+export async function fetchAccountConnections(): Promise<
+  SnAccountConnection[]
+> {
   const response = await apiFetch("/padlock/connections");
   return safeJsonParse<SnAccountConnection[]>(response);
 }
 
-export async function deleteAccountConnection(connectionId: string): Promise<void> {
+export async function deleteAccountConnection(
+  connectionId: string,
+): Promise<void> {
   await apiFetch(`/padlock/connections/${connectionId}`, {
     method: "DELETE",
   });
@@ -1804,12 +1831,12 @@ export function getConnectionAuthUrl(provider: string): string {
 export async function fetchAuthDevices(): Promise<SnAuthDevice[]> {
   const response = await apiFetch("/padlock/devices");
   const raw = await safeJsonParse<{ sessions: SnAuthSession[] }[]>(response);
-  
+
   return raw.map((item) => {
     const sessions = item.sessions ?? [];
-    const client = sessions.find(s => s.client)?.client;
+    const client = sessions.find((s) => s.client)?.client;
     const isCurrent = sessions.some((s) => s.isCurrent);
-    
+
     return {
       deviceId: client?.deviceId ?? sessions[0]?.clientId ?? "unknown",
       deviceName: client?.deviceName ?? "Unknown Device",
@@ -1821,7 +1848,9 @@ export async function fetchAuthDevices(): Promise<SnAuthDevice[]> {
   });
 }
 
-export async function fetchAuthSessions(type?: number): Promise<SnAuthSession[]> {
+export async function fetchAuthSessions(
+  type?: number,
+): Promise<SnAuthSession[]> {
   const params = new URLSearchParams();
   if (type !== undefined) params.set("type", String(type));
   params.set("include_children", "false");
@@ -1830,7 +1859,9 @@ export async function fetchAuthSessions(type?: number): Promise<SnAuthSession[]>
   return Array.isArray(data) ? data : [];
 }
 
-export async function fetchSessionChildren(parentId: string): Promise<SnAuthSession[]> {
+export async function fetchSessionChildren(
+  parentId: string,
+): Promise<SnAuthSession[]> {
   const response = await apiFetch(`/padlock/sessions/${parentId}/children`);
   const data = await safeJsonParse<{ items: SnAuthSession[] }>(response);
   return data.items;
@@ -1854,7 +1885,10 @@ export async function revokeAllOtherSessions(): Promise<void> {
   });
 }
 
-export async function updateDeviceLabel(deviceId: string, label: string): Promise<void> {
+export async function updateDeviceLabel(
+  deviceId: string,
+  label: string,
+): Promise<void> {
   await apiFetch(`/padlock/devices/${deviceId}/label`, {
     method: "PATCH",
     body: JSON.stringify({ label }),
@@ -1863,31 +1897,31 @@ export async function updateDeviceLabel(deviceId: string, label: string): Promis
 
 // Categories API
 export interface PostCategory {
-  id: string
-  slug: string
-  name: string
-  description: string | null
-  color: string | null
-  icon: string | null
-  usage: number
-  createdAt: string
-  updatedAt: string
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  color: string | null;
+  icon: string | null;
+  usage: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PostTag {
-  id: string
-  slug: string
-  name: string | null
-  usage: number
-  createdAt: string
-  updatedAt: string
+  id: string;
+  slug: string;
+  name: string | null;
+  usage: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CategorySubscription {
-  id: string
-  categoryId: string
-  accountId: string
-  createdAt: string
+  id: string;
+  categoryId: string;
+  accountId: string;
+  createdAt: string;
 }
 
 export async function fetchCategories(
@@ -1897,44 +1931,51 @@ export async function fetchCategories(
   const params = new URLSearchParams({
     take: String(take),
     offset: String(offset),
-  })
+  });
 
-  const response = await apiFetch(`/sphere/posts/categories?${params.toString()}`, {
-    skipAuth: true,
-  })
+  const response = await apiFetch(
+    `/sphere/posts/categories?${params.toString()}`,
+    {
+      skipAuth: true,
+    },
+  );
 
-  const total = parseInt(response.headers.get("x-total") || "0", 10)
-  const data = await safeJsonParse<PostCategory[]>(response)
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<PostCategory[]>(response);
 
-  return { categories: data, total }
+  return { categories: data, total };
 }
 
 export async function fetchCategory(slug: string): Promise<PostCategory> {
   const response = await apiFetch(`/sphere/posts/categories/${slug}`, {
     skipAuth: true,
-  })
-  return safeJsonParse<PostCategory>(response)
+  });
+  return safeJsonParse<PostCategory>(response);
 }
 
-export async function fetchCategorySubscription(slug: string): Promise<CategorySubscription | null> {
+export async function fetchCategorySubscription(
+  slug: string,
+): Promise<CategorySubscription | null> {
   try {
-    const response = await apiFetch(`/sphere/posts/categories/${slug}/subscription`)
-    return safeJsonParse<CategorySubscription>(response)
+    const response = await apiFetch(
+      `/sphere/posts/categories/${slug}/subscription`,
+    );
+    return safeJsonParse<CategorySubscription>(response);
   } catch {
-    return null
+    return null;
   }
 }
 
 export async function subscribeToCategory(slug: string): Promise<void> {
   await apiFetch(`/sphere/posts/categories/${slug}/subscribe`, {
     method: "POST",
-  })
+  });
 }
 
 export async function unsubscribeFromCategory(slug: string): Promise<void> {
   await apiFetch(`/sphere/posts/categories/${slug}/unsubscribe`, {
     method: "POST",
-  })
+  });
 }
 
 export async function fetchTags(
@@ -1944,44 +1985,46 @@ export async function fetchTags(
   const params = new URLSearchParams({
     take: String(take),
     offset: String(offset),
-  })
+  });
 
   const response = await apiFetch(`/sphere/posts/tags?${params.toString()}`, {
     skipAuth: true,
-  })
+  });
 
-  const total = parseInt(response.headers.get("x-total") || "0", 10)
-  const data = await safeJsonParse<PostTag[]>(response)
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<PostTag[]>(response);
 
-  return { tags: data, total }
+  return { tags: data, total };
 }
 
 export async function fetchTag(slug: string): Promise<PostTag> {
   const response = await apiFetch(`/sphere/posts/tags/${slug}`, {
     skipAuth: true,
-  })
-  return safeJsonParse<PostTag>(response)
+  });
+  return safeJsonParse<PostTag>(response);
 }
 
-export async function fetchTagSubscription(slug: string): Promise<CategorySubscription | null> {
+export async function fetchTagSubscription(
+  slug: string,
+): Promise<CategorySubscription | null> {
   try {
-    const response = await apiFetch(`/sphere/posts/tags/${slug}/subscription`)
-    return safeJsonParse<CategorySubscription>(response)
+    const response = await apiFetch(`/sphere/posts/tags/${slug}/subscription`);
+    return safeJsonParse<CategorySubscription>(response);
   } catch {
-    return null
+    return null;
   }
 }
 
 export async function subscribeToTag(slug: string): Promise<void> {
   await apiFetch(`/sphere/posts/tags/${slug}/subscribe`, {
     method: "POST",
-  })
+  });
 }
 
 export async function unsubscribeFromTag(slug: string): Promise<void> {
   await apiFetch(`/sphere/posts/tags/${slug}/unsubscribe`, {
     method: "POST",
-  })
+  });
 }
 
 export async function fetchPostsByCategory(
@@ -1993,16 +2036,16 @@ export async function fetchPostsByCategory(
     take: String(take),
     offset: String(offset),
     categories: slug,
-  })
+  });
 
   const response = await apiFetch(`/sphere/posts?${params.toString()}`, {
     skipAuth: true,
-  })
+  });
 
-  const total = parseInt(response.headers.get("x-total") || "0", 10)
-  const data = await safeJsonParse<Post[]>(response)
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<Post[]>(response);
 
-  return { posts: data, total }
+  return { posts: data, total };
 }
 
 export async function fetchPostsByTag(
@@ -2014,80 +2057,84 @@ export async function fetchPostsByTag(
     take: String(take),
     offset: String(offset),
     tags: slug,
-  })
+  });
 
   const response = await apiFetch(`/sphere/posts?${params.toString()}`, {
     skipAuth: true,
-  })
+  });
 
-  const total = parseInt(response.headers.get("x-total") || "0", 10)
-  const data = await safeJsonParse<Post[]>(response)
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<Post[]>(response);
 
-  return { posts: data, total }
+  return { posts: data, total };
 }
 
 // Check-In / Fortune API
 export interface FortuneReport {
-  version: number
-  poem: string
-  summary: string
-  summaryDetail: string | null
-  wish: string
-  love: string
-  study: string
-  career: string
-  health: string
-  lostItem: string
-  luckyColor: string
-  luckyDirection: string
-  luckyTime: string
-  luckyItem: string
-  luckyAction: string
-  avoidAction: string
-  ritual: string
+  version: number;
+  poem: string;
+  summary: string;
+  summaryDetail: string | null;
+  wish: string;
+  love: string;
+  study: string;
+  career: string;
+  health: string;
+  lostItem: string;
+  luckyColor: string;
+  luckyDirection: string;
+  luckyTime: string;
+  luckyItem: string;
+  luckyAction: string;
+  avoidAction: string;
+  ritual: string;
 }
 
 export interface FortuneTip {
-  isPositive: boolean
-  title: string
-  content: string
+  isPositive: boolean;
+  title: string;
+  content: string;
 }
 
 export interface CheckInResult {
-  id: string
-  level: number
-  tips: FortuneTip[]
-  fortuneReport: FortuneReport | null
-  accountId: string
-  createdAt: string
-  updatedAt: string
+  id: string;
+  level: number;
+  tips: FortuneTip[];
+  fortuneReport: FortuneReport | null;
+  accountId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export async function getCheckInResultToday(): Promise<CheckInResult | null> {
   try {
-    const response = await apiFetch("/passport/accounts/me/check-in?version=2")
-    return safeJsonParse<CheckInResult>(response)
+    const response = await apiFetch("/passport/accounts/me/check-in?version=2");
+    return safeJsonParse<CheckInResult>(response);
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) {
-      return null
+      return null;
     }
-    throw err
+    throw err;
   }
 }
 
-export async function performCheckIn(captchaToken?: string): Promise<CheckInResult> {
-  const body = captchaToken ? JSON.stringify({ captcha_token: captchaToken }) : undefined
+export async function performCheckIn(
+  captchaToken?: string,
+): Promise<CheckInResult> {
+  const body = captchaToken
+    ? JSON.stringify({ captcha_token: captchaToken })
+    : undefined;
   const response = await apiFetch("/passport/accounts/me/check-in?version=2", {
     method: "POST",
     body,
-  })
-  return safeJsonParse<CheckInResult>(response)
+  });
+  return safeJsonParse<CheckInResult>(response);
 }
 
 // Event Calendar API
 export interface EventCalendarEntry {
-  date: string
-  checkInResult: CheckInResult | null
+  date: string;
+  checkInResult: CheckInResult | null;
 }
 
 export async function fetchEventCalendar(
@@ -2097,14 +2144,14 @@ export async function fetchEventCalendar(
 ): Promise<EventCalendarEntry[]> {
   const path = username
     ? `/passport/accounts/${encodeURIComponent(username)}/calendar`
-    : "/passport/accounts/me/calendar"
+    : "/passport/accounts/me/calendar";
   const params = new URLSearchParams({
     year: String(year),
     month: String(month),
     includeNotableDays: "false",
-  })
-  const response = await apiFetch(`${path}?${params.toString()}`)
-  return safeJsonParse<EventCalendarEntry[]>(response)
+  });
+  const response = await apiFetch(`${path}?${params.toString()}`);
+  return safeJsonParse<EventCalendarEntry[]>(response);
 }
 
 // Drive API
@@ -2115,92 +2162,98 @@ import type {
   DriveQuota,
   DriveFilePermission,
   PaginatedResult,
-} from "~/types/drive"
+} from "~/types/drive";
 
-export async function fetchDriveRootChildren(options: {
-  query?: string
-  order?: string
-  orderDesc?: boolean
-  poolId?: string
-  usage?: string
-  applicationType?: string
-  take?: number
-  offset?: number
-} = {}): Promise<PaginatedResult<SnCloudFile>> {
-  const params = new URLSearchParams()
-  if (options.query) params.set("query", options.query)
-  if (options.order) params.set("order", options.order)
-  if (options.orderDesc !== undefined) params.set("orderDesc", String(options.orderDesc))
-  if (options.poolId) params.set("pool", options.poolId)
-  if (options.usage) params.set("usage", options.usage)
-  if (options.applicationType) params.set("applicationType", options.applicationType)
-  if (options.take) params.set("take", String(options.take))
-  if (options.offset) params.set("offset", String(options.offset))
+export async function fetchDriveRootChildren(
+  options: {
+    query?: string;
+    order?: string;
+    orderDesc?: boolean;
+    poolId?: string;
+    usage?: string;
+    applicationType?: string;
+    take?: number;
+    offset?: number;
+  } = {},
+): Promise<PaginatedResult<SnCloudFile>> {
+  const params = new URLSearchParams();
+  if (options.query) params.set("query", options.query);
+  if (options.order) params.set("order", options.order);
+  if (options.orderDesc !== undefined)
+    params.set("orderDesc", String(options.orderDesc));
+  if (options.poolId) params.set("pool", options.poolId);
+  if (options.usage) params.set("usage", options.usage);
+  if (options.applicationType)
+    params.set("applicationType", options.applicationType);
+  if (options.take) params.set("take", String(options.take));
+  if (options.offset) params.set("offset", String(options.offset));
 
-  const qs = params.toString()
-  const endpoint = `/drive/files/root/children${qs ? `?${qs}` : ""}`
-  const response = await apiFetch(endpoint)
-  const total = parseInt(response.headers.get("x-total") || "0", 10)
-  const data = await safeJsonParse<SnCloudFile[]>(response)
-  return { items: data, totalCount: total }
+  const qs = params.toString();
+  const endpoint = `/drive/files/root/children${qs ? `?${qs}` : ""}`;
+  const response = await apiFetch(endpoint);
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<SnCloudFile[]>(response);
+  return { items: data, totalCount: total };
 }
 
 export async function fetchDriveFolderChildren(
   folderId: string,
   options: {
-    query?: string
-    order?: string
-    orderDesc?: boolean
-    poolId?: string
-    usage?: string
-    applicationType?: string
-    take?: number
-    offset?: number
+    query?: string;
+    order?: string;
+    orderDesc?: boolean;
+    poolId?: string;
+    usage?: string;
+    applicationType?: string;
+    take?: number;
+    offset?: number;
   } = {},
 ): Promise<PaginatedResult<SnCloudFile>> {
-  const params = new URLSearchParams()
-  if (options.query) params.set("query", options.query)
-  if (options.order) params.set("order", options.order)
-  if (options.orderDesc !== undefined) params.set("orderDesc", String(options.orderDesc))
-  if (options.poolId) params.set("pool", options.poolId)
-  if (options.usage) params.set("usage", options.usage)
-  if (options.applicationType) params.set("applicationType", options.applicationType)
-  if (options.take) params.set("take", String(options.take))
-  if (options.offset) params.set("offset", String(options.offset))
+  const params = new URLSearchParams();
+  if (options.query) params.set("query", options.query);
+  if (options.order) params.set("order", options.order);
+  if (options.orderDesc !== undefined)
+    params.set("orderDesc", String(options.orderDesc));
+  if (options.poolId) params.set("pool", options.poolId);
+  if (options.usage) params.set("usage", options.usage);
+  if (options.applicationType)
+    params.set("applicationType", options.applicationType);
+  if (options.take) params.set("take", String(options.take));
+  if (options.offset) params.set("offset", String(options.offset));
 
-  const qs = params.toString()
-  const endpoint = `/drive/files/${folderId}/children${qs ? `?${qs}` : ""}`
-  const response = await apiFetch(endpoint)
-  const total = parseInt(response.headers.get("x-total") || "0", 10)
-  const data = await safeJsonParse<SnCloudFile[]>(response)
-  return { items: data, totalCount: total }
+  const qs = params.toString();
+  const endpoint = `/drive/files/${folderId}/children${qs ? `?${qs}` : ""}`;
+  const response = await apiFetch(endpoint);
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<SnCloudFile[]>(response);
+  return { items: data, totalCount: total };
 }
 
 export async function fetchDriveFileInfo(fileId: string): Promise<SnCloudFile> {
-  const response = await apiFetch(`/drive/files/${fileId}/info`)
-  return safeJsonParse<SnCloudFile>(response)
+  const response = await apiFetch(`/drive/files/${fileId}/info`);
+  return safeJsonParse<SnCloudFile>(response);
 }
 
 export async function fetchDriveFilePermissions(
   fileId: string,
 ): Promise<DriveFilePermission[]> {
-  const response = await apiFetch(`/drive/files/${fileId}/permissions`)
-  return safeJsonParse<DriveFilePermission[]>(response)
+  const response = await apiFetch(`/drive/files/${fileId}/permissions`);
+  return safeJsonParse<DriveFilePermission[]>(response);
 }
 
 export async function createDriveFolder(options: {
-  name: string
-  parentId?: string | null
-  poolId?: string | null
+  name: string;
+  parentId?: string | null;
+  poolId?: string | null;
 }): Promise<SnCloudFile> {
-  const body: Record<string, unknown> = { name: options.name }
-  if (options.parentId) body.parent_id = options.parentId
-  if (options.poolId) body.pool_id = options.poolId
+  const body: Record<string, unknown> = { name: options.name };
+  if (options.parentId) body.parent_id = options.parentId;
+  if (options.poolId) body.pool_id = options.poolId;
   const response = await apiFetch("/drive/files/folders", {
     method: "POST",
     body: JSON.stringify(body),
-  })
-  return safeJsonParse<SnCloudFile>(response)
+  });
+  return safeJsonParse<SnCloudFile>(response);
 }
 
 export async function renameDriveFile(
@@ -2210,8 +2263,8 @@ export async function renameDriveFile(
   const response = await apiFetch(`/drive/files/${fileId}`, {
     method: "PATCH",
     body: JSON.stringify({ name: newName }),
-  })
-  return safeJsonParse<SnCloudFile>(response)
+  });
+  return safeJsonParse<SnCloudFile>(response);
 }
 
 export async function moveDriveFile(
@@ -2219,26 +2272,28 @@ export async function moveDriveFile(
   parentId: string | null,
   indexed?: boolean,
 ): Promise<SnCloudFile> {
-  const body: Record<string, unknown> = { parent_id: parentId }
-  if (indexed !== undefined) body.indexed = indexed
+  const body: Record<string, unknown> = { parent_id: parentId };
+  if (indexed !== undefined) body.indexed = indexed;
   const response = await apiFetch(`/drive/files/${fileId}/move`, {
     method: "POST",
     body: JSON.stringify(body),
-  })
-  return safeJsonParse<SnCloudFile>(response)
+  });
+  return safeJsonParse<SnCloudFile>(response);
 }
 
 export async function deleteDriveFile(fileId: string): Promise<void> {
-  await apiFetch(`/drive/files/${fileId}`, { method: "DELETE" })
+  await apiFetch(`/drive/files/${fileId}`, { method: "DELETE" });
 }
 
-export async function batchDeleteDriveFiles(fileIds: string[]): Promise<number> {
+export async function batchDeleteDriveFiles(
+  fileIds: string[],
+): Promise<number> {
   const response = await apiFetch("/drive/files/batch", {
     method: "DELETE",
     body: JSON.stringify({ ids: fileIds }),
-  })
-  const data = await safeJsonParse<{ count: number }>(response)
-  return data.count
+  });
+  const data = await safeJsonParse<{ count: number }>(response);
+  return data.count;
 }
 
 export async function updateDriveFileSensitiveMarks(
@@ -2248,8 +2303,8 @@ export async function updateDriveFileSensitiveMarks(
   const response = await apiFetch(`/drive/files/${fileId}/sensitive`, {
     method: "PATCH",
     body: JSON.stringify({ marks }),
-  })
-  return safeJsonParse<SnCloudFile>(response)
+  });
+  return safeJsonParse<SnCloudFile>(response);
 }
 
 export async function updateDriveFileUserMeta(
@@ -2259,105 +2314,163 @@ export async function updateDriveFileUserMeta(
   const response = await apiFetch(`/drive/files/${fileId}/meta`, {
     method: "PATCH",
     body: JSON.stringify({ meta }),
-  })
-  return safeJsonParse<SnCloudFile>(response)
+  });
+  return safeJsonParse<SnCloudFile>(response);
 }
 
 export async function fetchDriveUsage(): Promise<DriveUsage> {
-  const response = await apiFetch("/drive/billing/usage")
-  return safeJsonParse<DriveUsage>(response)
+  const response = await apiFetch("/drive/billing/usage");
+  return safeJsonParse<DriveUsage>(response);
 }
 
 export async function fetchDriveQuota(): Promise<DriveQuota> {
-  const response = await apiFetch("/drive/billing/quota")
-  return safeJsonParse<DriveQuota>(response)
+  const response = await apiFetch("/drive/billing/quota");
+  return safeJsonParse<DriveQuota>(response);
 }
 
 export async function fetchDrivePools(): Promise<SnFilePool[]> {
-  const response = await apiFetch("/drive/pools")
-  return safeJsonParse<SnFilePool[]>(response)
+  const response = await apiFetch("/drive/pools");
+  return safeJsonParse<SnFilePool[]>(response);
 }
 
-export async function fetchDriveUnindexedFiles(options: {
-  poolId?: string
-  recycled?: boolean
-  query?: string
-  order?: string
-  orderDesc?: boolean
-  usage?: string
-  applicationType?: string
-  take?: number
-  offset?: number
-} = {}): Promise<PaginatedResult<SnCloudFile>> {
-  const params = new URLSearchParams()
-  if (options.poolId) params.set("pool", options.poolId)
-  if (options.recycled !== undefined) params.set("recycled", String(options.recycled))
-  if (options.query) params.set("query", options.query)
-  if (options.order) params.set("order", options.order)
-  if (options.orderDesc !== undefined) params.set("orderDesc", String(options.orderDesc))
-  if (options.usage) params.set("usage", options.usage)
-  if (options.applicationType) params.set("applicationType", options.applicationType)
-  if (options.take) params.set("take", String(options.take))
-  if (options.offset) params.set("offset", String(options.offset))
+export async function fetchDriveUnindexedFiles(
+  options: {
+    poolId?: string;
+    recycled?: boolean;
+    query?: string;
+    order?: string;
+    orderDesc?: boolean;
+    usage?: string;
+    applicationType?: string;
+    take?: number;
+    offset?: number;
+  } = {},
+): Promise<PaginatedResult<SnCloudFile>> {
+  const params = new URLSearchParams();
+  if (options.poolId) params.set("pool", options.poolId);
+  if (options.recycled !== undefined)
+    params.set("recycled", String(options.recycled));
+  if (options.query) params.set("query", options.query);
+  if (options.order) params.set("order", options.order);
+  if (options.orderDesc !== undefined)
+    params.set("orderDesc", String(options.orderDesc));
+  if (options.usage) params.set("usage", options.usage);
+  if (options.applicationType)
+    params.set("applicationType", options.applicationType);
+  if (options.take) params.set("take", String(options.take));
+  if (options.offset) params.set("offset", String(options.offset));
 
-  const qs = params.toString()
-  const endpoint = `/drive/files/unindexed${qs ? `?${qs}` : ""}`
-  const response = await apiFetch(endpoint)
-  const total = parseInt(response.headers.get("x-total") || "0", 10)
-  const data = await safeJsonParse<SnCloudFile[]>(response)
-  return { items: data, totalCount: total }
+  const qs = params.toString();
+  const endpoint = `/drive/files/unindexed${qs ? `?${qs}` : ""}`;
+  const response = await apiFetch(endpoint);
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<SnCloudFile[]>(response);
+  return { items: data, totalCount: total };
 }
 
-export async function uploadDriveFile(file: File, options: {
-  parentId?: string | null
-  poolId?: string | null
-  usage?: string
-  applicationType?: string
-} = {}): Promise<SnCloudFile> {
-  const formData = new FormData()
-  formData.append("file", file)
-  if (options.parentId) formData.append("parent_id", options.parentId)
-  if (options.poolId) formData.append("pool_id", options.poolId)
-  if (options.usage) formData.append("usage", options.usage)
-  if (options.applicationType) formData.append("application_type", options.applicationType)
+export async function uploadDriveFile(
+  file: File,
+  options: {
+    parentId?: string | null;
+    poolId?: string | null;
+    usage?: string;
+    applicationType?: string;
+  } = {},
+): Promise<SnCloudFile> {
+  const formData = new FormData();
+  formData.append("file", file);
+  if (options.parentId) formData.append("parent_id", options.parentId);
+  if (options.poolId) formData.append("pool_id", options.poolId);
+  if (options.usage) formData.append("usage", options.usage);
+  if (options.applicationType)
+    formData.append("application_type", options.applicationType);
 
-  const url = `${API_BASE_URL}/drive/files/upload/direct`
-  const headers: Record<string, string> = {}
+  const url = `${API_BASE_URL}/drive/files/upload/direct`;
+  const headers: Record<string, string> = {};
 
   if (import.meta.client && getAuthMode() === "bearer") {
-    const token = await getAuthToken()
-    if (token) headers["Authorization"] = `Bearer ${token}`
+    const token = await getAuthToken();
+    if (token) headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const credentials = import.meta.client && getAuthMode() === "cookie" ? "include" : undefined
-  const response = await fetch(url, { method: "POST", body: formData, headers, credentials })
+  const credentials =
+    import.meta.client && getAuthMode() === "cookie" ? "include" : undefined;
+  const response = await fetch(url, {
+    method: "POST",
+    body: formData,
+    headers,
+    credentials,
+  });
 
   if (!response.ok) {
-    const errorData = await parseResponse(response)
+    const errorData = await parseResponse(response);
     const message =
       typeof errorData === "object" && errorData && "message" in errorData
         ? String(errorData.message)
-        : `HTTP ${response.status}`
-    throw new ApiError(message, response.status)
+        : `HTTP ${response.status}`;
+    throw new ApiError(message, response.status);
   }
 
-  return safeJsonParse<SnCloudFile>(response)
+  return safeJsonParse<SnCloudFile>(response);
 }
 
 export async function deleteDriveRecycledFiles(): Promise<number> {
-  const response = await apiFetch("/drive/files/recycled", { method: "DELETE" })
-  const data = await safeJsonParse<{ count: number }>(response)
-  return data.count
+  const response = await apiFetch("/drive/files/recycled", {
+    method: "DELETE",
+  });
+  const data = await safeJsonParse<{ count: number }>(response);
+  return data.count;
 }
 
 export interface DriveBreadcrumb {
-  id: string
-  name: string
-  parentId: string | null
-  isFolder: boolean
+  id: string;
+  name: string;
+  parentId: string | null;
+  isFolder: boolean;
 }
 
-export async function fetchDriveBreadcrumb(fileId: string): Promise<DriveBreadcrumb[]> {
-  const response = await apiFetch(`/drive/files/${fileId}/breadcrumb`)
-  return safeJsonParse<DriveBreadcrumb[]>(response)
+export async function fetchDriveBreadcrumb(
+  fileId: string,
+): Promise<DriveBreadcrumb[]> {
+  const response = await apiFetch(`/drive/files/${fileId}/breadcrumb`);
+  return safeJsonParse<DriveBreadcrumb[]>(response);
+}
+
+export interface WopiEditSession {
+  actionUrl: string;
+  action: string;
+  method: string;
+  formFields: Record<string, string>;
+  wopiSrc: string;
+  expiresAt: string;
+}
+
+export async function createWopiEditSession(
+  fileId: string,
+): Promise<WopiEditSession> {
+  const response = await apiFetch(`/drive/files/${fileId}/edit`, {
+    method: "POST",
+  });
+  return safeJsonParse<WopiEditSession>(response);
+}
+
+const OFFICE_MIME_TYPES = [
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.template",
+  "application/vnd.openxmlformats-officedocument.presentationml.template",
+  "application/msword",
+  "application/vnd.ms-excel",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.oasis.opendocument.text",
+  "application/vnd.oasis.opendocument.spreadsheet",
+  "application/vnd.oasis.opendocument.presentation",
+];
+
+export function isOfficeFile(mimeType: string | null | undefined): boolean {
+  if (!mimeType) return false;
+  return OFFICE_MIME_TYPES.includes(mimeType);
 }
