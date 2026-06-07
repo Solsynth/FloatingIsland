@@ -137,6 +137,16 @@
               <IconMaximize2 class="h-5 w-5" />
             </button>
 
+            <!-- Preview in iframe button for supported types -->
+            <button
+              v-if="isIframePreviewable && !showIframe"
+              class="btn btn-circle btn-ghost btn-sm"
+              title="Preview in viewer"
+              @click="showIframe = true"
+            >
+              <IconEye class="h-5 w-5" />
+            </button>
+
             <button
               class="btn btn-circle btn-ghost btn-sm"
               @click="handleShare"
@@ -169,7 +179,21 @@
 
       <!-- Content area -->
       <div class="relative">
-        <div class="max-w-5xl mx-auto">
+        <!-- Iframe Preview (full size, outside constrained containers) -->
+        <div
+          v-if="showIframe && isIframePreviewable"
+          class="w-full"
+          style="height: calc(100vh - 65px)"
+        >
+          <iframe
+            :src="fileUrl"
+            class="w-full h-full border-0"
+            :title="file.name"
+          />
+        </div>
+
+        <!-- Other content types -->
+        <div v-else class="max-w-5xl mx-auto">
           <!-- Main content -->
           <div>
             <div
@@ -266,7 +290,15 @@
                   {{ file.mimeType }}
                 </p>
                 <button
-                  class="btn btn-primary btn-sm mt-4"
+                  v-if="isIframePreviewable"
+                  class="btn btn-primary btn-sm mt-4 me-3"
+                  @click="showIframe = true"
+                >
+                  <IconEye class="w-4 h-4" />
+                  {{ t("drive.previewInViewer", "Preview in viewer") }}
+                </button>
+                <button
+                  class="btn btn-outline btn-sm mt-4"
                   @click="handleDownload"
                 >
                   <IconDownload class="w-4 h-4" />
@@ -544,6 +576,7 @@ const file = ref<SnCloudFile | null>(null);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
 const showInfo = ref(false);
+const showIframe = ref(false);
 
 // Fetch file info
 onMounted(async () => {
@@ -593,9 +626,17 @@ const isAudio = computed(() =>
 const isText = computed(
   () => file.value?.mimeType?.startsWith("text/") || false,
 );
-const isOffice = computed(
-  () => file.value ? isOfficeFile(file.value.mimeType) : false,
+const isOffice = computed(() =>
+  file.value ? isOfficeFile(file.value.mimeType) : false,
 );
+
+// Check if file can be previewed in iframe (PDF, HTML, etc. - not binary)
+const isIframePreviewable = computed(() => {
+  if (!file.value) return false;
+  const mimeType = file.value.mimeType || "";
+  const iframeTypes = ["application/pdf", "text/html", "application/xhtml+xml"];
+  return iframeTypes.includes(mimeType);
+});
 
 const textContent = ref("");
 watch(

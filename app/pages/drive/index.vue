@@ -595,8 +595,8 @@ function handleSearch() {
   }, 300);
 }
 
-function loadMore() {
-  // TODO: implement pagination
+async function loadMore() {
+  await loadFiles(state.currentFolderId, false)
 }
 
 function triggerFileUpload() {

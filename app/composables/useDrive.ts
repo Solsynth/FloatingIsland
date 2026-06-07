@@ -63,14 +63,19 @@ export function useDrive() {
     uploads: [],
   })
 
+  const PAGE_SIZE = 50
+
   async function loadFiles(folderId: string | null = null, reset = true) {
     state.isLoading = true
     try {
       let result: PaginatedResult<SnCloudFile>
+      const offset = reset ? 0 : state.files.length
       const options = {
         query: state.searchQuery || undefined,
         order: state.sortField,
         orderDesc: state.sortDirection === 'desc',
+        take: PAGE_SIZE,
+        offset,
       }
 
       if (state.mode === 'unindexed') {
