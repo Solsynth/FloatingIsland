@@ -1,7 +1,7 @@
 <template>
   <NuxtLayout name="developer">
     <div class="mx-auto max-w-4xl pt-4">
-      <div class="flex items-center gap-4 mb-4">
+      <div class="flex items-center gap-4 mb-4 -mx-4">
         <NuxtLink :to="`/developers/${pubName}/projects/${projectId}`" class="btn btn-ghost btn-sm">
           <IconArrowLeft class="w-4 h-4" />
           {{ t('developer.projects.detail') }}
@@ -122,11 +122,11 @@
 
 <script setup lang="ts">
 import {
-  IconArrowLeft,
-  IconPlus,
-  IconBoxes,
-  IconChevronRight,
-} from '#components'
+  ArrowLeft as IconArrowLeft,
+  Plus as IconPlus,
+  Boxes as IconBoxes,
+  ChevronRight as IconChevronRight,
+} from '@lucide/vue'
 import { getFileUrl } from '~/utils/files'
 import type { CustomApp } from '~/types/developer'
 import { fetchCustomApps, createCustomApp } from '~/utils/developer'
@@ -137,6 +137,7 @@ const { t } = useI18n()
 const route = useRoute()
 const pubName = computed(() => route.params.pubName as string)
 const projectId = computed(() => route.params.projectId as string)
+const developer = useDeveloper()
 
 const apps = ref<CustomApp[]>([])
 const isLoading = ref(false)
@@ -186,7 +187,10 @@ async function handleCreate() {
   }
 }
 
-onMounted(() => {
-  loadApps()
-})
+// Load on mount and when route params change
+watch([pubName, projectId], async () => {
+  await developer.loadDevelopers()
+  developer.selectByPublisherName(pubName.value)
+  await loadApps()
+}, { immediate: true })
 </script>

@@ -1,7 +1,7 @@
 <template>
   <NuxtLayout name="developer">
     <div class="mx-auto max-w-4xl pt-4">
-      <div class="flex items-center gap-4 mb-4">
+      <div class="flex items-center gap-4 mb-4 -mx-4">
         <NuxtLink :to="`/developers/${pubName}/projects/${projectId}`" class="btn btn-ghost btn-sm">
           <IconArrowLeft class="w-4 h-4" />
           {{ t('developer.projects.detail') }}
@@ -67,16 +67,25 @@
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-4">{{ t('developer.bots.create') }}</h3>
           <form @submit.prevent="handleCreate">
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">{{ t('developer.bots.slug') }}</span>
-              </label>
-              <input
-                v-model="newBot.slug"
-                type="text"
-                class="input input-bordered w-full"
-                required
-              />
+            <div class="form-control mb-3">
+              <label class="label"><span class="label-text">{{ t('developer.bots.name') }}</span></label>
+              <input v-model="newBot.name" type="text" class="input input-bordered w-full" required minlength="2" maxlength="256" placeholder="my-bot" />
+            </div>
+            <div class="form-control mb-3">
+              <label class="label"><span class="label-text">{{ t('developer.bots.nick') }}</span></label>
+              <input v-model="newBot.nick" type="text" class="input input-bordered w-full" required maxlength="256" placeholder="My Bot" />
+            </div>
+            <div class="form-control mb-3">
+              <label class="label"><span class="label-text">{{ t('developer.bots.slug') }}</span></label>
+              <input v-model="newBot.slug" type="text" class="input input-bordered w-full" required maxlength="1024" placeholder="my-bot" />
+            </div>
+            <div class="form-control mb-3">
+              <label class="label"><span class="label-text">{{ t('developer.bots.language') }}</span></label>
+              <input v-model="newBot.language" type="text" class="input input-bordered w-full" maxlength="128" placeholder="en-us" />
+            </div>
+            <div class="form-control mb-3">
+              <label class="label"><span class="label-text">{{ t('developer.bots.bio') }}</span></label>
+              <textarea v-model="newBot.bio" class="textarea textarea-bordered w-full" rows="2" maxlength="4096" />
             </div>
             <div class="modal-action">
               <button type="button" class="btn" @click="createModalOpen = false">{{ t('common.cancel') }}</button>
@@ -112,6 +121,7 @@ const { t } = useI18n()
 const route = useRoute()
 const pubName = computed(() => route.params.pubName as string)
 const projectId = computed(() => route.params.projectId as string)
+const developer = useDeveloper()
 
 const bots = ref<Bot[]>([])
 const isLoading = ref(false)
@@ -119,7 +129,11 @@ const createModalOpen = ref(false)
 const isCreating = ref(false)
 
 const newBot = reactive({
+  name: '',
+  nick: '',
   slug: '',
+  language: 'en-us',
+  bio: '',
 })
 
 useSolarSeo({ title: `${t('developer.bots.title')} - ${pubName.value}` })
@@ -136,7 +150,11 @@ async function loadBots() {
 }
 
 function openCreateModal() {
+  newBot.name = ''
+  newBot.nick = ''
   newBot.slug = ''
+  newBot.language = 'en-us'
+  newBot.bio = ''
   createModalOpen.value = true
 }
 
@@ -144,7 +162,11 @@ async function handleCreate() {
   isCreating.value = true
   try {
     await createBot(pubName.value, projectId.value, {
+      name: newBot.name,
+      nick: newBot.nick,
       slug: newBot.slug,
+      language: newBot.language || undefined,
+      bio: newBot.bio || undefined,
     })
     createModalOpen.value = false
     await loadBots()
@@ -155,7 +177,9 @@ async function handleCreate() {
   }
 }
 
-onMounted(() => {
-  loadBots()
-})
+watch([pubName, projectId], async () => {
+  await developer.loadDevelopers()
+  developer.selectByPublisherName(pubName.value)
+  await loadBots()
+}, { immediate: true })
 </script>

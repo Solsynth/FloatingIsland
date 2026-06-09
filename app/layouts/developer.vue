@@ -65,9 +65,10 @@ import { IconArrowLeft, IconMenu } from '#components'
 const { t } = useI18n()
 const route = useRoute()
 const mobileMenuOpen = ref(false)
+const developer = useDeveloper()
+const { currentPublisherNick } = developer
 
 const publisherName = computed(() => {
-  const name = route.params.pubName
-  return typeof name === 'string' ? name : null
+  return currentPublisherNick.value ?? route.params.pubName ?? t('developer.title')
 })
 </script>

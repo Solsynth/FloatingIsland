@@ -1,40 +1,82 @@
 <template>
-	<div class="min-h-screen bg-base-200 flex flex-col items-center justify-center px-4 py-8 relative">
-		<!-- Background Image (if available) -->
+	<div class="min-h-screen flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden">
+		<!-- Full-page blurred background -->
 		<div
 			v-if="backgroundUrl"
-			class="fixed inset-0 -z-10 bg-cover bg-center opacity-30 blur-sm"
+			class="fixed inset-0 -z-10 bg-cover bg-center scale-110"
 			:style="`background-image: url('${backgroundUrl}')`"
 		/>
+		<div
+			class="fixed inset-0 -z-10 backdrop-blur-3xl bg-base-200/60"
+			:class="{ 'bg-base-200': !backgroundUrl }"
+		/>
 
-		<div class="w-full max-w-4xl rounded-3xl shadow-2xl backdrop-blur-xl overflow-hidden">
-			<div class="grid md:grid-cols-[0.95fr_1.05fr]">
-				<!-- Left Column: Branding & User Account -->
+		<div class="w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden border border-base-300/30">
+			<div class="grid md:grid-cols-[1fr_1.1fr]">
+				<!-- Left Column: Branding & App -->
 				<section
-					class="flex flex-col justify-between gap-4 rounded-t-3xl bg-base-100/50 p-6 backdrop-blur-2xl md:rounded-l-3xl md:rounded-tr-none md:p-8"
+					class="relative flex flex-col justify-between gap-6 rounded-t-3xl p-6 md:rounded-l-3xl md:rounded-tr-none md:p-8 overflow-hidden"
+					:style="leftStyle"
 				>
-					<div class="flex flex-col gap-4">
-						<img src="/favicon.png" alt="Solar Network" class="h-12 w-12 rounded-full">
+					<!-- Left background layer -->
+					<div
+						v-if="backgroundUrl"
+						class="absolute inset-0 -z-10 bg-cover bg-center opacity-40"
+						:style="`background-image: url('${backgroundUrl}')`"
+					/>
+					<div
+						v-if="backgroundUrl"
+						class="absolute inset-0 -z-10 bg-gradient-to-b from-base-100/80 via-base-100/60 to-base-100/90"
+					/>
+					<div v-else class="absolute inset-0 -z-10 bg-base-100/80 backdrop-blur-2xl" />
+
+					<div class="flex flex-col gap-5">
+						<img src="/favicon.png" alt="Solar Network" class="h-10 w-10 rounded-full opacity-80">
 						<div>
-							<p class="text-xs font-semibold tracking-[0.2em] text-base-content/70 uppercase">
+							<p class="text-xs font-semibold tracking-[0.2em] text-base-content/60 uppercase">
 								Authorization Request
 							</p>
 						</div>
 						<div>
 							<h1 class="text-3xl leading-tight font-black">Grant Access</h1>
-							<p class="text-sm text-base-content/70 mt-2">
+							<p class="text-sm text-base-content/60 mt-2">
 								Review the permissions before authorizing this application.
 							</p>
 						</div>
 					</div>
 
-					<!-- User Account Info (Bottom of left panel) -->
+					<!-- App Icon (large, centered) -->
+					<div v-if="clientInfo" class="flex flex-col items-center gap-3 py-4">
+						<div class="relative">
+							<div class="avatar">
+								<div class="w-24 h-24 rounded-3xl shadow-lg overflow-hidden ring-4 ring-base-100/50">
+									<img
+										v-if="clientPictureUrl"
+										:src="clientPictureUrl"
+										loading="lazy"
+										class="w-full h-full object-cover"
+									>
+									<div
+										v-else
+										class="w-full h-full flex items-center justify-center bg-primary/15 text-primary"
+									>
+										<IconPlug class="w-10 h-10" />
+									</div>
+								</div>
+							</div>
+						</div>
+						<p class="font-bold text-lg text-center">
+							{{ clientInfo.clientName || 'Unknown App' }}
+						</p>
+					</div>
+
+					<!-- User Account Info -->
 					<div
 						v-if="auth.user.value"
-						class="flex items-center gap-3 p-4 bg-base-200/60 rounded-2xl border border-base-300"
+						class="flex items-center gap-3 p-4 bg-base-200/40 rounded-2xl border border-base-300/30 backdrop-blur-sm"
 					>
 						<div class="avatar">
-							<div class="w-12 h-12 rounded-full overflow-hidden">
+							<div class="w-11 h-11 rounded-full overflow-hidden">
 								<img
 									v-if="userAvatarUrl"
 									:src="userAvatarUrl"
@@ -45,12 +87,12 @@
 									v-else
 									class="w-full h-full flex items-center justify-center bg-primary/15 text-primary"
 								>
-									<IconUser class="w-6 h-6" />
+									<IconUser class="w-5 h-5" />
 								</div>
 							</div>
 						</div>
 						<div class="min-w-0">
-							<p class="font-bold truncate">
+							<p class="font-bold truncate text-sm">
 								{{ auth.user.value?.nick || auth.user.value?.name || 'Unknown User' }}
 							</p>
 							<p class="text-xs text-base-content/50 truncate">
@@ -60,8 +102,8 @@
 					</div>
 				</section>
 
-				<!-- Right Column: Client Info & Authorization -->
-				<section class="rounded-b-2xl bg-base-100/90 p-6 md:rounded-r-2xl md:rounded-bl-none md:p-8 min-h-96 flex flex-col justify-between">
+				<!-- Right Column: Permissions & Actions -->
+				<section class="rounded-b-2xl bg-base-100/95 backdrop-blur-sm p-6 md:rounded-r-2xl md:rounded-bl-none md:p-8 min-h-96 flex flex-col justify-between">
 					<ConfuseSpinner v-if="loading" message="Authorizing..." />
 
 					<template v-else-if="clientInfo">
@@ -75,10 +117,10 @@
 								<span>{{ error }}</span>
 							</div>
 
-							<!-- Client/App Info -->
-							<div class="flex items-center gap-4 mb-6">
-								<div class="avatar">
-									<div class="w-16 h-16 rounded-2xl bg-base-300 overflow-hidden">
+							<!-- App Info Summary -->
+							<div class="flex items-center gap-3 mb-6">
+								<div class="avatar md:hidden">
+									<div class="w-12 h-12 rounded-2xl overflow-hidden">
 										<img
 											v-if="clientPictureUrl"
 											:src="clientPictureUrl"
@@ -89,7 +131,7 @@
 											v-else
 											class="w-full h-full flex items-center justify-center bg-primary/15 text-primary"
 										>
-											<IconPlug class="w-8 h-8" />
+											<IconPlug class="w-6 h-6" />
 										</div>
 									</div>
 								</div>
@@ -179,7 +221,7 @@
 
 		<div class="w-full max-w-4xl mt-4 flex justify-center md:justify-end">
 			<button
-				class="btn btn-ghost"
+				class="btn btn-ghost btn-sm text-base-content/60"
 				:disabled="isLoggingOut || isAuthorizing"
 				@click="handleLogoutForAnotherAccount"
 			>
@@ -232,7 +274,7 @@ const clientInfo = ref<{
 	scopes?: string[];
 } | null>(null);
 
-// Cached image URLs - computed once when data changes
+// Cached image URLs
 const userAvatarUrl = computed(() => {
 	const fileId = auth.user.value?.profile?.picture?.id;
 	return fileId ? `https://api.solian.app/drive/files/${fileId}` : null;
@@ -246,6 +288,12 @@ const clientPictureUrl = computed(() => {
 const backgroundUrl = computed(() => {
 	const fileId = clientInfo.value?.background?.id;
 	return fileId ? `https://api.solian.app/drive/files/${fileId}` : null;
+});
+
+// Left column style: tinted with app background
+const leftStyle = computed(() => {
+	if (!backgroundUrl.value) return {};
+	return {};
 });
 
 // User-friendly scope labels

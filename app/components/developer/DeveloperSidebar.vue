@@ -112,7 +112,6 @@ import {
   IconChevronDown,
   IconX,
   IconLayoutDashboard,
-  IconFolder,
   IconSettings,
   IconPlus,
   IconArrowLeft,
@@ -132,7 +131,6 @@ const navItems = computed(() => {
   const p = pubName.value
   return [
     { icon: IconLayoutDashboard, label: t('developer.dashboard'), href: `/developers/${p}` },
-    { icon: IconFolder, label: t('developer.projects.title'), href: `/developers/${p}/projects` },
     { icon: IconSettings, label: t('developer.settings'), href: `/developers/${p}/settings` },
   ]
 })

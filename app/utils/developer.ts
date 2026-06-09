@@ -6,8 +6,6 @@ import type {
   CustomAppSecret,
   Bot,
   BotKey,
-  BotConfig,
-  BotLinks,
 } from '~/types/developer'
 import { apiFetch, safeJsonParse } from '~/utils/api'
 import { camelToSnake } from '~/utils/case'
@@ -55,8 +53,10 @@ export async function fetchDevProject(
   projectId: string,
 ): Promise<DevProject | null> {
   try {
-    const projects = await fetchDevProjects(publisherName)
-    return projects.find(p => p.id === projectId) ?? null
+    const response = await apiFetch(
+      `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}`,
+    )
+    return safeJsonParse<DevProject>(response)
   } catch {
     return null
   }
@@ -153,6 +153,7 @@ export async function updateCustomApp(
     description?: string
     pictureId?: string | null
     backgroundId?: string | null
+    status?: number
     links?: {
       homePage?: string | null
       privacyPolicy?: string | null
@@ -208,7 +209,7 @@ export async function createAppSecret(
   publisherName: string,
   projectId: string,
   appId: string,
-  data: { description?: string; isOidc?: boolean; expiredAt?: string | null },
+  data: { description?: string; type?: string; expiresIn?: string | null },
 ): Promise<CustomAppSecret> {
   const response = await apiFetch(
     `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}/secrets`,
@@ -258,7 +259,15 @@ export async function fetchBot(
 export async function createBot(
   publisherName: string,
   projectId: string,
-  data: { slug: string },
+  data: {
+    name: string
+    nick: string
+    slug: string
+    language?: string
+    bio?: string
+    pictureId?: string
+    backgroundId?: string
+  },
 ): Promise<Bot> {
   const response = await apiFetch(
     `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots`,
@@ -275,9 +284,14 @@ export async function updateBot(
   projectId: string,
   botId: string,
   data: {
+    name?: string
+    nick?: string
+    slug?: string
+    language?: string
     isActive?: boolean
-    config?: BotConfig
-    links?: BotLinks
+    bio?: string
+    pictureId?: string
+    backgroundId?: string
   },
 ): Promise<Bot> {
   const response = await apiFetch(
@@ -318,7 +332,7 @@ export async function createBotKey(
   publisherName: string,
   projectId: string,
   botId: string,
-  data: { description?: string; expiredAt?: string | null },
+  data: { label?: string; expiredAt?: string | null },
 ): Promise<BotKey> {
   const response = await apiFetch(
     `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots/${encodeURIComponent(botId)}/keys`,
@@ -340,4 +354,37 @@ export async function deleteBotKey(
     `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots/${encodeURIComponent(botId)}/keys/${encodeURIComponent(keyId)}`,
     { method: 'DELETE' },
   )
+}
+
+// ==================== Bot Chat Config ====================
+
+export async function fetchBotChatConfig(
+  publisherName: string,
+  projectId: string,
+  botId: string,
+): Promise<BotChatConfig | null> {
+  try {
+    const response = await apiFetch(
+      `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots/${encodeURIComponent(botId)}/chat`,
+    )
+    return safeJsonParse<BotChatConfig>(response)
+  } catch {
+    return null
+  }
+}
+
+export async function updateBotChatConfig(
+  publisherName: string,
+  projectId: string,
+  botId: string,
+  data: BotChatConfig,
+): Promise<BotChatConfig> {
+  const response = await apiFetch(
+    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots/${encodeURIComponent(botId)}/chat`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(camelToSnake(data)),
+    },
+  )
+  return safeJsonParse<BotChatConfig>(response)
 }

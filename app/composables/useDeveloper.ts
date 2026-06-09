@@ -9,6 +9,7 @@ export function useDeveloper() {
     isLoading,
     hasDeveloperSelected,
     currentPublisherName,
+    currentPublisherNick,
   } = storeToRefs(store)
 
   return {
@@ -17,8 +18,10 @@ export function useDeveloper() {
     isLoading,
     hasDeveloperSelected,
     currentPublisherName,
+    currentPublisherNick,
     loadDevelopers: store.loadDevelopers,
     selectDeveloper: store.selectDeveloper,
+    selectByPublisherName: store.selectByPublisherName,
     clearSelection: store.clearSelection,
   }
 }

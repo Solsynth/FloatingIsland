@@ -1,10 +1,7 @@
 export default defineNuxtRouteMiddleware((_to) => {
   // Skip auth check in local development
-  if (import.meta.client) {
-    const host = window.location.hostname
-    if (host === 'localhost' || host === '127.0.0.1') {
-      return
-    }
+  if (import.meta.dev) {
+    return
   }
 
   const auth = useAuth()

@@ -172,6 +172,8 @@ import {
   IconCompass,
   IconBuilding,
   IconHardDrive,
+  IconPalette,
+  IconCode,
   IconUser,
   IconSettings,
   IconLogOut,
@@ -192,6 +194,8 @@ const navItems = computed(() => [
   { to: "/", label: t("nav.explore"), icon: IconCompass },
   { to: "/realms", label: t("nav.realms"), icon: IconBuilding },
   { to: "/drive", label: t("nav.drive"), icon: IconHardDrive },
+  { to: "/creators", label: t("nav.creatorHub"), icon: IconPalette },
+  { to: "/developers", label: t("nav.developerHub"), icon: IconCode },
 ]);
 
 const displayName = computed(() => user.value?.nick || user.value?.name || "");

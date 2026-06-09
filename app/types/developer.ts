@@ -20,6 +20,8 @@ export interface DeveloperPublisher {
 
 export interface DeveloperStats {
   totalCustomApps: number
+  totalBots: number
+  totalProjects: number
 }
 
 export interface DevProject {
@@ -77,7 +79,7 @@ export interface CustomAppSecret {
   secret: string | null
   description: string | null
   expiredAt: string | null
-  isOidc: boolean
+  type: string
   appId: string
 }
 
@@ -96,30 +98,60 @@ export interface BotAccount {
   id: string
   name: string
   nick: string
-  profile: {
-    picture?: FileAttachment | null
-  }
+  language: string | null
+  profile: BotAccountProfile
 }
 
-export interface BotConfig {
-  isPublic: boolean
-  isInteractive: boolean
-  allowedRealms: string[]
-  allowedChatTypes: string[]
-  metadata: Record<string, unknown>
+export interface BotAccountProfile {
+  firstName: string | null
+  middleName: string | null
+  lastName: string | null
+  gender: string | null
+  pronouns: string | null
+  timeZone: string | null
+  location: string | null
+  bio: string | null
+  birthday: string | null
+  picture?: FileAttachment | null
+  background?: FileAttachment | null
 }
 
-export interface BotLinks {
-  website: string | null
-  documentation: string | null
-  privacyPolicy: string | null
-  termsOfService: string | null
-}
 
 export interface BotKey {
   id: string
   key: string | null
-  description: string | null
+  label: string | null
   expiredAt: string | null
   botId: string
+}
+
+export interface BotChatConfig {
+  id: string
+  commands: BotCommand[]
+  webhooks: BotWebhook[]
+  autoApproveDm: boolean
+  autoApproveGroupChat: boolean
+  supportChat: boolean
+  subscribedEvents: string[]
+}
+
+export interface BotCommand {
+  name: string
+  description: string
+  usage?: string
+  parameters?: BotCommandParameter[]
+}
+
+export interface BotCommandParameter {
+  name: string
+  description?: string
+  required: boolean
+  type?: string
+}
+
+export interface BotWebhook {
+  url: string
+  secret?: string
+  events: string[]
+  isActive: boolean
 }

@@ -8,9 +8,9 @@
       <template v-else-if="project">
         <!-- Project Header -->
         <div class="flex items-center gap-4 mb-6">
-          <NuxtLink :to="`/developers/${pubName}/projects`" class="btn btn-ghost btn-sm">
+          <NuxtLink :to="`/developers/${pubName}`" class="btn btn-ghost btn-sm">
             <IconArrowLeft class="w-4 h-4" />
-            {{ t('developer.projects.title') }}
+            {{ t('developer.dashboard') }}
           </NuxtLink>
         </div>
 
@@ -61,7 +61,7 @@
               >
                 <div class="avatar">
                   <div class="w-8 rounded-full">
-                    <img v-if="getFileUrl(app.picture?.id)" :src="getFileUrl(app.picture?.id)" :alt="app.name" />
+                    <img v-if="getFileUrl(app.picture?.id)" :src="getFileUrl(app.picture?.id)!" :alt="app.name" />
                     <div v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-content text-xs font-bold">
                       {{ app.name?.slice(0, 2).toUpperCase() }}
                     </div>
@@ -96,7 +96,7 @@
               >
                 <div class="avatar">
                   <div class="w-8 rounded-full">
-                    <img v-if="getFileUrl(bot.account.profile?.picture?.id)" :src="getFileUrl(bot.account.profile?.picture?.id)" :alt="bot.account.nick" />
+                    <img v-if="getFileUrl(bot.account.profile?.picture?.id)" :src="getFileUrl(bot.account.profile?.picture?.id)!" :alt="bot.account.nick" />
                     <div v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-info text-info-content text-xs font-bold">
                       {{ bot.account.nick?.slice(0, 2).toUpperCase() }}
                     </div>
@@ -117,7 +117,7 @@
       <div v-else class="flex flex-col items-center py-8 text-center">
         <IconFolder class="w-12 h-12 text-base-content/20 mb-4" />
         <p class="text-base-content/60">{{ t('developer.projects.notFound') }}</p>
-        <NuxtLink :to="`/developers/${pubName}/projects`" class="btn btn-primary btn-sm mt-4">
+        <NuxtLink :to="`/developers/${pubName}`" class="btn btn-primary btn-sm mt-4">
           {{ t('developer.projects.backToList') }}
         </NuxtLink>
       </div>
@@ -178,21 +178,15 @@
 
 <script setup lang="ts">
 import {
-  IconArrowLeft,
-  IconEdit,
-  IconTrash,
-  IconFolder,
-  IconChevronRight,
-} from '#components'
-import { getFileUrl } from '~/utils/files'
-import type { DevProject, CustomApp, Bot } from '~/types/developer'
-import {
-  fetchDevProject,
-  updateDevProject,
-  deleteDevProject,
-  fetchCustomApps,
-  fetchBots,
-} from '~/utils/developer'
+	ArrowLeft as IconArrowLeft,
+	ChevronRight as IconChevronRight,
+	Folder as IconFolder,
+	Pencil as IconEdit,
+	Trash as IconTrash
+} from '@lucide/vue';
+import { getFileUrl } from '~/utils/files';
+import type { Bot, CustomApp, DevProject } from '~/types/developer';
+import { deleteDevProject, fetchBots, fetchCustomApps, fetchDevProject, updateDevProject } from '~/utils/developer';
 
 definePageMeta({ middleware: 'developer' })
 
@@ -201,6 +195,7 @@ const route = useRoute()
 const router = useRouter()
 const pubName = computed(() => route.params.pubName as string)
 const projectId = computed(() => route.params.projectId as string)
+const developer = useDeveloper()
 
 const project = ref<DevProject | null>(null)
 const apps = ref<CustomApp[]>([])
@@ -224,14 +219,19 @@ function formatDate(dateStr: string) {
 async function loadData() {
   isLoading.value = true
   try {
-    const [projectData, appsData, botsData] = await Promise.all([
-      fetchDevProject(pubName.value, projectId.value),
+    await developer.loadDevelopers()
+    developer.selectByPublisherName(pubName.value)
+
+    // Fetch project first — don't let apps/bots failure block it
+		project.value = await fetchDevProject(pubName.value, projectId.value)
+
+    // Apps and bots are secondary — don't fail the whole page if these error
+    const [appsResult, botsResult] = await Promise.allSettled([
       fetchCustomApps(pubName.value, projectId.value),
       fetchBots(pubName.value, projectId.value),
     ])
-    project.value = projectData
-    apps.value = appsData
-    bots.value = botsData
+    apps.value = appsResult.status === 'fulfilled' ? appsResult.value : []
+    bots.value = botsResult.status === 'fulfilled' ? botsResult.value : []
   } catch (e) {
     console.error(e)
   } finally {
@@ -268,13 +268,14 @@ async function handleDelete() {
   if (!confirm(t('developer.projects.deleteConfirm'))) return
   try {
     await deleteDevProject(pubName.value, projectId.value)
-    router.push(`/developers/${pubName.value}/projects`)
+    router.push(`/developers/${pubName.value}`)
   } catch (e) {
     console.error(e)
   }
 }
 
-onMounted(() => {
+// Load on mount and when route params change
+watch([pubName, projectId], () => {
   loadData()
-})
+}, { immediate: true })
 </script>

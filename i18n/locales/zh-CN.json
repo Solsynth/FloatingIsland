@@ -661,6 +661,14 @@
     "backToApp": "返回应用",
     "dashboard": "仪表盘",
     "settings": "设置",
+    "settingsDescription": "管理您的开发者账户设置、查看统计数据并配置您的开发者资料。",
+    "settingsDeveloperInfo": "开发者信息",
+    "settingsMemberSince": "注册时间",
+    "settingsQuickStats": "快速统计",
+    "settingsDangerZone": "危险区域",
+    "settingsDangerZoneDesc": "取消注册将移除您的开发者访问权限。您的项目和应用将保留，但您将无法管理它们。",
+    "settingsUnenroll": "取消开发者注册",
+    "settingsUnenrollConfirm": "确定要取消开发者注册吗？此操作不可撤销。",
     "overview": "概览",
     "hubDescription": "开发者中心让您可以管理 Solar Network 平台上的项目、应用和机器人。",
     "dashboardDescription": "查看您的开发者统计数据并管理您的项目。",
@@ -701,7 +709,6 @@
         "create": "创建密钥",
         "description": "描述",
         "noDescription": "无描述",
-        "isOidc": "OIDC",
         "expires": "过期时间",
         "noSecrets": "暂无密钥。",
         "deleteConfirm": "确定要删除此密钥吗？"
@@ -717,8 +724,12 @@
       },
       "links": {
         "title": "链接",
+        "homePage": "主页",
+        "privacyPolicy": "隐私政策",
+        "termsOfService": "服务条款",
         "noLinks": "未配置链接。"
-      }
+      },
+      "background": "背景"
     },
     "bots": {
       "title": "机器人",
@@ -726,6 +737,13 @@
       "detail": "机器人详情",
       "viewAll": "查看全部",
       "slug": "机器人标识符",
+      "name": "用户名",
+      "nick": "显示名称",
+      "language": "语言",
+      "bio": "简介",
+      "firstName": "名",
+      "lastName": "姓",
+      "active": "启用",
       "project": "项目",
       "selectProject": "选择项目",
       "noBots": "暂无机器人。创建您的第一个机器人以开始使用。",
@@ -739,14 +757,27 @@
       "keys": {
         "title": "API 密钥",
         "create": "创建密钥",
-        "description": "描述",
-        "noDescription": "无描述",
+        "label": "标签",
+        "noLabel": "无标签",
         "expires": "过期时间",
         "noKeys": "暂无 API 密钥。",
         "deleteConfirm": "确定要删除此密钥吗？"
       },
       "info": {
         "title": "机器人信息"
+      },
+      "chat": {
+        "title": "聊天配置",
+        "autoApproveDm": "自动批准私信",
+        "autoApproveDmHint": "发送给此机器人的私信将自动批准",
+        "autoApproveGroupChat": "自动批准群聊",
+        "autoApproveGroupChatHint": "机器人自动加入群聊邀请，无需待审批",
+        "supportChat": "支持聊天",
+        "supportChatHint": "允许此机器人参与聊天",
+        "subscribedEvents": "订阅事件",
+        "commands": "命令",
+        "webhooks": "Webhooks",
+        "noConfig": "暂无聊天配置。"
       }
     }
   },
