@@ -12,12 +12,17 @@
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.2.0",
     "@nuxt/eslint": "^1.15.2",
+    "@nuxt/fonts": "0.14.0",
     "@pinia/nuxt": "^0.11.3",
+    "@takumi-rs/core": "^1.7.0",
+    "@unhead/vue": "^2.0.5 || ^3.0.0",
     "blurhash": "^2.0.5",
     "lunar-javascript": "^1.7.7",
     "markdown-it": "^14.2.0",
     "nuxt": "^4.4.6",
+    "nuxt-og-image": "6.5.3",
     "pinia": "^3.0.4",
+    "unstorage": "^1.15.0",
     "vue": "^3.5.34",
     "vue-router": "^5.0.7"
   },
