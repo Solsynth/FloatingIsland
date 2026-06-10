@@ -16,6 +16,9 @@ export default defineNuxtConfig({
 		'@nuxtjs/sitemap',
 		'@nuxtjs/robots'
 	],
+	site: {
+		url: 'https://solian.app'
+	},
 	i18n: {
 		strategy: 'no_prefix',
 		defaultLocale: 'en',
@@ -23,8 +26,6 @@ export default defineNuxtConfig({
 			{ code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
 			{ code: 'zh', language: 'zh-CN', name: '简体中文', file: 'zh-CN.json' }
 		],
-		lazy: true,
-		bundle: { strictMessage: false },
 		detectBrowserLanguage: {
 			useCookie: true,
 			cookieKey: 'i18n_locale',
@@ -134,7 +135,6 @@ export default defineNuxtConfig({
 		}
 	},
 	sitemap: {
-		hosts: ['https://solian.app'],
 		gzip: true,
 		exclude: ['/admin/**', '/auth/**', '/api/**', '/compose', '/drive/**'],
 		defaults: {

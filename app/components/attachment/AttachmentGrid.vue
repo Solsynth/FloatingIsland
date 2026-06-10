@@ -8,6 +8,7 @@
 				@click.prevent.stop="openLightbox(0)"
 			>
 				<AttachmentItem
+					v-if="attachments[0]"
 					:attachment="attachments[0]"
 					:clickable="false"
 					class="w-full h-full"
@@ -64,15 +65,15 @@
 
 		<!-- Expand/collapse button for many attachments -->
 		<button
-			v-if="attachments.length > maxVisible && !showAll"
+			v-if="attachments.length > (maxVisible ?? 0) && !showAll"
 			class="btn btn-ghost btn-xs mt-2 gap-1"
 			@click.prevent.stop="showAll = true"
 		>
 			<IconChevronDown class="w-3 h-3" />
-			Show {{ attachments.length - maxVisible }} more
+			Show {{ attachments.length - (maxVisible ?? 0) }} more
 		</button>
 		<button
-			v-if="showAll && attachments.length > maxVisible"
+			v-if="showAll && attachments.length > (maxVisible ?? 0)"
 			class="btn btn-ghost btn-xs mt-2 gap-1"
 			@click.prevent.stop="showAll = false"
 		>
@@ -137,6 +138,7 @@ function getAspectRatio(attachment: FileAttachment): number {
 
 // Single attachment style
 const singleAttachmentStyle = computed(() => {
+	if (!props.attachments[0]) return {};
 	const ratio = getAspectRatio(props.attachments[0]);
 	return {
 		aspectRatio: ratio,

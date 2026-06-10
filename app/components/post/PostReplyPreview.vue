@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="containerRef"
     v-if="totalReplies > 0"
     class="rounded-xl border border-base-300 bg-base-200/30 overflow-hidden"
   >
@@ -197,6 +198,7 @@
 
 <script setup lang="ts">
 import type { Post } from '~/types/post';
+import { useIntersectionObserver } from '@vueuse/core';
 import { fetchPostRepliesThreaded, reactToPost, removeReaction } from '~/utils/api';
 import { getFileUrl } from '~/utils/files';
 import { renderMarkdown } from '~/utils/markdown';
@@ -221,11 +223,13 @@ const emit = defineEmits<{
   boost: [post: Post];
 }>();
 
+const containerRef = ref<HTMLElement | null>(null);
 const replies = ref<Post[]>(props.initialReplies);
 const replyNodes = ref<Array<{ reply: Post; depth: number; parentId: string | null }>>([]);
 const loading = ref(false);
 const offset = ref(0);
 const hasMore = ref(true);
+const hasLoaded = ref(false);
 const route = useRoute();
 const isExplorePage = computed(() => route.path === '/');
 
@@ -265,9 +269,18 @@ async function loadReplies() {
   }
 }
 
-async function prefetchReplies() {
-  await loadReplies();
-}
+// Intersection Observer for lazy loading
+const { stop: stopObserver } = useIntersectionObserver(
+  containerRef,
+  ([{ isIntersecting }]) => {
+    if (isIntersecting && !hasLoaded.value && !loading.value) {
+      hasLoaded.value = true;
+      loadReplies();
+      stopObserver();
+    }
+  },
+  { rootMargin: '100px' } // Start loading 100px before visible
+);
 
 async function loadMore() {
   if (loading.value || !hasMore.value) return;
@@ -362,7 +375,5 @@ async function handleRemoveReaction(symbol: string) {
   await removeReaction(featuredReply.value.id, symbol);
 }
 
-onMounted(() => {
-  prefetchReplies();
-});
+// Replies are loaded via Intersection Observer when visible
 </script>

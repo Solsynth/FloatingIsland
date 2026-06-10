@@ -233,7 +233,9 @@ export interface SnAccountActivity {
   type: number;
   manualId?: string;
   title?: string;
+  titleUrl?: string;
   subtitle?: string;
+  subtitleUrl?: string;
   caption?: string;
   largeImage?: string;
   meta?: Record<string, unknown>;
