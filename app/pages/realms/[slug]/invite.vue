@@ -143,6 +143,8 @@ definePageMeta({ layout: false });
 
 const { t } = useI18n();
 
+defineOgImage('OgImage', { title: t("realms.inviteSeoTitle"), description: t("realms.inviteSeoDescription") })
+
 useSolarSeo({
     title: t("realms.inviteSeoTitle"),
     description: t("realms.inviteSeoDescription"),

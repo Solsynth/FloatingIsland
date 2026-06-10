@@ -182,6 +182,8 @@ const formData = reactive({
   description: '',
 })
 
+defineOgImage('OgImage', { title: `${t('developer.dashboard')} - ${pubName.value}` })
+
 useSolarSeo({ title: `${t('developer.dashboard')} - ${pubName.value}` })
 
 async function loadData() {

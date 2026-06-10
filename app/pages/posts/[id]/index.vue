@@ -11,7 +11,7 @@
 				<div class="flex-1">
 					<h1 class="text-lg font-bold">{{ t('post.title') }}</h1>
 				</div>
-				<button class="btn btn-sm btn-primary gap-1" @click="handleReply">
+				<button class="btn btn-sm btn-primary gap-1" @click="() => handleReply(post)">
 					<IconReply class="w-4 h-4" />
 					<span class="hidden sm:inline">{{ t('post.replyBtn') }}</span>
 				</button>
@@ -505,26 +505,50 @@ function formatRelativeTime(dateStr: string): string {
 	return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-// SEO
-watch(
-	post,
-	(p) => {
-		if (p) {
-			const title = p.title || `${p.publisher?.nick || p.publisher?.name}'s Post`;
-			const description = p.description || p.content.slice(0, 160);
-			const imageUrl = p.attachments[0]?.url || getFileUrl(p.attachments[0]?.id);
+// SEO computed properties
+const seoTitle = computed(() => {
+	if (!post.value) return 'Solar Network'
+	return post.value.title || `${post.value.publisher?.nick || post.value.publisher?.name}'s Post`
+})
 
-			useSolarSeo({
-				title,
-				description,
-				image: imageUrl || undefined,
-				url: `https://solian.app/posts/${p.id}`,
-				type: 'article',
-			});
-		}
-	},
-	{ immediate: true }
-);
+const seoDescription = computed(() => {
+	if (!post.value) return ''
+	return post.value.description || post.value.content.slice(0, 160)
+})
+
+const seoImageUrl = computed(() => {
+	if (!post.value) return ''
+	return post.value.attachments[0]?.url || getFileUrl(post.value.attachments[0]?.id) || ''
+})
+
+const authorAvatarId = computed(() => post.value?.publisher?.picture?.id || '')
+const authorName = computed(() => post.value?.publisher?.nick || post.value?.publisher?.name || 'Unknown')
+
+// OG Image (root level with computed values)
+defineOgImage('PostOgImage', {
+	title: () => post.value?.title || '',
+	description: () => post.value?.content || '',
+	authorName: () => authorName.value,
+	authorAvatar: () => authorAvatarId.value,
+	postImage: () => seoImageUrl.value
+})
+
+// SEO Meta Tags
+useSolarSeo({
+	title: () => seoTitle.value,
+	description: () => seoDescription.value,
+	image: () => seoImageUrl.value || undefined,
+	url: () => post.value ? `https://solian.app/posts/${post.value.id}` : 'https://solian.app',
+	type: 'article',
+	datePublished: () => post.value?.createdAt,
+	dateModified: () => post.value?.updatedAt,
+	author: () => post.value?.publisher?.nick || post.value?.publisher?.name,
+	publisher: 'Solar Network',
+	breadcrumbs: () => post.value ? [
+		{ name: 'Home', item: 'https://solian.app' },
+		{ name: seoTitle.value, item: `https://solian.app/posts/${post.value.id}` }
+	] : []
+});
 
 function handleBack() {
 	if (typeof window !== 'undefined' && window.history.length > 1) {

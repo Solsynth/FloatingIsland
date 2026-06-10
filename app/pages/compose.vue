@@ -170,6 +170,8 @@ import { getFileUrl } from "~/utils/files";
 
 const { t } = useI18n();
 
+defineOgImage('OgImage', { title: t('compose.seoTitle'), description: t('compose.seoDescription') })
+
 useSolarSeo({
     title: t('compose.seoTitle'),
     description: t('compose.seoDescription'),

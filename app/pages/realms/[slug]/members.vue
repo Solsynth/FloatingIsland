@@ -232,6 +232,8 @@ const showInviteModal = ref(false);
 const seoTitle = ref<string>("");
 const seoDescription = ref<string>("");
 
+defineOgImage('OgImage', { title: computed(() => seoTitle.value || 'Solar Network'), description: computed(() => seoDescription.value || '') })
+
 useHead({
   title: computed(() => seoTitle.value || "Solar Network"),
   meta: [

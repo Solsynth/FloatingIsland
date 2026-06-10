@@ -148,6 +148,8 @@ const pubName = computed(() => route.params.pubName as string)
 const creator = useCreator()
 const { currentPublisher, isManager } = creator
 
+defineOgImage('OgImage', { title: computed(() => `${t('creator.subscribers.title')} - ${currentPublisher.value?.nick ?? pubName.value}`) })
+
 useSolarSeo({ title: computed(() => `${t('creator.subscribers.title')} - ${currentPublisher.value?.nick ?? pubName.value}`) })
 
 const subscribers = ref<PublisherSubscriber[]>([])

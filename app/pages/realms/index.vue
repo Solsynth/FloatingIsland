@@ -98,9 +98,15 @@ import { fetchRealms } from '~/utils/api';
 
 const { t } = useI18n();
 
+defineOgImage('OgImage', { title: t("realms.title"), description: t("realms.seoDescription") })
+
 useSolarSeo({
 	title: t("realms.title"),
 	description: t("realms.seoDescription"),
+	breadcrumbs: [
+		{ name: 'Home', item: 'https://solian.app' },
+		{ name: t('realms.title'), item: 'https://solian.app/realms' }
+	]
 });
 
 const auth = useAuth();

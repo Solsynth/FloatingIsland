@@ -1,106 +1,106 @@
 <template>
-    <div v-if="attachments.length" class="attachment-collection">
-        <!-- Single attachment -->
-        <div v-if="attachments.length === 1" class="single-attachment">
-            <div
-                class="relative overflow-hidden rounded-xl cursor-pointer"
-                :style="singleAttachmentStyle"
-                @click.prevent.stop="openLightbox(0)"
-            >
-                <AttachmentItem
-                    :attachment="attachments[0]"
-                    :clickable="false"
-                    class="w-full h-full"
-                />
-            </div>
-        </div>
+	<div v-if="attachments.length" class="attachment-collection">
+		<!-- Single attachment -->
+		<div v-if="attachments.length === 1" class="single-attachment">
+			<div
+				class="relative overflow-hidden rounded-xl cursor-pointer"
+				:style="singleAttachmentStyle"
+				@click.prevent.stop="openLightbox(0)"
+			>
+				<AttachmentItem
+					:attachment="attachments[0]"
+					:clickable="false"
+					class="w-full h-full"
+				/>
+			</div>
+		</div>
 
-        <!-- Multiple attachments - horizontal scroll list -->
-        <div v-else class="relative group">
-            <div
-                ref="scrollContainer"
-                class="flex gap-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-1"
-                @scroll="updateScrollState"
-            >
-                <div
-                    v-for="(attachment, index) in displayAttachments"
-                    :key="attachment.id"
-                    class="shrink-0 snap-start relative overflow-hidden rounded-xl cursor-pointer"
-                    :style="getItemStyle(attachment)"
-                    @click.prevent.stop="openLightbox(index)"
-                >
-                    <AttachmentItem
-                        :attachment="attachment"
-                        :clickable="false"
-                        class="w-full h-full"
-                    />
+		<!-- Multiple attachments - horizontal scroll list -->
+		<div v-else class="relative group">
+			<div
+				ref="scrollContainer"
+				class="flex gap-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-1"
+				@scroll="updateScrollState"
+			>
+				<div
+					v-for="(attachment, index) in displayAttachments"
+					:key="attachment.id"
+					class="shrink-0 snap-start relative overflow-hidden rounded-xl cursor-pointer"
+					:style="getItemStyle(attachment)"
+					@click.prevent.stop="openLightbox(index)"
+				>
+					<AttachmentItem
+						:attachment="attachment"
+						:clickable="false"
+						class="w-full h-full"
+					/>
 
-                    <!-- Counter overlay for images -->
-                    <div
-                        v-if="isImageAttachment(attachment)"
-                        class="absolute bottom-2 left-2 px-2 py-0.5 bg-black/60 rounded-full text-xs text-white font-medium backdrop-blur-sm"
-                    >
-                        {{ index + 1 }}/{{ attachments.length }}
-                    </div>
-                </div>
-            </div>
+					<!-- Counter overlay for images -->
+					<div
+						v-if="isImageAttachment(attachment)"
+						class="absolute bottom-2 left-2 px-2 py-0.5 bg-black/60 rounded-full text-xs text-white font-medium backdrop-blur-sm"
+					>
+						{{ index + 1 }}/{{ attachments.length }}
+					</div>
+				</div>
+			</div>
 
-            <!-- Scroll arrows (desktop hover) -->
-            <button
-                v-if="canScrollLeft"
-                class="absolute left-2 top-1/2 -translate-y-1/2 btn btn-circle btn-sm bg-black/50 border-none text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-black/70 backdrop-blur-sm"
-                @click.prevent.stop="scrollBy(-1)"
-            >
-                <IconChevronLeft class="w-4 h-4" />
-            </button>
-            <button
-                v-if="canScrollRight"
-                class="absolute right-2 top-1/2 -translate-y-1/2 btn btn-circle btn-sm bg-black/50 border-none text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-black/70 backdrop-blur-sm"
-                @click.prevent.stop="scrollBy(1)"
-            >
-                <IconChevronRight class="w-4 h-4" />
-            </button>
-        </div>
+			<!-- Scroll arrows (desktop hover) -->
+			<button
+				v-if="canScrollLeft"
+				class="absolute left-2 top-1/2 -translate-y-1/2 btn btn-circle btn-sm bg-black/50 border-none text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-black/70 backdrop-blur-sm"
+				@click.prevent.stop="scrollBy(-1)"
+			>
+				<IconChevronLeft class="w-4 h-4" />
+			</button>
+			<button
+				v-if="canScrollRight"
+				class="absolute right-2 top-1/2 -translate-y-1/2 btn btn-circle btn-sm bg-black/50 border-none text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-black/70 backdrop-blur-sm"
+				@click.prevent.stop="scrollBy(1)"
+			>
+				<IconChevronRight class="w-4 h-4" />
+			</button>
+		</div>
 
-        <!-- Expand/collapse button for many attachments -->
-        <button
-            v-if="attachments.length > maxVisible && !showAll"
-            class="btn btn-ghost btn-xs mt-2 gap-1"
-            @click.prevent.stop="showAll = true"
-        >
-            <IconChevronDown class="w-3 h-3" />
-            Show {{ attachments.length - maxVisible }} more
-        </button>
-        <button
-            v-if="showAll && attachments.length > maxVisible"
-            class="btn btn-ghost btn-xs mt-2 gap-1"
-            @click.prevent.stop="showAll = false"
-        >
-            <IconChevronUp class="w-3 h-3" />
-            Show less
-        </button>
-    </div>
+		<!-- Expand/collapse button for many attachments -->
+		<button
+			v-if="attachments.length > maxVisible && !showAll"
+			class="btn btn-ghost btn-xs mt-2 gap-1"
+			@click.prevent.stop="showAll = true"
+		>
+			<IconChevronDown class="w-3 h-3" />
+			Show {{ attachments.length - maxVisible }} more
+		</button>
+		<button
+			v-if="showAll && attachments.length > maxVisible"
+			class="btn btn-ghost btn-xs mt-2 gap-1"
+			@click.prevent.stop="showAll = false"
+		>
+			<IconChevronUp class="w-3 h-3" />
+			Show less
+		</button>
+	</div>
 </template>
 
 <script setup lang="ts">
 import type { FileAttachment } from '~/types/post';
 import { isImageFile } from '~/utils/fileType';
 import {
-    IconChevronLeft,
-    IconChevronRight,
-    IconChevronDown,
-    IconChevronUp,
+	IconChevronLeft,
+	IconChevronRight,
+	IconChevronDown,
+	IconChevronUp
 } from '#components';
 
 interface Props {
-    attachments: FileAttachment[];
-    maxHeight?: number;
-    maxVisible?: number;
+	attachments: FileAttachment[];
+	maxHeight?: number;
+	maxVisible?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    maxHeight: 0,
-    maxVisible: 6,
+	maxHeight: 0,
+	maxVisible: 6
 });
 
 const showAll = ref(false);
@@ -112,103 +112,107 @@ const { open: openLightboxModal } = useLightbox();
 
 // Display attachments based on showAll state
 const displayAttachments = computed(() => {
-    if (showAll.value) return props.attachments;
-    return props.attachments.slice(0, props.maxVisible);
+	if (showAll.value) return props.attachments;
+	return props.attachments.slice(0, props.maxVisible);
 });
 
 // Check if attachment is an image
 function isImageAttachment(attachment: FileAttachment): boolean {
-    return isImageFile(attachment);
+	return isImageFile(attachment);
 }
 
 // Get aspect ratio from file meta
 function getAspectRatio(attachment: FileAttachment): number {
-    const ratio = attachment.fileMeta?.ratio;
-    if (typeof ratio === 'number' && ratio > 0) return ratio;
-    if (typeof ratio === 'string') {
-        const parsed = parseFloat(ratio);
-        if (parsed > 0) return parsed;
-    }
-    return 4 / 3; // Default aspect ratio
+	const width = attachment.fileMeta?.width;
+	const height = attachment.fileMeta?.height;
+	if (typeof width === 'number' && typeof height === 'number') return width / height;
+	const ratio = attachment.fileMeta?.ratio;
+	if (typeof ratio === 'number' && ratio > 0) return ratio;
+	if (typeof ratio === 'string') {
+		const parsed = parseFloat(ratio);
+		if (parsed > 0) return parsed;
+	}
+	return 4 / 3; // Default aspect ratio
 }
 
 // Single attachment style
 const singleAttachmentStyle = computed(() => {
-    const ratio = getAspectRatio(props.attachments[0]);
-    return {
-        aspectRatio: ratio,
-        maxHeight: props.maxHeight ? `${props.maxHeight}px` : '500px',
-    };
+	const ratio = getAspectRatio(props.attachments[0]);
+	return {
+		aspectRatio: ratio,
+		maxHeight: props.maxHeight ? `${props.maxHeight}px` : '500px'
+	};
 });
 
 // Get item style for horizontal list items
 function getItemStyle(attachment: FileAttachment) {
-    const isImage = isImageFile(attachment);
-    const isAudio = attachment.mimeType?.startsWith('audio');
+	const isImage = isImageFile(attachment);
+	const isAudio = attachment.mimeType?.startsWith('audio');
 
-    if (isAudio) {
-        return { width: '280px', height: '120px' };
-    }
+	if (isAudio) {
+		return { width: '280px', height: '120px' };
+	}
 
-    if (isImage) {
-        const ratio = getAspectRatio(attachment);
-        // Calculate width based on aspect ratio, keeping a consistent height
-        const height = 240;
-        const width = Math.round(height * ratio);
-        return {
-            width: `${Math.min(width, 400)}px`,
-            height: `${height}px`,
-        };
-    }
+	if (isImage) {
+		const ratio = getAspectRatio(attachment);
+		// Calculate width based on aspect ratio, keeping a consistent height
+		const height = 240;
+		const width = Math.round(height * ratio);
+		return {
+			width: `${Math.min(width, 400)}px`,
+			height: `${height}px`
+		};
+	}
 
-    return { width: '280px', height: '180px' };
+	return { width: '280px', height: '180px' };
 }
 
 // Update scroll state
 function updateScrollState() {
-    if (!scrollContainer.value) return;
-    const el = scrollContainer.value;
-    canScrollLeft.value = el.scrollLeft > 10;
-    canScrollRight.value = el.scrollLeft < el.scrollWidth - el.clientWidth - 10;
+	if (!scrollContainer.value) return;
+	const el = scrollContainer.value;
+	canScrollLeft.value = el.scrollLeft > 10;
+	canScrollRight.value = el.scrollLeft < el.scrollWidth - el.clientWidth - 10;
 }
 
 // Scroll by direction (-1 for left, 1 for right)
 function scrollBy(direction: number) {
-    if (!scrollContainer.value) return;
-    const el = scrollContainer.value;
-    const scrollAmount = el.clientWidth * 0.75;
-    el.scrollBy({
-        left: scrollAmount * direction,
-        behavior: 'smooth',
-    });
+	if (!scrollContainer.value) return;
+	const el = scrollContainer.value;
+	const scrollAmount = el.clientWidth * 0.75;
+	el.scrollBy({
+		left: scrollAmount * direction,
+		behavior: 'smooth'
+	});
 }
 
 // Lightbox function - opens the global lightbox
 function openLightbox(index: number) {
-    const imageAttachments = props.attachments.filter(a => isImageFile(a));
-    if (imageAttachments.length === 0) return;
+	const imageAttachments = props.attachments.filter(a => isImageFile(a));
+	if (imageAttachments.length === 0) return;
 
-    // Find the correct index in the filtered image attachments
-    const clickedAttachment = displayAttachments.value[index];
-    const imageIndex = imageAttachments.findIndex(a => a.id === clickedAttachment?.id);
+	// Find the correct index in the filtered image attachments
+	const clickedAttachment = displayAttachments.value[index];
+	const imageIndex = imageAttachments.findIndex(a => a.id === clickedAttachment?.id);
 
-    openLightboxModal(imageAttachments, imageIndex >= 0 ? imageIndex : 0);
+	openLightboxModal(imageAttachments, imageIndex >= 0 ? imageIndex : 0);
 }
 
 // Initialize scroll state on mount
 onMounted(() => {
-    nextTick(() => {
-        updateScrollState();
-    });
+	nextTick(() => {
+		updateScrollState();
+	});
 });
 </script>
 
 <style scoped>
 .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
 }
+
 .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+	display: none;
 }
 </style>

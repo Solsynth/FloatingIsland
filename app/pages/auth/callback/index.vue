@@ -21,6 +21,8 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 
+defineOgImage('OgImage', { title: 'Authenticating', description: 'Completing authentication...' })
+
 useSolarSeo({
     title: "Authenticating",
     description: "Completing authentication...",

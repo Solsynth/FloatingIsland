@@ -643,25 +643,61 @@ const publicContacts = computed(() => {
 const currentTimeInTz = ref<string>("");
 const tzOffset = ref<string>("");
 
-const seoTitle = ref<string>("");
-const seoDescription = ref<string>("");
-const seoImage = ref<string | undefined>();
-const seoUrl = ref<string>("");
+// Fetch account data with useAsyncData for SSR
+const {
+  data: accountData,
+  status: fetchStatus,
+  error: fetchError,
+} = await useAsyncData(
+  `account-${accountName.value}`,
+  () => fetchAccount(accountName.value),
+  { watch: [accountName] }
+);
 
-useHead({
-  title: computed(() => seoTitle.value || "Solar Network"),
-  meta: [
-    { name: "description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
-    { property: "og:title", content: computed(() => seoTitle.value ? `${seoTitle.value} • Solar Network` : "Solar Network") },
-    { property: "og:description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
-    { property: "og:type", content: "profile" },
-    { property: "og:url", content: computed(() => seoUrl.value || "https://solian.app") },
-    { property: "og:image", content: computed(() => seoImage.value || "/og-image.png") },
-    { name: "twitter:card", content: computed(() => seoImage.value ? "summary_large_image" : "summary") },
-    { name: "twitter:title", content: computed(() => seoTitle.value ? `${seoTitle.value} • Solar Network` : "Solar Network") },
-    { name: "twitter:description", content: computed(() => seoDescription.value || "Explore posts, realms, and publishers on Solar Network.") },
-    { name: "twitter:image", content: computed(() => seoImage.value || "/og-image.png") },
-  ],
+// Watch and update refs
+watch(accountData, (data) => {
+  if (data) {
+    account.value = data;
+    notFound.value = false;
+    error.value = null;
+    publishers.value = data.publishers || [];
+  }
+}, { immediate: true });
+
+watch(fetchError, (err) => {
+  if (err) {
+    if (err.message?.includes('404')) {
+      notFound.value = true;
+    } else {
+      error.value = err.message || 'Failed to load account';
+    }
+  }
+}, { immediate: true });
+
+const seoTitle = computed(() => account.value ? `${displayName.value} (@${account.value.name})` : '');
+const seoDescription = computed(() => account.value?.profile?.bio || `View profile for @${account.value?.name}`);
+const seoImage = computed(() => getFileUrl(account.value?.profile?.picture?.id) || undefined);
+const seoUrl = computed(() => `https://solian.app/@${account.value?.name}`);
+
+// OG Image (root level with computed values)
+defineOgImage('AccountOgImage', {
+	name: () => account.value?.name || '',
+	displayName: () => displayName.value,
+	bio: () => account.value?.profile?.bio || '',
+	avatarId: () => account.value?.profile?.picture?.id || '',
+	backgroundId: () => account.value?.profile?.background?.id || ''
+})
+
+useSolarSeo({
+	title: () => seoTitle.value,
+	description: () => seoDescription.value,
+	image: () => seoImage.value,
+	url: () => seoUrl.value,
+	type: 'profile',
+	breadcrumbs: () => [
+		{ name: 'Home', item: 'https://solian.app' },
+		{ name: seoTitle.value, item: seoUrl.value }
+	]
 });
 
 function updateTimezone() {
@@ -950,15 +986,12 @@ async function shareProfile() {
   }
 }
 
+// Load additional data on mount
 onMounted(async () => {
   try {
-    const data = await fetchAccount(accountName.value);
-    account.value = data;
-
     // Start timezone update interval
     updateTimezone();
     const tzInterval = setInterval(updateTimezone, 60000);
-
     onUnmounted(() => clearInterval(tzInterval));
 
     await Promise.all([
@@ -967,18 +1000,8 @@ onMounted(async () => {
       loadBotDeveloper(),
       loadPunishment(),
     ]);
-
-    seoTitle.value = `${displayName.value} (@${data.name})`;
-    seoDescription.value = data.profile?.bio || `View profile for @${data.name}`;
-    seoImage.value = getFileUrl(data.profile?.picture?.id) || undefined;
-    seoUrl.value = `https://solian.app/@${data.name}`;
   } catch (err) {
-    if (err instanceof Error && err.message.includes("404")) {
-      notFound.value = true;
-    } else {
-      error.value =
-        err instanceof Error ? err.message : "Failed to load account";
-    }
+    console.error('Failed to load additional data:', err);
   }
 });
 </script>

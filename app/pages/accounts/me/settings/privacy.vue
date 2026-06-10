@@ -253,6 +253,8 @@ onMounted(() => {
   fetchBlockedUsers();
 });
 
+defineOgImage('OgImage', { title: t("settings.privacyTitle") })
+
 useSolarSeo({
   title: t("settings.privacyTitle"),
 });

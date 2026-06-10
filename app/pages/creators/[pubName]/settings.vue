@@ -142,6 +142,8 @@ const pubName = computed(() => route.params.pubName as string)
 const creator = useCreator()
 const { currentPublisher } = creator
 
+defineOgImage('OgImage', { title: computed(() => `${t('creator.settings')} - ${currentPublisher.value?.nick ?? pubName.value}`) })
+
 useSolarSeo({ title: computed(() => `${t('creator.settings')} - ${currentPublisher.value?.nick ?? pubName.value}`) })
 
 const { data: features, refresh: refreshFeatures } = await useAsyncData(

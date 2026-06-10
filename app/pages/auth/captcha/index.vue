@@ -35,6 +35,8 @@ definePageMeta({ layout: false });
 
 const { t } = useI18n();
 
+defineOgImage('OgImage', { title: t("captcha.seoTitle"), description: t("captcha.seoDescription") })
+
 useSolarSeo({
     title: t("captcha.seoTitle"),
     description: t("captcha.seoDescription"),

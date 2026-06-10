@@ -134,6 +134,8 @@ import {
   IconLoader,
 } from '#components'
 
+defineOgImage('OgImage', { title: 'Categories & Tags', description: 'Browse categories and tags on Solar Network.' })
+
 useSolarSeo({
   title: 'Categories & Tags',
   description: 'Browse categories and tags on Solar Network.',

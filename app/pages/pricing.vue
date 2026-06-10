@@ -356,8 +356,14 @@ const comparisonRows: ComparisonRow[] = [
 
 const { t } = useI18n();
 
+defineOgImage('OgImage', { title: t('pricing.seoTitle'), description: t('pricing.seoDescription') })
+
 useSolarSeo({
     title: t('pricing.seoTitle'),
     description: t('pricing.seoDescription'),
+    breadcrumbs: [
+        { name: 'Home', item: 'https://solian.app' },
+        { name: 'Pricing', item: 'https://solian.app/pricing' }
+    ]
 });
 </script>

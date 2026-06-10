@@ -410,6 +410,8 @@
 import type { SnCloudFile } from "~/types/drive";
 import { fetchDriveBreadcrumb } from "~/utils/api";
 
+defineOgImage('OgImage', { title: 'Drive', description: 'Manage your files on Solar Network.' })
+
 useSolarSeo({
   title: "Drive",
   description: "Manage your files on Solar Network.",

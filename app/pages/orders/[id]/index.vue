@@ -67,6 +67,8 @@
 
 import { getOrder, payOrder } from '~/utils/api'
 
+defineOgImage('OgImage', { title: 'Order Status', description: 'View and manage your order on Solar Network.' })
+
 useSolarSeo({
     title: "Order Status",
     description: "View and manage your order on Solar Network.",

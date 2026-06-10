@@ -566,6 +566,8 @@ const route = useRoute();
 const { t } = useI18n();
 const fileId = computed(() => route.params.id as string);
 
+defineOgImage('OgImage', { title: 'File', description: 'View file on Solar Network.' })
+
 useSolarSeo({
   title: "File",
   description: "View file on Solar Network.",

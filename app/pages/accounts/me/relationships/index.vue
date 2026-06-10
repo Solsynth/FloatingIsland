@@ -709,6 +709,8 @@ onMounted(async () => {
     isLoading.value = false;
 });
 
+defineOgImage('OgImage', { title: 'Relationships' })
+
 useSolarSeo({
     title: "Relationships",
 });

@@ -363,6 +363,8 @@ const query = ref("");
 const seoTitle = ref<string>("");
 const seoDescription = ref<string>("");
 
+defineOgImage('OgImage', { title: computed(() => seoTitle.value || 'Solar Network'), description: computed(() => seoDescription.value || ''), iconImage: computed(() => avatarUrl.value || undefined) })
+
 useHead({
   title: computed(() => seoTitle.value || "Solar Network"),
   meta: [

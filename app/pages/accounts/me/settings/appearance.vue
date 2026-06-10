@@ -256,6 +256,8 @@ async function saveAppearance() {
   }
 }
 
+defineOgImage('OgImage', { title: t("appearance.title") })
+
 useSolarSeo({
   title: t("appearance.title"),
 });

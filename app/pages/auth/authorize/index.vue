@@ -254,6 +254,8 @@ definePageMeta({
 	middleware: 'auth',
 });
 
+defineOgImage('OgImage', { title: 'Authorize App', description: 'Authorize an application to access your Solar Network account.' })
+
 useSolarSeo({
 	title: "Authorize App",
 	description: "Authorize an application to access your Solar Network account.",

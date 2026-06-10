@@ -458,40 +458,91 @@ const bioHtml = computed(() => {
 });
 const hasActiveLivestream = ref(false); // TODO: fetch from API
 
-const seoTitle = ref<string>("");
-const seoDescription = ref<string>("");
-const seoUrl = ref<string>("");
+const seoTitle = computed(() => displayName.value);
+const seoDescription = computed(() => publisher.value?.bio || `@${publisher.value?.name} on Solar Network`);
+const seoUrl = computed(() => `https://solian.app/publishers/${publisher.value?.name}`);
 
-useHead({
-  title: computed(() => seoTitle.value || "Solar Network"),
-  meta: [
-    {
-      name: "description",
-      content: computed(
-        () =>
-          seoDescription.value ||
-          "Explore posts, realms, and publishers on Solar Network.",
-      ),
-    },
-    {
-      property: "og:title",
-      content: computed(() =>
-        seoTitle.value ? `${seoTitle.value} • Solar Network` : "Solar Network",
-      ),
-    },
-    {
-      property: "og:description",
-      content: computed(
-        () =>
-          seoDescription.value ||
-          "Explore posts, realms, and publishers on Solar Network.",
-      ),
-    },
-    {
-      property: "og:url",
-      content: computed(() => seoUrl.value || "https://solian.app"),
-    },
-  ],
+// Fetch publisher data with useAsyncData for SSR
+const {
+  data: publisherData,
+  status: publisherStatus,
+  error: publisherError,
+} = await useAsyncData(
+  `publisher-${publisherName.value}`,
+  () => fetchPublisher(publisherName.value),
+  { watch: [publisherName] }
+);
+
+// Fetch pinned posts
+const { data: pinnedData } = await useAsyncData(
+  `publisher-pinned-${publisherName.value}`,
+  () => fetchPublisherPinnedPosts(publisherName.value),
+  { watch: [publisherName], default: () => [] }
+);
+
+// Fetch heatmap
+const { data: heatmapData } = await useAsyncData(
+  `publisher-heatmap-${publisherName.value}`,
+  () => fetchPublisherHeatmap(publisherName.value),
+  { watch: [publisherName] }
+);
+
+// Watch and update refs
+watch(publisherData, (data) => {
+  if (data) {
+    publisher.value = data;
+    notFound.value = false;
+    error.value = null;
+  }
+}, { immediate: true });
+
+watch(pinnedData, (data) => {
+  if (data) pinnedPosts.value = data;
+}, { immediate: true });
+
+watch(heatmapData, (data) => {
+  if (data) {
+    heatmap.value = data;
+    heatmapStatus.value = 'success';
+  }
+}, { immediate: true });
+
+watch(publisherError, (err) => {
+  if (err) {
+    if (err.message?.includes('404')) {
+      notFound.value = true;
+    } else {
+      error.value = err.message || 'Failed to load publisher';
+    }
+  }
+}, { immediate: true });
+
+watch(publisherStatus, (s) => {
+  if (s === 'success' && publisherData.value) {
+    publisher.value = publisherData.value;
+  }
+}, { immediate: true });
+
+// OG Image (root level with computed values)
+defineOgImage('PublisherOgImage', {
+	name: () => publisher.value?.name || '',
+	displayName: () => displayName.value,
+	bio: () => publisher.value?.bio || '',
+	avatarId: () => publisher.value?.picture?.id || '',
+	backgroundId: () => publisher.value?.background?.id || ''
+})
+
+useSolarSeo({
+	title: () => seoTitle.value,
+	description: () => seoDescription.value,
+	image: () => avatarUrl.value,
+	url: () => seoUrl.value,
+	type: 'profile',
+	breadcrumbs: () => [
+		{ name: 'Home', item: 'https://solian.app' },
+		{ name: 'Publishers', item: 'https://solian.app/publishers' },
+		{ name: seoTitle.value, item: seoUrl.value }
+	]
 });
 
 // Methods
@@ -692,19 +743,9 @@ function handleReply(post: Post) {
   navigateTo(`/posts/${post.id}`);
 }
 
-// Initial load
+// Load additional data on mount
 onMounted(async () => {
   try {
-    const [pubData, pinned, heatmapData] = await Promise.all([
-      fetchPublisher(publisherName.value),
-      fetchPublisherPinnedPosts(publisherName.value),
-      fetchPublisherHeatmap(publisherName.value),
-    ]);
-    publisher.value = pubData;
-    pinnedPosts.value = pinned;
-    heatmap.value = heatmapData;
-    heatmapStatus.value = "success";
-
     // Load posts
     await reloadWithFilters();
 
@@ -712,18 +753,8 @@ onMounted(async () => {
     if (isAuthenticated.value) {
       await loadSubscriptionStatus();
     }
-
-    // SEO
-    seoTitle.value = displayName.value;
-    seoDescription.value = pubData.bio || `@${pubData.name} on Solar Network`;
-    seoUrl.value = `https://solian.app/publishers/${pubData.name}`;
   } catch (err) {
-    if (err instanceof Error && err.message.includes("404")) {
-      notFound.value = true;
-    } else {
-      error.value =
-        err instanceof Error ? err.message : "Failed to load publisher";
-    }
+    console.error('Failed to load additional data:', err);
   }
 });
 </script>

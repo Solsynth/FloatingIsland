@@ -17,6 +17,8 @@ import { API_BASE_URL } from "~/utils/api";
 
 definePageMeta({ layout: false });
 
+defineOgImage('OgImage', { title: 'Redirecting', description: 'Redirecting to provider callback...' })
+
 useSolarSeo({
   title: "Redirecting",
   description: "Redirecting to provider callback...",

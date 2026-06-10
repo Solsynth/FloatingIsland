@@ -1015,6 +1015,8 @@ onMounted(async () => {
     isLoading.value = false;
 });
 
+defineOgImage('OgImage', { title: 'Wallet' })
+
 useSolarSeo({
     title: "Wallet",
 });

@@ -150,6 +150,8 @@ const newApp = reactive({
   description: '',
 })
 
+defineOgImage('OgImage', { title: `${t('developer.apps.title')} - ${pubName.value}` })
+
 useSolarSeo({ title: `${t('developer.apps.title')} - ${pubName.value}` })
 
 async function loadApps() {

@@ -151,6 +151,8 @@ const title = computed(() => {
   return tag.value?.name || 'Tag'
 })
 
+defineOgImage('OgImage', { title: title, description: computed(() => isCategory.value ? (category.value?.description || 'A category') : 'A tag') })
+
 useSolarSeo({
   title: title,
   description: computed(() => isCategory.value ? (category.value?.description || 'A category') : 'A tag'),

@@ -98,10 +98,18 @@ import { IconAlertCircle } from "#components";
 
 const { t } = useI18n();
 
+const seoTitle = computed(() => t('home.seoTitle'))
+const seoDescription = computed(() => t('home.seoDescription'))
+
+defineOgImage('OgImage', { title: seoTitle, description: seoDescription })
+
 useSolarSeo({
   title: t("home.seoTitle"),
   description: t("home.seoDescription"),
   url: "https://solian.app",
+  breadcrumbs: [
+    { name: 'Home', item: 'https://solian.app' }
+  ]
 });
 
 const auth = useAuth();

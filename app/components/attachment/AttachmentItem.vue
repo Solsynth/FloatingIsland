@@ -24,7 +24,7 @@
           preload="metadata"
         />
         <div class="absolute inset-0 flex items-center justify-center bg-black/20">
-          <IconPlayerPlay class="w-12 h-12 text-white/80" />
+          <IconPlay class="w-12 h-12 text-white/80" />
         </div>
       </div>
     </template>
@@ -77,7 +77,7 @@
           autoplay
         />
         <div v-else class="p-8 flex flex-col items-center justify-center text-white">
-          <IconPlayerPlay class="w-16 h-16 text-white/30 mb-4" />
+          <IconPlay class="w-16 h-16 text-white/30 mb-4" />
           <span>{{ attachment.name }}</span>
         </div>
       </template>

@@ -83,6 +83,8 @@ function isActiveRoute(path: string): boolean {
 	return route.path === path || route.path.startsWith(`${path}/`);
 }
 
+defineOgImage('OgImage', { title: t('settings.title') })
+
 useSolarSeo({
 	title: t('settings.title'),
 });

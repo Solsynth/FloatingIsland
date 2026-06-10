@@ -186,6 +186,8 @@ definePageMeta({ layout: false });
 
 const { t } = useI18n();
 
+defineOgImage('OgImage', { title: t("auth.seoTitleCreateAccount"), description: t("auth.seoDescriptionCreateAccount") })
+
 useSolarSeo({
     title: t("auth.seoTitleCreateAccount"),
     description: t("auth.seoDescriptionCreateAccount"),
