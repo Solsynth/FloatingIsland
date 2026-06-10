@@ -60,9 +60,7 @@ export default defineNuxtConfig({
 	app: {
 		head: {
 			title: 'Solar Network',
-			titleTemplate: (title) => {
-				return title && title !== 'Solar Network' ? `${title} • Solar Network` : 'Solar Network';
-			},
+			titleTemplate: '%s · Solar Network',
 			meta: [
 				{ charset: 'utf-8' },
 				{ name: 'viewport', content: 'width=device-width, initial-scale=1' },
