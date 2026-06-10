@@ -56,6 +56,16 @@ export interface SnAccountProfile {
   socialCreditsLevel?: number;
 }
 
+export interface SnAccountBadge {
+  id: string;
+  type: string;
+  label?: string | null;
+  caption?: string | null;
+  activatedAt?: string | null;
+  createdAt?: string;
+  meta?: Record<string, unknown>;
+}
+
 export interface SnAccount {
   id: string;
   name: string;
@@ -64,7 +74,7 @@ export interface SnAccount {
   region?: string;
   automatedId?: string | null;
   profile?: SnAccountProfile;
-  badges?: { id: string; type: number; label?: string; caption?: string }[];
+  badges?: SnAccountBadge[];
   contacts?: SnContactMethod[];
   createdAt?: string;
   updatedAt?: string;
@@ -238,6 +248,7 @@ export interface SnAccountActivity {
   subtitleUrl?: string;
   caption?: string;
   largeImage?: string;
+  smallImage?: string;
   meta?: Record<string, unknown>;
 }
 

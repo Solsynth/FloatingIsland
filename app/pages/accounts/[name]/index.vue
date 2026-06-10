@@ -479,10 +479,14 @@
                 <div
                   v-for="badge in account.badges"
                   :key="badge.id"
-                  class="badge badge-lg"
-                  :title="badge.caption"
+                  class="tooltip"
+                  :data-tip="getBadgeTooltip(badge)"
                 >
-                  {{ badge.label || badge.type }}
+                  <BadgeIcon
+                    :badge="badge"
+                    :manifest="badgeManifestStore.manifest"
+                    size="md"
+                  />
                 </div>
               </div>
             </div>
@@ -535,35 +539,8 @@
 </template>
 
 <script setup lang="ts">
-import type { SnAccount, SnContactMethod, SnAccountPunishment, SnAccountTimelineItem } from "~/types/auth";
+import type { SnAccount, SnAccountBadge, SnContactMethod, SnAccountPunishment, SnAccountTimelineItem } from "~/types/auth";
 import type { Publisher } from "~/types/post";
-import {
-  IconUserCheck,
-  IconUserPlus,
-  IconUserX,
-  IconBan,
-  IconMessageCircle,
-  IconShare2,
-  IconSettings,
-  IconLoader,
-  IconShieldCheck,
-  IconCalendar,
-  IconCake,
-  IconMapPin,
-  IconClock,
-  IconLink,
-  IconBot,
-  IconUser,
-  IconStar,
-  IconFingerprint,
-  IconMail,
-  IconSmartphone,
-  IconHome,
-  IconChevronRight,
-  IconExternalLink,
-  IconAlertTriangle,
-  IconFlag,
-} from "#components";
 import {
   fetchAccount,
   fetchAccountActivityTimeline,
@@ -576,6 +553,12 @@ import {
 } from "~/utils/api";
 import { getFileUrl } from "~/utils/files";
 import { renderMarkdown } from "~/utils/markdown";
+import {
+  type BadgeManifestEntry,
+  getBadgeName,
+  getBadgeDescription,
+} from "~/utils/badges";
+import { IconShieldCheck } from '#components';
 
 const route = useRoute();
 const auth = useAuth();
@@ -598,6 +581,7 @@ const hasMoreTimeline = ref(false);
 const isBioExpanded = ref(false);
 const botDeveloper = ref<{ publisher?: { name: string; nick?: string } } | null>(null);
 const punishment = ref<SnAccountPunishment | null>(null);
+const badgeManifestStore = useBadgeManifestStore();
 
 const accountStatus = computed(() =>
   account.value ? "success" : error.value ? "error" : "pending",
@@ -988,6 +972,8 @@ async function shareProfile() {
 
 // Load additional data on mount
 onMounted(async () => {
+	badgeManifestStore.fetchManifest().then(r => console.log("[Badges] Manifest loaded!"));
+
   try {
     // Start timezone update interval
     updateTimezone();
@@ -1004,4 +990,11 @@ onMounted(async () => {
     console.error('Failed to load additional data:', err);
   }
 });
+
+// Badge helper functions
+function getBadgeTooltip(badge: SnAccountBadge) {
+  const name = getBadgeName(badge, badgeManifestStore.manifest);
+  const desc = getBadgeDescription(badge, badgeManifestStore.manifest);
+  return desc ? `${name}\n${desc}` : name;
+}
 </script>

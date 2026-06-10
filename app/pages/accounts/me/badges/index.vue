@@ -50,20 +50,15 @@
                                 <span class="text-sm font-medium text-primary">Currently Active</span>
                             </div>
                             <div class="flex items-center gap-4">
-                                <div
-                                    class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
-                                    :style="{ backgroundColor: getBadgeColor(activeBadge) + '20' }"
-                                >
-                                    <component
-                                        :is="getBadgeIcon(activeBadge.type)"
-                                        class="w-8 h-8"
-                                        :style="{ color: getBadgeColor(activeBadge) }"
-                                    />
-                                </div>
+                                <BadgeIcon
+                                    :badge="activeBadge"
+                                    :manifest="badgeManifest"
+                                    size="lg"
+                                />
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="font-bold text-lg">{{ getBadgeName(activeBadge) }}</h3>
+                                    <h3 class="font-bold text-lg">{{ getBadgeNameForDisplay(activeBadge) }}</h3>
                                     <p class="text-sm text-base-content/60 line-clamp-2">
-                                        {{ getBadgeDescription(activeBadge) }}
+                                        {{ getBadgeDescriptionForDisplay(activeBadge) }}
                                     </p>
                                 </div>
                             </div>
@@ -112,19 +107,14 @@
                                 >
                                     <div class="card-body p-4">
                                         <div class="flex items-start gap-3">
-                                            <div
-                                                class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                                                :style="{ backgroundColor: getBadgeColor(badge) + '20' }"
-                                            >
-                                                <component
-                                                    :is="getBadgeIcon(badge.type)"
-                                                    class="w-6 h-6"
-                                                    :style="{ color: getBadgeColor(badge) }"
-                                                />
-                                            </div>
+                                            <BadgeIcon
+                                                :badge="badge"
+                                                :manifest="badgeManifest"
+                                                size="md"
+                                            />
                                             <div class="flex-1 min-w-0">
                                                 <div class="flex items-center gap-2">
-                                                    <h4 class="font-semibold truncate">{{ getBadgeName(badge) }}</h4>
+                                                    <h4 class="font-semibold truncate">{{ getBadgeNameForDisplay(badge) }}</h4>
                                                     <span
                                                         v-if="badge.activatedAt"
                                                         class="badge badge-primary badge-xs shrink-0"
@@ -133,7 +123,7 @@
                                                     </span>
                                                 </div>
                                                 <p class="text-xs text-base-content/60 line-clamp-2 mt-1">
-                                                    {{ getBadgeDescription(badge) }}
+                                                    {{ getBadgeDescriptionForDisplay(badge) }}
                                                 </p>
                                             </div>
                                         </div>
@@ -197,20 +187,17 @@
                     </form>
                 </div>
                 <div v-if="selectedBadge" class="text-center space-y-4">
-                    <div
-                        class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto"
-                        :style="{ backgroundColor: getBadgeColor(selectedBadge) + '20' }"
-                    >
-                        <component
-                            :is="getBadgeIcon(selectedBadge.type)"
-                            class="w-10 h-10"
-                            :style="{ color: getBadgeColor(selectedBadge) }"
+                    <div class="flex justify-center">
+                        <BadgeIcon
+                            :badge="selectedBadge"
+                            :manifest="badgeManifest"
+                            size="lg"
                         />
                     </div>
                     <div>
-                        <h4 class="font-bold text-xl">{{ getBadgeName(selectedBadge) }}</h4>
+                        <h4 class="font-bold text-xl">{{ getBadgeNameForDisplay(selectedBadge) }}</h4>
                         <p class="text-sm text-base-content/60 mt-2">
-                            {{ getBadgeDescription(selectedBadge) }}
+                            {{ getBadgeDescriptionForDisplay(selectedBadge) }}
                         </p>
                     </div>
                     <div v-if="selectedBadge.caption" class="p-3 bg-base-200 rounded-xl">
@@ -267,18 +254,23 @@ import {
     IconRefreshCw,
     IconAlertCircle,
 } from "#components";
-import type { Badge } from "~/utils/api";
+import type { SnAccountBadge } from "~/types/auth";
+import type { BadgeManifestEntry } from "~/utils/badges";
 import { fetchMyBadges, activateBadge } from "~/utils/api";
+import { getBadgeColor, getBadgeName, getBadgeDescription } from "~/utils/badges";
 
 const router = useRouter();
+const badgeManifestStore = useBadgeManifestStore();
 
 // State
 const isLoading = ref(true);
 const error = ref<string | null>(null);
-const badges = ref<Badge[]>([]);
+const badges = ref<SnAccountBadge[]>([]);
 const activeTab = ref<"all" | "active" | "inactive">("all");
-const selectedBadge = ref<Badge | null>(null);
+const selectedBadge = ref<SnAccountBadge | null>(null);
 const isActivating = ref(false);
+
+const badgeManifest = computed(() => badgeManifestStore.manifest);
 
 // Computed
 const activeBadge = computed(() => badges.value.find((b) => b.activatedAt) || null);
@@ -295,65 +287,17 @@ const filteredBadges = computed(() => {
     return badges.value;
 });
 
-// Badge templates
-const badgeTemplates: Record<string, { name: string; description: string; icon: unknown; color: string }> = {
-    sponsor: {
-        name: "Sponsor",
-        description: "Supported the platform financially",
-        icon: IconHeart,
-        color: "#ef4444",
-    },
-    "special.contributor": {
-        name: "Contributor",
-        description: "Contributed to the platform",
-        icon: IconStars,
-        color: "#a855f7",
-    },
-    "special.founder": {
-        name: "Founder",
-        description: "One of the founding members",
-        icon: IconAward,
-        color: "#7c3aed",
-    },
-    "special.developer": {
-        name: "Developer",
-        description: "Contributed code to the platform",
-        icon: IconCode,
-        color: "#6366f1",
-    },
-    "special.translator": {
-        name: "Translator",
-        description: "Helped translate the platform",
-        icon: IconGlobe,
-        color: "#6b7280",
-    },
-};
-
 // Helpers
-function getBadgeName(badge: Badge): string {
-    return badge.label || badgeTemplates[badge.type]?.name || badge.type;
+function getBadgeNameForDisplay(badge: SnAccountBadge): string {
+    return getBadgeName(badge, badgeManifest.value);
 }
 
-function getBadgeDescription(badge: Badge): string {
-    return badgeTemplates[badge.type]?.description || "Special badge";
+function getBadgeDescriptionForDisplay(badge: SnAccountBadge): string {
+    return getBadgeDescription(badge, badgeManifest.value) || "Special badge";
 }
 
-function getBadgeIcon(type: string): unknown {
-    return badgeTemplates[type]?.icon || IconSparkles;
-}
-
-function getBadgeColor(badge: Badge): string {
-    if (badge.type === "sponsor") {
-        const level = parseInt((badge.meta?.level as string)?.replace(/"/g, "") || "0", 10) || 0;
-        const clampedLevel = Math.min(Math.max(level, 0), 36);
-        const t = clampedLevel / 36;
-        // Interpolate between red and gold
-        const r = Math.round(239 + (218 - 239) * t);
-        const g = Math.round(68 + (165 - 68) * t);
-        const b = Math.round(68 + (32 - 68) * t);
-        return `rgb(${r}, ${g}, ${b})`;
-    }
-    return badgeTemplates[badge.type]?.color || "#3b82f6";
+function getBadgeColorForDisplay(badge: SnAccountBadge): string {
+    return getBadgeColor(badge, badgeManifest.value);
 }
 
 function formatDate(dateStr: string): string {
@@ -394,6 +338,7 @@ async function activateSelectedBadge() {
 }
 
 onMounted(() => {
+    badgeManifestStore.fetchManifest();
     loadBadges();
 });
 

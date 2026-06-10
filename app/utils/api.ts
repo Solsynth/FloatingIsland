@@ -3,6 +3,7 @@ import type {
   SnAuthFactor,
   SnAuthToken,
   SnAccount,
+  SnAccountBadge,
   SnContactMethod,
   SnAccountConnection,
   SnAuthDevice,
@@ -1347,17 +1348,9 @@ export async function fetchFunds(
 }
 
 // Badges
-export interface Badge {
-  id: string;
-  type: string;
-  label: string | null;
-  caption: string | null;
-  activatedAt: string | null;
-  createdAt: string;
-  meta: Record<string, unknown>;
-}
+export type Badge = SnAccountBadge;
 
-export async function fetchMyBadges(): Promise<Badge[]> {
+export async function fetchMyBadges(): Promise<SnAccountBadge[]> {
   const response = await apiFetch("/passport/accounts/me/badges");
   return safeJsonParse<Badge[]>(response);
 }
