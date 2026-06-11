@@ -98,7 +98,7 @@ import { fetchRealms } from '~/utils/api';
 
 const { t } = useI18n();
 
-defineOgImage('OgImage', { title: t("realms.title"), description: t("realms.seoDescription") })
+defineOgImage('UniOgImage', { title: t("realms.title"), description: t("realms.seoDescription") })
 
 useSolarSeo({
 	title: t("realms.title"),

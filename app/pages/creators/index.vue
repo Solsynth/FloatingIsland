@@ -187,7 +187,7 @@ const quota = ref<PublisherQuotaInfo | null>(null)
 const showQuotaInfo = ref(false)
 const createModalOpen = ref(false)
 
-defineOgImage('OgImage', { title: t('creator.title') })
+defineOgImage('UniOgImage', { title: t('creator.title') })
 
 useSolarSeo({ title: t('creator.title'), breadcrumbs: [
   { name: 'Home', item: 'https://solian.app' },

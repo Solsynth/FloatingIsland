@@ -134,7 +134,7 @@ const { developers, isLoading } = developer
 const enrollModalOpen = ref(false)
 const managedPublishers = ref<PublisherManaged[]>([])
 
-defineOgImage('OgImage', { title: t('developer.title') })
+defineOgImage('UniOgImage', { title: t('developer.title') })
 
 useSolarSeo({ title: t('developer.title'), breadcrumbs: [
   { name: 'Home', item: 'https://solian.app' },

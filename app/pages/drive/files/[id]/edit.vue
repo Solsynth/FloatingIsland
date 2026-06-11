@@ -96,7 +96,7 @@ const formFields = ref<Record<string, string>>({});
 const formReady = ref(false);
 const fileName = ref<string>("");
 
-defineOgImage('OgImage', { title: 'Edit Document', description: 'Edit document with Collabora Online.' })
+defineOgImage('UniOgImage', { title: 'Edit Document', description: 'Edit document with Collabora Online.' })
 
 useSolarSeo({
   title: "Edit Document",

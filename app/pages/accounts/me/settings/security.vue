@@ -1080,7 +1080,7 @@ async function logoutAllOtherSessions() {
     }
 }
 
-defineOgImage('OgImage', { title: t('settings.securityTitle') })
+defineOgImage('UniOgImage', { title: t('settings.securityTitle') })
 
 useSolarSeo({
     title: t('settings.securityTitle'),

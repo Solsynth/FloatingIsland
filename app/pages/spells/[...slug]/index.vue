@@ -156,7 +156,7 @@ import { getSpell, applySpell, type SpellInfo } from '~/utils/api';
 
 definePageMeta({ layout: false });
 
-defineOgImage('OgImage', { title: 'Spells', description: 'Discover and apply spells on Solar Network.' })
+defineOgImage('UniOgImage', { title: 'Spells', description: 'Discover and apply spells on Solar Network.' })
 
 useSolarSeo({
     title: "Spells",

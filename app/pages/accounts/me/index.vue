@@ -403,7 +403,7 @@ onMounted(async () => {
 	}
 });
 
-defineOgImage('OgImage', { title: 'My Account' })
+defineOgImage('UniOgImage', { title: 'My Account' })
 
 useSolarSeo({
 	title: 'My Account',

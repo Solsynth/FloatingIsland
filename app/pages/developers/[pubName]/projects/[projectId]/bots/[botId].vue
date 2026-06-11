@@ -429,7 +429,7 @@ const backgroundId = ref<string | null>(null)
 const picturePreview = ref<string | null>(null)
 const backgroundPreview = ref<string | null>(null)
 
-defineOgImage('OgImage', { title: `${t('developer.bots.detail')} - ${pubName.value}` })
+defineOgImage('UniOgImage', { title: `${t('developer.bots.detail')} - ${pubName.value}` })
 
 useSolarSeo({ title: `${t('developer.bots.detail')} - ${pubName.value}` })
 

@@ -185,7 +185,7 @@ type SearchTab = 'posts' | 'accounts' | 'realms'
 
 const { t } = useI18n()
 
-defineOgImage('OgImage', { title: t('search.seoTitle'), description: t('search.seoDescription') })
+defineOgImage('UniOgImage', { title: t('search.seoTitle'), description: t('search.seoDescription') })
 
 useSolarSeo({
   title: t('search.seoTitle'),

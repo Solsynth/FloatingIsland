@@ -243,7 +243,7 @@ definePageMeta({
 
 const { t } = useI18n();
 
-defineOgImage('OgImage', { title: t("auth.seoTitleLogIn"), description: t("auth.seoDescriptionLogIn") })
+defineOgImage('UniOgImage', { title: t("auth.seoTitleLogIn"), description: t("auth.seoDescriptionLogIn") })
 
 useSolarSeo({
     title: t("auth.seoTitleLogIn"),

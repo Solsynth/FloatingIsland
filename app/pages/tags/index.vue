@@ -55,7 +55,7 @@
 import { fetchTags, type PostTag } from '~/utils/api'
 import { IconTag, IconLoader } from '#components'
 
-defineOgImage('OgImage', { title: 'Tags', description: 'Browse tags on Solar Network.' })
+defineOgImage('UniOgImage', { title: 'Tags', description: 'Browse tags on Solar Network.' })
 
 useSolarSeo({
   title: 'Tags',

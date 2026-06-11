@@ -342,7 +342,7 @@ onMounted(() => {
     loadBadges();
 });
 
-defineOgImage('OgImage', { title: 'Badges' })
+defineOgImage('UniOgImage', { title: 'Badges' })
 
 useSolarSeo({
     title: "Badges",

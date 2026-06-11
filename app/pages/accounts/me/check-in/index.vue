@@ -189,7 +189,7 @@ import {
 import type { CheckInResult } from "~/utils/api";
 import { getCheckInResultToday, performCheckIn, ApiError } from "~/utils/api";
 
-defineOgImage('OgImage', { title: 'Check-in Temple' })
+defineOgImage('UniOgImage', { title: 'Check-in Temple' })
 
 useSolarSeo({ title: "Check-in Temple" });
 

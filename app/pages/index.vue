@@ -101,7 +101,7 @@ const { t } = useI18n();
 const seoTitle = computed(() => t('home.seoTitle'))
 const seoDescription = computed(() => t('home.seoDescription'))
 
-defineOgImage('OgImage', { title: seoTitle, description: seoDescription })
+defineOgImage('UniOgImage', { title: seoTitle, description: seoDescription })
 
 useSolarSeo({
   title: t("home.seoTitle"),

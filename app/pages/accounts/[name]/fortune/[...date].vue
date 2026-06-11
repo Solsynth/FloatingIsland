@@ -628,7 +628,7 @@ onMounted(async () => {
     selectLatestFortune();
 });
 
-defineOgImage('OgImage', { title: `${displayName.value}'s Fortune` })
+defineOgImage('UniOgImage', { title: `${displayName.value}'s Fortune` })
 
 useSolarSeo({ title: `${displayName.value}'s Fortune` });
 </script>

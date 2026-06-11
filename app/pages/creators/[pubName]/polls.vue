@@ -82,7 +82,7 @@ const pubName = computed(() => route.params.pubName as string)
 const creator = useCreator()
 const { currentPublisher } = creator
 
-defineOgImage('OgImage', { title: computed(() => `${t('creator.polls.title')} - ${currentPublisher.value?.nick ?? pubName.value}`) })
+defineOgImage('UniOgImage', { title: computed(() => `${t('creator.polls.title')} - ${currentPublisher.value?.nick ?? pubName.value}`) })
 
 useSolarSeo({ title: computed(() => `${t('creator.polls.title')} - ${currentPublisher.value?.nick ?? pubName.value}`) })
 

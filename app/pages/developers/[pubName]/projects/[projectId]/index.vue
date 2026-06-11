@@ -210,7 +210,7 @@ const editForm = reactive({
   description: '',
 })
 
-defineOgImage('OgImage', { title: `${t('developer.projects.detail')} - ${pubName.value}` })
+defineOgImage('UniOgImage', { title: `${t('developer.projects.detail')} - ${pubName.value}` })
 
 useSolarSeo({ title: `${t('developer.projects.detail')} - ${pubName.value}` })
 

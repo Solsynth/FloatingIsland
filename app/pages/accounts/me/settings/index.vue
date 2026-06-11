@@ -538,7 +538,7 @@ onMounted(() => {
   resetForms();
 });
 
-defineOgImage('OgImage', { title: t("settings.profileTitle") })
+defineOgImage('UniOgImage', { title: t("settings.profileTitle") })
 
 useSolarSeo({
   title: t("settings.profileTitle"),

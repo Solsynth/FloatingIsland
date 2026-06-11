@@ -18,7 +18,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 
-defineOgImage('OgImage', { title: 'Success', description: 'Operation completed successfully.' })
+defineOgImage('UniOgImage', { title: 'Success', description: 'Operation completed successfully.' })
 
 useSolarSeo({
     title: "Success",

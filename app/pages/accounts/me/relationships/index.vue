@@ -709,7 +709,7 @@ onMounted(async () => {
     isLoading.value = false;
 });
 
-defineOgImage('OgImage', { title: 'Relationships' })
+defineOgImage('UniOgImage', { title: 'Relationships' })
 
 useSolarSeo({
     title: "Relationships",

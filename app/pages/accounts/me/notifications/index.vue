@@ -535,7 +535,7 @@ onMounted(async () => {
     isLoading.value = false;
 });
 
-defineOgImage('OgImage', { title: 'Notifications' })
+defineOgImage('UniOgImage', { title: 'Notifications' })
 
 useSolarSeo({
     title: "Notifications",

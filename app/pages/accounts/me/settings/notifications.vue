@@ -459,7 +459,7 @@ onMounted(() => {
   fetchNotificationTopics();
 });
 
-defineOgImage('OgImage', { title: t("settings.notificationsTitle") })
+defineOgImage('UniOgImage', { title: t("settings.notificationsTitle") })
 
 useSolarSeo({
   title: t("settings.notificationsTitle"),

@@ -235,7 +235,7 @@ const boostError = ref<string | null>(null)
 const seoTitle = ref<string>("")
 const seoDescription = ref<string>("")
 
-defineOgImage('OgImage', { title: computed(() => seoTitle.value || 'Solar Network'), description: computed(() => seoDescription.value || '') })
+defineOgImage('UniOgImage', { title: computed(() => seoTitle.value || 'Solar Network'), description: computed(() => seoDescription.value || '') })
 
 useHead({
   title: computed(() => seoTitle.value || "Solar Network"),

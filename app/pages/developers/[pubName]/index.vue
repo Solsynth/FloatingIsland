@@ -182,7 +182,7 @@ const formData = reactive({
   description: '',
 })
 
-defineOgImage('OgImage', { title: `${t('developer.dashboard')} - ${pubName.value}` })
+defineOgImage('UniOgImage', { title: `${t('developer.dashboard')} - ${pubName.value}` })
 
 useSolarSeo({ title: `${t('developer.dashboard')} - ${pubName.value}` })
 

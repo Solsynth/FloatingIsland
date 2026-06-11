@@ -240,7 +240,7 @@ const route = useRoute()
 const pubName = computed(() => route.params.pubName as string)
 const packId = computed(() => route.params.packId as string)
 
-defineOgImage('OgImage', { title: t('creator.stickers.title') })
+defineOgImage('UniOgImage', { title: t('creator.stickers.title') })
 
 useSolarSeo({ title: t('creator.stickers.title') })
 

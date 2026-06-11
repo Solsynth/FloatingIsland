@@ -104,7 +104,7 @@ const isLoading = ref(false)
 
 const developerInfo = computed(() => currentDeveloper.value)
 
-defineOgImage('OgImage', { title: `${t('developer.settings')} - ${pubName.value}` })
+defineOgImage('UniOgImage', { title: `${t('developer.settings')} - ${pubName.value}` })
 
 useSolarSeo({ title: `${t('developer.settings')} - ${pubName.value}` })
 
