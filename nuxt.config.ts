@@ -16,6 +16,7 @@ export default defineNuxtConfig({
     "nuxt-schema-org",
     "@nuxtjs/sitemap",
     "@nuxtjs/robots",
+    "vue-sonner/nuxt",
   ],
   site: {
     url: "https://solian.app",
@@ -236,4 +237,3 @@ export default defineNuxtConfig({
     routeRules: {},
   },
 });
-
