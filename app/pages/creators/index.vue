@@ -10,15 +10,13 @@
               <IconInfo class="w-4 h-4" />
             </button>
           </div>
-          <p class="text-sm text-base-content/60 mb-2">{{ t('creator.quota.used', { used: quota.used, total: quota.total }) }}</p>
+          <p class="text-sm text-base-content/60 mb-2">{{ t('creator.quota.used', {
+            used: quota.used, total: quota.total
+            }) }}</p>
           <div v-if="showQuotaInfo" class="alert alert-info alert-soft mb-2 text-sm">
             {{ t('creator.quota.info') }}
           </div>
-          <progress
-            class="progress progress-primary w-full"
-            :value="quota.used"
-            :max="quota.total"
-          />
+          <progress class="progress progress-primary w-full" :value="quota.used" :max="quota.total" />
         </div>
       </div>
 
@@ -32,16 +30,13 @@
           <template v-else>
             <!-- Publisher List -->
             <div v-if="managedPublishers.length > 0" class="space-y-1">
-              <NuxtLink
-                v-for="pub in managedPublishers"
-                :key="pub.id"
-                :to="`/creators/${pub.name}`"
-                class="flex items-center gap-4 rounded-xl p-3 transition-colors hover:bg-base-200"
-              >
+              <NuxtLink v-for="pub in managedPublishers" :key="pub.id" :to="`/creators/${pub.name}`"
+                class="flex items-center gap-4 rounded-xl p-3 transition-colors hover:bg-base-200">
                 <div class="avatar">
                   <div class="w-10 rounded-full">
                     <img v-if="getFileUrl(pub.picture?.id)" :src="getFileUrl(pub.picture?.id)" :alt="pub.nick" />
-                    <div v-else class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-content text-sm font-bold">
+                    <div v-else
+                      class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-content text-sm font-bold">
                       {{ pub.nick?.slice(0, 2).toUpperCase() }}
                     </div>
                   </div>
@@ -63,10 +58,7 @@
             <div class="divider my-1" />
 
             <!-- Invites -->
-            <NuxtLink
-              to="/creators"
-              class="flex items-center gap-4 rounded-xl p-3 transition-colors hover:bg-base-200"
-            >
+            <NuxtLink to="/creators" class="flex items-center gap-4 rounded-xl p-3 transition-colors hover:bg-base-200">
               <div class="avatar avatar-placeholder">
                 <div class="w-10 rounded-full bg-secondary text-secondary-content">
                   <IconMail class="w-5 h-5" />
@@ -82,10 +74,8 @@
             </NuxtLink>
 
             <!-- Create Publisher -->
-            <button
-              class="flex w-full items-center gap-4 rounded-xl p-3 transition-colors hover:bg-base-200"
-              @click="openCreateModal"
-            >
+            <button class="flex w-full items-center gap-4 rounded-xl p-3 transition-colors hover:bg-base-200"
+              @click="openCreateModal">
               <div class="avatar avatar-placeholder">
                 <div class="w-10 rounded-full bg-primary text-primary-content">
                   <IconPlus class="w-5 h-5" />
@@ -105,15 +95,13 @@
         <div class="card-body p-4">
           <h3 class="card-title text-base mb-2">{{ t('creator.invites.title') }}</h3>
           <div class="space-y-2">
-            <div
-              v-for="invite in invites"
-              :key="invite.id"
-              class="flex items-center gap-3 rounded-lg p-3 bg-base-200"
-            >
+            <div v-for="invite in invites" :key="invite.id" class="flex items-center gap-3 rounded-lg p-3 bg-base-200">
               <div class="avatar">
                 <div class="w-9 rounded-full">
-                  <img v-if="getFileUrl(invite.publisher?.picture?.id)" :src="getFileUrl(invite.publisher?.picture?.id)" :alt="invite.publisher?.nick" />
-                  <div v-else class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-content text-xs font-bold">
+                  <img v-if="getFileUrl(invite.publisher?.picture?.id)" :src="getFileUrl(invite.publisher?.picture?.id)"
+                    :alt="invite.publisher?.nick" />
+                  <div v-else
+                    class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-content text-xs font-bold">
                     {{ invite.publisher?.nick?.slice(0, 2).toUpperCase() }}
                   </div>
                 </div>
@@ -121,7 +109,9 @@
               <div class="min-w-0 flex-1">
                 <div class="font-medium text-sm">{{ invite.publisher?.nick }}</div>
                 <div class="text-xs text-base-content/50">
-                  {{ invite.role >= 100 ? t('creator.members.owner') : invite.role >= 50 ? t('creator.members.moderator') : t('creator.members.member') }}
+                  {{ invite.role >= 100 ? t('creator.members.owner') : invite.role >= 50 ?
+                    t('creator.members.moderator') :
+                  t('creator.members.member') }}
                 </div>
               </div>
               <div class="flex gap-1">
@@ -138,24 +128,19 @@
       </div>
 
       <!-- Create Publisher Drawer -->
-      <AdminDrawer
-        :open="createModalOpen"
-        :title="t('creator.createPublisher')"
-        @update:open="createModalOpen = $event"
-      >
+      <AdminDrawer :open="createModalOpen" :title="t('creator.createPublisher')"
+        @update:open="createModalOpen = $event">
         <PublisherForm @close="closeCreateModal" @created="handlePublisherCreated" />
       </AdminDrawer>
     </div>
 
     <template #rightbar>
-      <div class="space-y-4">
-        <div class="card bg-base-100 shadow-sm">
-          <div class="card-body p-4">
-            <h3 class="font-semibold text-sm mb-3">{{ t('creator.title') }}</h3>
-            <p class="text-xs text-base-content/60">
-              {{ t('creator.quota.info') }}
-            </p>
-          </div>
+      <div class="card bg-base-100 shadow-sm min-h-full rounded-none">
+        <div class="card-body p-4">
+          <h3 class="font-semibold text-sm mb-3">{{ t('creator.title') }}</h3>
+          <p class="text-xs text-base-content/60">
+            {{ t('creator.quota.info') }}
+          </p>
         </div>
       </div>
     </template>
@@ -187,10 +172,12 @@ const createModalOpen = ref(false)
 
 defineOgImage('UniOgImage', { title: t('creator.title') })
 
-useSolarSeo({ title: t('creator.title'), breadcrumbs: [
-  { name: 'Home', item: 'https://solian.app' },
-  { name: 'Creators', item: 'https://solian.app/creators' }
-] })
+useSolarSeo({
+  title: t('creator.title'), breadcrumbs: [
+    { name: 'Home', item: 'https://solian.app' },
+    { name: 'Creators', item: 'https://solian.app/creators' }
+  ]
+})
 
 function openCreateModal() {
   createModalOpen.value = true

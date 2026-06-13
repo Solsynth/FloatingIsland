@@ -73,7 +73,7 @@
     </div>
 
     <template #rightbar>
-      <div class="space-y-4">
+      <div class="space-y-4 card bg-base-100 shadow-sm rounded-none min-h-full p-4">
         <!-- Publisher Info -->
         <div v-if="currentPublisher" class="card bg-base-100 shadow-sm">
           <div class="card-body p-4">

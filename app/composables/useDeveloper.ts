@@ -10,6 +10,9 @@ export function useDeveloper() {
     hasDeveloperSelected,
     currentPublisherName,
     currentPublisherNick,
+    currentProject,
+    currentBot,
+    currentApp,
   } = storeToRefs(store)
 
   return {
@@ -19,9 +22,16 @@ export function useDeveloper() {
     hasDeveloperSelected,
     currentPublisherName,
     currentPublisherNick,
+    currentProject,
+    currentBot,
+    currentApp,
     loadDevelopers: store.loadDevelopers,
     selectDeveloper: store.selectDeveloper,
     selectByPublisherName: store.selectByPublisherName,
     clearSelection: store.clearSelection,
+    loadProject: store.loadProject,
+    loadBot: store.loadBot,
+    loadApp: store.loadApp,
+    clearProjectContext: store.clearProjectContext,
   }
 }

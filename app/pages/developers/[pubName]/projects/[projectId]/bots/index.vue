@@ -180,6 +180,7 @@ async function handleCreate() {
 watch([pubName, projectId], async () => {
   await developer.loadDevelopers()
   developer.selectByPublisherName(pubName.value)
+  await developer.loadProject(pubName.value, projectId.value)
   await loadBots()
 }, { immediate: true })
 </script>

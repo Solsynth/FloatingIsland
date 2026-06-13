@@ -434,9 +434,13 @@ async function loadData() {
   try {
     await developer.loadDevelopers()
     developer.selectByPublisherName(pubName.value)
+    await developer.loadProject(pubName.value, projectId.value)
 
     const botData = await fetchBot(pubName.value, projectId.value, botId.value)
     bot.value = botData
+    if (botData) {
+      developer.currentBot.value = { id: botData.id, name: botData.account.nick || botData.account.name, slug: botData.slug }
+    }
 
     const [keysResult, chatResult] = await Promise.allSettled([
       fetchBotKeys(pubName.value, projectId.value, botId.value),

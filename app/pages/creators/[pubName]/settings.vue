@@ -103,21 +103,6 @@
         </div>
       </div>
     </div>
-
-    <template #rightbar>
-      <div class="space-y-4">
-        <div class="card bg-base-100 shadow-sm">
-          <div class="card-body p-4">
-            <h3 class="font-semibold text-sm mb-3">{{ t('creator.settings') }}</h3>
-            <div class="space-y-2 text-xs text-base-content/60">
-              <p>{{ t('creator.editPublisher') }}</p>
-              <p>{{ t('creator.features.title') }}</p>
-              <p>{{ t('creator.fediverse.title') }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </template>
   </NuxtLayout>
 </template>
 

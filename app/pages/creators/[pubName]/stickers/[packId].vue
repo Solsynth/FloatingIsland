@@ -61,7 +61,8 @@
           <span>{{ t('creator.common.selected', { count: selectedIds.size }) }}</span>
           <div class="flex gap-2">
             <button class="btn btn-sm" @click="openBatchModal">{{ t('creator.stickers.batchEdit') }}</button>
-            <button class="btn btn-ghost btn-sm" @click="selectedIds = new Set()">{{ t('creator.common.clear') }}</button>
+            <button class="btn btn-ghost btn-sm" @click="selectedIds = new Set()">{{ t('creator.common.clear')
+              }}</button>
           </div>
         </div>
 
@@ -92,27 +93,15 @@
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="(sticker, idx) in displayList"
-                :key="sticker.id"
-                class="hover"
-              >
+              <tr v-for="(sticker, idx) in displayList" :key="sticker.id" class="hover">
                 <td>
-                  <input
-                    type="checkbox"
-                    class="checkbox checkbox-xs"
-                    :checked="selectedIds.has(sticker.id)"
-                    @change="toggleSelect(sticker.id)"
-                  />
+                  <input type="checkbox" class="checkbox checkbox-xs" :checked="selectedIds.has(sticker.id)"
+                    @change="toggleSelect(sticker.id)" />
                 </td>
                 <td>
                   <div class="w-10 h-10 rounded bg-base-200 overflow-hidden">
-                    <img
-                      v-if="getFileUrl(sticker.image?.id)"
-                      :src="getFileUrl(sticker.image?.id)"
-                      class="w-full h-full object-contain"
-                      :alt="sticker.name || sticker.slug"
-                    />
+                    <img v-if="getFileUrl(sticker.image?.id)" :src="getFileUrl(sticker.image?.id)"
+                      class="w-full h-full object-contain" :alt="sticker.name || sticker.slug" />
                   </div>
                 </td>
                 <td class="max-w-[140px] truncate">{{ sticker.name || '-' }}</td>
@@ -125,7 +114,8 @@
                     <button v-if="idx > 0" class="btn btn-ghost btn-xs" @click="moveItem(idx, idx - 1)">
                       <IconArrowUp class="w-3 h-3" />
                     </button>
-                    <button v-if="idx < displayList.length - 1" class="btn btn-ghost btn-xs" @click="moveItem(idx, idx + 1)">
+                    <button v-if="idx < displayList.length - 1" class="btn btn-ghost btn-xs"
+                      @click="moveItem(idx, idx + 1)">
                       <IconArrowDown class="w-3 h-3" />
                     </button>
                     <button class="btn btn-ghost btn-xs" @click="editSticker(sticker)">
@@ -143,57 +133,32 @@
       </template>
 
       <!-- Add/Edit Sticker Drawer -->
-      <AdminDrawer
-        :open="stickerModalOpen"
-        :title="editingSticker ? t('creator.edit') : t('creator.stickers.create')"
-        @update:open="stickerModalOpen = $event"
-      >
-        <StickerForm
-          :pack-id="packId"
-          :sticker="editingSticker"
-          @close="closeStickerModal"
-          @saved="handleStickerSaved"
-        />
+      <AdminDrawer :open="stickerModalOpen" :title="editingSticker ? t('creator.edit') : t('creator.stickers.create')"
+        @update:open="stickerModalOpen = $event">
+        <StickerForm :pack-id="packId" :sticker="editingSticker" @close="closeStickerModal"
+          @saved="handleStickerSaved" />
       </AdminDrawer>
 
       <!-- Edit Pack Drawer -->
-      <AdminDrawer
-        :open="packModalOpen"
-        :title="t('creator.edit')"
-        @update:open="packModalOpen = $event"
-      >
-        <StickerPackForm
-          :pub-name="pubName"
-          :pack="pack"
-          @close="closePackModal"
-          @saved="handlePackSaved"
-        />
+      <AdminDrawer :open="packModalOpen" :title="t('creator.edit')" @update:open="packModalOpen = $event">
+        <StickerPackForm :pub-name="pubName" :pack="pack" @close="closePackModal" @saved="handlePackSaved" />
       </AdminDrawer>
 
       <!-- Batch Edit Drawer -->
-      <AdminDrawer
-        :open="batchModalOpen"
-        :title="t('creator.stickers.batchEdit')"
-        @update:open="batchModalOpen = $event"
-      >
-        <BatchStickerEdit
-          :pack-id="packId"
-          :sticker-ids="Array.from(selectedIds)"
-          @close="closeBatchModal"
-          @saved="handleBatchSaved"
-        />
+      <AdminDrawer :open="batchModalOpen" :title="t('creator.stickers.batchEdit')"
+        @update:open="batchModalOpen = $event">
+        <BatchStickerEdit :pack-id="packId" :sticker-ids="Array.from(selectedIds)" @close="closeBatchModal"
+          @saved="handleBatchSaved" />
       </AdminDrawer>
     </div>
 
     <template #rightbar>
-      <div class="space-y-4">
-        <div v-if="pack" class="card bg-base-100 shadow-sm">
-          <div class="card-body p-4">
-            <h3 class="font-semibold text-sm mb-3">{{ pack.name }}</h3>
-            <div class="space-y-2 text-xs text-base-content/60">
-              <p>{{ t('creator.stickers.prefix') }}: <span class="font-mono">:{{ pack.prefix }}+slug:</span></p>
-              <p>{{ t('creator.stickers.count', { count: stickers?.length ?? 0 }) }}</p>
-            </div>
+      <div v-if="pack" class="card bg-base-100 shadow-sm rounded-none min-h-full">
+        <div class="card-body p-4">
+          <h3 class="font-semibold text-sm mb-3">{{ pack.name }}</h3>
+          <div class="space-y-2 text-xs text-base-content/60">
+            <p>{{ t('creator.stickers.prefix') }}: <span class="font-mono">:{{ pack.prefix }}+slug:</span></p>
+            <p>{{ t('creator.stickers.count', { count: stickers?.length ?? 0 }) }}</p>
           </div>
         </div>
       </div>

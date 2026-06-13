@@ -218,6 +218,7 @@ async function loadData() {
 
     // Fetch project first — don't let apps/bots failure block it
 		project.value = await fetchDevProject(pubName.value, projectId.value)
+    await developer.loadProject(pubName.value, projectId.value)
 
     // Apps and bots are secondary — don't fail the whole page if these error
     const [appsResult, botsResult] = await Promise.allSettled([

@@ -55,7 +55,7 @@
             :placeholder="t('common.search') + '...'"
             class="input input-sm w-48 lg:w-64 bg-base-200/60 border-0 rounded-xl pl-9 text-sm placeholder:text-base-content/30 focus:bg-base-200 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-all"
             @keyup.enter="handleSearch"
-          />
+          >
           <IconSearch
             class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/30"
           />
@@ -74,27 +74,6 @@
             {{ (notificationCount ?? 0) > 9 ? "9+" : notificationCount }}
           </span>
         </button>
-
-        <!-- Separator -->
-        <div class="w-px h-6 bg-base-300/50 mx-1" />
-
-        <!-- User Avatar (compact) -->
-        <NuxtLink
-          v-if="isAuthenticated && user"
-          to="/accounts/me"
-          class="btn btn-circle btn-ghost btn-sm"
-        >
-          <div v-if="avatarUrl" class="avatar">
-            <div class="w-7 rounded-full">
-              <img :src="avatarUrl ?? ''" alt="User avatar" />
-            </div>
-          </div>
-          <div v-else class="avatar avatar-placeholder">
-            <div class="w-7 rounded-full bg-primary/10 text-primary">
-              <span class="text-[10px] font-bold">{{ fallbackInitials }}</span>
-            </div>
-          </div>
-        </NuxtLink>
       </div>
     </div>
   </header>
@@ -102,10 +81,8 @@
 
 <script setup lang="ts">
 import { IconMenu, IconSearch, IconBell } from "#components";
-import { getFileUrl } from "~/utils/files";
 
 const { t } = useI18n();
-const { isAuthenticated, user, displayName: authDisplayName } = useAuth();
 
 defineProps<{
   breadcrumbs?: Array<{ label: string; href: string }>;
@@ -119,15 +96,6 @@ defineEmits<{
 
 const searchQuery = ref("");
 
-const displayName = computed(
-  () => authDisplayName.value || user.value?.nick || user.value?.name || "",
-);
-const avatarUrl = computed(() =>
-  getFileUrl(user.value?.profile?.picture?.id ?? null),
-);
-const fallbackInitials = computed(() =>
-  (user.value?.name || "?").slice(0, 2).toUpperCase(),
-);
 
 function handleSearch() {
   if (searchQuery.value.trim()) {

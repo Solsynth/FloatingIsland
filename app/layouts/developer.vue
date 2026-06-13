@@ -117,21 +117,43 @@ const nickLabel = computed(
     (typeof route.params.pubName === "string" ? route.params.pubName : ""),
 );
 
+const isUuid = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)
+
 const breadcrumbs = computed(() => {
   const parts: Array<{ label: string; href: string }> = [
     { label: t("developer.console"), href: "/developers" },
   ];
   const segments = route.path.split("/").filter(Boolean);
-  // segments[0] is 'developers', segments[1] is pubName
-  if (segments.length >= 2 && segments[1] === route.params.pubName) {
+  const hasPubName = typeof route.params.pubName === "string" && route.params.pubName;
+  // segments[0] is 'developers', segments[1] is pubName (if present)
+  if (hasPubName && segments.length >= 2 && segments[1] === route.params.pubName) {
     parts.push({ label: nickLabel.value, href: `/developers/${segments[1]}` });
   }
-  // Remaining segments after pubName
-  for (let i = 2; i < segments.length; i++) {
+  // Remaining segments after pubName (or after 'developers' if no pubName)
+  const startIdx = hasPubName ? 2 : 1;
+  for (let i = startIdx; i < segments.length; i++) {
     const seg = segments[i] as string;
     const href = "/" + segments.slice(0, i + 1).join("/");
-    const label = segmentLabels[seg] || seg;
-    parts.push({ label, href });
+
+    // Resolve UUID segments to names from store
+    if (isUuid(seg)) {
+      const prevSeg = i > 0 ? segments[i - 1] : '';
+      if (prevSeg === 'projects' && developer.currentProject.value?.id === seg) {
+        parts.push({ label: developer.currentProject.value.name, href });
+      } else if (prevSeg === 'bots' && developer.currentBot.value?.id === seg) {
+        parts.push({ label: developer.currentBot.value.name, href });
+      } else if (prevSeg === 'apps' && developer.currentApp.value?.id === seg) {
+        parts.push({ label: developer.currentApp.value.name, href });
+      } else {
+        parts.push({ label: seg.slice(0, 8), href });
+      }
+    } else {
+      // Skip 'projects' segment when followed by a UUID (no /projects index page)
+      const nextSeg = i + 1 < segments.length ? segments[i + 1] : ''
+      if (seg === 'projects' && isUuid(nextSeg)) continue
+
+      parts.push({ label: segmentLabels[seg] || seg, href });
+    }
   }
   return parts;
 });

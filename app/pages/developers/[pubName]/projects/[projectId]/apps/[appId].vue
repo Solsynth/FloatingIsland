@@ -444,9 +444,13 @@ async function loadData() {
   try {
     await developer.loadDevelopers()
     developer.selectByPublisherName(pubName.value)
+    await developer.loadProject(pubName.value, projectId.value)
 
     const appData = await fetchCustomApp(pubName.value, projectId.value, appId.value)
     app.value = appData
+    if (appData) {
+      developer.currentApp.value = { id: appData.id, name: appData.name, slug: appData.slug }
+    }
 
     const secretsResult = await fetchAppSecrets(pubName.value, projectId.value, appId.value)
     secrets.value = secretsResult

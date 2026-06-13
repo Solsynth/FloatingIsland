@@ -25,11 +25,9 @@
       <!-- Right Sidebar (fixed to right edge) -->
       <aside
         v-if="$slots.rightbar"
-        class="fixed right-0 top-0 bottom-0 w-[22rem] z-30 pt-14 overflow-y-auto border-l border-base-300/30 scrollbar-none"
+        class="fixed right-0 top-0 bottom-0 w-88 z-30 overflow-y-auto border-l border-base-300/30 scrollbar-none"
       >
-        <div class="pr-6">
           <slot name="rightbar" />
-        </div>
       </aside>
     </div>
 

@@ -20,12 +20,8 @@
       </div>
 
       <div v-else class="space-y-2">
-        <div
-          v-for="feed in feeds"
-          :key="feed.id"
-          class="card bg-base-100 shadow-sm cursor-pointer transition-all hover:shadow-md"
-          @click="openEditor(feed)"
-        >
+        <div v-for="feed in feeds" :key="feed.id"
+          class="card bg-base-100 shadow-sm cursor-pointer transition-all hover:shadow-md" @click="openEditor(feed)">
           <div class="card-body p-4 flex-row items-center gap-4">
             <div class="avatar avatar-placeholder">
               <div class="w-10 rounded-lg bg-primary/10 text-primary">
@@ -42,32 +38,11 @@
       </div>
 
       <!-- Editor Drawer -->
-      <AdminDrawer
-        :open="editorModalOpen"
-        :title="editingFeed ? t('creator.edit') : t('creator.feeds.create')"
-        @update:open="editorModalOpen = $event"
-      >
-        <WebFeedForm
-          :pub-name="pubName"
-          :feed="editingFeed"
-          @close="closeEditor"
-          @saved="handleSaved"
-        />
+      <AdminDrawer :open="editorModalOpen" :title="editingFeed ? t('creator.edit') : t('creator.feeds.create')"
+        @update:open="editorModalOpen = $event">
+        <WebFeedForm :pub-name="pubName" :feed="editingFeed" @close="closeEditor" @saved="handleSaved" />
       </AdminDrawer>
     </div>
-
-    <template #rightbar>
-      <div class="space-y-4">
-        <div class="card bg-base-100 shadow-sm">
-          <div class="card-body p-4">
-            <h3 class="font-semibold text-sm mb-3">{{ t('creator.feeds.title') }}</h3>
-            <p class="text-xs text-base-content/60">
-              {{ t('creator.feeds.scrapPageHint') }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </template>
   </NuxtLayout>
 </template>
 

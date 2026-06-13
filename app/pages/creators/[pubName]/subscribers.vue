@@ -102,19 +102,6 @@
         <AccountPicker @select="handleAddSubscriber" />
       </AdminDrawer>
     </div>
-
-    <template #rightbar>
-      <div class="space-y-4">
-        <div class="card bg-base-100 shadow-sm">
-          <div class="card-body p-4">
-            <h3 class="font-semibold text-sm mb-3">{{ t('creator.subscribers.title') }}</h3>
-            <p class="text-xs text-base-content/60">
-              {{ t('creator.subscribers.noRequests') }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </template>
   </NuxtLayout>
 </template>
 

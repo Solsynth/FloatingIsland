@@ -4,11 +4,7 @@
       <div class="flex items-center justify-between mb-4">
         <h1 class="text-xl font-bold">{{ t('creator.posts.title') }}</h1>
         <div class="flex gap-2">
-          <button
-            v-if="!selectionMode"
-            class="btn btn-ghost btn-sm"
-            @click="selectionMode = true"
-          >
+          <button v-if="!selectionMode" class="btn btn-ghost btn-sm" @click="selectionMode = true">
             <IconCheckSquare class="w-4 h-4" />
             {{ t('creator.posts.selectAll') }}
           </button>
@@ -67,22 +63,13 @@
       </div>
 
       <div v-else class="space-y-2">
-        <div
-          v-for="post in posts"
-          :key="post.id"
+        <div v-for="post in posts" :key="post.id"
           class="card bg-base-100 shadow-sm cursor-pointer transition-all hover:shadow-md"
-          :class="{ 'ring-2 ring-primary': selectedIds.has(post.id) }"
-          @click="handlePostClick(post)"
-        >
+          :class="{ 'ring-2 ring-primary': selectedIds.has(post.id) }" @click="handlePostClick(post)">
           <div class="card-body p-4">
             <div class="flex items-start gap-3">
-              <input
-                v-if="selectionMode"
-                type="checkbox"
-                class="checkbox checkbox-sm mt-1"
-                :checked="selectedIds.has(post.id)"
-                @click.stop="toggleSelection(post.id)"
-              />
+              <input v-if="selectionMode" type="checkbox" class="checkbox checkbox-sm mt-1"
+                :checked="selectedIds.has(post.id)" @click.stop="toggleSelection(post.id)" />
               <div class="min-w-0 flex-1">
                 <h3 v-if="post.title" class="font-semibold text-sm mb-1 truncate">{{ post.title }}</h3>
                 <p class="text-sm text-base-content/70 line-clamp-2">{{ post.content }}</p>
@@ -112,10 +99,7 @@
       </div>
 
       <!-- Post Detail Drawer -->
-      <AdminDrawer
-        :open="detailModalOpen"
-        @update:open="detailModalOpen = $event"
-      >
+      <AdminDrawer :open="detailModalOpen" @update:open="detailModalOpen = $event">
         <template #header>
           <h3 class="font-bold text-lg">{{ t('creator.posts.detail') }}</h3>
         </template>
@@ -152,31 +136,21 @@
             <!-- Meta -->
             <div class="text-xs text-base-content/50 space-y-1">
               <div>{{ t('creator.posts.created') }}: {{ formatDate(selectedPost.createdAt) }}</div>
-              <div v-if="selectedPost.editedAt">{{ t('creator.posts.edited') }}: {{ formatDate(selectedPost.editedAt) }}</div>
+              <div v-if="selectedPost.editedAt">{{ t('creator.posts.edited') }}: {{ formatDate(selectedPost.editedAt) }}
+              </div>
             </div>
           </div>
         </template>
       </AdminDrawer>
 
       <!-- Visibility Drawer -->
-      <AdminDrawer
-        :open="visibilityModalOpen"
-        :title="t('creator.posts.batchVisibility')"
-        @update:open="visibilityModalOpen = $event"
-      >
+      <AdminDrawer :open="visibilityModalOpen" :title="t('creator.posts.batchVisibility')"
+        @update:open="visibilityModalOpen = $event">
         <div class="space-y-2">
-          <label
-            v-for="opt in visibilityOptions"
-            :key="opt.value"
-            class="flex items-center gap-3 p-3 rounded-lg bg-base-200 cursor-pointer hover:bg-base-300"
-          >
-            <input
-              type="radio"
-              name="visibility"
-              class="radio radio-primary radio-sm"
-              :value="opt.value"
-              v-model="selectedVisibility"
-            />
+          <label v-for="opt in visibilityOptions" :key="opt.value"
+            class="flex items-center gap-3 p-3 rounded-lg bg-base-200 cursor-pointer hover:bg-base-300">
+            <input type="radio" name="visibility" class="radio radio-primary radio-sm" :value="opt.value"
+              v-model="selectedVisibility" />
             <span class="text-sm font-medium">{{ opt.label }}</span>
           </label>
         </div>
@@ -191,13 +165,11 @@
       </AdminDrawer>
 
       <!-- Collection Drawer -->
-      <AdminDrawer
-        :open="collectionModalOpen"
-        @update:open="collectionModalOpen = $event"
-      >
+      <AdminDrawer :open="collectionModalOpen" @update:open="collectionModalOpen = $event">
         <template #header>
           <h3 class="font-bold text-lg">
-            {{ collectionAction === 'add' ? t('creator.posts.batchAddToCollection') : t('creator.posts.batchRemoveFromCollection') }}
+            {{ collectionAction === 'add' ? t('creator.posts.batchAddToCollection') :
+              t('creator.posts.batchRemoveFromCollection') }}
           </h3>
         </template>
         <div v-if="collectionsLoading" class="flex justify-center py-4">
@@ -207,12 +179,9 @@
           {{ t('creator.collections.empty') }}
         </div>
         <div v-else class="space-y-2">
-          <button
-            v-for="col in collections"
-            :key="col.slug"
+          <button v-for="col in collections" :key="col.slug"
             class="flex items-center gap-3 w-full p-3 rounded-lg bg-base-200 hover:bg-base-300 text-left"
-            @click="applyCollection(col.slug)"
-          >
+            @click="applyCollection(col.slug)">
             <IconFolder class="w-4 h-4 text-primary" />
             <div class="min-w-0">
               <div class="text-sm font-medium truncate">{{ col.name || col.slug }}</div>
@@ -227,15 +196,13 @@
     </div>
 
     <template #rightbar>
-      <div class="space-y-4">
-        <div class="card bg-base-100 shadow-sm">
-          <div class="card-body p-4">
-            <h3 class="font-semibold text-sm mb-3">{{ t('creator.posts.title') }}</h3>
-            <div class="space-y-2 text-xs text-base-content/60">
-              <p>{{ t('creator.posts.selectAll') }}</p>
-              <p>{{ t('creator.posts.batchVisibility') }}</p>
-              <p>{{ t('creator.posts.batchAddToCollection') }}</p>
-            </div>
+      <div class="card bg-base-100 shadow-sm rounded-full min-h-full">
+        <div class="card-body p-4">
+          <h3 class="font-semibold text-sm mb-3">{{ t('creator.posts.title') }}</h3>
+          <div class="space-y-2 text-xs text-base-content/60">
+            <p>{{ t('creator.posts.selectAll') }}</p>
+            <p>{{ t('creator.posts.batchVisibility') }}</p>
+            <p>{{ t('creator.posts.batchAddToCollection') }}</p>
           </div>
         </div>
       </div>

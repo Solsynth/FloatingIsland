@@ -11,16 +11,14 @@
           <template v-else>
             <!-- Developer List -->
             <div v-if="developers.length > 0" class="space-y-1">
-              <NuxtLink
-                v-for="dev in developers"
-                :key="dev.id"
-                :to="`/developers/${dev.publisher?.name}`"
-                class="flex items-center gap-4 rounded-xl p-3 transition-colors hover:bg-base-200"
-              >
+              <NuxtLink v-for="dev in developers" :key="dev.id" :to="`/developers/${dev.publisher?.name}`"
+                class="flex items-center gap-4 rounded-xl p-3 transition-colors hover:bg-base-200">
                 <div class="avatar">
                   <div class="w-10 rounded-full">
-                    <img v-if="getFileUrl(dev.publisher?.picture?.id)" :src="getFileUrl(dev.publisher?.picture?.id)" :alt="dev.publisher?.nick" />
-                    <div v-else class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-content text-sm font-bold">
+                    <img v-if="dev.publisher?.picture?.id" :src="getFileUrl(dev.publisher?.picture?.id)!"
+                      :alt="dev.publisher?.nick" />
+                    <div v-else
+                      class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-content text-sm font-bold">
                       {{ dev.publisher?.nick?.slice(0, 2).toUpperCase() }}
                     </div>
                   </div>
@@ -42,10 +40,8 @@
             <div class="divider my-1" />
 
             <!-- Enroll Developer -->
-            <button
-              class="flex w-full items-center gap-4 rounded-xl p-3 transition-colors hover:bg-base-200"
-              @click="openEnrollModal"
-            >
+            <button class="flex w-full items-center gap-4 rounded-xl p-3 transition-colors hover:bg-base-200"
+              @click="openEnrollModal">
               <div class="avatar avatar-placeholder">
                 <div class="w-10 rounded-full bg-primary text-primary-content">
                   <IconPlus class="w-5 h-5" />
@@ -62,25 +58,20 @@
       </div>
 
       <!-- Enroll Developer Drawer -->
-      <AdminDrawer
-        :open="enrollModalOpen"
-        :title="t('developer.enrollDeveloper')"
-        @update:open="enrollModalOpen = $event"
-      >
+      <AdminDrawer :open="enrollModalOpen" :title="t('developer.enrollDeveloper')"
+        @update:open="enrollModalOpen = $event">
         <div v-if="managedPublishers.length === 0" class="text-center py-4">
           <p class="text-base-content/60">{{ t('developer.noPublishersToEnroll') }}</p>
         </div>
         <div v-else class="space-y-2">
-          <button
-            v-for="pub in managedPublishers"
-            :key="pub.id"
+          <button v-for="pub in managedPublishers" :key="pub.id"
             class="flex w-full items-center gap-3 rounded-lg p-3 transition-colors hover:bg-base-200"
-            @click="handleEnroll(pub.name)"
-          >
+            @click="handleEnroll(pub.name)">
             <div class="avatar">
               <div class="w-9 rounded-full">
                 <img v-if="getFileUrl(pub.picture?.id)" :src="getFileUrl(pub.picture?.id)" :alt="pub.nick" />
-                <div v-else class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-content text-xs font-bold">
+                <div v-else
+                  class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-content text-xs font-bold">
                   {{ pub.nick?.slice(0, 2).toUpperCase() }}
                 </div>
               </div>
@@ -93,19 +84,6 @@
         </div>
       </AdminDrawer>
     </div>
-
-    <template #rightbar>
-      <div class="space-y-4">
-        <div class="card bg-base-100 shadow-sm">
-          <div class="card-body p-4">
-            <h3 class="font-semibold text-sm mb-3">{{ t('developer.title') }}</h3>
-            <p class="text-xs text-base-content/60">
-              {{ t('developer.hubDescription') }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </template>
   </NuxtLayout>
 </template>
 
@@ -131,10 +109,12 @@ const managedPublishers = ref<PublisherManaged[]>([])
 
 defineOgImage('UniOgImage', { title: t('developer.title') })
 
-useSolarSeo({ title: t('developer.title'), breadcrumbs: [
-  { name: 'Home', item: 'https://solian.app' },
-  { name: 'Developers', item: 'https://solian.app/developers' }
-] })
+useSolarSeo({
+  title: t('developer.title'), breadcrumbs: [
+    { name: 'Home', item: 'https://solian.app' },
+    { name: 'Developers', item: 'https://solian.app/developers' }
+  ]
+})
 
 async function openEnrollModal() {
   try {

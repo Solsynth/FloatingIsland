@@ -18,14 +18,16 @@
 
 <script setup lang="ts">
 import {
-  IconLayoutDashboard,
   IconSettings,
   IconTestTube,
+  IconBot,
+  IconBoxes,
 } from '#components'
 import type { Developer } from '~/types/developer'
 
 defineEmits<{ navigate: [] }>()
 
+const route = useRoute()
 const { t } = useI18n()
 const developer = useDeveloper()
 const { developers, currentDeveloper, isLoading, clearSelection } = developer
@@ -62,28 +64,47 @@ function mapOrg(dev: Developer) {
   }
 }
 
+const projectRouteMatch = computed(() => {
+  const path = route.path
+  const match = path.match(/^\/developers\/([^/]+)\/projects\/([^/]+)/)
+  return match ? { pubName: match[1], projectId: match[2] } : null
+})
+
 const navGroups = computed(() => {
-  if (!pubName.value) return []
-  const p = pubName.value
-  return [
-    {
-      label: t('nav.overview'),
-      items: [
-        { icon: IconLayoutDashboard, label: t('developer.dashboard'), href: `/developers/${p}` },
-      ],
-    },
+  // API Playground is always available
+  const groups = [
     {
       label: t('developer.apiPlayground'),
       items: [
-        { icon: IconTestTube, label: t('developer.apiPlayground'), href: `/developers/${p}/api-playground` },
+        { icon: IconTestTube, label: t('developer.apiPlayground'), href: '/developers/api-playground' },
       ],
     },
-    {
+  ]
+
+  // Publisher-specific nav
+  if (pubName.value) {
+    const p = pubName.value
+    groups.unshift({
       label: t('nav.settings'),
       items: [
         { icon: IconSettings, label: t('developer.settings'), href: `/developers/${p}/settings` },
       ],
-    },
-  ]
+    })
+  }
+
+  // Project-specific nav
+  const proj = projectRouteMatch.value
+  if (proj) {
+    const base = `/developers/${proj.pubName}/projects/${proj.projectId}`
+    groups.unshift({
+      label: t('developer.projects.title'),
+      items: [
+        { icon: IconBot, label: t('developer.bots.title'), href: `${base}/bots` },
+        { icon: IconBoxes, label: t('developer.apps.title'), href: `${base}/apps` },
+      ],
+    })
+  }
+
+  return groups
 })
 </script>
