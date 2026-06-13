@@ -751,6 +751,25 @@
       },
       "background": "Background"
     },
+    "apiPlayground": "API Playground",
+    "playground": {
+      "title": "API Playground",
+      "description": "Make custom API requests with your authorization token",
+      "url": "URL",
+      "method": "Method",
+      "headers": "Headers",
+      "addHeader": "Add Header",
+      "body": "Body",
+      "send": "Send",
+      "sending": "Sending...",
+      "response": "Response",
+      "status": "Status",
+      "time": "Time",
+      "noResponse": "Send a request to see the response",
+      "key": "Key",
+      "value": "Value",
+      "remove": "Remove"
+    },
     "bots": {
       "title": "Bots",
       "create": "Create Bot",

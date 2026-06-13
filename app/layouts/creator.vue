@@ -8,7 +8,7 @@
       </aside>
 
       <!-- Main Area -->
-      <div class="ml-[18rem] flex-1 flex flex-col min-h-screen max-h-screen">
+      <div class="ml-[18rem] flex-1 flex flex-col min-h-screen max-h-screen" :class="{ 'mr-[22rem]': $slots.rightbar }">
         <!-- Header -->
         <AdminHeader :breadcrumbs="breadcrumbs" :page-title="pageTitle" />
 
@@ -19,18 +19,18 @@
               <slot />
             </div>
           </main>
-
-          <!-- Right Sidebar -->
-          <aside
-            v-if="$slots.rightbar"
-            class="w-[22rem] shrink-0 overflow-y-auto pt-6 pr-6 scrollbar-none"
-          >
-            <div class="sticky top-0">
-              <slot name="rightbar" />
-            </div>
-          </aside>
         </div>
       </div>
+
+      <!-- Right Sidebar (fixed to right edge) -->
+      <aside
+        v-if="$slots.rightbar"
+        class="fixed right-0 top-0 bottom-0 w-[22rem] z-30 pt-14 overflow-y-auto border-l border-base-300/30 scrollbar-none"
+      >
+        <div class="pr-6">
+          <slot name="rightbar" />
+        </div>
+      </aside>
     </div>
 
     <!-- Mobile Layout -->

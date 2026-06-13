@@ -3,12 +3,17 @@
     <!-- Desktop Admin Layout -->
     <div class="hidden lg:flex min-h-screen">
       <!-- Sidebar -->
-      <aside class="fixed left-0 top-0 bottom-0 w-[18rem] z-40 overflow-y-auto scrollbar-none">
+      <aside
+        class="fixed left-0 top-0 bottom-0 w-[18rem] z-40 overflow-y-auto scrollbar-none"
+      >
         <DeveloperSidebar />
       </aside>
 
       <!-- Main Area -->
-      <div class="ml-[18rem] flex-1 flex flex-col min-h-screen max-h-screen">
+      <div
+        class="ml-[18rem] flex-1 flex flex-col min-h-screen max-h-screen"
+        :class="{ 'mr-[22rem]': $slots.rightbar }"
+      >
         <!-- Header -->
         <AdminHeader :breadcrumbs="breadcrumbs" :page-title="pageTitle" />
 
@@ -19,18 +24,16 @@
               <slot />
             </div>
           </main>
-
-          <!-- Right Sidebar -->
-          <aside
-            v-if="$slots.rightbar"
-            class="w-[22rem] shrink-0 overflow-y-auto pt-6 pr-6 border-l border-base-300/30 scrollbar-none"
-          >
-            <div class="sticky top-0">
-              <slot name="rightbar" />
-            </div>
-          </aside>
         </div>
       </div>
+
+      <!-- Right Sidebar (fixed to right edge) -->
+      <aside
+        v-if="$slots.rightbar"
+        class="fixed right-0 top-0 bottom-0 w-[22rem] z-30 overflow-y-auto border-l border-base-300/30 scrollbar-none"
+      >
+        <slot name="rightbar" />
+      </aside>
     </div>
 
     <!-- Mobile Layout -->
@@ -105,6 +108,7 @@ const segmentLabels: Record<string, string> = {
   projects: "Projects",
   apps: "Apps",
   bots: "Bots",
+  "api-playground": "API Playground",
 };
 
 const nickLabel = computed(
@@ -115,7 +119,7 @@ const nickLabel = computed(
 
 const breadcrumbs = computed(() => {
   const parts: Array<{ label: string; href: string }> = [
-    { label: t('developer.console'), href: "/developers" },
+    { label: t("developer.console"), href: "/developers" },
   ];
   const segments = route.path.split("/").filter(Boolean);
   // segments[0] is 'developers', segments[1] is pubName

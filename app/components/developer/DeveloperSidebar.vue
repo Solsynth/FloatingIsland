@@ -20,6 +20,7 @@
 import {
   IconLayoutDashboard,
   IconSettings,
+  IconTestTube,
 } from '#components'
 import type { Developer } from '~/types/developer'
 
@@ -69,6 +70,12 @@ const navGroups = computed(() => {
       label: t('nav.overview'),
       items: [
         { icon: IconLayoutDashboard, label: t('developer.dashboard'), href: `/developers/${p}` },
+      ],
+    },
+    {
+      label: t('developer.apiPlayground'),
+      items: [
+        { icon: IconTestTube, label: t('developer.apiPlayground'), href: `/developers/${p}/api-playground` },
       ],
     },
     {

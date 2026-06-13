@@ -750,6 +750,25 @@
       },
       "background": "背景"
     },
+    "apiPlayground": "API 调试工具",
+    "playground": {
+      "title": "API 调试工具",
+      "description": "使用您的授权令牌发送自定义 API 请求",
+      "url": "URL",
+      "method": "方法",
+      "headers": "请求头",
+      "addHeader": "添加请求头",
+      "body": "请求体",
+      "send": "发送",
+      "sending": "发送中...",
+      "response": "响应",
+      "status": "状态",
+      "time": "耗时",
+      "noResponse": "发送请求以查看响应",
+      "key": "键",
+      "value": "值",
+      "remove": "移除"
+    },
     "bots": {
       "title": "机器人",
       "create": "创建机器人",
