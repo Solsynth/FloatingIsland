@@ -21,7 +21,7 @@
     "@unhead/vue": "^3.1.4",
     "@vueuse/core": "^14.3.0",
     "blurhash": "^2.0.5",
-    "cropperjs": "1.6.2",
+    "cropperjs": "2",
     "lunar-javascript": "^1.7.7",
     "markdown-it": "^14.2.0",
     "nuxt": "^4.4.8",
