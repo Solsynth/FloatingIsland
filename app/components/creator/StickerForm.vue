@@ -102,11 +102,20 @@
   </form>
 </template>
 
+<!-- File Picker -->
+<CloudFileDrawer
+  v-model:open="imagePickerOpen"
+  :allowed-types="['image']"
+  usage="sticker.image"
+  @select="onImageSelected"
+/>
+
 <script setup lang="ts">
 import { IconSave, IconImage, IconUpload } from '#components'
 import type { SnSticker } from '~/types/creator'
 import { createSticker, updateSticker } from '~/utils/creator'
 import { getFileUrl } from '~/utils/files'
+import type { SnCloudFile } from '~/types/drive'
 
 const props = defineProps<{
   packId: string
@@ -129,12 +138,18 @@ const form = reactive({
 
 const imageId = ref<string | null>(props.sticker?.image?.id ?? null)
 const submitting = ref(false)
+const imagePickerOpen = ref(false)
 
 const imageUrl = computed(() => getFileUrl(imageId.value))
 
 function pickImage() {
-  const url = prompt('Enter image file ID:')
-  if (url) imageId.value = url
+  imagePickerOpen.value = true
+}
+
+function onImageSelected(file: SnCloudFile | SnCloudFile[] | null) {
+  if (file && !Array.isArray(file)) {
+    imageId.value = file.id
+  }
 }
 
 async function handleSubmit() {

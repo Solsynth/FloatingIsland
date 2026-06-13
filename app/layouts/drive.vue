@@ -1,10 +1,13 @@
 <template>
   <div class="min-h-screen bg-base-200">
-    <!-- Desktop Admin Layout -->
+    <!-- Desktop Layout -->
     <div class="hidden lg:flex min-h-screen">
       <!-- Sidebar -->
       <aside class="fixed left-0 top-0 bottom-0 w-[18rem] z-40 overflow-y-auto scrollbar-none">
-        <CreatorSidebar />
+        <DriveSidebar
+          :usage="usage"
+          @storage-details="showUsageDetails = true"
+        />
       </aside>
 
       <!-- Main Area -->
@@ -14,8 +17,8 @@
 
         <!-- Content -->
         <div class="flex-1 flex min-h-0">
-          <main class="flex-1 min-w-0 overflow-y-auto px-6 py-6 scrollbar-none">
-            <div class="mx-auto" :class="contentWidthClass">
+          <main class="flex-1 min-w-0 overflow-y-auto scrollbar-none">
+            <div class="mx-auto h-full" :class="contentWidthClass">
               <slot />
             </div>
           </main>
@@ -27,7 +30,7 @@
         v-if="$slots.rightbar"
         class="fixed right-0 top-0 bottom-0 w-88 z-30 overflow-y-auto border-l border-base-300/30 scrollbar-none"
       >
-          <slot name="rightbar" />
+        <slot name="rightbar" />
       </aside>
     </div>
 
@@ -38,12 +41,10 @@
         class="fixed top-0 left-0 right-0 z-50 border-b border-base-300/50 bg-base-100/95 backdrop-blur-xl"
       >
         <div class="flex h-14 items-center justify-between px-4">
-          <NuxtLink to="/creators" class="btn btn-circle btn-ghost btn-sm">
+          <NuxtLink to="/" class="btn btn-circle btn-ghost btn-sm">
             <IconArrowLeft class="w-5 h-5" />
           </NuxtLink>
-          <span class="text-sm font-semibold">{{
-            publisherName || t("creator.title")
-          }}</span>
+          <span class="text-sm font-semibold">{{ pageTitle }}</span>
           <button
             class="btn btn-circle btn-ghost btn-sm"
             @click="mobileMenuOpen = !mobileMenuOpen"
@@ -69,65 +70,55 @@
           class="fixed right-0 top-14 bottom-0 z-50 w-72 bg-base-100 p-4 overflow-y-auto shadow-xl scrollbar-none"
           @click.stop
         >
-          <CreatorSidebar @navigate="mobileMenuOpen = false" />
+          <DriveSidebar
+            :usage="usage"
+            @storage-details="showUsageDetails = true; mobileMenuOpen = false"
+          />
         </div>
       </Transition>
 
       <!-- Mobile Main Content -->
-      <main class="flex-1 px-4 py-3 pt-[4.5rem]">
+      <main class="flex-1 pt-18">
         <slot />
       </main>
     </div>
+
+    <!-- Dialogs -->
+    <UsageDetailsDialog
+      :open="showUsageDetails"
+      :usage="usage"
+      @close="showUsageDetails = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { IconArrowLeft, IconMenu } from "#components";
+import type { DriveUsage } from "~/types/drive";
 
 const { t } = useI18n();
 const route = useRoute();
-const creator = useCreator();
-const { currentPublisher } = creator;
+const drive = useDrive();
 
 const mobileMenuOpen = ref(false);
+const showUsageDetails = ref(false);
 
-const publisherName = computed(() => {
-  const name = route.params.pubName;
-  return typeof name === "string" ? name : null;
-});
+const usage = computed<DriveUsage | null>(() => drive.state.usage ?? null);
 
+// Breadcrumb segments based on current route path
 const segmentLabels: Record<string, string> = {
-  settings: "Settings",
-  members: "Members",
-  posts: "Posts",
-  feeds: "Feeds",
-  stickers: "Stickers",
-  collections: "Collections",
-  polls: "Polls",
-  leaderboard: "Leaderboard",
-  subscribers: "Subscribers",
-  projects: "Projects",
-  apps: "Apps",
-  bots: "Bots",
+  drive: "Drive",
+  recent: "Recent",
+  trash: "Trash",
 };
-
-const nickLabel = computed(
-  () =>
-    currentPublisher.value?.nick ||
-    (typeof route.params.pubName === "string" ? route.params.pubName : ""),
-);
 
 const breadcrumbs = computed(() => {
   const parts: Array<{ label: string; href: string }> = [
-    { label: t('creator.studio'), href: "/creators" },
+    { label: t("nav.drive"), href: "/drive" },
   ];
   const segments = route.path.split("/").filter(Boolean);
-  // segments[0] is 'creators', segments[1] is pubName
-  if (segments.length >= 2 && segments[1] === route.params.pubName) {
-    parts.push({ label: nickLabel.value, href: `/creators/${segments[1]}` });
-  }
-  // Remaining segments after pubName
-  for (let i = 2; i < segments.length; i++) {
+  // segments[0] is 'drive'; skip the first segment
+  for (let i = 1; i < segments.length; i++) {
     const seg = segments[i] as string;
     const href = "/" + segments.slice(0, i + 1).join("/");
     const label = segmentLabels[seg] || seg;
@@ -138,11 +129,25 @@ const breadcrumbs = computed(() => {
 
 const pageTitle = computed(() => {
   const last = breadcrumbs.value[breadcrumbs.value.length - 1];
-  return last ? last.label : t("creator.title");
+  return last ? last.label : t("nav.drive");
 });
 
 const contentWidthClass = computed(() => {
   // No max-width constraint - let pages control their own width
   return "";
+});
+
+// Close mobile menu on navigation
+watch(() => route.path, () => {
+  mobileMenuOpen.value = false;
+});
+
+// Load usage on mount
+onMounted(async () => {
+  try {
+    await drive.loadUsage();
+  } catch {
+    // Usage loading is best-effort
+  }
 });
 </script>

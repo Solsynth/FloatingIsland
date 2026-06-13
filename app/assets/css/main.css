@@ -215,6 +215,34 @@
   }
 }
 
+/* =============================================
+   Mobile drawer transitions (creator / developer / drive)
+   ============================================= */
+
+/* Backdrop fade */
+.drawer-fade-enter-active {
+  transition: opacity 0.25s ease-out;
+}
+.drawer-fade-leave-active {
+  transition: opacity 0.2s ease-in;
+}
+.drawer-fade-enter-from,
+.drawer-fade-leave-to {
+  opacity: 0;
+}
+
+/* Panel slide from right */
+.drawer-slide-enter-active {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.drawer-slide-leave-active {
+  transition: transform 0.2s ease-in;
+}
+.drawer-slide-enter-from,
+.drawer-slide-leave-to {
+  transform: translateX(100%);
+}
+
 @supports (view-transition-name: root) {
   :root {
     view-transition-name: root;

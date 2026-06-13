@@ -219,8 +219,7 @@
               </div>
             </div>
           </div>
-          <input ref="pictureInput" type="file" accept="image/*" class="hidden" @change="onPictureSelected" />
-          <input ref="backgroundInput" type="file" accept="image/*" class="hidden" @change="onBackgroundSelected" />
+
 
           <div class="grid grid-cols-2 gap-3">
             <fieldset class="fieldset">
@@ -344,6 +343,22 @@
         </form>
       </AdminDrawer>
     </div>
+
+    <!-- File Pickers -->
+    <CloudFileDrawer
+      v-model:open="picturePickerOpen"
+      :allowed-types="['image']"
+      :crop-aspect-ratio="1"
+      usage="bot.avatar"
+      @select="onPictureSelected"
+    />
+    <CloudFileDrawer
+      v-model:open="backgroundPickerOpen"
+      :allowed-types="['image']"
+      :crop-aspect-ratio="16/7"
+      usage="bot.background"
+      @select="onBackgroundSelected"
+    />
   </NuxtLayout>
 </template>
 
@@ -357,8 +372,8 @@ import {
   IconCamera,
 } from '#components'
 import { getFileUrl } from '~/utils/files'
-import { uploadDriveFile } from '~/utils/api'
 import type { Bot, BotKey, BotChatConfig } from '~/types/developer'
+import type { SnCloudFile } from '~/types/drive'
 import {
   fetchBot,
   updateBot,
@@ -414,12 +429,13 @@ const chatForm = reactive({
 })
 
 // Picture/background
-const pictureInput = ref<HTMLInputElement | null>(null)
-const backgroundInput = ref<HTMLInputElement | null>(null)
 const pictureId = ref<string | null>(null)
 const backgroundId = ref<string | null>(null)
-const picturePreview = ref<string | null>(null)
-const backgroundPreview = ref<string | null>(null)
+const picturePickerOpen = ref(false)
+const backgroundPickerOpen = ref(false)
+
+const picturePreview = computed(() => getFileUrl(pictureId.value))
+const backgroundPreview = computed(() => getFileUrl(backgroundId.value))
 
 defineOgImage('UniOgImage', { title: `${t('developer.bots.detail')} - ${pubName.value}` })
 
@@ -456,36 +472,22 @@ async function loadData() {
 }
 
 function pickPicture() {
-  pictureInput.value?.click()
+  picturePickerOpen.value = true
 }
 
 function pickBackground() {
-  backgroundInput.value?.click()
+  backgroundPickerOpen.value = true
 }
 
-async function onPictureSelected(e: Event) {
-  const file = (e.target as HTMLInputElement).files?.[0]
-  if (!file) return
-  picturePreview.value = URL.createObjectURL(file)
-  try {
-    const uploaded = await uploadDriveFile(file, { usage: 'avatar' })
-    pictureId.value = uploaded.id
-  } catch (err) {
-    console.error('Upload failed:', err)
-    picturePreview.value = null
+function onPictureSelected(file: SnCloudFile | SnCloudFile[] | null) {
+  if (file && !Array.isArray(file)) {
+    pictureId.value = file.id
   }
 }
 
-async function onBackgroundSelected(e: Event) {
-  const file = (e.target as HTMLInputElement).files?.[0]
-  if (!file) return
-  backgroundPreview.value = URL.createObjectURL(file)
-  try {
-    const uploaded = await uploadDriveFile(file, { usage: 'background' })
-    backgroundId.value = uploaded.id
-  } catch (err) {
-    console.error('Upload failed:', err)
-    backgroundPreview.value = null
+function onBackgroundSelected(file: SnCloudFile | SnCloudFile[] | null) {
+  if (file && !Array.isArray(file)) {
+    backgroundId.value = file.id
   }
 }
 
@@ -501,8 +503,6 @@ function openEditModal() {
   editForm.isActive = bot.value.isActive
   pictureId.value = bot.value.account.profile?.picture?.id ?? null
   backgroundId.value = bot.value.account.profile?.background?.id ?? null
-  picturePreview.value = pictureId.value ? getFileUrl(pictureId.value) : null
-  backgroundPreview.value = backgroundId.value ? getFileUrl(backgroundId.value) : null
   editModalOpen.value = true
 }
 

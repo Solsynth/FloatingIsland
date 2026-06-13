@@ -654,6 +654,25 @@
     "noTopics": "没有配置通知主题",
     "description": "描述"
   },
+  "cloudFilePicker": {
+    "title": "选择文件",
+    "upload": "上传",
+    "browse": "浏览",
+    "indexed": "已索引",
+    "unindexed": "未索引",
+    "dropHint": "拖放文件到此处或点击浏览",
+    "selected": "已选择 {count} 个文件",
+    "clearAll": "清除全部",
+    "crop": "裁剪图片",
+    "remove": "移除",
+    "uploadAll": "全部上传",
+    "uploading": "正在上传 {current}/{total}...",
+    "uploadFailed": "上传失败，请重试",
+    "noFiles": "没有文件",
+    "loadMore": "加载更多",
+    "cropImage": "裁剪图片",
+    "applyCrop": "应用裁剪"
+  },
   "developer": {
     "title": "开发者中心",
     "console": "开发者控制台",

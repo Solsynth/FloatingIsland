@@ -223,7 +223,7 @@ function handleLogout() {
 }
 
 function openCompose() {
-  navigateTo("/compose");
+  composeOpen.value = true;
 }
 
 function handleComposeSubmit() {

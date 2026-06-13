@@ -16,6 +16,7 @@
         "@unhead/vue": "^2.0.5 || ^3.0.0",
         "@vueuse/core": "^14.3.0",
         "blurhash": "^2.0.5",
+        "cropperjs": "1.6.2",
         "lunar-javascript": "^1.7.7",
         "markdown-it": "^14.2.0",
         "nuxt": "^4.4.6",
@@ -28,6 +29,7 @@
         "unstorage": "^1.15.0",
         "vaul-vue": "^0.4.1",
         "vue": "^3.5.34",
+        "vue-cropperjs": "4.2.0",
         "vue-router": "^5.0.7",
         "vue-sonner": "^2.0.9",
       },
@@ -1039,6 +1041,8 @@
     "crc32-stream": ["crc32-stream@6.0.0", "", { "dependencies": { "crc-32": "^1.2.0", "readable-stream": "^4.0.0" } }, "sha512-piICUB6ei4IlTv1+653yq5+KoqfBYmj9bw6LqXoOneTMDXk5nM1qt12mFW1caG3LlJXEKW1Bp0WggEmIfQB34g=="],
 
     "croner": ["croner@10.0.1", "", {}, "sha512-ixNtAJndqh173VQ4KodSdJEI6nuioBWI0V1ITNKhZZsO0pEMoDxz539T4FTTbSZ/xIOSuDnzxLVRqBVSvPNE2g=="],
+
+    "cropperjs": ["cropperjs@1.6.2", "", {}, "sha512-nhymn9GdnV3CqiEHJVai54TULFAE3VshJTXSqSJKa8yXAKyBKDWdhHarnlIPrshJ0WMFTGuFvG02YjLXfPiuOA=="],
 
     "cross-spawn": ["cross-spawn@7.0.6", "", { "dependencies": { "path-key": "^3.1.0", "shebang-command": "^2.0.0", "which": "^2.0.1" } }, "sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA=="],
 
@@ -2059,6 +2063,8 @@
     "vue": ["vue@3.5.34", "", { "dependencies": { "@vue/compiler-dom": "3.5.34", "@vue/compiler-sfc": "3.5.34", "@vue/runtime-dom": "3.5.34", "@vue/server-renderer": "3.5.34", "@vue/shared": "3.5.34" }, "peerDependencies": { "typescript": "*" }, "optionalPeers": ["typescript"] }, "sha512-WdLBG9gm02OgJIG9axd5Hpx0TFLdzVgfG2evFFu8Rur5O/IoGc5cMjnjh3tPL6GnRGsYvUhBSKVPYVcxRKpMCA=="],
 
     "vue-bundle-renderer": ["vue-bundle-renderer@2.2.0", "", { "dependencies": { "ufo": "^1.6.1" } }, "sha512-sz/0WEdYH1KfaOm0XaBmRZOWgYTEvUDt6yPYaUzl4E52qzgWLlknaPPTTZmp6benaPTlQAI/hN1x3tAzZygycg=="],
+
+    "vue-cropperjs": ["vue-cropperjs@4.2.0", "", { "dependencies": { "cropperjs": "^1.5.6" } }, "sha512-dvwCBtjGMiznkNIK2GFd1SQm1x+wmtWg4g4t+NrJSPj/fpHnubXxAUOIvY7lMFeR2lawRLsigCaGZrcXCzuTKA=="],
 
     "vue-demi": ["vue-demi@0.14.10", "", { "peerDependencies": { "@vue/composition-api": "^1.0.0-rc.1", "vue": "^3.0.0-0 || ^2.6.0" }, "optionalPeers": ["@vue/composition-api"], "bin": { "vue-demi-fix": "bin/vue-demi-fix.js", "vue-demi-switch": "bin/vue-demi-switch.js" } }, "sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg=="],
 

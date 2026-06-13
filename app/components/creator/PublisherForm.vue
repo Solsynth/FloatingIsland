@@ -1,7 +1,11 @@
 <template>
   <form @submit.prevent="handleSubmit">
     <!-- Profile Media Section -->
-    <AdminCard title="Profile Media" description="Upload your publisher banner and avatar" class="mb-6">
+    <AdminCard
+      title="Profile Media"
+      description="Upload your publisher banner and avatar"
+      class="mb-6"
+    >
       <!-- Background Image -->
       <div class="relative mb-16">
         <div
@@ -14,9 +18,16 @@
             class="w-full h-full object-cover"
             alt="Background"
           />
-          <div v-else class="flex flex-col items-center justify-center h-full gap-2">
-            <IconImage class="w-8 h-8 text-base-content/20 group-hover:text-primary/40 transition-colors" />
-            <span class="text-xs text-base-content/30 group-hover:text-base-content/50 transition-colors">
+          <div
+            v-else
+            class="flex flex-col items-center justify-center h-full gap-2"
+          >
+            <IconImage
+              class="w-8 h-8 text-base-content/20 group-hover:text-primary/40 transition-colors"
+            />
+            <span
+              class="text-xs text-base-content/30 group-hover:text-base-content/50 transition-colors"
+            >
               Click to upload
             </span>
           </div>
@@ -28,17 +39,18 @@
         >
           <div class="avatar">
             <div class="w-20 rounded-full ring-4 ring-base-100">
-              <img
-                v-if="pictureUrl"
-                :src="pictureUrl"
-                alt="Avatar"
-              />
-              <div v-else class="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary text-xl font-bold">
-                {{ (form.nick || '?').slice(0, 2).toUpperCase() }}
+              <img v-if="pictureUrl" :src="pictureUrl" alt="Avatar" />
+              <div
+                v-else
+                class="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary text-xl font-bold"
+              >
+                {{ (form.nick || "?").slice(0, 2).toUpperCase() }}
               </div>
             </div>
           </div>
-          <div class="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div
+            class="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
             <IconCamera class="w-6 h-6 text-white" />
           </div>
         </div>
@@ -46,16 +58,20 @@
     </AdminCard>
 
     <!-- Profile Details Section -->
-    <AdminCard title="Profile Details" description="Manage your publisher identity and public information" class="mb-6">
+    <AdminCard
+      title="Profile Details"
+      description="Manage your publisher identity and public information"
+      class="mb-6"
+    >
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Username -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend">
-            {{ t('creator.username') }}
+            {{ t("creator.username") }}
             <span v-if="!publisher" class="text-xs text-error">*</span>
           </legend>
           <div class="join">
-            <span class="join-item btn btn-disabled btn-sm bg-base-200/80">@</span>
+            <span class="join-item btn btn-disabled bg-base-200/80">@</span>
             <input
               v-model="form.name"
               type="text"
@@ -64,13 +80,13 @@
               :placeholder="t('creator.username')"
             />
           </div>
-          <p class="fieldset-label">{{ t('creator.usernameHint') }}</p>
+          <p class="fieldset-label">{{ t("creator.usernameHint") }}</p>
         </fieldset>
 
         <!-- Nickname -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend">
-            {{ t('creator.nickname') }}
+            {{ t("creator.nickname") }}
             <span class="text-xs text-error">*</span>
           </legend>
           <input
@@ -84,7 +100,7 @@
 
       <!-- Bio -->
       <fieldset class="fieldset mt-2">
-        <legend class="fieldset-legend">{{ t('creator.bio') }}</legend>
+        <legend class="fieldset-legend">{{ t("creator.bio") }}</legend>
         <textarea
           v-model="form.bio"
           class="textarea w-full min-h-[100px]"
@@ -96,102 +112,135 @@
 
       <!-- Realm (only for creation) -->
       <fieldset v-if="!publisher" class="fieldset mt-4">
-        <legend class="fieldset-legend">{{ t('creator.realm') }}</legend>
+        <legend class="fieldset-legend">{{ t("creator.realm") }}</legend>
         <select v-model="form.realmSlug" class="select w-full max-w-xs">
-          <option value="">{{ t('creator.individual') }}</option>
+          <option value="">{{ t("creator.individual") }}</option>
         </select>
       </fieldset>
     </AdminCard>
 
     <!-- Actions -->
     <div class="flex items-center justify-between gap-3">
-      <button
-        type="button"
-        class="btn btn-ghost"
-        @click="emit('close')"
-      >
-        {{ t('creator.cancel') }}
+      <button type="button" class="btn btn-ghost" @click="emit('close')">
+        {{ t("creator.cancel") }}
       </button>
       <div class="flex items-center gap-2">
         <button
           type="submit"
           class="btn btn-primary min-w-[120px]"
-          :class="{ 'loading': submitting }"
+          :class="{ loading: submitting }"
           :disabled="submitting || !form.name || !form.nick"
         >
           <IconSave class="w-4 h-4" />
-          {{ publisher ? t('creator.save') : t('creator.create') }}
+          {{ publisher ? t("creator.save") : t("creator.create") }}
         </button>
       </div>
     </div>
   </form>
+
+  <!-- File Pickers -->
+  <CloudFileDrawer
+    v-model:open="picturePickerOpen"
+    :allowed-types="['image']"
+    :crop-aspect-ratio="1"
+    usage="publisher.picture"
+    @select="onPictureSelected"
+  />
+  <CloudFileDrawer
+    v-model:open="backgroundPickerOpen"
+    :allowed-types="['image']"
+    :crop-aspect-ratio="16 / 7"
+    usage="publisher.background"
+    @select="onBackgroundSelected"
+  />
 </template>
 
 <script setup lang="ts">
-import { IconSave, IconImage, IconCamera } from '#components'
-import type { PublisherManaged } from '~/types/creator'
-import { createPublisher, updatePublisher } from '~/utils/creator'
-import { getFileUrl } from '~/utils/files'
+import { IconSave, IconImage, IconCamera } from "#components";
+import type { PublisherManaged } from "~/types/creator";
+import { createPublisher, updatePublisher } from "~/utils/creator";
+import { getFileUrl } from "~/utils/files";
+import type { SnCloudFile } from "~/types/drive";
 
 const props = defineProps<{
-  publisher?: PublisherManaged | null
-}>()
+  publisher?: PublisherManaged | null;
+}>();
 
 const emit = defineEmits<{
-  close: []
-  saved: [publisher: PublisherManaged]
-  created: [publisher: PublisherManaged]
-}>()
+  close: [];
+  saved: [publisher: PublisherManaged];
+  created: [publisher: PublisherManaged];
+}>();
 
-const { t } = useI18n()
+const { t } = useI18n();
 
 const form = reactive({
-  name: props.publisher?.name ?? '',
-  nick: props.publisher?.nick ?? '',
-  bio: props.publisher?.bio ?? '',
-  realmSlug: '',
-})
+  name: props.publisher?.name ?? "",
+  nick: props.publisher?.nick ?? "",
+  bio: props.publisher?.bio ?? "",
+  realmSlug: "",
+});
 
-const pictureId = ref<string | null>(props.publisher?.picture?.id ?? null)
-const backgroundId = ref<string | null>(props.publisher?.background?.id ?? null)
-const submitting = ref(false)
+const pictureId = ref<string | null>(props.publisher?.picture?.id ?? null);
+const backgroundId = ref<string | null>(
+  props.publisher?.background?.id ?? null,
+);
+const submitting = ref(false);
 
-const pictureUrl = computed(() => getFileUrl(pictureId.value))
-const backgroundUrl = computed(() => getFileUrl(backgroundId.value))
+// File picker state
+const picturePickerOpen = ref(false);
+const backgroundPickerOpen = ref(false);
+
+const pictureUrl = computed(() => getFileUrl(pictureId.value));
+const backgroundUrl = computed(() => getFileUrl(backgroundId.value));
 
 // Watch for publisher changes (when used in edit mode)
-watch(() => props.publisher, (pub) => {
-  if (pub) {
-    form.name = pub.name
-    form.nick = pub.nick
-    form.bio = pub.bio ?? ''
-    pictureId.value = pub.picture?.id ?? null
-    backgroundId.value = pub.background?.id ?? null
-  }
-}, { immediate: true })
+watch(
+  () => props.publisher,
+  (pub) => {
+    if (pub) {
+      form.name = pub.name;
+      form.nick = pub.nick;
+      form.bio = pub.bio ?? "";
+      pictureId.value = pub.picture?.id ?? null;
+      backgroundId.value = pub.background?.id ?? null;
+    }
+  },
+  { immediate: true },
+);
 
 function pickPicture() {
-  const url = prompt('Enter picture URL or file ID:')
-  if (url) pictureId.value = url
+  picturePickerOpen.value = true;
+}
+
+function onPictureSelected(file: SnCloudFile | SnCloudFile[] | null) {
+  if (file && !Array.isArray(file)) {
+    pictureId.value = file.id;
+  }
 }
 
 function pickBackground() {
-  const url = prompt('Enter background URL or file ID:')
-  if (url) backgroundId.value = url
+  backgroundPickerOpen.value = true;
+}
+
+function onBackgroundSelected(file: SnCloudFile | SnCloudFile[] | null) {
+  if (file && !Array.isArray(file)) {
+    backgroundId.value = file.id;
+  }
 }
 
 async function handleSubmit() {
-  submitting.value = true
+  submitting.value = true;
   try {
-    let result: PublisherManaged
+    let result: PublisherManaged;
     if (props.publisher) {
       result = await updatePublisher(props.publisher.name, {
         nick: form.nick,
         bio: form.bio,
         pictureId: pictureId.value,
         backgroundId: backgroundId.value,
-      })
-      emit('saved', result)
+      });
+      emit("saved", result);
     } else {
       result = await createPublisher({
         name: form.name,
@@ -200,13 +249,13 @@ async function handleSubmit() {
         pictureId: pictureId.value,
         backgroundId: backgroundId.value,
         realmSlug: form.realmSlug || undefined,
-      })
-      emit('created', result)
+      });
+      emit("created", result);
     }
   } catch (e) {
-    console.error(e)
+    console.error(e);
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
 }
 </script>

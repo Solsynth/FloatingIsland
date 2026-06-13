@@ -21,6 +21,7 @@
     "@unhead/vue": "^2.0.5 || ^3.0.0",
     "@vueuse/core": "^14.3.0",
     "blurhash": "^2.0.5",
+    "cropperjs": "1.6.2",
     "lunar-javascript": "^1.7.7",
     "markdown-it": "^14.2.0",
     "nuxt": "^4.4.6",
@@ -33,6 +34,7 @@
     "unstorage": "^1.15.0",
     "vaul-vue": "^0.4.1",
     "vue": "^3.5.34",
+    "vue-cropperjs": "4.2.0",
     "vue-router": "^5.0.7",
     "vue-sonner": "^2.0.9"
   },

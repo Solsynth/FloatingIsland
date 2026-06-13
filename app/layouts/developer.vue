@@ -58,19 +58,25 @@
         </div>
       </header>
 
-      <!-- Mobile Nav Drawer -->
-      <div
-        v-if="mobileMenuOpen"
-        class="fixed inset-0 z-40 bg-black/40"
-        @click="mobileMenuOpen = false"
-      >
+      <!-- Mobile Nav Backdrop -->
+      <Transition name="drawer-fade">
         <div
-          class="absolute right-0 top-14 bottom-0 w-72 bg-base-100 p-4 overflow-y-auto shadow-xl scrollbar-none"
+          v-if="mobileMenuOpen"
+          class="fixed inset-0 z-40 bg-black/40"
+          @click="mobileMenuOpen = false"
+        />
+      </Transition>
+
+      <!-- Mobile Nav Panel -->
+      <Transition name="drawer-slide">
+        <div
+          v-if="mobileMenuOpen"
+          class="fixed right-0 top-14 bottom-0 z-50 w-72 bg-base-100 p-4 overflow-y-auto shadow-xl scrollbar-none"
           @click.stop
         >
           <DeveloperSidebar @navigate="mobileMenuOpen = false" />
         </div>
-      </div>
+      </Transition>
 
       <!-- Mobile Main Content -->
       <main class="flex-1 px-4 py-3 pt-[4.5rem]">

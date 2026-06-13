@@ -3,23 +3,12 @@
     <div class="flex flex-col h-full">
       <!-- Header -->
       <div class="flex items-center justify-between px-6 py-4 shrink-0">
-        <div class="flex items-center gap-3 min-w-0">
-          <button
-            v-if="state.currentFolderId"
-            class="btn btn-ghost btn-sm btn-circle shrink-0"
-            @click="navigateBack"
-          >
-            <IconArrowLeft class="w-5 h-5" />
-          </button>
-          <div class="flex items-center gap-3 min-w-0">
-            <FolderBreadcrumb
-              :path-stack="state.pathStack"
-              @navigate="navigateToPathIndex"
-            />
-          </div>
+        <div class="flex items-center gap-3">
+          <IconPackage class="w-5 h-5 text-base-content/60" />
+          <h1 class="text-lg font-semibold">{{ t("drive.recent") }}</h1>
         </div>
 
-        <div class="flex items-center gap-2 shrink-0">
+        <div class="flex items-center gap-2">
           <!-- Search -->
           <div class="relative hidden sm:block">
             <IconSearch
@@ -33,6 +22,16 @@
               @input="handleSearch"
             />
           </div>
+
+          <!-- Recycle toggle -->
+          <button
+            class="btn btn-ghost btn-sm btn-circle"
+            :class="{ 'text-warning': state.recycled }"
+            :title="state.recycled ? t('drive.showActive') : t('drive.showRecycled')"
+            @click="handleToggleRecycled"
+          >
+            <IconTrash2 class="w-5 h-5" />
+          </button>
 
           <!-- View mode toggle -->
           <div class="btn-group">
@@ -95,12 +94,6 @@
             </button>
             <ul class="dropdown-content menu p-2 shadow-lg bg-base-100 rounded-box w-52 z-50">
               <li>
-                <button @click="showCreateFolder = true">
-                  <IconFolderPlus class="w-4 h-4" />
-                  {{ t("drive.createFolder") }}
-                </button>
-              </li>
-              <li>
                 <button @click="triggerFileUpload">
                   <IconUpload class="w-4 h-4" />
                   {{ t("drive.uploadFile") }}
@@ -109,6 +102,24 @@
             </ul>
           </div>
         </div>
+      </div>
+
+      <!-- Recycled banner -->
+      <div
+        v-if="state.recycled"
+        class="flex items-center gap-3 px-6 py-2 bg-warning/5 border-y border-warning/10 shrink-0"
+      >
+        <IconAlertTriangle class="w-4 h-4 text-warning" />
+        <span class="text-sm text-base-content/70">{{ t("drive.recycledBanner") }}</span>
+        <div class="flex-1" />
+        <button
+          class="btn btn-ghost btn-xs text-warning"
+          :disabled="state.isLoading || state.files.length === 0"
+          @click="handleEmptyTrash"
+        >
+          <IconTrash class="w-3.5 h-3.5" />
+          {{ t("drive.emptyTrash") }}
+        </button>
       </div>
 
       <!-- Selection bar -->
@@ -149,20 +160,18 @@
           class="flex flex-col items-center justify-center py-20 text-center"
         >
           <div class="w-20 h-20 rounded-full bg-base-200 flex items-center justify-center mb-4">
-            <IconFolderOpen class="w-10 h-10 text-base-content/30" />
+            <IconPackage class="w-10 h-10 text-base-content/30" />
           </div>
-          <h3 class="text-lg font-semibold mb-1">{{ t("drive.emptyFolder") }}</h3>
-          <p class="text-sm text-base-content/50 mb-4">{{ t("drive.emptyFolderHint") }}</p>
-          <div class="flex gap-2">
-            <button class="btn btn-primary btn-sm" @click="triggerFileUpload">
-              <IconUpload class="w-4 h-4" />
-              {{ t("drive.uploadFile") }}
-            </button>
-            <button class="btn btn-outline btn-sm" @click="showCreateFolder = true">
-              <IconFolderPlus class="w-4 h-4" />
-              {{ t("drive.createFolder") }}
-            </button>
-          </div>
+          <h3 class="text-lg font-semibold mb-1">
+            {{ state.recycled ? t("drive.emptyTrash") : t("drive.emptyAttachments") }}
+          </h3>
+          <p class="text-sm text-base-content/50 mb-4">
+            {{ state.recycled ? t("drive.emptyTrashHint") : t("drive.emptyAttachmentsHint") }}
+          </p>
+          <button v-if="!state.recycled" class="btn btn-primary btn-sm" @click="triggerFileUpload">
+            <IconUpload class="w-4 h-4" />
+            {{ t("drive.uploadFile") }}
+          </button>
         </div>
 
         <!-- List view -->
@@ -173,7 +182,6 @@
             :file="file"
             :is-selection-mode="state.isSelectionMode"
             :is-selected="state.selectedFileIds.has(file.id)"
-            @open="handleNavigateToFolder(file)"
             @download="handleDownload(file)"
             @rename="openRename(file)"
             @move="openMove(file)"
@@ -193,7 +201,6 @@
             :file="file"
             :is-selection-mode="state.isSelectionMode"
             :is-selected="state.selectedFileIds.has(file.id)"
-            @open="handleNavigateToFolder(file)"
             @download="handleDownload(file)"
             @rename="openRename(file)"
             @move="openMove(file)"
@@ -239,11 +246,6 @@
       />
 
       <!-- Dialogs -->
-      <CreateFolderDialog
-        :open="showCreateFolder"
-        @close="showCreateFolder = false"
-        @confirm="handleCreateFolder"
-      />
       <RenameDialog
         :open="!!renamingFile"
         :current-name="renamingFile?.name || ''"
@@ -264,29 +266,30 @@
 
 <script setup lang="ts">
 import type { SnCloudFile } from "~/types/drive";
-import { fetchDriveBreadcrumb } from "~/utils/api";
+import { deleteDriveRecycledFiles } from "~/utils/api";
 
-defineOgImage('UniOgImage', { title: 'Drive', description: 'Manage your files on Solar Network.' })
+defineOgImage('UniOgImage', { title: 'Recent', description: 'Recently uploaded files and attachments.' })
 
 useSolarSeo({
-  title: "Drive",
-  description: "Manage your files on Solar Network.",
+  title: "Recent",
+  description: "Recently uploaded files and attachments.",
 });
 
 const { t } = useI18n();
+const { $toast } = useNuxtApp();
 
 const {
-  state: driveState,
+  state,
   loadFiles,
-  navigateToFolder,
-  navigateToPathIndex,
+  loadUsage,
+  setMode,
+  setRecycled,
   setViewMode,
   setSort,
   setSearchQuery,
   toggleSelectionMode,
   toggleFileSelection,
   clearSelection,
-  createFolder,
   renameFile,
   deleteFile,
   batchDelete,
@@ -295,50 +298,17 @@ const {
   clearCompletedUploads,
 } = useDrive();
 
-// Local state shadow for reactivity on path/folder
-const state = driveState;
-
 const searchQuery = ref("");
-const showCreateFolder = ref(false);
 const renamingFile = ref<SnCloudFile | null>(null);
 const movingFile = ref<SnCloudFile | null>(null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 let searchDebounce: ReturnType<typeof setTimeout> | null = null;
 
-// Ensure we're in indexed mode
+// Initialize in unindexed mode
 onMounted(async () => {
-  // Set mode directly without triggering automatic loadFiles
-  driveState.mode = "indexed";
-  driveState.files = [];
-  driveState.currentFolderId = null;
-  driveState.pathStack = [{ id: null, name: "Root" }];
-  driveState.currentPath = "/";
-  driveState.selectedFileIds.clear();
-  driveState.isSelectionMode = false;
-
-  const folderId = (route.query.folder as string) || null;
-  if (folderId) {
-    try {
-      const breadcrumb = await fetchDriveBreadcrumb(folderId);
-      const pathStack: Array<{ id: string | null; name: string }> = [
-        { id: null, name: "Root" },
-      ];
-      for (const item of breadcrumb) {
-        if (item.isFolder) {
-          pathStack.push({ id: item.id, name: item.name });
-        }
-      }
-      driveState.pathStack = pathStack;
-      driveState.currentFolderId = folderId;
-      driveState.currentPath =
-        "/" + pathStack.slice(1).map((p) => p.name).join("/");
-    } catch (err) {
-      console.error("Failed to fetch breadcrumb:", err);
-    }
-    await loadFiles(folderId);
-  } else {
-    await loadFiles();
-  }
+  setMode("unindexed");
+  setRecycled(false);
+  await loadFiles();
 });
 
 const sortLabel = computed(() => {
@@ -350,14 +320,19 @@ const sortLabel = computed(() => {
   }
 });
 
-async function handleNavigateToFolder(file: SnCloudFile) {
-  await navigateToFolder(file);
+function handleToggleRecycled() {
+  setRecycled(!state.recycled);
 }
 
-function navigateBack() {
-  const idx = state.pathStack.length - 2;
-  if (idx >= 0) {
-    navigateToPathIndex(idx);
+async function handleEmptyTrash() {
+  if (!confirm(t("drive.confirmEmptyTrash"))) return;
+  try {
+    const count = await deleteDriveRecycledFiles();
+    $toast.success(t("drive.trashEmptied", { count }));
+    await loadFiles();
+  } catch (err) {
+    console.error("Failed to empty trash:", err);
+    $toast.error(t("drive.errorEmptyingTrash"));
   }
 }
 
@@ -369,7 +344,7 @@ function handleSearch() {
 }
 
 async function loadMore() {
-  await loadFiles(state.currentFolderId, false);
+  await loadFiles(null, false);
 }
 
 function triggerFileUpload() {
@@ -381,13 +356,6 @@ async function handleFileSelect(e: Event) {
   if (input.files && input.files.length > 0) {
     await uploadFiles(input.files);
     input.value = "";
-  }
-}
-
-async function handleCreateFolder(name: string) {
-  const success = await createFolder(name);
-  if (success) {
-    showCreateFolder.value = false;
   }
 }
 
