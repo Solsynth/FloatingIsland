@@ -190,23 +190,28 @@
           />
         </div>
 
-        <!-- Grid view -->
+        <!-- Grid view (waterfall) -->
         <div
           v-else
-          class="py-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3"
+          class="py-4 columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6"
+          style="column-gap: 0.75rem;"
         >
-          <FileGridTile
+          <div
             v-for="file in state.files"
             :key="file.id"
-            :file="file"
-            :is-selection-mode="state.isSelectionMode"
-            :is-selected="state.selectedFileIds.has(file.id)"
-            @download="handleDownload(file)"
-            @rename="openRename(file)"
-            @move="openMove(file)"
-            @delete="handleDelete(file)"
-            @toggle-select="toggleFileSelection(file.id)"
-          />
+            class="break-inside-avoid mb-3"
+          >
+            <FileGridTile
+              :file="file"
+              :is-selection-mode="state.isSelectionMode"
+              :is-selected="state.selectedFileIds.has(file.id)"
+              @download="handleDownload(file)"
+              @rename="openRename(file)"
+              @move="openMove(file)"
+              @delete="handleDelete(file)"
+              @toggle-select="toggleFileSelection(file.id)"
+            />
+          </div>
         </div>
 
         <!-- Load more -->

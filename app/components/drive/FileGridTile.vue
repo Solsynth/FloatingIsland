@@ -7,7 +7,8 @@
   >
     <!-- Preview area -->
     <div
-      class="relative aspect-square bg-base-200 flex items-center justify-center"
+      class="relative bg-base-200 flex items-center justify-center overflow-hidden"
+      :style="previewStyle"
     >
       <!-- Selection checkbox overlay -->
       <div
@@ -150,6 +151,22 @@ const isImage = computed(() => props.file.mimeType.startsWith("image/"));
 const isVideo = computed(() => props.file.mimeType.startsWith("video/"));
 const isAudio = computed(() => props.file.mimeType.startsWith("audio/"));
 const isText = computed(() => props.file.mimeType.startsWith("text/"));
+
+const aspectRatio = computed(() => {
+  const meta = props.file.fileMeta;
+  if (meta && typeof meta.width === 'number' && typeof meta.height === 'number' && meta.height > 0) {
+    return meta.width / meta.height;
+  }
+  return null;
+});
+
+const previewStyle = computed(() => {
+  if (aspectRatio.value) {
+    return { aspectRatio: String(aspectRatio.value) };
+  }
+  // Default square for folders / files without dimensions
+  return { aspectRatio: '1' };
+});
 
 const thumbnailUrl = computed(() => {
   if (props.file.hasThumbnail) return getFileUrl(props.file.id, "thumbnail");
