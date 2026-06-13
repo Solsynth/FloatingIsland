@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="creator">
-    <div class="mx-auto max-w-4xl pt-4">
+    <div class="mx-auto max-w-4xl">
       <!-- Quota Card -->
       <div v-if="quota" class="card bg-base-100 shadow-sm mb-6">
         <div class="card-body p-5">

@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="developer">
-    <div class="mx-auto max-w-4xl pt-4">
+    <div class="mx-auto max-w-4xl">
       <!-- Stats Card -->
       <div v-if="stats" class="card bg-base-100 shadow-sm mb-6">
         <div class="card-body p-5">

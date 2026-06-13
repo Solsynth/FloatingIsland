@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="creator">
-    <div class="mx-auto max-w-4xl pt-4">
+    <div class="mx-auto max-w-4xl">
       <h1 class="text-xl font-bold mb-4">{{ t('creator.leaderboard.title') }}</h1>
 
       <ConfuseSpinner v-if="status === 'pending'" />

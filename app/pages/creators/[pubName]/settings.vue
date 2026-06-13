@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="creator">
-    <div class="mx-auto max-w-4xl pt-4 space-y-6">
+    <div class="mx-auto max-w-4xl space-y-6">
       <h1 class="text-xl font-bold">{{ t('creator.settings') }}</h1>
 
       <!-- Edit Publisher -->

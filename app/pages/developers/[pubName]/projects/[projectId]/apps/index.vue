@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="developer">
-    <div class="mx-auto max-w-4xl pt-4">
+    <div class="mx-auto max-w-4xl">
       <div class="flex items-center gap-4 mb-4 -mx-4">
         <NuxtLink :to="`/developers/${pubName}/projects/${projectId}`" class="btn btn-ghost btn-sm">
           <IconArrowLeft class="w-4 h-4" />

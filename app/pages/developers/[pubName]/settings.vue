@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="developer">
-    <div class="mx-auto max-w-4xl pt-4">
+    <div class="mx-auto max-w-4xl">
       <h2 class="text-2xl font-bold mb-6">{{ t('developer.settings') }}</h2>
 
       <div class="space-y-6">

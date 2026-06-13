@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="creator">
-    <div class="mx-auto max-w-4xl pt-4">
+    <div class="mx-auto max-w-4xl">
       <ConfuseSpinner v-if="status === 'pending'" />
 
       <div v-else-if="error" class="alert alert-error">

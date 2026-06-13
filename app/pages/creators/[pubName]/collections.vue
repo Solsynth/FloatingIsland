@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="creator">
-    <div class="mx-auto max-w-4xl pt-4">
+    <div class="mx-auto max-w-4xl">
       <div class="flex items-center justify-between mb-4">
         <h1 class="text-xl font-bold">{{ t('creator.collections.title') }}</h1>
         <button class="btn btn-primary btn-sm" @click="openEditor(null)">

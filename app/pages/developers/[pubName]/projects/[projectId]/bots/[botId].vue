@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="developer">
-    <div class="mx-auto max-w-4xl pt-4">
+    <div class="mx-auto max-w-4xl">
       <div v-if="isLoading" class="flex justify-center py-8">
         <span class="loading loading-spinner loading-lg" />
       </div>
