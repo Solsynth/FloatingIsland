@@ -2,7 +2,14 @@
   <div class="min-h-screen bg-base-200">
     <div class="app-shell mx-auto max-w-7xl lg:px-4">
       <!-- Desktop Layout -->
-      <div class="hidden lg:grid lg:grid-cols-[16rem_1fr] lg:gap-4">
+      <div
+        class="hidden lg:grid lg:gap-4 transition-all duration-300 ease-in-out"
+        :class="
+          collapsed
+            ? 'lg:grid-cols-[5rem_1fr]'
+            : 'lg:grid-cols-[16rem_1fr]'
+        "
+      >
         <aside class="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
           <Sidebar />
         </aside>
@@ -182,6 +189,7 @@ import {
 } from "#components";
 
 const { t } = useI18n();
+const { collapsed } = useSidebar();
 
 const auth = useAuth();
 const { isAuthenticated, user } = auth;
