@@ -524,14 +524,8 @@ const seoImageUrl = computed(() => {
 const authorAvatarId = computed(() => post.value?.publisher?.picture?.id || '')
 const authorName = computed(() => post.value?.publisher?.nick || post.value?.publisher?.name || 'Unknown')
 
-// OG Image (root level with computed values)
-defineOgImage('PostOgImage', {
-	title: () => post.value?.title || '',
-	description: () => post.value?.content || '',
-	authorName: () => authorName.value,
-	authorAvatar: () => authorAvatarId.value,
-	postImage: () => seoImageUrl.value
-})
+// OG Image - pass only ID, component fetches data server-side
+defineOgImage('PostOgImage', { postId: computed(() => route.params.id as string) })
 
 // SEO Meta Tags
 useSolarSeo({

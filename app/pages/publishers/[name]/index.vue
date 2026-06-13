@@ -523,14 +523,8 @@ watch(publisherStatus, (s) => {
   }
 }, { immediate: true });
 
-// OG Image (root level with computed values)
-defineOgImage('PublisherOgImage', {
-	name: () => publisher.value?.name || '',
-	displayName: () => displayName.value,
-	bio: () => publisher.value?.bio || '',
-	avatarId: () => publisher.value?.picture?.id || '',
-	backgroundId: () => publisher.value?.background?.id || ''
-})
+// OG Image - pass only name, component fetches data server-side
+defineOgImage('PublisherOgImage', { publisherName: computed(() => route.params.name as string) })
 
 useSolarSeo({
 	title: () => seoTitle.value,

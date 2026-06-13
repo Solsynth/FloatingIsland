@@ -663,14 +663,8 @@ const seoDescription = computed(() => account.value?.profile?.bio || `View profi
 const seoImage = computed(() => getFileUrl(account.value?.profile?.picture?.id) || undefined);
 const seoUrl = computed(() => `https://solian.app/@${account.value?.name}`);
 
-// OG Image (root level with computed values)
-defineOgImage('AccountOgImage', {
-	name: () => account.value?.name || '',
-	displayName: () => displayName.value,
-	bio: () => account.value?.profile?.bio || '',
-	avatarId: () => account.value?.profile?.picture?.id || '',
-	backgroundId: () => account.value?.profile?.background?.id || ''
-})
+// OG Image - pass only name, component fetches data server-side
+defineOgImage('AccountOgImage', { accountName: computed(() => route.params.name as string) })
 
 useSolarSeo({
 	title: () => seoTitle.value,
