@@ -30,61 +30,53 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Name -->
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">Name</span>
-          </label>
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">Name</legend>
           <input
             v-model="form.name"
             type="text"
-            class="input input-bordered w-full"
+            class="input w-full"
             placeholder="My Sticker"
           />
-        </div>
+        </fieldset>
 
         <!-- Slug -->
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">{{ t('creator.stickers.stickerSlug') }}</span>
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">
+            {{ t('creator.stickers.stickerSlug') }}
             <span class="text-xs text-error">*</span>
-          </label>
+          </legend>
           <input
             v-model="form.slug"
             type="text"
-            class="input input-bordered w-full font-mono text-sm"
+            class="input w-full font-mono text-sm"
             placeholder="my-sticker"
             required
           />
-          <label class="label">
-            <span class="label-text-alt text-base-content/40">{{ t('creator.stickers.stickerSlugHint') }}</span>
-          </label>
-        </div>
+          <p class="fieldset-label">{{ t('creator.stickers.stickerSlugHint') }}</p>
+        </fieldset>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
         <!-- Size -->
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">{{ t('creator.stickers.size') }}</span>
-          </label>
-          <select v-model="form.size" class="select select-bordered w-full">
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">{{ t('creator.stickers.size') }}</legend>
+          <select v-model="form.size" class="select w-full">
             <option :value="0">{{ t('creator.stickers.sizeAuto') }}</option>
             <option :value="1">{{ t('creator.stickers.sizeSmall') }}</option>
             <option :value="2">{{ t('creator.stickers.sizeMedium') }}</option>
             <option :value="3">{{ t('creator.stickers.sizeLarge') }}</option>
           </select>
-        </div>
+        </fieldset>
 
         <!-- Mode -->
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">{{ t('creator.stickers.mode') }}</span>
-          </label>
-          <select v-model="form.mode" class="select select-bordered w-full">
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">{{ t('creator.stickers.mode') }}</legend>
+          <select v-model="form.mode" class="select w-full">
             <option :value="0">{{ t('creator.stickers.modeSticker') }}</option>
             <option :value="1">{{ t('creator.stickers.modeEmote') }}</option>
           </select>
-        </div>
+        </fieldset>
       </div>
     </AdminCard>
 

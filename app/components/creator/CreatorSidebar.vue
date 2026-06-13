@@ -1,11 +1,11 @@
 <template>
   <AdminSidebar
-    section-label="Creator Studio"
+    :section-label="t('creator.studio')"
     :nav-groups="navGroups"
     :organizations="managedPublishers"
     :current-org="currentPublisher"
-    select-placeholder="Select Publisher"
-    clear-label="Clear Publisher"
+    :select-placeholder="t('creator.selectPublisher')"
+    :clear-label="t('creator.clearPublisher')"
     :loading="isLoading"
     portal-mode="creator"
     :is-publisher-selected="!!currentPublisher"
@@ -38,6 +38,7 @@ import { enrollDeveloper } from '~/utils/developer'
 defineEmits<{ navigate: [] }>()
 
 const { t } = useI18n()
+const { $toast } = useNuxtApp()
 const creator = useCreator()
 const developer = useDeveloper()
 const { managedPublishers, currentPublisher, currentPublisherName, isLoading, clearSelection } = creator
@@ -78,14 +79,21 @@ async function handleEnroll() {
     navigateTo(`/developers/${name}`)
   } catch (e) {
     console.error('Failed to enroll as developer:', e)
+    $toast.error(t('developer.enroll.notEnrolled'))
   } finally {
     enrolling.value = false
   }
 }
 
 onMounted(() => {
+  // Ensure publisher list is available for the org selector
+  creator.loadManagedPublishers().catch(() => {
+    $toast.error('Failed to load publishers')
+  })
   // Load developer list to check identity status
-  developer.loadDevelopers()
+  developer.loadDevelopers().catch(() => {
+    $toast.error('Failed to load developers')
+  })
 })
 
 // Reset enroll prompt when publisher changes
@@ -98,13 +106,13 @@ const navGroups = computed(() => {
   const p = pubName.value
   return [
     {
-      label: 'Overview',
+      label: t('nav.overview'),
       items: [
         { icon: IconLayoutDashboard, label: t('creator.dashboard'), href: `/creators/${p}` },
       ],
     },
     {
-      label: 'Content',
+      label: t('nav.content'),
       items: [
         { icon: IconFileText, label: t('creator.posts.title'), href: `/creators/${p}/posts` },
         { icon: IconFolder, label: t('creator.collections.title'), href: `/creators/${p}/collections` },
@@ -114,7 +122,7 @@ const navGroups = computed(() => {
       ],
     },
     {
-      label: 'Community',
+      label: t('nav.community'),
       items: [
         { icon: IconTrophy, label: t('creator.leaderboard.title'), href: `/creators/${p}/leaderboard` },
         { icon: IconUsers, label: t('creator.members.title'), href: `/creators/${p}/members` },
@@ -122,7 +130,7 @@ const navGroups = computed(() => {
       ],
     },
     {
-      label: 'Settings',
+      label: t('nav.settings'),
       items: [
         { icon: IconSettings, label: t('creator.settings'), href: `/creators/${p}/settings` },
       ],

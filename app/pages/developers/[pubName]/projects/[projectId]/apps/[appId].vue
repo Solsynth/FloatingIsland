@@ -165,188 +165,184 @@
         </NuxtLink>
       </div>
 
-      <!-- Edit App Modal -->
-      <dialog class="modal" :class="{ 'modal-open': editModalOpen }" @close="editModalOpen = false">
-        <div class="modal-box max-w-2xl">
-          <h3 class="font-bold text-lg mb-4">{{ t('common.edit') }} - {{ app?.name }}</h3>
-          <div class="tabs tabs-border mb-4">
-            <button
-              v-for="tab in editTabs"
-              :key="tab.key"
-              class="tab"
-              :class="{ 'tab-active': editActiveTab === tab.key }"
-              @click="editActiveTab = tab.key"
-            >
-              {{ tab.label }}
-            </button>
-          </div>
+      <!-- Edit App Drawer -->
+      <AdminDrawer
+        :open="editModalOpen"
+        @update:open="editModalOpen = $event"
+        content-class="max-w-2xl"
+      >
+        <template #header>
+          <h3 class="font-bold text-lg truncate">{{ t('common.edit') }} - {{ app?.name }}</h3>
+        </template>
 
-          <!-- Basic Info Tab -->
-          <form v-if="editActiveTab === 'basic'" @submit.prevent="handleUpdateBasic">
-            <!-- Picture & Background -->
-            <div class="flex items-center gap-4 mb-4">
-              <div class="relative group">
-                <div class="avatar cursor-pointer" @click="pickPicture">
-                  <div class="w-16 rounded-full">
-                    <img v-if="picturePreview" :src="picturePreview" />
-                    <div v-else class="flex h-16 w-16 items-center justify-center rounded-full bg-base-300 text-base-content/50">
-                      <IconCamera class="w-6 h-6" />
-                    </div>
+        <div class="tabs tabs-border mb-4">
+          <button
+            v-for="tab in editTabs"
+            :key="tab.key"
+            class="tab"
+            :class="{ 'tab-active': editActiveTab === tab.key }"
+            @click="editActiveTab = tab.key"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
+
+        <!-- Basic Info Tab -->
+        <form v-if="editActiveTab === 'basic'" @submit.prevent="handleUpdateBasic">
+          <!-- Picture & Background -->
+          <div class="flex items-center gap-4 mb-4">
+            <div class="relative group">
+              <div class="avatar cursor-pointer" @click="pickPicture">
+                <div class="w-16 rounded-full">
+                  <img v-if="picturePreview" :src="picturePreview" />
+                  <div v-else class="flex h-16 w-16 items-center justify-center rounded-full bg-base-300 text-base-content/50">
+                    <IconCamera class="w-6 h-6" />
                   </div>
                 </div>
-                <div class="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" @click="pickPicture">
+              </div>
+              <div class="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" @click="pickPicture">
+                <IconCamera class="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <div class="flex-1">
+              <div class="relative group cursor-pointer rounded-lg overflow-hidden h-20 bg-base-300" @click="pickBackground">
+                <img v-if="backgroundPreview" :src="backgroundPreview" class="w-full h-full object-cover" />
+                <div v-else class="flex h-full items-center justify-center text-base-content/50">
+                  <span class="text-xs">{{ t('developer.apps.background') ?? 'Background' }}</span>
+                </div>
+                <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
                   <IconCamera class="w-5 h-5 text-white" />
                 </div>
               </div>
-              <div class="flex-1">
-                <div class="relative group cursor-pointer rounded-lg overflow-hidden h-20 bg-base-300" @click="pickBackground">
-                  <img v-if="backgroundPreview" :src="backgroundPreview" class="w-full h-full object-cover" />
-                  <div v-else class="flex h-full items-center justify-center text-base-content/50">
-                    <span class="text-xs">{{ t('developer.apps.background') ?? 'Background' }}</span>
-                  </div>
-                  <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <IconCamera class="w-5 h-5 text-white" />
-                  </div>
-                </div>
-              </div>
             </div>
-            <input ref="pictureInput" type="file" accept="image/*" class="hidden" @change="onPictureSelected" />
-            <input ref="backgroundInput" type="file" accept="image/*" class="hidden" @change="onBackgroundSelected" />
+          </div>
+          <input ref="pictureInput" type="file" accept="image/*" class="hidden" @change="onPictureSelected" />
+          <input ref="backgroundInput" type="file" accept="image/*" class="hidden" @change="onBackgroundSelected" />
 
-            <div class="form-control mb-4">
-              <label class="label"><span class="label-text">{{ t('developer.apps.name') }}</span></label>
-              <input v-model="editForm.name" type="text" class="input input-bordered w-full" required />
-            </div>
-            <div class="form-control mb-4">
-              <label class="label"><span class="label-text">{{ t('developer.apps.slug') }}</span></label>
-              <input v-model="editForm.slug" type="text" class="input input-bordered w-full" required />
-            </div>
-            <div class="form-control mb-4">
-              <label class="label"><span class="label-text">{{ t('developer.apps.description') }}</span></label>
-              <textarea v-model="editForm.description" class="textarea textarea-bordered w-full" rows="3" />
-            </div>
-            <div class="form-control mb-4">
-              <label class="label"><span class="label-text">Status</span></label>
-              <select v-model="editForm.status" class="select select-bordered w-full">
-                <option :value="-1">Disabled</option>
-                <option :value="0">Draft</option>
-                <option :value="1">Active</option>
-              </select>
-            </div>
-            <div class="modal-action">
-              <button type="button" class="btn" @click="editModalOpen = false">{{ t('common.cancel') }}</button>
-              <button type="submit" class="btn btn-primary" :disabled="isUpdatingApp">
-                <span v-if="isUpdatingApp" class="loading loading-spinner loading-sm" />
-                {{ t('common.save') }}
-              </button>
-            </div>
-          </form>
-
-          <!-- OAuth Tab -->
-          <form v-else-if="editActiveTab === 'oauth'" @submit.prevent="handleUpdateOAuth">
-            <div class="form-control mb-4">
-              <label class="label"><span class="label-text">{{ t('developer.apps.oauth.clientUri') }}</span></label>
-              <input v-model="oauthForm.clientUri" type="url" class="input input-bordered w-full" placeholder="https://example.com" />
-            </div>
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">{{ t('developer.apps.oauth.redirectUris') }}</span>
-                <span class="label-text-alt">{{ t('common.search').replace('...', '') }}: one per line</span>
-              </label>
-              <textarea v-model="oauthForm.redirectUris" class="textarea textarea-bordered w-full" rows="3" placeholder="https://example.com/callback" />
-            </div>
-            <div class="form-control mb-4">
-              <label class="label"><span class="label-text">{{ t('developer.apps.oauth.allowedScopes') }}</span></label>
-              <input v-model="oauthForm.allowedScopes" type="text" class="input input-bordered w-full" placeholder="openid profile email" />
-            </div>
-            <div class="flex gap-6 mb-4">
-              <label class="label cursor-pointer gap-2">
-                <input v-model="oauthForm.requirePkce" type="checkbox" class="checkbox checkbox-sm" />
-                <span class="label-text">{{ t('developer.apps.oauth.requirePkce') }}</span>
-              </label>
-              <label class="label cursor-pointer gap-2">
-                <input v-model="oauthForm.allowOfflineAccess" type="checkbox" class="checkbox checkbox-sm" />
-                <span class="label-text">{{ t('developer.apps.oauth.allowOfflineAccess') }}</span>
-              </label>
-              <label class="label cursor-pointer gap-2">
-                <input v-model="oauthForm.isPublicClient" type="checkbox" class="checkbox checkbox-sm" />
-                <span class="label-text">{{ t('developer.apps.oauth.isPublicClient') }}</span>
-              </label>
-            </div>
-            <div class="modal-action">
-              <button type="button" class="btn" @click="editModalOpen = false">{{ t('common.cancel') }}</button>
-              <button type="submit" class="btn btn-primary" :disabled="isUpdatingApp">
-                <span v-if="isUpdatingApp" class="loading loading-spinner loading-sm" />
-                {{ t('common.save') }}
-              </button>
-            </div>
-          </form>
-
-          <!-- Links Tab -->
-          <form v-else-if="editActiveTab === 'links'" @submit.prevent="handleUpdateLinks">
-            <div class="form-control mb-4">
-              <label class="label"><span class="label-text">{{ t('developer.apps.links.homePage') ?? 'Home Page' }}</span></label>
-              <input v-model="linksForm.homePage" type="url" class="input input-bordered w-full" placeholder="https://example.com" />
-            </div>
-            <div class="form-control mb-4">
-              <label class="label"><span class="label-text">{{ t('developer.apps.links.privacyPolicy') ?? 'Privacy Policy' }}</span></label>
-              <input v-model="linksForm.privacyPolicy" type="url" class="input input-bordered w-full" placeholder="https://example.com/privacy" />
-            </div>
-            <div class="form-control mb-4">
-              <label class="label"><span class="label-text">{{ t('developer.apps.links.termsOfService') ?? 'Terms of Service' }}</span></label>
-              <input v-model="linksForm.termsOfService" type="url" class="input input-bordered w-full" placeholder="https://example.com/terms" />
-            </div>
-            <div class="modal-action">
-              <button type="button" class="btn" @click="editModalOpen = false">{{ t('common.cancel') }}</button>
-              <button type="submit" class="btn btn-primary" :disabled="isUpdatingApp">
-                <span v-if="isUpdatingApp" class="loading loading-spinner loading-sm" />
-                {{ t('common.save') }}
-              </button>
-            </div>
-          </form>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="editModalOpen = false">close</button>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.apps.name') }}</legend>
+            <input v-model="editForm.name" type="text" class="input w-full" required />
+          </fieldset>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.apps.slug') }}</legend>
+            <input v-model="editForm.slug" type="text" class="input w-full" required />
+          </fieldset>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.apps.description') }}</legend>
+            <textarea v-model="editForm.description" class="textarea w-full" rows="3" />
+          </fieldset>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.apps.status') }}</legend>
+            <select v-model="editForm.status" class="select w-full">
+              <option :value="-1">{{ t('developer.apps.statusDisabled') }}</option>
+              <option :value="0">{{ t('developer.apps.statusDraft') }}</option>
+              <option :value="1">{{ t('developer.apps.statusActive') }}</option>
+            </select>
+          </fieldset>
+          <div class="flex items-center justify-between gap-3">
+            <button type="button" class="btn btn-ghost" @click="editModalOpen = false">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn btn-primary" :disabled="isUpdatingApp">
+              <span v-if="isUpdatingApp" class="loading loading-spinner loading-sm" />
+              {{ t('common.save') }}
+            </button>
+          </div>
         </form>
-      </dialog>
 
-      <!-- Create Secret Modal -->
-      <dialog class="modal" :class="{ 'modal-open': secretModalOpen }" @close="secretModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ t('developer.apps.secrets.create') }}</h3>
-          <form @submit.prevent="handleCreateSecret">
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">{{ t('developer.apps.secrets.description') }}</span>
-              </label>
-              <input
-                v-model="newSecret.description"
-                type="text"
-                class="input input-bordered w-full"
-              />
-            </div>
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">Type</span>
-              </label>
-              <select v-model="newSecret.type" class="select select-bordered w-full">
-                <option value="AppConnect">App Connect</option>
-                <option value="Oidc">OIDC</option>
-              </select>
-            </div>
-            <div class="modal-action">
-              <button type="button" class="btn" @click="secretModalOpen = false">{{ t('common.cancel') }}</button>
-              <button type="submit" class="btn btn-primary" :disabled="isCreatingSecret">
-                <span v-if="isCreatingSecret" class="loading loading-spinner loading-sm" />
-                {{ t('common.create') }}
-              </button>
-            </div>
-          </form>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="secretModalOpen = false">close</button>
+        <!-- OAuth Tab -->
+        <form v-else-if="editActiveTab === 'oauth'" @submit.prevent="handleUpdateOAuth">
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.apps.oauth.clientUri') }}</legend>
+            <input v-model="oauthForm.clientUri" type="url" class="input w-full" placeholder="https://example.com" />
+          </fieldset>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">
+              {{ t('developer.apps.oauth.redirectUris') }}
+              <span class="text-xs text-base-content/40">one per line</span>
+            </legend>
+            <textarea v-model="oauthForm.redirectUris" class="textarea w-full" rows="3" placeholder="https://example.com/callback" />
+          </fieldset>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.apps.oauth.allowedScopes') }}</legend>
+            <input v-model="oauthForm.allowedScopes" type="text" class="input w-full" placeholder="openid profile email" />
+          </fieldset>
+          <div class="flex flex-wrap gap-4 mb-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input v-model="oauthForm.requirePkce" type="checkbox" class="checkbox checkbox-sm" />
+              <span class="text-sm">{{ t('developer.apps.oauth.requirePkce') }}</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input v-model="oauthForm.allowOfflineAccess" type="checkbox" class="checkbox checkbox-sm" />
+              <span class="text-sm">{{ t('developer.apps.oauth.allowOfflineAccess') }}</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input v-model="oauthForm.isPublicClient" type="checkbox" class="checkbox checkbox-sm" />
+              <span class="text-sm">{{ t('developer.apps.oauth.isPublicClient') }}</span>
+            </label>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <button type="button" class="btn btn-ghost" @click="editModalOpen = false">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn btn-primary" :disabled="isUpdatingApp">
+              <span v-if="isUpdatingApp" class="loading loading-spinner loading-sm" />
+              {{ t('common.save') }}
+            </button>
+          </div>
         </form>
-      </dialog>
+
+        <!-- Links Tab -->
+        <form v-else-if="editActiveTab === 'links'" @submit.prevent="handleUpdateLinks">
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.apps.links.homePage') ?? 'Home Page' }}</legend>
+            <input v-model="linksForm.homePage" type="url" class="input w-full" placeholder="https://example.com" />
+          </fieldset>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.apps.links.privacyPolicy') ?? 'Privacy Policy' }}</legend>
+            <input v-model="linksForm.privacyPolicy" type="url" class="input w-full" placeholder="https://example.com/privacy" />
+          </fieldset>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.apps.links.termsOfService') ?? 'Terms of Service' }}</legend>
+            <input v-model="linksForm.termsOfService" type="url" class="input w-full" placeholder="https://example.com/terms" />
+          </fieldset>
+          <div class="flex items-center justify-between gap-3">
+            <button type="button" class="btn btn-ghost" @click="editModalOpen = false">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn btn-primary" :disabled="isUpdatingApp">
+              <span v-if="isUpdatingApp" class="loading loading-spinner loading-sm" />
+              {{ t('common.save') }}
+            </button>
+          </div>
+        </form>
+      </AdminDrawer>
+
+      <!-- Create Secret Drawer -->
+      <AdminDrawer
+        :open="secretModalOpen"
+        :title="t('developer.apps.secrets.create')"
+        @update:open="secretModalOpen = $event"
+      >
+        <form @submit.prevent="handleCreateSecret">
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.apps.secrets.description') }}</legend>
+            <input
+              v-model="newSecret.description"
+              type="text"
+              class="input w-full"
+            />
+          </fieldset>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.apps.secrets.type') }}</legend>
+            <select v-model="newSecret.type" class="select w-full">
+              <option value="AppConnect">{{ t('developer.apps.secrets.typeAppConnect') }}</option>
+              <option value="Oidc">{{ t('developer.apps.secrets.typeOidc') }}</option>
+            </select>
+          </fieldset>
+          <div class="flex items-center justify-between gap-3">
+            <button type="button" class="btn btn-ghost" @click="secretModalOpen = false">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn btn-primary" :disabled="isCreatingSecret">
+              <span v-if="isCreatingSecret" class="loading loading-spinner loading-sm" />
+              {{ t('common.create') }}
+            </button>
+          </div>
+        </form>
+      </AdminDrawer>
     </div>
   </NuxtLayout>
 </template>

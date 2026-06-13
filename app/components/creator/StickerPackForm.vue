@@ -29,54 +29,50 @@
       </div>
 
       <!-- Name -->
-      <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text font-medium">{{ t('creator.stickers.packName') }}</span>
+      <fieldset class="fieldset mb-4">
+        <legend class="fieldset-legend">
+          {{ t('creator.stickers.packName') }}
           <span class="text-xs text-error">*</span>
-        </label>
+        </legend>
         <input
           v-model="form.name"
           type="text"
-          class="input input-bordered w-full"
+          class="input w-full"
           placeholder="My Cool Stickers"
           required
         />
-      </div>
+      </fieldset>
 
       <!-- Description -->
-      <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text font-medium">{{ t('creator.stickers.packDescription') }}</span>
-        </label>
+      <fieldset class="fieldset mb-4">
+        <legend class="fieldset-legend">{{ t('creator.stickers.packDescription') }}</legend>
         <textarea
           v-model="form.description"
-          class="textarea textarea-bordered w-full min-h-[80px]"
+          class="textarea w-full min-h-[80px]"
           rows="3"
           placeholder="Describe your sticker pack..."
         />
-      </div>
+      </fieldset>
 
       <!-- Prefix -->
-      <div class="form-control">
-        <label class="label">
-          <span class="label-text font-medium">{{ t('creator.stickers.prefix') }}</span>
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">
+          {{ t('creator.stickers.prefix') }}
           <span class="text-xs text-error">*</span>
-        </label>
+        </legend>
         <div class="join">
           <span class="join-item btn btn-disabled btn-sm bg-base-200/80">:</span>
           <input
             v-model="form.prefix"
             type="text"
-            class="input input-bordered join-item flex-1 font-mono text-sm"
+            class="input join-item flex-1 font-mono text-sm"
             placeholder="my-pack"
             required
           />
           <span class="join-item btn btn-disabled btn-sm bg-base-200/80">:</span>
         </div>
-        <label class="label">
-          <span class="label-text-alt text-base-content/40">{{ t('creator.stickers.prefixHint') }}</span>
-        </label>
-      </div>
+        <p class="fieldset-label">{{ t('creator.stickers.prefixHint') }}</p>
+      </fieldset>
     </AdminCard>
 
     <!-- Actions -->

@@ -7,48 +7,46 @@
     >
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Title -->
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">Title</span>
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">
+            Title
             <span class="text-xs text-error">*</span>
-          </label>
+          </legend>
           <input
             v-model="form.title"
             type="text"
-            class="input input-bordered w-full"
+            class="input w-full"
             placeholder="My News Feed"
             required
           />
-        </div>
+        </fieldset>
 
         <!-- URL -->
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">{{ t('creator.feeds.url') }}</span>
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">
+            {{ t('creator.feeds.url') }}
             <span class="text-xs text-error">*</span>
-          </label>
+          </legend>
           <input
             v-model="form.url"
             type="url"
-            class="input input-bordered w-full font-mono text-sm"
+            class="input w-full font-mono text-sm"
             placeholder="https://example.com/feed"
             required
           />
-        </div>
+        </fieldset>
       </div>
 
       <!-- Description -->
-      <div class="form-control mt-2">
-        <label class="label">
-          <span class="label-text font-medium">{{ t('creator.collections.description') }}</span>
-        </label>
+      <fieldset class="fieldset mt-2">
+        <legend class="fieldset-legend">{{ t('creator.collections.description') }}</legend>
         <textarea
           v-model="form.description"
-          class="textarea textarea-bordered w-full min-h-[80px]"
+          class="textarea w-full min-h-[80px]"
           rows="3"
           placeholder="Describe this feed..."
         />
-      </div>
+      </fieldset>
 
       <!-- Scrape toggle -->
       <div class="form-control mt-4">

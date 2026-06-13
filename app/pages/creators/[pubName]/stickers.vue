@@ -47,16 +47,14 @@
         </div>
       </div>
 
-      <!-- Create Modal -->
-      <dialog class="modal" :class="{ 'modal-open': createModalOpen }" @close="createModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ t('creator.stickers.create') }}</h3>
-          <StickerPackForm :pub-name="pubName" @close="closeCreateModal" @saved="handlePackCreated" />
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="createModalOpen = false">close</button>
-        </form>
-      </dialog>
+      <!-- Create Drawer -->
+      <AdminDrawer
+        :open="createModalOpen"
+        :title="t('creator.stickers.create')"
+        @update:open="createModalOpen = $event"
+      >
+        <StickerPackForm :pub-name="pubName" @close="closeCreateModal" @saved="handlePackCreated" />
+      </AdminDrawer>
     </div>
 
     <template #rightbar>

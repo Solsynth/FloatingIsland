@@ -22,6 +22,9 @@ export const useCreatorStore = defineStore('creator', () => {
     isLoading.value = true
     try {
       managedPublishers.value = await fetchManagedPublishers()
+    } catch {
+      // Error handled at the component level with toast
+      managedPublishers.value = []
     } finally {
       isLoading.value = false
     }

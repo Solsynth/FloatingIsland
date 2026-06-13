@@ -93,16 +93,14 @@
         </div>
       </div>
 
-      <!-- Add Subscriber Modal -->
-      <dialog class="modal" :class="{ 'modal-open': addModalOpen }" @close="addModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ t('creator.subscribers.add') }}</h3>
-          <AccountPicker @select="handleAddSubscriber" />
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="addModalOpen = false">close</button>
-        </form>
-      </dialog>
+      <!-- Add Subscriber Drawer -->
+      <AdminDrawer
+        :open="addModalOpen"
+        :title="t('creator.subscribers.add')"
+        @update:open="addModalOpen = $event"
+      >
+        <AccountPicker @select="handleAddSubscriber" />
+      </AdminDrawer>
     </div>
 
     <template #rightbar>

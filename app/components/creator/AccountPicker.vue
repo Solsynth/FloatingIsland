@@ -1,18 +1,19 @@
 <template>
   <div>
     <!-- Search -->
-    <div class="form-control mb-4">
+    <fieldset class="fieldset mb-4">
+      <legend class="fieldset-legend">{{ t('common.search') }}</legend>
       <div class="relative">
         <IconSearch class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/30" />
         <input
           v-model="query"
           type="text"
-          class="input input-bordered w-full pl-9"
+          class="input w-full pl-9"
           :placeholder="t('common.search')"
           @input="handleSearch"
         />
       </div>
-    </div>
+    </fieldset>
 
     <!-- Results -->
     <div v-if="loading" class="flex justify-center py-8">

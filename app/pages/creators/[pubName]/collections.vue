@@ -44,52 +44,43 @@
         </div>
       </div>
 
-      <!-- Editor Modal -->
-      <dialog class="modal" :class="{ 'modal-open': editorModalOpen }" @close="editorModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">
-            {{ editingCollection ? t('creator.edit') : t('creator.collections.create') }}
-          </h3>
-          <CollectionForm
-            :collection="editingCollection"
-            :pub-name="pubName"
-            @close="closeEditor"
-            @saved="handleSaved"
-          />
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="editorModalOpen = false">close</button>
-        </form>
-      </dialog>
+      <!-- Editor Drawer -->
+      <AdminDrawer
+        :open="editorModalOpen"
+        :title="editingCollection ? t('creator.edit') : t('creator.collections.create')"
+        @update:open="editorModalOpen = $event"
+      >
+        <CollectionForm
+          :collection="editingCollection"
+          :pub-name="pubName"
+          @close="closeEditor"
+          @saved="handleSaved"
+        />
+      </AdminDrawer>
 
-      <!-- Detail Modal -->
-      <dialog class="modal" :class="{ 'modal-open': detailModalOpen }" @close="detailModalOpen = false">
-        <div class="modal-box max-w-2xl">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-lg">{{ detailCollection?.name || detailCollection?.slug }}</h3>
-            <div class="flex gap-2">
-              <button class="btn btn-ghost btn-sm" @click="openEditor(detailCollection); closeDetail()">
-                <IconPencil class="w-4 h-4" />
-              </button>
-              <button class="btn btn-error btn-sm" @click="handleDelete">
-                <IconTrash class="w-4 h-4" />
-              </button>
-              <button class="btn btn-ghost btn-sm btn-circle" @click="closeDetail">
-                <IconX class="w-4 h-4" />
-              </button>
-            </div>
+      <!-- Detail Drawer -->
+      <AdminDrawer
+        :open="detailModalOpen"
+        @update:open="detailModalOpen = $event"
+      >
+        <template #header>
+          <h3 class="font-bold text-lg truncate">{{ detailCollection?.name || detailCollection?.slug }}</h3>
+          <div class="flex gap-2">
+            <button class="btn btn-ghost btn-sm" @click="openEditor(detailCollection); closeDetail()">
+              <IconPencil class="w-4 h-4" />
+            </button>
+            <button class="btn btn-ghost btn-sm text-error" @click="handleDelete">
+              <IconTrash class="w-4 h-4" />
+            </button>
           </div>
-          <p v-if="detailCollection?.description" class="text-sm text-base-content/70 mb-4">
-            {{ detailCollection.description }}
-          </p>
-          <div class="text-center py-4 text-base-content/50 text-sm">
-            {{ t('creator.posts.title') }}
-          </div>
+        </template>
+        <p v-if="detailCollection?.description" class="text-sm text-base-content/70 mb-4">
+          {{ detailCollection.description }}
+        </p>
+        <div class="text-center py-4 text-base-content/50 text-sm">
+          {{ t('creator.posts.title') }}
         </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="detailModalOpen = false">close</button>
-        </form>
-      </dialog>
+      </AdminDrawer>
     </div>
 
     <template #rightbar>

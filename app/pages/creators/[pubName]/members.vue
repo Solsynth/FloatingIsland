@@ -57,44 +57,40 @@
         </div>
       </div>
 
-      <!-- Role Editor Modal -->
-      <dialog class="modal" :class="{ 'modal-open': roleModalOpen }" @close="roleModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">
-            {{ t('creator.members.role') }}: {{ editingMember?.account?.name }}
-          </h3>
-          <div class="form-control mb-4">
-            <label class="label">
-              <span class="label-text">{{ t('creator.members.role') }}</span>
-            </label>
-            <select v-model="editRole" class="select select-bordered w-full">
-              <option :value="0">{{ t('creator.members.member') }}</option>
-              <option :value="50">{{ t('creator.members.moderator') }}</option>
-              <option :value="100">{{ t('creator.members.owner') }}</option>
-            </select>
-          </div>
-          <div class="modal-action">
+      <!-- Role Editor Drawer -->
+      <AdminDrawer
+        :open="roleModalOpen"
+        @update:open="roleModalOpen = $event"
+      >
+        <template #header>
+          <h3 class="font-bold text-lg">{{ t('creator.members.role') }}: {{ editingMember?.account?.name }}</h3>
+        </template>
+        <fieldset class="fieldset mb-6">
+          <legend class="fieldset-legend">{{ t('creator.members.role') }}</legend>
+          <select v-model="editRole" class="select w-full">
+            <option :value="0">{{ t('creator.members.member') }}</option>
+            <option :value="50">{{ t('creator.members.moderator') }}</option>
+            <option :value="100">{{ t('creator.members.owner') }}</option>
+          </select>
+        </fieldset>
+        <template #footer>
+          <div class="flex items-center justify-between">
             <button class="btn btn-ghost" @click="closeRoleEditor">{{ t('creator.cancel') }}</button>
             <button class="btn btn-primary" @click="saveRole">
               <IconSave class="w-4 h-4" /> {{ t('creator.save') }}
             </button>
           </div>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="roleModalOpen = false">close</button>
-        </form>
-      </dialog>
+        </template>
+      </AdminDrawer>
 
-      <!-- Invite Modal -->
-      <dialog class="modal" :class="{ 'modal-open': inviteModalOpen }" @close="inviteModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ t('creator.members.invite') }}</h3>
-          <AccountPicker @select="handleInviteSelect" />
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="inviteModalOpen = false">close</button>
-        </form>
-      </dialog>
+      <!-- Invite Drawer -->
+      <AdminDrawer
+        :open="inviteModalOpen"
+        :title="t('creator.members.invite')"
+        @update:open="inviteModalOpen = $event"
+      >
+        <AccountPicker @select="handleInviteSelect" />
+      </AdminDrawer>
     </div>
 
     <template #rightbar>

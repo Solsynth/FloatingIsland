@@ -122,56 +122,48 @@
         </NuxtLink>
       </div>
 
-      <!-- Edit Project Modal -->
-      <dialog class="modal" :class="{ 'modal-open': editModalOpen }" @close="editModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ t('developer.projects.edit') }}</h3>
-          <form @submit.prevent="handleUpdate">
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">{{ t('developer.projects.name') }}</span>
-              </label>
-              <input
-                v-model="editForm.name"
-                type="text"
-                class="input input-bordered w-full"
-                required
-              />
-            </div>
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">{{ t('developer.projects.slug') }}</span>
-              </label>
-              <input
-                v-model="editForm.slug"
-                type="text"
-                class="input input-bordered w-full"
-                required
-              />
-            </div>
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">{{ t('developer.projects.description') }}</span>
-              </label>
-              <textarea
-                v-model="editForm.description"
-                class="textarea textarea-bordered w-full"
-                rows="3"
-              />
-            </div>
-            <div class="modal-action">
-              <button type="button" class="btn" @click="editModalOpen = false">{{ t('common.cancel') }}</button>
-              <button type="submit" class="btn btn-primary" :disabled="isUpdating">
-                <span v-if="isUpdating" class="loading loading-spinner loading-sm" />
-                {{ t('common.save') }}
-              </button>
-            </div>
-          </form>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="editModalOpen = false">close</button>
+      <!-- Edit Project Drawer -->
+      <AdminDrawer
+        :open="editModalOpen"
+        :title="t('developer.projects.edit')"
+        @update:open="editModalOpen = $event"
+      >
+        <form @submit.prevent="handleUpdate">
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.projects.name') }}</legend>
+            <input
+              v-model="editForm.name"
+              type="text"
+              class="input w-full"
+              required
+            />
+          </fieldset>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.projects.slug') }}</legend>
+            <input
+              v-model="editForm.slug"
+              type="text"
+              class="input w-full"
+              required
+            />
+          </fieldset>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.projects.description') }}</legend>
+            <textarea
+              v-model="editForm.description"
+              class="textarea w-full"
+              rows="3"
+            />
+          </fieldset>
+          <div class="flex items-center justify-between gap-3">
+            <button type="button" class="btn btn-ghost" @click="editModalOpen = false">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn btn-primary" :disabled="isUpdating">
+              <span v-if="isUpdating" class="loading loading-spinner loading-sm" />
+              {{ t('common.save') }}
+            </button>
+          </div>
         </form>
-      </dialog>
+      </AdminDrawer>
     </div>
   </NuxtLayout>
 </template>

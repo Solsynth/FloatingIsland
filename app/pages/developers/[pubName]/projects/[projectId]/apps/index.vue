@@ -66,56 +66,48 @@
         </div>
       </div>
 
-      <!-- Create App Modal -->
-      <dialog class="modal" :class="{ 'modal-open': createModalOpen }" @close="createModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ t('developer.apps.create') }}</h3>
-          <form @submit.prevent="handleCreate">
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">{{ t('developer.apps.name') }}</span>
-              </label>
-              <input
-                v-model="newApp.name"
-                type="text"
-                class="input input-bordered w-full"
-                required
-              />
-            </div>
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">{{ t('developer.apps.slug') }}</span>
-              </label>
-              <input
-                v-model="newApp.slug"
-                type="text"
-                class="input input-bordered w-full"
-                required
-              />
-            </div>
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">{{ t('developer.apps.description') }}</span>
-              </label>
-              <textarea
-                v-model="newApp.description"
-                class="textarea textarea-bordered w-full"
-                rows="3"
-              />
-            </div>
-            <div class="modal-action">
-              <button type="button" class="btn" @click="createModalOpen = false">{{ t('common.cancel') }}</button>
-              <button type="submit" class="btn btn-primary" :disabled="isCreating">
-                <span v-if="isCreating" class="loading loading-spinner loading-sm" />
-                {{ t('common.create') }}
-              </button>
-            </div>
-          </form>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="createModalOpen = false">close</button>
+      <!-- Create App Drawer -->
+      <AdminDrawer
+        :open="createModalOpen"
+        :title="t('developer.apps.create')"
+        @update:open="createModalOpen = $event"
+      >
+        <form @submit.prevent="handleCreate">
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.apps.name') }}</legend>
+            <input
+              v-model="newApp.name"
+              type="text"
+              class="input w-full"
+              required
+            />
+          </fieldset>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.apps.slug') }}</legend>
+            <input
+              v-model="newApp.slug"
+              type="text"
+              class="input w-full"
+              required
+            />
+          </fieldset>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.apps.description') }}</legend>
+            <textarea
+              v-model="newApp.description"
+              class="textarea w-full"
+              rows="3"
+            />
+          </fieldset>
+          <div class="flex items-center justify-between gap-3">
+            <button type="button" class="btn btn-ghost" @click="createModalOpen = false">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn btn-primary" :disabled="isCreating">
+              <span v-if="isCreating" class="loading loading-spinner loading-sm" />
+              {{ t('common.create') }}
+            </button>
+          </div>
         </form>
-      </dialog>
+      </AdminDrawer>
     </div>
   </NuxtLayout>
 </template>

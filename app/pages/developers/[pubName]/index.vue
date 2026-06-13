@@ -76,58 +76,48 @@
         </div>
       </div>
 
-      <!-- Create/Edit Project Modal -->
-      <dialog class="modal" :class="{ 'modal-open': modalOpen }" @close="modalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">
-            {{ editingProject ? t('developer.projects.edit') : t('developer.projects.create') }}
-          </h3>
-          <form @submit.prevent="handleSubmit">
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">{{ t('developer.projects.name') }}</span>
-              </label>
-              <input
-                v-model="formData.name"
-                type="text"
-                class="input input-bordered w-full"
-                required
-              />
-            </div>
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">{{ t('developer.projects.slug') }}</span>
-              </label>
-              <input
-                v-model="formData.slug"
-                type="text"
-                class="input input-bordered w-full"
-                required
-              />
-            </div>
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">{{ t('developer.projects.description') }}</span>
-              </label>
-              <textarea
-                v-model="formData.description"
-                class="textarea textarea-bordered w-full"
-                rows="3"
-              />
-            </div>
-            <div class="modal-action">
-              <button type="button" class="btn" @click="modalOpen = false">{{ t('common.cancel') }}</button>
-              <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
-                <span v-if="isSubmitting" class="loading loading-spinner loading-sm" />
-                {{ editingProject ? t('common.save') : t('common.create') }}
-              </button>
-            </div>
-          </form>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="modalOpen = false">close</button>
+      <!-- Create/Edit Project Drawer -->
+      <AdminDrawer
+        :open="modalOpen"
+        :title="editingProject ? t('developer.projects.edit') : t('developer.projects.create')"
+        @update:open="modalOpen = $event"
+      >
+        <form @submit.prevent="handleSubmit">
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.projects.name') }}</legend>
+            <input
+              v-model="formData.name"
+              type="text"
+              class="input w-full"
+              required
+            />
+          </fieldset>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.projects.slug') }}</legend>
+            <input
+              v-model="formData.slug"
+              type="text"
+              class="input w-full"
+              required
+            />
+          </fieldset>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.projects.description') }}</legend>
+            <textarea
+              v-model="formData.description"
+              class="textarea w-full"
+              rows="3"
+            />
+          </fieldset>
+          <div class="flex items-center justify-between gap-3">
+            <button type="button" class="btn btn-ghost" @click="modalOpen = false">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+              <span v-if="isSubmitting" class="loading loading-spinner loading-sm" />
+              {{ editingProject ? t('common.save') : t('common.create') }}
+            </button>
+          </div>
         </form>
-      </dialog>
+      </AdminDrawer>
     </div>
 
     <template #rightbar>

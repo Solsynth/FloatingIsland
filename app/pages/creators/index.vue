@@ -137,16 +137,14 @@
         </div>
       </div>
 
-      <!-- Create Publisher Modal -->
-      <dialog class="modal" :class="{ 'modal-open': createModalOpen }" @close="createModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ t('creator.createPublisher') }}</h3>
-          <PublisherForm @close="closeCreateModal" @created="handlePublisherCreated" />
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="createModalOpen = false">close</button>
-        </form>
-      </dialog>
+      <!-- Create Publisher Drawer -->
+      <AdminDrawer
+        :open="createModalOpen"
+        :title="t('creator.createPublisher')"
+        @update:open="createModalOpen = $event"
+      >
+        <PublisherForm @close="closeCreateModal" @created="handlePublisherCreated" />
+      </AdminDrawer>
     </div>
 
     <template #rightbar>

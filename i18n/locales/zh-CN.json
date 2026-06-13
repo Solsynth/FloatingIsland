@@ -11,7 +11,8 @@
     "delete": "删除",
     "edit": "编辑",
     "back": "返回",
-    "confirm": "确认"
+    "confirm": "确认",
+    "notifications": "通知"
   },
   "drive": {
     "title": "Solar Network 云盘",
@@ -95,7 +96,10 @@
     "joinCommunity": "加入社区",
     "home": "首页",
     "creatorHub": "创作者中心",
-    "developerHub": "开发者中心"
+    "developerHub": "开发者中心",
+    "overview": "概览",
+    "content": "内容",
+    "community": "社区"
   },
   "home": {
     "seoTitle": "探索",
@@ -652,13 +656,21 @@
   },
   "developer": {
     "title": "开发者中心",
+    "console": "开发者控制台",
     "selectDeveloper": "选择开发者",
     "clearSelection": "清除选择",
+    "clearDeveloper": "清除开发者",
     "enrollDeveloper": "注册成为开发者",
     "enrollDeveloperHint": "使用您的发布者之一来访问开发者功能",
     "noPublishersToEnroll": "您需要先创建一个发布者，然后才能注册成为开发者。",
     "noDevelopers": "未找到开发者。注册成为开发者以开始使用。",
     "backToApp": "返回应用",
+    "enroll": {
+      "notEnrolled": "尚未注册为开发者",
+      "notEnrolledHint": "此发布者尚未注册为开发者。",
+      "enrollNow": "立即注册",
+      "dismiss": "忽略"
+    },
     "dashboard": "仪表盘",
     "settings": "设置",
     "settingsDescription": "管理您的开发者账户设置、查看统计数据并配置您的开发者资料。",
@@ -704,12 +716,19 @@
       "notFound": "未找到应用",
       "backToList": "返回应用列表",
       "deleteConfirm": "确定要删除此应用吗？",
+      "status": "状态",
+      "statusDisabled": "已禁用",
+      "statusDraft": "草稿",
+      "statusActive": "活跃",
       "secrets": {
         "title": "密钥",
         "create": "创建密钥",
         "description": "描述",
         "noDescription": "无描述",
         "expires": "过期时间",
+        "type": "类型",
+        "typeAppConnect": "应用连接",
+        "typeOidc": "OIDC",
         "noSecrets": "暂无密钥。",
         "deleteConfirm": "确定要删除此密钥吗？"
       },
@@ -764,7 +783,13 @@
         "deleteConfirm": "确定要删除此密钥吗？"
       },
       "info": {
-        "title": "机器人信息"
+        "title": "机器人信息",
+        "id": "ID",
+        "slug": "标识符",
+        "accountName": "账户名称",
+        "language": "语言",
+        "projectId": "项目 ID",
+        "accountId": "账户 ID"
       },
       "chat": {
         "title": "聊天配置",
@@ -775,16 +800,23 @@
         "supportChat": "支持聊天",
         "supportChatHint": "允许此机器人参与聊天",
         "subscribedEvents": "订阅事件",
+        "subscribedEventsHint": "逗号分隔",
         "commands": "命令",
         "webhooks": "Webhooks",
         "noConfig": "暂无聊天配置。"
       }
     }
   },
+  "portal": {
+    "creator": "创作者",
+    "developer": "开发者"
+  },
   "creator": {
     "title": "创作者中心",
+    "studio": "创作者工作室",
     "selectPublisher": "选择发布者",
     "clearSelection": "清除选择",
+    "clearPublisher": "清除发布者",
     "createPublisher": "创建发布者",
     "editPublisher": "编辑发布者",
     "deletePublisher": "删除发布者",

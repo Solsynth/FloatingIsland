@@ -196,6 +196,15 @@
     object-fit: contain;
   }
 
+  /* Hide scrollbars in admin portal sections (keeps scrolling functional) */
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   a[data-internal] {
     color: var(--color-primary);
     text-decoration: none;

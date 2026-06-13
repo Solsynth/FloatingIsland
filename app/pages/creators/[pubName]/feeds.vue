@@ -41,23 +41,19 @@
         </div>
       </div>
 
-      <!-- Editor Modal -->
-      <dialog class="modal" :class="{ 'modal-open': editorModalOpen }" @close="editorModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">
-            {{ editingFeed ? t('creator.edit') : t('creator.feeds.create') }}
-          </h3>
-          <WebFeedForm
-            :pub-name="pubName"
-            :feed="editingFeed"
-            @close="closeEditor"
-            @saved="handleSaved"
-          />
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="editorModalOpen = false">close</button>
-        </form>
-      </dialog>
+      <!-- Editor Drawer -->
+      <AdminDrawer
+        :open="editorModalOpen"
+        :title="editingFeed ? t('creator.edit') : t('creator.feeds.create')"
+        @update:open="editorModalOpen = $event"
+      >
+        <WebFeedForm
+          :pub-name="pubName"
+          :feed="editingFeed"
+          @close="closeEditor"
+          @saved="handleSaved"
+        />
+      </AdminDrawer>
     </div>
 
     <template #rightbar>

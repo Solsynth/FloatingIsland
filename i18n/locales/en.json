@@ -11,7 +11,8 @@
     "delete": "Delete",
     "edit": "Edit",
     "back": "Back",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "notifications": "Notifications"
   },
   "drive": {
     "title": "Solar Network Drive",
@@ -95,7 +96,10 @@
     "joinCommunity": "Join the community",
     "home": "Home",
     "creatorHub": "Creator Hub",
-    "developerHub": "Developer Hub"
+    "developerHub": "Developer Hub",
+    "overview": "Overview",
+    "content": "Content",
+    "community": "Community"
   },
   "home": {
     "seoTitle": "Explore",
@@ -653,13 +657,21 @@
   },
   "developer": {
     "title": "Developer Hub",
+    "console": "Developer Console",
     "selectDeveloper": "Select Developer",
     "clearSelection": "Clear Selection",
+    "clearDeveloper": "Clear Developer",
     "enrollDeveloper": "Enroll as Developer",
     "enrollDeveloperHint": "Use one of your publishers to access developer features",
     "noPublishersToEnroll": "You need to create a publisher first before enrolling as a developer.",
     "noDevelopers": "No developers found. Enroll as a developer to get started.",
     "backToApp": "Back to App",
+    "enroll": {
+      "notEnrolled": "Not enrolled as developer",
+      "notEnrolledHint": "This publisher hasn't been enrolled as a developer yet.",
+      "enrollNow": "Enroll Now",
+      "dismiss": "Dismiss"
+    },
     "dashboard": "Dashboard",
     "settings": "Settings",
     "settingsDescription": "Manage your developer account settings, view statistics, and configure your developer profile.",
@@ -705,12 +717,19 @@
       "notFound": "App not found",
       "backToList": "Back to Apps",
       "deleteConfirm": "Are you sure you want to delete this app?",
+      "status": "Status",
+      "statusDisabled": "Disabled",
+      "statusDraft": "Draft",
+      "statusActive": "Active",
       "secrets": {
         "title": "Secrets",
         "create": "Create Secret",
         "description": "Description",
         "noDescription": "No description",
         "expires": "Expires",
+        "type": "Type",
+        "typeAppConnect": "App Connect",
+        "typeOidc": "OIDC",
         "noSecrets": "No secrets yet.",
         "deleteConfirm": "Are you sure you want to delete this secret?"
       },
@@ -765,7 +784,13 @@
         "deleteConfirm": "Are you sure you want to delete this key?"
       },
       "info": {
-        "title": "Bot Information"
+        "title": "Bot Information",
+        "id": "ID",
+        "slug": "Slug",
+        "accountName": "Account Name",
+        "language": "Language",
+        "projectId": "Project ID",
+        "accountId": "Account ID"
       },
       "chat": {
         "title": "Chat Configuration",
@@ -776,16 +801,23 @@
         "supportChat": "Support Chat",
         "supportChatHint": "Allow this bot to participate in chat",
         "subscribedEvents": "Subscribed Events",
+        "subscribedEventsHint": "Comma separated",
         "commands": "Commands",
         "webhooks": "Webhooks",
         "noConfig": "No chat configuration yet."
       }
     }
   },
+  "portal": {
+    "creator": "Creator",
+    "developer": "Developer"
+  },
   "creator": {
     "title": "Creator Hub",
+    "studio": "Creator Studio",
     "selectPublisher": "Select Publisher",
     "clearSelection": "Clear Selection",
+    "clearPublisher": "Clear Publisher",
     "createPublisher": "Create Publisher",
     "editPublisher": "Edit Publisher",
     "deletePublisher": "Delete Publisher",

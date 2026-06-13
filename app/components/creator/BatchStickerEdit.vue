@@ -15,14 +15,15 @@
       class="mb-6"
     >
       <!-- Size -->
-      <div class="form-control mb-4">
-        <label class="flex items-center gap-3 cursor-pointer mb-2">
+      <fieldset class="fieldset mb-4">
+        <legend class="fieldset-legend">{{ t('creator.common.updateSize') }}</legend>
+        <label class="fieldset-label mb-2">
           <input v-model="applySize" type="checkbox" class="checkbox checkbox-sm checkbox-primary" />
-          <span class="text-sm font-medium">{{ t('creator.common.updateSize') }}</span>
+          Apply size change
         </label>
         <select
           v-model="size"
-          class="select select-bordered w-full max-w-xs"
+          class="select w-full max-w-xs"
           :disabled="!applySize"
         >
           <option :value="0">{{ t('creator.stickers.sizeAuto') }}</option>
@@ -30,23 +31,24 @@
           <option :value="2">{{ t('creator.stickers.sizeMedium') }}</option>
           <option :value="3">{{ t('creator.stickers.sizeLarge') }}</option>
         </select>
-      </div>
+      </fieldset>
 
       <!-- Mode -->
-      <div class="form-control mb-2">
-        <label class="flex items-center gap-3 cursor-pointer mb-2">
+      <fieldset class="fieldset mb-2">
+        <legend class="fieldset-legend">{{ t('creator.common.updateMode') }}</legend>
+        <label class="fieldset-label mb-2">
           <input v-model="applyMode" type="checkbox" class="checkbox checkbox-sm checkbox-primary" />
-          <span class="text-sm font-medium">{{ t('creator.common.updateMode') }}</span>
+          Apply mode change
         </label>
         <select
           v-model="mode"
-          class="select select-bordered w-full max-w-xs"
+          class="select w-full max-w-xs"
           :disabled="!applyMode"
         >
           <option :value="0">{{ t('creator.stickers.modeSticker') }}</option>
           <option :value="1">{{ t('creator.stickers.modeEmote') }}</option>
         </select>
-      </div>
+      </fieldset>
     </AdminCard>
 
     <!-- Submit -->

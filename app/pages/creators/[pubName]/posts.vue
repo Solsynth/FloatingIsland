@@ -111,124 +111,119 @@
         </div>
       </div>
 
-      <!-- Post Detail Modal -->
-      <dialog class="modal" :class="{ 'modal-open': detailModalOpen }" @close="detailModalOpen = false">
-        <div class="modal-box max-w-2xl">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-lg">{{ t('creator.posts.detail') }}</h3>
-            <button class="btn btn-ghost btn-sm btn-circle" @click="closeDetail">
-              <IconX class="w-4 h-4" />
-            </button>
-          </div>
-          <template v-if="selectedPost">
-            <div class="space-y-4">
-              <div v-if="selectedPost.title" class="font-semibold text-lg">{{ selectedPost.title }}</div>
-              <div class="text-sm whitespace-pre-wrap">{{ selectedPost.content }}</div>
+      <!-- Post Detail Drawer -->
+      <AdminDrawer
+        :open="detailModalOpen"
+        @update:open="detailModalOpen = $event"
+      >
+        <template #header>
+          <h3 class="font-bold text-lg">{{ t('creator.posts.detail') }}</h3>
+        </template>
+        <template v-if="selectedPost">
+          <div class="space-y-4">
+            <div v-if="selectedPost.title" class="font-semibold text-lg">{{ selectedPost.title }}</div>
+            <div class="text-sm whitespace-pre-wrap">{{ selectedPost.content }}</div>
 
-              <!-- Analytics -->
-              <div class="card bg-base-200">
-                <div class="card-body p-4">
-                  <h4 class="font-semibold text-sm mb-2">{{ t('creator.posts.analytics') }}</h4>
-                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div class="text-center">
-                      <div class="text-lg font-bold">{{ selectedPost.viewsUnique }}</div>
-                      <div class="text-xs text-base-content/50">{{ t('creator.posts.uniqueViews') }}</div>
-                    </div>
-                    <div class="text-center">
-                      <div class="text-lg font-bold">{{ selectedPost.viewsTotal }}</div>
-                      <div class="text-xs text-base-content/50">{{ t('creator.posts.views') }}</div>
-                    </div>
-                    <div class="text-center">
-                      <div class="text-lg font-bold">{{ selectedPost.upvotes }}</div>
-                      <div class="text-xs text-base-content/50">{{ t('creator.stats.upvoteReceived') }}</div>
-                    </div>
-                    <div class="text-center">
-                      <div class="text-lg font-bold">{{ selectedPost.downvotes }}</div>
-                      <div class="text-xs text-base-content/50">{{ t('creator.stats.downvoteReceived') }}</div>
-                    </div>
+            <!-- Analytics -->
+            <div class="card bg-base-200">
+              <div class="card-body p-4">
+                <h4 class="font-semibold text-sm mb-2">{{ t('creator.posts.analytics') }}</h4>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div class="text-center">
+                    <div class="text-lg font-bold">{{ selectedPost.viewsUnique }}</div>
+                    <div class="text-xs text-base-content/50">{{ t('creator.posts.uniqueViews') }}</div>
+                  </div>
+                  <div class="text-center">
+                    <div class="text-lg font-bold">{{ selectedPost.viewsTotal }}</div>
+                    <div class="text-xs text-base-content/50">{{ t('creator.posts.views') }}</div>
+                  </div>
+                  <div class="text-center">
+                    <div class="text-lg font-bold">{{ selectedPost.upvotes }}</div>
+                    <div class="text-xs text-base-content/50">{{ t('creator.stats.upvoteReceived') }}</div>
+                  </div>
+                  <div class="text-center">
+                    <div class="text-lg font-bold">{{ selectedPost.downvotes }}</div>
+                    <div class="text-xs text-base-content/50">{{ t('creator.stats.downvoteReceived') }}</div>
                   </div>
                 </div>
               </div>
-
-              <!-- Meta -->
-              <div class="text-xs text-base-content/50 space-y-1">
-                <div>{{ t('creator.posts.created') }}: {{ formatDate(selectedPost.createdAt) }}</div>
-                <div v-if="selectedPost.editedAt">{{ t('creator.posts.edited') }}: {{ formatDate(selectedPost.editedAt) }}</div>
-              </div>
             </div>
-          </template>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="detailModalOpen = false">close</button>
-        </form>
-      </dialog>
 
-      <!-- Visibility Modal -->
-      <dialog class="modal" :class="{ 'modal-open': visibilityModalOpen }" @close="visibilityModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ t('creator.posts.batchVisibility') }}</h3>
-          <div class="space-y-2">
-            <label
-              v-for="opt in visibilityOptions"
-              :key="opt.value"
-              class="flex items-center gap-3 p-3 rounded-lg bg-base-200 cursor-pointer hover:bg-base-300"
-            >
-              <input
-                type="radio"
-                name="visibility"
-                class="radio radio-primary radio-sm"
-                :value="opt.value"
-                v-model="selectedVisibility"
-              />
-              <span class="text-sm font-medium">{{ opt.label }}</span>
-            </label>
+            <!-- Meta -->
+            <div class="text-xs text-base-content/50 space-y-1">
+              <div>{{ t('creator.posts.created') }}: {{ formatDate(selectedPost.createdAt) }}</div>
+              <div v-if="selectedPost.editedAt">{{ t('creator.posts.edited') }}: {{ formatDate(selectedPost.editedAt) }}</div>
+            </div>
           </div>
-          <div class="modal-action">
+        </template>
+      </AdminDrawer>
+
+      <!-- Visibility Drawer -->
+      <AdminDrawer
+        :open="visibilityModalOpen"
+        :title="t('creator.posts.batchVisibility')"
+        @update:open="visibilityModalOpen = $event"
+      >
+        <div class="space-y-2">
+          <label
+            v-for="opt in visibilityOptions"
+            :key="opt.value"
+            class="flex items-center gap-3 p-3 rounded-lg bg-base-200 cursor-pointer hover:bg-base-300"
+          >
+            <input
+              type="radio"
+              name="visibility"
+              class="radio radio-primary radio-sm"
+              :value="opt.value"
+              v-model="selectedVisibility"
+            />
+            <span class="text-sm font-medium">{{ opt.label }}</span>
+          </label>
+        </div>
+        <template #footer>
+          <div class="flex items-center justify-between">
             <button class="btn btn-ghost" @click="closeVisibilityModal">{{ t('creator.cancel') }}</button>
             <button class="btn btn-primary" :disabled="batchLoading" @click="applyVisibility">
               {{ t('creator.common.apply') }}
             </button>
           </div>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="visibilityModalOpen = false">close</button>
-        </form>
-      </dialog>
+        </template>
+      </AdminDrawer>
 
-      <!-- Collection Modal -->
-      <dialog class="modal" :class="{ 'modal-open': collectionModalOpen }" @close="collectionModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">
+      <!-- Collection Drawer -->
+      <AdminDrawer
+        :open="collectionModalOpen"
+        @update:open="collectionModalOpen = $event"
+      >
+        <template #header>
+          <h3 class="font-bold text-lg">
             {{ collectionAction === 'add' ? t('creator.posts.batchAddToCollection') : t('creator.posts.batchRemoveFromCollection') }}
           </h3>
-          <div v-if="collectionsLoading" class="flex justify-center py-4">
-            <span class="loading loading-spinner" />
-          </div>
-          <div v-else-if="!collections?.length" class="text-center py-4 text-base-content/50">
-            {{ t('creator.collections.empty') }}
-          </div>
-          <div v-else class="space-y-2 max-h-60 overflow-y-auto">
-            <button
-              v-for="col in collections"
-              :key="col.slug"
-              class="flex items-center gap-3 w-full p-3 rounded-lg bg-base-200 hover:bg-base-300 text-left"
-              @click="applyCollection(col.slug)"
-            >
-              <IconFolder class="w-4 h-4 text-primary" />
-              <div class="min-w-0">
-                <div class="text-sm font-medium truncate">{{ col.name || col.slug }}</div>
-                <div class="text-xs text-base-content/50">{{ col.slug }}</div>
-              </div>
-            </button>
-          </div>
-          <div class="modal-action">
-            <button class="btn btn-ghost" @click="closeCollectionModal">{{ t('creator.cancel') }}</button>
-          </div>
+        </template>
+        <div v-if="collectionsLoading" class="flex justify-center py-4">
+          <span class="loading loading-spinner" />
         </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="collectionModalOpen = false">close</button>
-        </form>
-      </dialog>
+        <div v-else-if="!collections?.length" class="text-center py-4 text-base-content/50">
+          {{ t('creator.collections.empty') }}
+        </div>
+        <div v-else class="space-y-2">
+          <button
+            v-for="col in collections"
+            :key="col.slug"
+            class="flex items-center gap-3 w-full p-3 rounded-lg bg-base-200 hover:bg-base-300 text-left"
+            @click="applyCollection(col.slug)"
+          >
+            <IconFolder class="w-4 h-4 text-primary" />
+            <div class="min-w-0">
+              <div class="text-sm font-medium truncate">{{ col.name || col.slug }}</div>
+              <div class="text-xs text-base-content/50">{{ col.slug }}</div>
+            </div>
+          </button>
+        </div>
+        <template #footer>
+          <button class="btn btn-ghost" @click="closeCollectionModal">{{ t('creator.cancel') }}</button>
+        </template>
+      </AdminDrawer>
     </div>
 
     <template #rightbar>

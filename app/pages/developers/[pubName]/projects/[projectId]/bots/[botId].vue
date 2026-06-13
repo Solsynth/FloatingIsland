@@ -147,27 +147,27 @@
             <h3 class="card-title text-base mb-4">{{ t('developer.bots.info.title') }}</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <div class="text-sm font-medium">ID</div>
+                <div class="text-sm font-medium">{{ t('developer.bots.info.id') }}</div>
                 <div class="text-sm text-base-content/70 font-mono">{{ bot.id }}</div>
               </div>
               <div>
-                <div class="text-sm font-medium">Slug</div>
+                <div class="text-sm font-medium">{{ t('developer.bots.info.slug') }}</div>
                 <div class="text-sm text-base-content/70 font-mono">{{ bot.slug }}</div>
               </div>
               <div>
-                <div class="text-sm font-medium">Account Name</div>
+                <div class="text-sm font-medium">{{ t('developer.bots.info.accountName') }}</div>
                 <div class="text-sm text-base-content/70">{{ bot.account.name }}</div>
               </div>
               <div>
-                <div class="text-sm font-medium">Language</div>
+                <div class="text-sm font-medium">{{ t('developer.bots.info.language') }}</div>
                 <div class="text-sm text-base-content/70">{{ bot.account.language ?? '-' }}</div>
               </div>
               <div>
-                <div class="text-sm font-medium">Project ID</div>
+                <div class="text-sm font-medium">{{ t('developer.bots.info.projectId') }}</div>
                 <div class="text-sm text-base-content/70 font-mono">{{ bot.projectId }}</div>
               </div>
               <div>
-                <div class="text-sm font-medium">Account ID</div>
+                <div class="text-sm font-medium">{{ t('developer.bots.info.accountId') }}</div>
                 <div class="text-sm text-base-content/70 font-mono">{{ bot.account.id }}</div>
               </div>
             </div>
@@ -183,174 +183,166 @@
         </NuxtLink>
       </div>
 
-      <!-- Edit Bot Modal -->
-      <dialog class="modal" :class="{ 'modal-open': editModalOpen }" @close="editModalOpen = false">
-        <div class="modal-box max-w-lg">
-          <h3 class="font-bold text-lg mb-4">{{ t('common.edit') }} - {{ bot?.account.nick }}</h3>
-          <form @submit.prevent="handleUpdate">
-            <!-- Picture & Background -->
-            <div class="flex items-center gap-4 mb-4">
-              <div class="relative group">
-                <div class="avatar cursor-pointer" @click="pickPicture">
-                  <div class="w-16 rounded-full">
-                    <img v-if="picturePreview" :src="picturePreview" />
-                    <div v-else class="flex h-16 w-16 items-center justify-center rounded-full bg-base-300 text-base-content/50">
-                      <IconCamera class="w-6 h-6" />
-                    </div>
+      <!-- Edit Bot Drawer -->
+      <AdminDrawer
+        :open="editModalOpen"
+        @update:open="editModalOpen = $event"
+      >
+        <template #header>
+          <h3 class="font-bold text-lg">{{ t('common.edit') }} - {{ bot?.account.nick }}</h3>
+        </template>
+        <form @submit.prevent="handleUpdate">
+          <!-- Picture & Background -->
+          <div class="flex items-center gap-4 mb-4">
+            <div class="relative group">
+              <div class="avatar cursor-pointer" @click="pickPicture">
+                <div class="w-16 rounded-full">
+                  <img v-if="picturePreview" :src="picturePreview" />
+                  <div v-else class="flex h-16 w-16 items-center justify-center rounded-full bg-base-300 text-base-content/50">
+                    <IconCamera class="w-6 h-6" />
                   </div>
                 </div>
-                <div class="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" @click="pickPicture">
+              </div>
+              <div class="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" @click="pickPicture">
+                <IconCamera class="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <div class="flex-1">
+              <div class="relative group cursor-pointer rounded-lg overflow-hidden h-20 bg-base-300" @click="pickBackground">
+                <img v-if="backgroundPreview" :src="backgroundPreview" class="w-full h-full object-cover" />
+                <div v-else class="flex h-full items-center justify-center text-base-content/50">
+                  <span class="text-xs">{{ t('developer.bots.background') }}</span>
+                </div>
+                <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
                   <IconCamera class="w-5 h-5 text-white" />
                 </div>
               </div>
-              <div class="flex-1">
-                <div class="relative group cursor-pointer rounded-lg overflow-hidden h-20 bg-base-300" @click="pickBackground">
-                  <img v-if="backgroundPreview" :src="backgroundPreview" class="w-full h-full object-cover" />
-                  <div v-else class="flex h-full items-center justify-center text-base-content/50">
-                    <span class="text-xs">{{ t('developer.bots.background') }}</span>
-                  </div>
-                  <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <IconCamera class="w-5 h-5 text-white" />
-                  </div>
-                </div>
-              </div>
             </div>
-            <input ref="pictureInput" type="file" accept="image/*" class="hidden" @change="onPictureSelected" />
-            <input ref="backgroundInput" type="file" accept="image/*" class="hidden" @change="onBackgroundSelected" />
+          </div>
+          <input ref="pictureInput" type="file" accept="image/*" class="hidden" @change="onPictureSelected" />
+          <input ref="backgroundInput" type="file" accept="image/*" class="hidden" @change="onBackgroundSelected" />
 
-            <div class="grid grid-cols-2 gap-3">
-              <div class="form-control">
-                <label class="label"><span class="label-text">{{ t('developer.bots.name') }}</span></label>
-                <input v-model="editForm.name" type="text" class="input input-bordered w-full" minlength="2" maxlength="256" />
-              </div>
-              <div class="form-control">
-                <label class="label"><span class="label-text">{{ t('developer.bots.nick') }}</span></label>
-                <input v-model="editForm.nick" type="text" class="input input-bordered w-full" maxlength="256" />
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-3 mt-3">
-              <div class="form-control">
-                <label class="label"><span class="label-text">{{ t('developer.bots.slug') }}</span></label>
-                <input v-model="editForm.slug" type="text" class="input input-bordered w-full" maxlength="1024" />
-              </div>
-              <div class="form-control">
-                <label class="label"><span class="label-text">{{ t('developer.bots.language') }}</span></label>
-                <input v-model="editForm.language" type="text" class="input input-bordered w-full" maxlength="128" />
-              </div>
-            </div>
-            <div class="form-control mt-3">
-              <label class="label"><span class="label-text">{{ t('developer.bots.bio') }}</span></label>
-              <textarea v-model="editForm.bio" class="textarea textarea-bordered w-full" rows="2" maxlength="4096" />
-            </div>
-            <div class="grid grid-cols-2 gap-3 mt-3">
-              <div class="form-control">
-                <label class="label"><span class="label-text">{{ t('developer.bots.firstName') }}</span></label>
-                <input v-model="editForm.firstName" type="text" class="input input-bordered w-full" maxlength="256" />
-              </div>
-              <div class="form-control">
-                <label class="label"><span class="label-text">{{ t('developer.bots.lastName') }}</span></label>
-                <input v-model="editForm.lastName" type="text" class="input input-bordered w-full" maxlength="256" />
-              </div>
-            </div>
-            <div class="form-control mt-3">
-              <label class="label cursor-pointer justify-start gap-3">
-                <input v-model="editForm.isActive" type="checkbox" class="checkbox checkbox-sm" />
-                <span class="label-text">{{ t('developer.bots.active') }}</span>
-              </label>
-            </div>
-            <div class="modal-action">
-              <button type="button" class="btn" @click="editModalOpen = false">{{ t('common.cancel') }}</button>
-              <button type="submit" class="btn btn-primary" :disabled="isUpdatingBot">
-                <span v-if="isUpdatingBot" class="loading loading-spinner loading-sm" />
-                {{ t('common.save') }}
-              </button>
-            </div>
-          </form>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="editModalOpen = false">close</button>
+          <div class="grid grid-cols-2 gap-3">
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ t('developer.bots.name') }}</legend>
+              <input v-model="editForm.name" type="text" class="input w-full" minlength="2" maxlength="256" />
+            </fieldset>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ t('developer.bots.nick') }}</legend>
+              <input v-model="editForm.nick" type="text" class="input w-full" maxlength="256" />
+            </fieldset>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mt-3">
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ t('developer.bots.slug') }}</legend>
+              <input v-model="editForm.slug" type="text" class="input w-full" maxlength="1024" />
+            </fieldset>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ t('developer.bots.language') }}</legend>
+              <input v-model="editForm.language" type="text" class="input w-full" maxlength="128" />
+            </fieldset>
+          </div>
+          <fieldset class="fieldset mt-3">
+            <legend class="fieldset-legend">{{ t('developer.bots.bio') }}</legend>
+            <textarea v-model="editForm.bio" class="textarea w-full" rows="2" maxlength="4096" />
+          </fieldset>
+          <div class="grid grid-cols-2 gap-3 mt-3">
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ t('developer.bots.firstName') }}</legend>
+              <input v-model="editForm.firstName" type="text" class="input w-full" maxlength="256" />
+            </fieldset>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ t('developer.bots.lastName') }}</legend>
+              <input v-model="editForm.lastName" type="text" class="input w-full" maxlength="256" />
+            </fieldset>
+          </div>
+          <label class="flex items-center gap-3 cursor-pointer mt-3">
+            <input v-model="editForm.isActive" type="checkbox" class="checkbox checkbox-sm" />
+            <span class="text-sm font-medium">{{ t('developer.bots.active') }}</span>
+          </label>
+          <div class="flex items-center justify-between gap-3 mt-6">
+            <button type="button" class="btn btn-ghost" @click="editModalOpen = false">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn btn-primary" :disabled="isUpdatingBot">
+              <span v-if="isUpdatingBot" class="loading loading-spinner loading-sm" />
+              {{ t('common.save') }}
+            </button>
+          </div>
         </form>
-      </dialog>
+      </AdminDrawer>
 
-      <!-- Create Key Modal -->
-      <dialog class="modal" :class="{ 'modal-open': keyModalOpen }" @close="keyModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ t('developer.bots.keys.create') }}</h3>
-          <form @submit.prevent="handleCreateKey">
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">{{ t('developer.bots.keys.label') }}</span>
-              </label>
-              <input
-                v-model="newKey.label"
-                type="text"
-                class="input input-bordered w-full"
-                required
-                maxlength="1024"
-              />
-            </div>
-            <div class="modal-action">
-              <button type="button" class="btn" @click="keyModalOpen = false">{{ t('common.cancel') }}</button>
-              <button type="submit" class="btn btn-primary" :disabled="isCreatingKey">
-                <span v-if="isCreatingKey" class="loading loading-spinner loading-sm" />
-                {{ t('common.create') }}
-              </button>
-            </div>
-          </form>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="keyModalOpen = false">close</button>
+      <!-- Create Key Drawer -->
+      <AdminDrawer
+        :open="keyModalOpen"
+        :title="t('developer.bots.keys.create')"
+        @update:open="keyModalOpen = $event"
+      >
+        <form @submit.prevent="handleCreateKey">
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">{{ t('developer.bots.keys.label') }}</legend>
+            <input
+              v-model="newKey.label"
+              type="text"
+              class="input w-full"
+              required
+              maxlength="1024"
+            />
+          </fieldset>
+          <div class="flex items-center justify-between gap-3">
+            <button type="button" class="btn btn-ghost" @click="keyModalOpen = false">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn btn-primary" :disabled="isCreatingKey">
+              <span v-if="isCreatingKey" class="loading loading-spinner loading-sm" />
+              {{ t('common.create') }}
+            </button>
+          </div>
         </form>
-      </dialog>
+      </AdminDrawer>
 
-      <!-- Chat Config Modal -->
-      <dialog class="modal" :class="{ 'modal-open': chatConfigModalOpen }" @close="chatConfigModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ t('developer.bots.chat.title') }}</h3>
-          <form @submit.prevent="handleSaveChatConfig">
-            <div class="flex flex-col gap-3 mb-4">
-              <label class="label cursor-pointer justify-start gap-3">
-                <input v-model="chatForm.autoApproveDm" type="checkbox" class="checkbox checkbox-sm" />
-                <div>
-                  <span class="label-text font-medium">{{ t('developer.bots.chat.autoApproveDm') }}</span>
-                  <p class="text-xs text-base-content/50">{{ t('developer.bots.chat.autoApproveDmHint') }}</p>
-                </div>
-              </label>
-              <label class="label cursor-pointer justify-start gap-3">
-                <input v-model="chatForm.autoApproveGroupChat" type="checkbox" class="checkbox checkbox-sm" />
-                <div>
-                  <span class="label-text font-medium">{{ t('developer.bots.chat.autoApproveGroupChat') }}</span>
-                  <p class="text-xs text-base-content/50">{{ t('developer.bots.chat.autoApproveGroupChatHint') }}</p>
-                </div>
-              </label>
-              <label class="label cursor-pointer justify-start gap-3">
-                <input v-model="chatForm.supportChat" type="checkbox" class="checkbox checkbox-sm" />
-                <div>
-                  <span class="label-text font-medium">{{ t('developer.bots.chat.supportChat') }}</span>
-                  <p class="text-xs text-base-content/50">{{ t('developer.bots.chat.supportChatHint') }}</p>
-                </div>
-              </label>
-            </div>
-            <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">{{ t('developer.bots.chat.subscribedEvents') }}</span>
-                <span class="label-text-alt text-xs">Comma separated</span>
-              </label>
-              <input v-model="chatForm.subscribedEvents" type="text" class="input input-bordered w-full" placeholder="messages.new, member.joined" />
-            </div>
-            <div class="modal-action">
-              <button type="button" class="btn" @click="chatConfigModalOpen = false">{{ t('common.cancel') }}</button>
-              <button type="submit" class="btn btn-primary" :disabled="isSavingChatConfig">
-                <span v-if="isSavingChatConfig" class="loading loading-spinner loading-sm" />
-                {{ t('common.save') }}
-              </button>
-            </div>
-          </form>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="chatConfigModalOpen = false">close</button>
+      <!-- Chat Config Drawer -->
+      <AdminDrawer
+        :open="chatConfigModalOpen"
+        :title="t('developer.bots.chat.title')"
+        @update:open="chatConfigModalOpen = $event"
+      >
+        <form @submit.prevent="handleSaveChatConfig">
+          <div class="flex flex-col gap-3 mb-4">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input v-model="chatForm.autoApproveDm" type="checkbox" class="checkbox checkbox-sm mt-0.5" />
+              <div>
+                <span class="text-sm font-medium">{{ t('developer.bots.chat.autoApproveDm') }}</span>
+                <p class="text-xs text-base-content/50">{{ t('developer.bots.chat.autoApproveDmHint') }}</p>
+              </div>
+            </label>
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input v-model="chatForm.autoApproveGroupChat" type="checkbox" class="checkbox checkbox-sm mt-0.5" />
+              <div>
+                <span class="text-sm font-medium">{{ t('developer.bots.chat.autoApproveGroupChat') }}</span>
+                <p class="text-xs text-base-content/50">{{ t('developer.bots.chat.autoApproveGroupChatHint') }}</p>
+              </div>
+            </label>
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input v-model="chatForm.supportChat" type="checkbox" class="checkbox checkbox-sm mt-0.5" />
+              <div>
+                <span class="text-sm font-medium">{{ t('developer.bots.chat.supportChat') }}</span>
+                <p class="text-xs text-base-content/50">{{ t('developer.bots.chat.supportChatHint') }}</p>
+              </div>
+            </label>
+          </div>
+          <fieldset class="fieldset mb-4">
+            <legend class="fieldset-legend">
+              {{ t('developer.bots.chat.subscribedEvents') }}
+              <span class="text-xs text-base-content/40">{{ t('developer.bots.chat.subscribedEventsHint') }}</span>
+            </legend>
+            <input v-model="chatForm.subscribedEvents" type="text" class="input w-full" placeholder="messages.new, member.joined" />
+          </fieldset>
+          <div class="flex items-center justify-between gap-3">
+            <button type="button" class="btn btn-ghost" @click="chatConfigModalOpen = false">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn btn-primary" :disabled="isSavingChatConfig">
+              <span v-if="isSavingChatConfig" class="loading loading-spinner loading-sm" />
+              {{ t('common.save') }}
+            </button>
+          </div>
         </form>
-      </dialog>
+      </AdminDrawer>
     </div>
   </NuxtLayout>
 </template>

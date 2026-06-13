@@ -23,22 +23,22 @@
           :class="portalMode === 'creator'
             ? 'bg-base-100 text-primary shadow-sm'
             : 'text-base-content/40 hover:text-base-content/70'"
-          :disabled="portalMode === 'creator'"
+          :disabled="portalMode === 'creator' || !currentOrg"
           @click="portalMode !== 'creator' && handleTogglePortal('creator')"
         >
           <IconPalette class="w-3.5 h-3.5 inline-block mr-1.5 -mt-0.5" />
-          Creator
+          {{ t('portal.creator') }}
         </button>
         <button
           class="flex-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
           :class="portalMode === 'developer'
             ? 'bg-base-100 text-primary shadow-sm'
             : 'text-base-content/40 hover:text-base-content/70'"
-          :disabled="portalMode === 'developer'"
+          :disabled="portalMode === 'developer' || !currentOrg"
           @click="portalMode !== 'developer' && handleTogglePortal('developer')"
         >
           <IconCode class="w-3.5 h-3.5 inline-block mr-1.5 -mt-0.5" />
-          Developer
+          {{ t('portal.developer') }}
         </button>
       </div>
 
@@ -51,10 +51,10 @@
           <IconAlertTriangle class="w-4 h-4 text-warning shrink-0 mt-0.5" />
           <div class="min-w-0 flex-1">
             <p class="text-xs font-medium text-warning">
-              Not enrolled as developer
+              {{ t('developer.enroll.notEnrolled') }}
             </p>
             <p class="text-[11px] text-base-content/50 mt-0.5">
-              This publisher hasn't been enrolled as a developer yet.
+              {{ t('developer.enroll.notEnrolledHint') }}
             </p>
             <div class="flex items-center gap-2 mt-2">
               <button
@@ -63,13 +63,13 @@
                 :disabled="enrolling"
                 @click="handleEnrollDeveloper"
               >
-                Enroll Now
+                {{ t('developer.enroll.enrollNow') }}
               </button>
               <button
                 class="btn btn-ghost btn-xs min-h-0 h-7"
                 @click="dismissEnrollPrompt"
               >
-                Dismiss
+                {{ t('developer.enroll.dismiss') }}
               </button>
             </div>
           </div>
@@ -112,7 +112,7 @@
               <span>{{ clearLabel }}</span>
             </button>
           </li>
-          <li class="divider my-1 h-px" />
+          <li v-if="currentOrg" class="divider my-1 h-px" />
           <li v-for="org in organizations" :key="org.id">
             <NuxtLink
               :to="getOrgLink(org)"
@@ -146,7 +146,7 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+    <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-6 scrollbar-none">
       <div v-for="(group, gi) in navGroups" :key="gi">
         <p v-if="group.label" class="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-base-content/30">
           {{ group.label }}

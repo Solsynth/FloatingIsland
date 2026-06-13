@@ -142,55 +142,47 @@
         </div>
       </template>
 
-      <!-- Add/Edit Sticker Modal -->
-      <dialog class="modal" :class="{ 'modal-open': stickerModalOpen }" @close="stickerModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">
-            {{ editingSticker ? t('creator.edit') : t('creator.stickers.create') }}
-          </h3>
-          <StickerForm
-            :pack-id="packId"
-            :sticker="editingSticker"
-            @close="closeStickerModal"
-            @saved="handleStickerSaved"
-          />
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="stickerModalOpen = false">close</button>
-        </form>
-      </dialog>
+      <!-- Add/Edit Sticker Drawer -->
+      <AdminDrawer
+        :open="stickerModalOpen"
+        :title="editingSticker ? t('creator.edit') : t('creator.stickers.create')"
+        @update:open="stickerModalOpen = $event"
+      >
+        <StickerForm
+          :pack-id="packId"
+          :sticker="editingSticker"
+          @close="closeStickerModal"
+          @saved="handleStickerSaved"
+        />
+      </AdminDrawer>
 
-      <!-- Edit Pack Modal -->
-      <dialog class="modal" :class="{ 'modal-open': packModalOpen }" @close="packModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ t('creator.edit') }}</h3>
-          <StickerPackForm
-            :pub-name="pubName"
-            :pack="pack"
-            @close="closePackModal"
-            @saved="handlePackSaved"
-          />
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="packModalOpen = false">close</button>
-        </form>
-      </dialog>
+      <!-- Edit Pack Drawer -->
+      <AdminDrawer
+        :open="packModalOpen"
+        :title="t('creator.edit')"
+        @update:open="packModalOpen = $event"
+      >
+        <StickerPackForm
+          :pub-name="pubName"
+          :pack="pack"
+          @close="closePackModal"
+          @saved="handlePackSaved"
+        />
+      </AdminDrawer>
 
-      <!-- Batch Edit Modal -->
-      <dialog class="modal" :class="{ 'modal-open': batchModalOpen }" @close="batchModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ t('creator.stickers.batchEdit') }}</h3>
-          <BatchStickerEdit
-            :pack-id="packId"
-            :sticker-ids="Array.from(selectedIds)"
-            @close="closeBatchModal"
-            @saved="handleBatchSaved"
-          />
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="batchModalOpen = false">close</button>
-        </form>
-      </dialog>
+      <!-- Batch Edit Drawer -->
+      <AdminDrawer
+        :open="batchModalOpen"
+        :title="t('creator.stickers.batchEdit')"
+        @update:open="batchModalOpen = $event"
+      >
+        <BatchStickerEdit
+          :pack-id="packId"
+          :sticker-ids="Array.from(selectedIds)"
+          @close="closeBatchModal"
+          @saved="handleBatchSaved"
+        />
+      </AdminDrawer>
     </div>
 
     <template #rightbar>

@@ -1,11 +1,11 @@
 <template>
   <AdminSidebar
-    section-label="Developer Console"
+    :section-label="t('developer.console')"
     :nav-groups="navGroups"
     :organizations="orgList"
     :current-org="currentDeveloper ? mapOrg(currentDeveloper) : null"
-    select-placeholder="Select Developer"
-    clear-label="Clear Developer"
+    :select-placeholder="t('developer.selectDeveloper')"
+    :clear-label="t('developer.clearDeveloper')"
     :loading="isLoading"
     portal-mode="developer"
     :is-publisher-selected="!!currentDeveloper"
@@ -66,13 +66,13 @@ const navGroups = computed(() => {
   const p = pubName.value
   return [
     {
-      label: 'Overview',
+      label: t('nav.overview'),
       items: [
         { icon: IconLayoutDashboard, label: t('developer.dashboard'), href: `/developers/${p}` },
       ],
     },
     {
-      label: 'Settings',
+      label: t('nav.settings'),
       items: [
         { icon: IconSettings, label: t('developer.settings'), href: `/developers/${p}/settings` },
       ],

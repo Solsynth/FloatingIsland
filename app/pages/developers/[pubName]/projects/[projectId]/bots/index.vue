@@ -62,44 +62,42 @@
         </div>
       </div>
 
-      <!-- Create Bot Modal -->
-      <dialog class="modal" :class="{ 'modal-open': createModalOpen }" @close="createModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ t('developer.bots.create') }}</h3>
-          <form @submit.prevent="handleCreate">
-            <div class="form-control mb-3">
-              <label class="label"><span class="label-text">{{ t('developer.bots.name') }}</span></label>
-              <input v-model="newBot.name" type="text" class="input input-bordered w-full" required minlength="2" maxlength="256" placeholder="my-bot" />
-            </div>
-            <div class="form-control mb-3">
-              <label class="label"><span class="label-text">{{ t('developer.bots.nick') }}</span></label>
-              <input v-model="newBot.nick" type="text" class="input input-bordered w-full" required maxlength="256" placeholder="My Bot" />
-            </div>
-            <div class="form-control mb-3">
-              <label class="label"><span class="label-text">{{ t('developer.bots.slug') }}</span></label>
-              <input v-model="newBot.slug" type="text" class="input input-bordered w-full" required maxlength="1024" placeholder="my-bot" />
-            </div>
-            <div class="form-control mb-3">
-              <label class="label"><span class="label-text">{{ t('developer.bots.language') }}</span></label>
-              <input v-model="newBot.language" type="text" class="input input-bordered w-full" maxlength="128" placeholder="en-us" />
-            </div>
-            <div class="form-control mb-3">
-              <label class="label"><span class="label-text">{{ t('developer.bots.bio') }}</span></label>
-              <textarea v-model="newBot.bio" class="textarea textarea-bordered w-full" rows="2" maxlength="4096" />
-            </div>
-            <div class="modal-action">
-              <button type="button" class="btn" @click="createModalOpen = false">{{ t('common.cancel') }}</button>
-              <button type="submit" class="btn btn-primary" :disabled="isCreating">
-                <span v-if="isCreating" class="loading loading-spinner loading-sm" />
-                {{ t('common.create') }}
-              </button>
-            </div>
-          </form>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="createModalOpen = false">close</button>
+      <!-- Create Bot Drawer -->
+      <AdminDrawer
+        :open="createModalOpen"
+        :title="t('developer.bots.create')"
+        @update:open="createModalOpen = $event"
+      >
+        <form @submit.prevent="handleCreate">
+          <fieldset class="fieldset mb-3">
+            <legend class="fieldset-legend">{{ t('developer.bots.name') }}</legend>
+            <input v-model="newBot.name" type="text" class="input w-full" required minlength="2" maxlength="256" placeholder="my-bot" />
+          </fieldset>
+          <fieldset class="fieldset mb-3">
+            <legend class="fieldset-legend">{{ t('developer.bots.nick') }}</legend>
+            <input v-model="newBot.nick" type="text" class="input w-full" required maxlength="256" placeholder="My Bot" />
+          </fieldset>
+          <fieldset class="fieldset mb-3">
+            <legend class="fieldset-legend">{{ t('developer.bots.slug') }}</legend>
+            <input v-model="newBot.slug" type="text" class="input w-full" required maxlength="1024" placeholder="my-bot" />
+          </fieldset>
+          <fieldset class="fieldset mb-3">
+            <legend class="fieldset-legend">{{ t('developer.bots.language') }}</legend>
+            <input v-model="newBot.language" type="text" class="input w-full" maxlength="128" placeholder="en-us" />
+          </fieldset>
+          <fieldset class="fieldset mb-3">
+            <legend class="fieldset-legend">{{ t('developer.bots.bio') }}</legend>
+            <textarea v-model="newBot.bio" class="textarea w-full" rows="2" maxlength="4096" />
+          </fieldset>
+          <div class="flex items-center justify-between gap-3">
+            <button type="button" class="btn btn-ghost" @click="createModalOpen = false">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn btn-primary" :disabled="isCreating">
+              <span v-if="isCreating" class="loading loading-spinner loading-sm" />
+              {{ t('common.create') }}
+            </button>
+          </div>
         </form>
-      </dialog>
+      </AdminDrawer>
     </div>
   </NuxtLayout>
 </template>

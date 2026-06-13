@@ -61,42 +61,37 @@
         </div>
       </div>
 
-      <!-- Enroll Developer Modal -->
-      <dialog class="modal" :class="{ 'modal-open': enrollModalOpen }" @close="enrollModalOpen = false">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ t('developer.enrollDeveloper') }}</h3>
-          <div v-if="managedPublishers.length === 0" class="text-center py-4">
-            <p class="text-base-content/60">{{ t('developer.noPublishersToEnroll') }}</p>
-          </div>
-          <div v-else class="space-y-2">
-            <button
-              v-for="pub in managedPublishers"
-              :key="pub.id"
-              class="flex w-full items-center gap-3 rounded-lg p-3 transition-colors hover:bg-base-200"
-              @click="handleEnroll(pub.name)"
-            >
-              <div class="avatar">
-                <div class="w-9 rounded-full">
-                  <img v-if="getFileUrl(pub.picture?.id)" :src="getFileUrl(pub.picture?.id)" :alt="pub.nick" />
-                  <div v-else class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-content text-xs font-bold">
-                    {{ pub.nick?.slice(0, 2).toUpperCase() }}
-                  </div>
+      <!-- Enroll Developer Drawer -->
+      <AdminDrawer
+        :open="enrollModalOpen"
+        :title="t('developer.enrollDeveloper')"
+        @update:open="enrollModalOpen = $event"
+      >
+        <div v-if="managedPublishers.length === 0" class="text-center py-4">
+          <p class="text-base-content/60">{{ t('developer.noPublishersToEnroll') }}</p>
+        </div>
+        <div v-else class="space-y-2">
+          <button
+            v-for="pub in managedPublishers"
+            :key="pub.id"
+            class="flex w-full items-center gap-3 rounded-lg p-3 transition-colors hover:bg-base-200"
+            @click="handleEnroll(pub.name)"
+          >
+            <div class="avatar">
+              <div class="w-9 rounded-full">
+                <img v-if="getFileUrl(pub.picture?.id)" :src="getFileUrl(pub.picture?.id)" :alt="pub.nick" />
+                <div v-else class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-content text-xs font-bold">
+                  {{ pub.nick?.slice(0, 2).toUpperCase() }}
                 </div>
               </div>
-              <div class="min-w-0 flex-1 text-left">
-                <div class="font-medium text-sm">{{ pub.nick }}</div>
-                <div class="text-xs text-base-content/50">@{{ pub.name }}</div>
-              </div>
-            </button>
-          </div>
-          <div class="modal-action">
-            <button class="btn" @click="enrollModalOpen = false">{{ t('common.close') }}</button>
-          </div>
+            </div>
+            <div class="min-w-0 flex-1 text-left">
+              <div class="font-medium text-sm">{{ pub.nick }}</div>
+              <div class="text-xs text-base-content/50">@{{ pub.name }}</div>
+            </div>
+          </button>
         </div>
-        <form method="dialog" class="modal-backdrop">
-          <button @click="enrollModalOpen = false">close</button>
-        </form>
-      </dialog>
+      </AdminDrawer>
     </div>
 
     <template #rightbar>

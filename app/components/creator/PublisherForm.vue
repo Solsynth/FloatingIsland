@@ -49,66 +49,58 @@
     <AdminCard title="Profile Details" description="Manage your publisher identity and public information" class="mb-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Username -->
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">{{ t('creator.username') }}</span>
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">
+            {{ t('creator.username') }}
             <span v-if="!publisher" class="text-xs text-error">*</span>
-          </label>
+          </legend>
           <div class="join">
             <span class="join-item btn btn-disabled btn-sm bg-base-200/80">@</span>
             <input
               v-model="form.name"
               type="text"
-              class="input input-bordered join-item flex-1"
+              class="input join-item flex-1"
               :disabled="!!publisher"
               :placeholder="t('creator.username')"
             />
           </div>
-          <label class="label">
-            <span class="label-text-alt text-base-content/40">{{ t('creator.usernameHint') }}</span>
-          </label>
-        </div>
+          <p class="fieldset-label">{{ t('creator.usernameHint') }}</p>
+        </fieldset>
 
         <!-- Nickname -->
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">{{ t('creator.nickname') }}</span>
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">
+            {{ t('creator.nickname') }}
             <span class="text-xs text-error">*</span>
-          </label>
+          </legend>
           <input
             v-model="form.nick"
             type="text"
-            class="input input-bordered w-full"
+            class="input w-full"
             :placeholder="t('creator.nickname')"
           />
-        </div>
+        </fieldset>
       </div>
 
       <!-- Bio -->
-      <div class="form-control mt-2">
-        <label class="label">
-          <span class="label-text font-medium">{{ t('creator.bio') }}</span>
-        </label>
+      <fieldset class="fieldset mt-2">
+        <legend class="fieldset-legend">{{ t('creator.bio') }}</legend>
         <textarea
           v-model="form.bio"
-          class="textarea textarea-bordered w-full min-h-[100px]"
+          class="textarea w-full min-h-[100px]"
           rows="3"
           :placeholder="t('creator.bio')"
         />
-        <label class="label">
-          <span class="label-text-alt text-base-content/40">Markdown supported</span>
-        </label>
-      </div>
+        <p class="fieldset-label">Markdown supported</p>
+      </fieldset>
 
       <!-- Realm (only for creation) -->
-      <div v-if="!publisher" class="form-control mt-4">
-        <label class="label">
-          <span class="label-text font-medium">{{ t('creator.realm') }}</span>
-        </label>
-        <select v-model="form.realmSlug" class="select select-bordered w-full max-w-xs">
+      <fieldset v-if="!publisher" class="fieldset mt-4">
+        <legend class="fieldset-legend">{{ t('creator.realm') }}</legend>
+        <select v-model="form.realmSlug" class="select w-full max-w-xs">
           <option value="">{{ t('creator.individual') }}</option>
         </select>
-      </div>
+      </fieldset>
     </AdminCard>
 
     <!-- Actions -->
