@@ -76,19 +76,6 @@
       </div>
     </div>
 
-    <!-- Floating Island Note -->
-    <div role="alert" class="alert alert-soft text-xs text-base-content/70">
-      <div class="flex flex-col gap-2">
-        <p>{{ t("sidebar.floatingNote") }}</p>
-        <p>
-          {{ t("sidebar.floatingNoteCta") }}
-          <a href="https://web.solian.app" class="font-bold underline"
-            >{{ t("sidebar.openWebVersion") }}</a
-          >
-        </p>
-      </div>
-    </div>
-
     <!-- Legal Footer -->
     <div class="px-2 text-xs leading-relaxed text-base-content/40">
       <p>{{ t("sidebar.copyright", { year: currentYear }) }}</p>

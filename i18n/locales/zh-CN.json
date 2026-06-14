@@ -165,7 +165,15 @@
     "actionPin": "置顶消息",
     "actionEdit": "编辑",
     "actionDelete": "删除",
-    "actionReport": "举报"
+    "actionReport": "举报",
+    "replyingToUser": "回复 {name}",
+    "forwarding": "转发消息",
+    "editing": "编辑消息",
+    "editingMessage": "编辑消息...",
+    "attachFile": "添加附件",
+    "confirmDeleteMessage": "确定要删除这条消息吗？此操作无法撤销。",
+    "betaTitle": "测试版：",
+    "betaDescription": "Floating Island 的聊天功能目前处于测试阶段。如需最佳体验，请使用 "
   },
   "home": {
     "seoTitle": "探索",
@@ -321,6 +329,19 @@
     "privacy": "隐私",
     "terms": "条款",
     "help": "帮助"
+  },
+  "onboarding": {
+    "title": "欢迎来到 Solar Network 生态系统",
+    "solarNetworkTitle": "Solar Network",
+    "solarNetworkDesc": "驱动一切的开源社交平台。它是连接所有客户端的后端和 API。",
+    "solianTitle": "Solian",
+    "solianDesc": "适用于 iOS 和 Android 的官方 Flutter 客户端。功能齐全、速度快，是移动端使用 Solar Network 的推荐方式。",
+    "floatingIslandTitle": "FloatingIsland",
+    "floatingIslandDesc": "这个网页客户端专为浏览和轻量交互而构建。非常适合希望快速访问而无需安装应用的桌面用户。",
+    "openSolian": "试试 Solian",
+    "gotIt": "知道了",
+    "next": "下一步",
+    "back": "上一步"
   },
   "realms": {
     "title": "领域",

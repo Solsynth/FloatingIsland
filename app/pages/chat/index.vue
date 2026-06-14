@@ -1,5 +1,22 @@
 <template>
   <NuxtLayout name="app">
+    <!-- Beta Alert Banner -->
+    <div class="alert alert-warning mb-3 text-sm">
+      <IconAlertTriangle class="h-5 w-5 shrink-0" />
+      <div>
+        <span class="font-semibold">{{ t('chat.betaTitle') }}</span>
+        <span>{{ t('chat.betaDescription') }}</span>
+        <a
+          href="https://web.solian.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="link link-primary font-medium ml-1"
+        >
+          web.solian.app
+        </a>
+      </div>
+    </div>
+
     <div class="flex h-[calc(100vh-8rem)] overflow-hidden rounded-xl border border-base-300 bg-base-100 lg:h-[calc(100vh-2rem)]">
       <!-- Left: Chat Rooms List -->
       <div
@@ -136,16 +153,36 @@
             :typing-indicators="typingIndicators"
             :current-user-id="currentUserId"
             @load-more="handleLoadMore"
+            @reply="handleReply"
+            @forward="handleForward"
+            @edit="handleEdit"
+            @delete="handleDelete"
           />
 
           <!-- Input -->
           <ChatInput
+            ref="chatInputRef"
+            :reply-to="replyTo"
+            :forward-to="forwardTo"
+            :edit-to="editTo"
+            :attachments="pendingAttachments"
             @send="handleSend"
             @typing="handleTyping"
+            @cancel-action="clearActionState"
+            @pick-attachment="openFilePicker"
+            @remove-attachment="removeAttachment"
           />
         </template>
       </div>
     </div>
+
+    <!-- Cloud File Picker Drawer -->
+    <CloudFileDrawer
+      v-model:open="isFilePickerOpen"
+      :allow-multiple="true"
+      usage="chat.attachment"
+      @select="handleFileSelected"
+    />
   </NuxtLayout>
 </template>
 
@@ -156,12 +193,16 @@ import {
   IconMessageSquare,
   IconArrowLeft,
   IconUsers,
+  IconAlertTriangle,
 } from '#components'
+import type { SnChatMessage } from '~/types/chat'
+import type { SnCloudFile } from '~/types/drive'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const { isAuthenticated, user } = useAuth()
+const { confirm: confirmAlert } = useAlert()
 const {
   rooms,
   summaries,
@@ -182,6 +223,18 @@ const {
 useHead({
   title: t('chat.title'),
 })
+
+// Refs
+const chatInputRef = ref<InstanceType<typeof ChatInput> | null>(null)
+
+// Action state for reply/forward/edit
+const replyTo = ref<SnChatMessage | null>(null)
+const forwardTo = ref<SnChatMessage | null>(null)
+const editTo = ref<SnChatMessage | null>(null)
+
+// Attachment state
+const pendingAttachments = ref<SnCloudFile[]>([])
+const isFilePickerOpen = ref(false)
 
 // Selected room from query param: /chat?room=roomId
 const selectedRoomId = computed(() => {
@@ -250,6 +303,8 @@ watch(
       enterRoom(newId)
       await loadMessages(newId)
     }
+    // Clear action state when switching rooms
+    clearActionState()
   },
   { immediate: true },
 )
@@ -261,7 +316,66 @@ onUnmounted(() => {
   }
 })
 
-// Actions
+// ── Action Handlers ─────────────────────────────────────────────────────
+
+function clearActionState() {
+  replyTo.value = null
+  forwardTo.value = null
+  editTo.value = null
+  pendingAttachments.value = []
+}
+
+function handleReply(message: SnChatMessage) {
+  clearActionState()
+  replyTo.value = message
+}
+
+function handleForward(message: SnChatMessage) {
+  clearActionState()
+  forwardTo.value = message
+}
+
+function handleEdit(message: SnChatMessage) {
+  clearActionState()
+  editTo.value = message
+}
+
+async function handleDelete(message: SnChatMessage) {
+  if (!selectedRoomId.value) return
+
+  const confirmed = await confirmAlert(
+    t('chat.actionDelete'),
+    t('chat.confirmDeleteMessage'),
+    { variant: 'danger' },
+  )
+
+  if (!confirmed) return
+
+  try {
+    await deleteChatMessage(selectedRoomId.value, message.id)
+  } catch (err) {
+    console.error('Failed to delete message:', err)
+  }
+}
+
+// ── Attachment Handlers ─────────────────────────────────────────────────
+
+function openFilePicker() {
+  isFilePickerOpen.value = true
+}
+
+function handleFileSelected(files: SnCloudFile | SnCloudFile[] | null) {
+  if (!files) return
+  const fileArray = Array.isArray(files) ? files : [files]
+  pendingAttachments.value = [...pendingAttachments.value, ...fileArray]
+}
+
+function removeAttachment(index: number) {
+  pendingAttachments.value.splice(index, 1)
+}
+
+// ── Actions ─────────────────────────────────────────────────────────────
+
 async function handleRefresh() {
   await loadRooms()
 }
@@ -281,10 +395,20 @@ async function handleLoadMore() {
   }
 }
 
-async function handleSend(content: string) {
+async function handleSend(
+  content: string,
+  options: { repliedMessageId?: string; forwardedMessageId?: string },
+) {
   if (!selectedRoomId.value) return
+
   try {
-    await sendMessage(selectedRoomId.value, content)
+    await sendMessage(selectedRoomId.value, content, {
+      repliedMessageId: options.repliedMessageId,
+      forwardedMessageId: options.forwardedMessageId,
+    })
+
+    // Clear action state after successful send
+    clearActionState()
   } catch (err) {
     console.error('Failed to send message:', err)
   }

@@ -87,6 +87,11 @@
         <RightSidebar />
       </aside>
     </div>
+
+    <!-- Onboarding Modal -->
+    <ClientOnly>
+      <OnboardingModal />
+    </ClientOnly>
   </NuxtLayout>
 </template>
 

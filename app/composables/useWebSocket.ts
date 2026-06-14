@@ -1,5 +1,6 @@
 import type { WebSocketPacket } from '~/types/chat'
 import { eventBus } from '~/utils/eventBus'
+import { snakeToCamel } from '~/utils/case'
 
 type WSStatus = 'connecting' | 'connected' | 'disconnected' | 'error'
 
@@ -212,28 +213,31 @@ export function useWebSocket() {
           return
         }
 
+        // Convert snake_case data to camelCase
+        const camelData = packet.data ? snakeToCamel(packet.data) : undefined
+
         // Emit raw packet to event bus
-        eventBus.emit('ws:message', packet)
+        eventBus.emit('ws:message', { ...packet, data: camelData })
 
         // Emit typed events
         switch (packet.type) {
           case 'notifications.new':
-            eventBus.emit('notification:new', packet.data as any)
+            eventBus.emit('notification:new', camelData as any)
             break
           case 'messages.new':
-            eventBus.emit('chat:message:new', packet.data as any)
+            eventBus.emit('chat:message:new', camelData as any)
             break
           case 'messages.update':
-            eventBus.emit('chat:message:update', packet.data as any)
+            eventBus.emit('chat:message:update', camelData as any)
             break
           case 'messages.delete':
-            eventBus.emit('chat:message:delete', packet.data as any)
+            eventBus.emit('chat:message:delete', camelData as any)
             break
           case 'messages.read':
-            eventBus.emit('chat:room:read', packet.data as any)
+            eventBus.emit('chat:room:read', camelData as any)
             break
           case 'messages.typing':
-            eventBus.emit('chat:typing', packet.data as any)
+            eventBus.emit('chat:typing', camelData as any)
             break
         }
       } catch (e) {

@@ -34,7 +34,7 @@ export function useMainNav() {
       href: "/chat",
       badge: chatUnreadCount.value > 0 ? chatUnreadCount.value : null,
     },
-    { icon: IconWallet, labelKey: "nav.wallet", href: "/accounts/me/wallet" },
+    { icon: IconWallet, labelKey: "nav.wallet", href: "/wallets" },
     { icon: IconPalette, labelKey: "nav.creatorHub", href: "/creators" },
     { icon: IconCode, labelKey: "nav.developerHub", href: "/developers" },
   ]);

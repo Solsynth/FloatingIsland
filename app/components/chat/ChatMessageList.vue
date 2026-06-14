@@ -72,6 +72,10 @@
             :is-first-in-group="isFirstInGroup(index)"
             :is-last-in-group="isLastInGroup(index)"
             @jump="handleJumpToMessage"
+            @reply="$emit('reply', $event)"
+            @forward="$emit('forward', $event)"
+            @edit="$emit('edit', $event)"
+            @delete="$emit('delete', $event)"
           />
         </div>
       </template>
@@ -104,6 +108,10 @@ const props = defineProps<{
 
 defineEmits<{
   loadMore: []
+  reply: [message: SnChatMessage]
+  forward: [message: SnChatMessage]
+  edit: [message: SnChatMessage]
+  delete: [message: SnChatMessage]
 }>()
 
 const { t } = useI18n()
