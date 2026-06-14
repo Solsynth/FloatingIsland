@@ -11,7 +11,7 @@
       </aside>
 
       <!-- Main Area -->
-      <div class="ml-[18rem] flex-1 flex flex-col min-h-screen max-h-screen" :class="{ 'mr-[22rem]': $slots.rightbar }">
+      <div class="ml-72 flex-1 flex flex-col min-h-screen max-h-screen" :class="{ 'mr-88': $slots.rightbar }">
         <!-- Header -->
         <AdminHeader :breadcrumbs="breadcrumbs" :page-title="pageTitle" />
 

@@ -28,6 +28,8 @@
       <img
         v-if="isImage && thumbnailUrl"
         :src="thumbnailUrl"
+        :width="file.fileMeta?.width"
+        :height="file.fileMeta?.height"
         class="w-full h-full object-cover"
         alt=""
       />
@@ -70,7 +72,7 @@
       >
         <button
           v-if="!file.isFolder"
-          class="btn btn-circle btn-sm bg-white/90 hover:bg-white border-none"
+          class="btn btn-circle btn-sm bg-white/90 hover:bg-white border-none text-black"
           :title="t('drive.download')"
           @click.stop="$emit('download')"
         >
@@ -78,7 +80,7 @@
         </button>
         <div class="dropdown dropdown-end" @click.stop>
           <button
-            class="btn btn-circle btn-sm bg-white/90 hover:bg-white border-none"
+            class="btn btn-circle btn-sm bg-white/90 hover:bg-white border-none text-black"
           >
             <IconMoreHorizontal class="w-4 h-4 text-base-content" />
           </button>

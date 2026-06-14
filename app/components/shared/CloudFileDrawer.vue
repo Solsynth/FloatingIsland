@@ -221,9 +221,7 @@ import {
   TabsTrigger,
   TabsContent,
 } from 'reka-ui'
-// @ts-ignore - no type declarations available
 import VueCropper from 'vue-cropperjs'
-import 'cropperjs/dist/cropper.css'
 import {
   IconX,
   IconUpload,

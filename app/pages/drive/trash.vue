@@ -97,24 +97,35 @@
         </div>
 
         <!-- Grid view (waterfall) -->
-        <div
-          v-else
-          class="py-4 columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6"
-          style="column-gap: 0.75rem;"
-        >
+        <ClientOnly v-else>
           <div
-            v-for="file in state.files"
-            :key="file.id"
-            class="break-inside-avoid mb-3"
+            v-masonry
+            transition-duration="0.3s"
+            item-selector=".drive-grid-tile"
+            column-width=".drive-grid-sizer"
+            gutter=".drive-grid-gutter"
+            percent-position="true"
+            horizontal-order="true"
+            fit-width="true"
+            class="py-4 mx-auto"
           >
+            <div class="drive-grid-sizer" />
+            <div class="drive-grid-gutter" />
+            <div
+              v-for="file in state.files"
+              :key="file.id"
+              v-masonry-tile
+              class="drive-grid-tile mb-3"
+            >
             <FileGridTile
               :file="file"
               :is-selection-mode="false"
               @download="handleDownload(file)"
               @delete="handleDelete(file)"
             />
+            </div>
           </div>
-        </div>
+        </ClientOnly>
 
         <!-- Load more -->
         <div v-if="state.hasMore" class="flex justify-center py-4">
@@ -205,3 +216,31 @@ function handleDownload(file: SnCloudFile) {
   a.click();
 }
 </script>
+
+<style scoped>
+.drive-grid-sizer,
+.drive-grid-tile {
+  width: calc(25% - 12px);
+}
+.drive-grid-gutter {
+  width: 12px;
+}
+@media (max-width: 1023px) {
+  .drive-grid-sizer,
+  .drive-grid-tile {
+    width: calc(25% - 12px);
+  }
+}
+@media (max-width: 767px) {
+  .drive-grid-sizer,
+  .drive-grid-tile {
+    width: calc(33.333% - 12px);
+  }
+}
+@media (max-width: 639px) {
+  .drive-grid-sizer,
+  .drive-grid-tile {
+    width: calc(50% - 12px);
+  }
+}
+</style>
