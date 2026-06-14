@@ -220,6 +220,10 @@ const {
   sendTypingStatus,
 } = useChat()
 
+definePageMeta({
+  ssr: false,
+})
+
 useHead({
   title: t('chat.title'),
 })

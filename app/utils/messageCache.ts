@@ -26,6 +26,11 @@ interface ChatDBSchema {
 let dbPromise: Promise<IDBPDatabase<ChatDBSchema>> | null = null
 
 function getDB(): Promise<IDBPDatabase<ChatDBSchema>> {
+  // Guard: IndexedDB is browser-only, not available on server (SSR/SSG)
+  if (typeof indexedDB === 'undefined') {
+    throw new Error('IndexedDB is not available on the server')
+  }
+
   if (!dbPromise) {
     dbPromise = openDB<ChatDBSchema>(DB_NAME, DB_VERSION, {
       upgrade(db) {

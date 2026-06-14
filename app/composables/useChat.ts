@@ -24,6 +24,31 @@ interface ChatMessageState {
 }
 
 export function useChat() {
+  // Guard: Chat is client-only — return empty state on the server
+  if (import.meta.server) {
+    return {
+      rooms: computed(() => [] as SnChatRoom[]),
+      summaries: computed(() => ({}) as Record<string, SnChatSummary>),
+      unreadCount: computed(() => 0),
+      isRoomsLoading: computed(() => false),
+      roomsError: computed(() => null as string | null),
+      activeRoomId: computed(() => null as string | null),
+      getMessages: (_roomId: string) => computed(() => [] as SnChatMessage[]),
+      isMessagesLoading: (_roomId: string) => computed(() => false),
+      hasMoreMessages: (_roomId: string) => computed(() => false),
+      getTypingIndicators: (_roomId: string) =>
+        computed(() => [] as ChatActivityStatus[]),
+      loadRooms: () => Promise.resolve(),
+      loadMessages: (_roomId: string, _loadMore?: boolean) => Promise.resolve(),
+      sendMessage: () =>
+        Promise.reject(new Error('Chat is not available on the server')),
+      enterRoom: () => {},
+      leaveRoom: () => {},
+      sendTypingStatus: () => {},
+      markRead: () => Promise.resolve(),
+    }
+  }
+
   // Global state (shared across components)
   const roomState = reactive<ChatRoomState>({
     rooms: [],
@@ -479,8 +504,11 @@ export function useChat() {
     isAuthenticated,
     (auth) => {
       if (auth) {
-        setupListeners()
-        loadRooms()
+        // Skip client-only initialization during SSR (IndexedDB, WebSocket listeners)
+        if (import.meta.client) {
+          setupListeners()
+          loadRooms()
+        }
       } else {
         teardownListeners()
         roomState.rooms = []

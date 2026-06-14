@@ -45,31 +45,6 @@
 						</div>
 					</div>
 
-					<!-- App Icon (large, centered) -->
-					<div v-if="clientInfo" class="flex flex-col items-center gap-3 py-4">
-						<div class="relative">
-							<div class="avatar">
-								<div class="w-24 h-24 rounded-3xl shadow-lg overflow-hidden ring-4 ring-base-100/50">
-									<img
-										v-if="clientPictureUrl"
-										:src="clientPictureUrl"
-										loading="lazy"
-										class="w-full h-full object-cover"
-									>
-									<div
-										v-else
-										class="w-full h-full flex items-center justify-center bg-primary/15 text-primary"
-									>
-										<IconPlug class="w-10 h-10" />
-									</div>
-								</div>
-							</div>
-						</div>
-						<p class="font-bold text-lg text-center">
-							{{ clientInfo.clientName || 'Unknown App' }}
-						</p>
-					</div>
-
 					<!-- User Account Info -->
 					<div
 						v-if="auth.user.value"
@@ -118,7 +93,7 @@
 							</div>
 
 							<!-- App Info Summary -->
-							<div class="flex flex-col items-center text-center mb-6">
+							<div class="flex flex-col items-start text-center mb-6">
 								<div class="avatar mb-2">
 									<div class="w-11 h-11 rounded-2xl overflow-hidden ring-2 ring-base-300/30">
 										<img
