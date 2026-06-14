@@ -78,41 +78,54 @@
         >
           <IconDownload class="w-4 h-4 text-base-content" />
         </button>
-        <div class="dropdown dropdown-end" @click.stop>
-          <button
-            class="btn btn-circle btn-sm bg-white/90 hover:bg-white border-none text-black"
-          >
-            <IconMoreHorizontal class="w-4 h-4 text-base-content" />
-          </button>
-          <ul
-            class="dropdown-content menu p-2 shadow-lg bg-base-100 rounded-box w-48 z-50"
-          >
-            <li v-if="file.isFolder">
-              <button @click.stop="$emit('open')">
+        <DropdownMenuRoot>
+          <DropdownMenuTrigger as-child @click.stop>
+            <button
+              class="btn btn-circle btn-sm bg-white/90 hover:bg-white border-none text-black"
+            >
+              <IconMoreHorizontal class="w-4 h-4 text-base-content" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuContent
+              class="min-w-[180px] bg-base-100 rounded-lg p-1 shadow-lg border border-base-300 z-50"
+              :side-offset="5"
+              align="end"
+            >
+              <DropdownMenuItem
+                v-if="file.isFolder"
+                class="flex items-center gap-2 px-2 py-1.5 text-sm rounded cursor-pointer hover:bg-base-200 outline-none"
+                @select="$emit('open')"
+              >
                 <IconFolderOpen class="w-4 h-4" />
                 {{ t("drive.open") }}
-              </button>
-            </li>
-            <li>
-              <button @click.stop="$emit('rename')">
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                class="flex items-center gap-2 px-2 py-1.5 text-sm rounded cursor-pointer hover:bg-base-200 outline-none"
+                @select="$emit('rename')"
+              >
                 <IconPencil class="w-4 h-4" />
                 {{ t("drive.rename") }}
-              </button>
-            </li>
-            <li v-if="!file.isFolder">
-              <button @click.stop="$emit('download')">
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                v-if="!file.isFolder"
+                class="flex items-center gap-2 px-2 py-1.5 text-sm rounded cursor-pointer hover:bg-base-200 outline-none"
+                @select="$emit('download')"
+              >
                 <IconDownload class="w-4 h-4" />
                 {{ t("drive.download") }}
-              </button>
-            </li>
-            <li>
-              <button class="text-error" @click.stop="$emit('delete')">
+              </DropdownMenuItem>
+              <DropdownMenuSeparator class="h-px bg-base-300 my-1" />
+              <DropdownMenuItem
+                class="flex items-center gap-2 px-2 py-1.5 text-sm rounded cursor-pointer hover:bg-error/10 text-error outline-none"
+                @select="$emit('delete')"
+              >
                 <IconTrash class="w-4 h-4" />
                 {{ t("drive.delete") }}
-              </button>
-            </li>
-          </ul>
-        </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenuPortal>
+        </DropdownMenuRoot>
       </div>
     </div>
 
@@ -131,6 +144,14 @@
 <script setup lang="ts">
 import type { SnCloudFile } from "~/types/drive";
 import { getFileUrl } from "~/utils/files";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "reka-ui";
 
 const { t } = useI18n();
 
