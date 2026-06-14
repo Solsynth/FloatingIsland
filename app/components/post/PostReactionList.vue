@@ -82,7 +82,7 @@
 
 <script setup lang="ts">
 import { IconSmilePlus } from "#components";
-import { camelToSnake } from "~/utils/case";
+import { camelToSnakeStr } from "~/utils/case";
 
 interface Reaction {
   symbol: string;
@@ -158,7 +158,7 @@ const pickerStyle = computed(() => {
 });
 
 function normalizeSymbol(symbol: string): string {
-  return camelToSnake<string>(symbol).toLowerCase();
+  return camelToSnakeStr(symbol).toLowerCase();
 }
 
 function hasSticker(symbol: string): boolean {

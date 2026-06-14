@@ -39,28 +39,22 @@
 
 					<!-- Interaction Tabs -->
 					<div class="mt-6">
-						<!-- Tab Bar -->
-						<div class="tabs tabs-box bg-base-200/50 p-1 mb-4">
-							<button
-								v-for="tab in interactionTabs"
-								:key="tab.value"
-								class="tab flex-1 gap-1.5"
-								:class="{ 'tab-active': activeTab === tab.value }"
-								@click="activeTab = tab.value"
-							>
-								<component :is="tab.icon" class="h-4 w-4" />
-								<span>{{ tab.label }}</span>
-								<span
-									v-if="tab.count !== undefined"
-									class="badge badge-sm badge-primary"
+						<TabsRoot default-value="replies" class="w-full">
+							<!-- Tab Bar -->
+							<TabsList class="tabs tabs-box bg-base-200/50 p-1 mb-4 overflow-x-auto scrollbar-none">
+								<TabsTrigger
+									v-for="tab in interactionTabs"
+									:key="tab.value"
+									:value="tab.value"
+									class="tab flex-1 gap-1.5"
 								>
-									{{ tab.count }}
-								</span>
-							</button>
-						</div>
+									<component :is="tab.icon" class="h-4 w-4" />
+									<span>{{ tab.label }}</span>
+								</TabsTrigger>
+							</TabsList>
 
-						<!-- Replies Tab -->
-						<div v-if="activeTab === 'replies'" class="space-y-4">
+							<!-- Replies Tab -->
+							<TabsContent value="replies" class="space-y-4">
 							<!-- Reply Input -->
 							<div v-if="isAuthenticated" class="card bg-base-100">
 								<div class="card-body p-4">
@@ -114,19 +108,19 @@
 							</div>
 
 							<!-- Empty State -->
-							<div
-								v-if="replies.length === 0"
-								class="text-center py-12"
-							>
-								<IconMessageCircle class="w-12 h-12 mx-auto text-base-content/20 mb-4" />
-								<p class="text-base-content/50">
-									{{ t('post.noReplies') }}
-								</p>
-							</div>
-						</div>
+								<div
+									v-if="replies.length === 0"
+									class="text-center py-12"
+								>
+									<IconMessageCircle class="w-12 h-12 mx-auto text-base-content/20 mb-4" />
+									<p class="text-base-content/50">
+										{{ t('post.noReplies') }}
+									</p>
+								</div>
+							</TabsContent>
 
-						<!-- Forwards Tab -->
-						<div v-else-if="activeTab === 'forwards'" class="space-y-4">
+							<!-- Forwards Tab -->
+							<TabsContent value="forwards" class="space-y-4">
 							<div class="space-y-4">
 								<PostCard
 									v-for="forward in forwards"
@@ -139,19 +133,19 @@
 								/>
 							</div>
 
-							<div
-								v-if="forwards.length === 0"
-								class="text-center py-12"
-							>
-								<IconForward class="w-12 h-12 mx-auto text-base-content/20 mb-4" />
-								<p class="text-base-content/50">
-									{{ t('post.noForwards') }}
-								</p>
-							</div>
-						</div>
+								<div
+									v-if="forwards.length === 0"
+									class="text-center py-12"
+								>
+									<IconForward class="w-12 h-12 mx-auto text-base-content/20 mb-4" />
+									<p class="text-base-content/50">
+										{{ t('post.noForwards') }}
+									</p>
+								</div>
+							</TabsContent>
 
-						<!-- Boosts Tab -->
-						<div v-else-if="activeTab === 'boosts'" class="space-y-2">
+							<!-- Boosts Tab -->
+							<TabsContent value="boosts" class="space-y-2">
 							<div
 								v-for="boost in boosts"
 								:key="boost.id"
@@ -197,19 +191,19 @@
 								</div>
 							</div>
 
-							<div
-								v-if="boosts.length === 0"
-								class="text-center py-12"
-							>
-								<IconRepeat2 class="w-12 h-12 mx-auto text-base-content/20 mb-4" />
-								<p class="text-base-content/50">
-									{{ t('post.noBoosts') }}
-								</p>
-							</div>
-						</div>
+								<div
+									v-if="boosts.length === 0"
+									class="text-center py-12"
+								>
+									<IconRepeat2 class="w-12 h-12 mx-auto text-base-content/20 mb-4" />
+									<p class="text-base-content/50">
+										{{ t('post.noBoosts') }}
+									</p>
+								</div>
+							</TabsContent>
 
-						<!-- Reactions Tab -->
-						<div v-else-if="activeTab === 'reactions'" class="space-y-2">
+							<!-- Reactions Tab -->
+							<TabsContent value="reactions" class="space-y-2">
 							<div
 								v-for="reaction in reactionList"
 								:key="reaction.id"
@@ -269,16 +263,17 @@
 								</div>
 							</div>
 
-							<div
-								v-if="reactionList.length === 0"
-								class="text-center py-12"
-							>
-								<IconSmilePlus class="w-12 h-12 mx-auto text-base-content/20 mb-4" />
-								<p class="text-base-content/50">
-									{{ t('post.noReactions') }}
-								</p>
-							</div>
-						</div>
+								<div
+									v-if="reactionList.length === 0"
+									class="text-center py-12"
+								>
+									<IconSmilePlus class="w-12 h-12 mx-auto text-base-content/20 mb-4" />
+									<p class="text-base-content/50">
+										{{ t('post.noReactions') }}
+									</p>
+								</div>
+							</TabsContent>
+						</TabsRoot>
 					</div>
 				</template>
 
@@ -321,6 +316,7 @@ import {
 	IconSmilePlus,
 	IconSend,
 } from '#components';
+import { TabsContent, TabsIndicator, TabsList, TabsRoot, TabsTrigger } from 'reka-ui';
 
 const route = useRoute();
 const router = useRouter();
@@ -329,8 +325,7 @@ const { isAuthenticated, user } = auth;
 
 const postId = computed(() => route.params.id as string);
 
-// Tab state
-const activeTab = ref('replies');
+// Tab state is managed by reka-ui TabsRoot
 
 // Reply state
 const replyContent = ref('');
@@ -593,3 +588,13 @@ async function submitReply() {
 	}
 }
 </script>
+
+<style scoped>
+.scrollbar-none {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+	display: none;
+}
+</style>

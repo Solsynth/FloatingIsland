@@ -23,6 +23,10 @@ export function snakeToCamel<T>(obj: unknown): T {
   return obj as T
 }
 
+export function camelToSnakeStr(str: string): string {
+  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
+}
+
 export function camelToSnake<T>(obj: unknown): T {
   if (obj === null || obj === undefined) {
     return obj as T
