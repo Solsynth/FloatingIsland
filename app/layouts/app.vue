@@ -182,11 +182,6 @@ import { getFileUrl } from "~/utils/files";
 import {
   IconHome,
   IconMenu,
-  IconCompass,
-  IconBuilding,
-  IconHardDrive,
-  IconPalette,
-  IconCode,
   IconUser,
   IconSettings,
   IconLogOut,
@@ -204,13 +199,15 @@ const menuOpen = ref(false);
 const menuContainer = ref<HTMLElement | null>(null);
 const composeOpen = ref(false);
 
-const navItems = computed(() => [
-  { to: "/", label: t("nav.explore"), icon: IconCompass },
-  { to: "/realms", label: t("nav.realms"), icon: IconBuilding },
-  { to: "/drive", label: t("nav.drive"), icon: IconHardDrive },
-  { to: "/creators", label: t("nav.creatorHub"), icon: IconPalette },
-  { to: "/developers", label: t("nav.developerHub"), icon: IconCode },
-]);
+const { navItems: mainNavItems } = useMainNav();
+
+const navItems = computed(() =>
+  mainNavItems.value.map((item) => ({
+    to: item.href,
+    label: t(item.labelKey),
+    icon: item.icon,
+  }))
+);
 
 const displayName = computed(() => user.value?.nick || user.value?.name || "");
 const avatarUrl = computed(() => getFileUrl(user.value?.profile?.picture?.id));

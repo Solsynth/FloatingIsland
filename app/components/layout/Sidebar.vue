@@ -163,12 +163,6 @@
 
 <script setup lang="ts">
 import {
-  IconCompass,
-  IconBuilding,
-  IconPalette,
-  IconCode,
-  IconHardDrive,
-  IconMessageSquare,
   IconLogIn,
   IconLogOut,
   IconUser,
@@ -187,21 +181,16 @@ const {
   displayName: authDisplayName,
 } = useAuth();
 
-const { unreadCount: chatUnreadCount } = useChat();
+const { navItems: mainNavItems } = useMainNav();
 
-const navItems = computed(() => [
-  { icon: IconCompass, label: t("nav.explore"), href: "/" },
-  { icon: IconBuilding, label: t("nav.realms"), href: "/realms" },
-  { icon: IconHardDrive, label: t("nav.drive"), href: "/drive" },
-  {
-    icon: IconMessageSquare,
-    label: t("nav.chat"),
-    href: "/chat",
-    badge: chatUnreadCount.value > 0 ? chatUnreadCount.value : null,
-  },
-  { icon: IconPalette, label: t("nav.creatorHub"), href: "/creators" },
-  { icon: IconCode, label: t("nav.developerHub"), href: "/developers" },
-]);
+const navItems = computed(() =>
+  mainNavItems.value.map((item) => ({
+    icon: item.icon,
+    label: t(item.labelKey),
+    href: item.href,
+    badge: item.badge,
+  }))
+);
 
 const displayName = computed(() => authDisplayName.value);
 const username = computed(() => user.value?.name || "");

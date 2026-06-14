@@ -1,8 +1,21 @@
 <template>
-  <DrawerRoot :open="open" @update:open="$emit('update:open', $event)" direction="right" :dismissible="dismissible" :modal="true">
+  <DrawerRoot :open="open" @update:open="$emit('update:open', $event)" :direction="direction" :dismissible="dismissible" :modal="true">
     <DrawerPortal>
       <DrawerOverlay class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40" />
-      <DrawerContent class="fixed right-0 top-0 bottom-0 z-50 flex flex-col bg-base-100 shadow-2xl w-[28rem]" :class="contentClass">
+      <DrawerContent 
+        class="fixed z-50 flex flex-col bg-base-100 shadow-2xl"
+        :class="[
+          contentClass,
+          direction === 'bottom' 
+            ? 'bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl' 
+            : 'right-0 top-0 bottom-0 w-[28rem]'
+        ]"
+      >
+        <!-- Drag Handle (bottom drawer) -->
+        <div v-if="direction === 'bottom'" class="flex justify-center pt-3 pb-1">
+          <div class="w-10 h-1 rounded-full bg-base-300" />
+        </div>
+
         <!-- Header -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-base-300/30 shrink-0">
           <slot name="header">
@@ -36,12 +49,15 @@ import {
   DrawerContent,
 } from 'vaul-vue'
 
-defineProps<{
+withDefaults(defineProps<{
   open: boolean
   title?: string
   contentClass?: string
   dismissible?: boolean
-}>()
+  direction?: 'right' | 'bottom'
+}>(), {
+  direction: 'right'
+})
 
 const emit = defineEmits<{
   'update:open': [value: boolean]

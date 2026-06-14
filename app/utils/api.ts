@@ -1189,6 +1189,8 @@ export interface WalletPocket {
   id: string;
   currency: string;
   amount: number;
+  heldAmount: number;
+  availableAmount: number;
   walletId: string;
   createdAt: string;
   updatedAt: string;
@@ -1197,6 +1199,10 @@ export interface WalletPocket {
 export interface Wallet {
   id: string;
   accountId: string;
+  name: string;
+  realmId?: string;
+  isPrimary: boolean;
+  publicId?: string;
   pockets: WalletPocket[];
   createdAt: string;
   updatedAt: string;
@@ -1214,7 +1220,13 @@ export interface Transaction {
   amount: number;
   currency: string;
   type: number; // 0: transfer, 1: payment
+  status: number; // 0: pending, 1: frozen, 2: confirmed, 3: refunded, 4: cancelled
+  isFrozen: boolean;
+  requireConfirmation: boolean;
   remarks?: string;
+  frozenAt?: string;
+  expiresAt?: string;
+  confirmedAt?: string;
   createdAt: string;
   payerWallet?: {
     account?: {
@@ -1238,6 +1250,22 @@ export interface Transaction {
   };
 }
 
+export interface FundRecipient {
+  id: string;
+  recipientAccountId: string;
+  amount: number;
+  isReceived: boolean;
+  receivedAt?: string;
+  recipientAccount?: {
+    id: string;
+    name: string;
+    nick: string;
+    profile: {
+      picture?: { id: string };
+    };
+  };
+}
+
 export interface Fund {
   id: string;
   senderId: string;
@@ -1247,9 +1275,25 @@ export interface Fund {
   amountOfSplits: number;
   message?: string;
   remainingAmount: number;
-  claimedCount: number;
+  raisedAmount: number;
+  status: number; // 0: created, 1: partial, 2: completed, 3: expired
+  isRaising: boolean;
+  isOpen: boolean;
+  targetAmount: number;
+  contributionType: number; // 0: free, 1: fixed
+  contributionAmount: number;
+  deadlineAt?: string;
   createdAt: string;
   expiresAt?: string;
+  recipients: FundRecipient[];
+  creatorAccount?: {
+    id: string;
+    name: string;
+    nick: string;
+    profile: {
+      picture?: { id: string };
+    };
+  };
 }
 
 // Wallet API
@@ -1265,16 +1309,70 @@ export async function fetchWallet(): Promise<Wallet | null> {
   }
 }
 
-export async function createWallet(): Promise<Wallet> {
+export async function fetchWallets(): Promise<Wallet[]> {
+  const response = await apiFetch("/wallet/wallets/all");
+  return safeJsonParse<Wallet[]>(response);
+}
+
+export async function fetchWalletById(id: string): Promise<Wallet> {
+  const response = await apiFetch(`/wallet/wallets/${id}`);
+  return safeJsonParse<Wallet>(response);
+}
+
+export async function createWallet(params?: {
+  name?: string;
+  realmId?: string;
+}): Promise<Wallet> {
   const response = await apiFetch("/wallet/wallets", {
     method: "POST",
+    body: JSON.stringify({
+      name: params?.name,
+      realm_id: params?.realmId,
+    }),
   });
   return safeJsonParse<Wallet>(response);
 }
 
-export async function fetchWalletStats(): Promise<WalletStats> {
-  const response = await apiFetch("/wallet/wallets/stats");
+export async function setDefaultWallet(walletId: string): Promise<void> {
+  await apiFetch(`/wallet/wallets/${walletId}/set-default`, {
+    method: "POST",
+  });
+}
+
+export async function enableWalletPublicId(walletId: string): Promise<void> {
+  await apiFetch(`/wallet/wallets/${walletId}/public-id`, {
+    method: "POST",
+  });
+}
+
+export async function disableWalletPublicId(walletId: string): Promise<void> {
+  await apiFetch(`/wallet/wallets/${walletId}/public-id`, {
+    method: "DELETE",
+  });
+}
+
+export async function fetchWalletStats(params?: {
+  period?: number;
+  walletId?: string;
+  currency?: string;
+}): Promise<WalletStats> {
+  const searchParams = new URLSearchParams();
+  if (params?.period) searchParams.set('period', String(params.period));
+  if (params?.walletId) searchParams.set('wallets', params.walletId);
+  if (params?.currency) searchParams.set('currencies', params.currency);
+  const query = searchParams.toString();
+  const response = await apiFetch(`/wallet/wallets/stats${query ? '?' + query : ''}`);
   return safeJsonParse<WalletStats>(response);
+}
+
+export interface WalletPinStatus {
+  hasPin: boolean;
+  validationRequired: boolean;
+}
+
+export async function fetchWalletPinStatus(): Promise<WalletPinStatus> {
+  const response = await apiFetch("/padlock/accounts/me/pin-status");
+  return safeJsonParse<WalletPinStatus>(response);
 }
 
 export async function fetchTransactions(
@@ -1296,30 +1394,57 @@ export async function fetchTransactions(
 export async function createTransfer(payload: {
   amount: number;
   currency: string;
-  payeeAccountId: string;
+  payeeAccountId?: string;
+  payeePublicId?: string;
   remark?: string;
-  pinCode: string;
+  pinCode?: string;
+  freeze?: boolean;
+  requireConfirmation?: boolean;
+  payerWalletId?: string;
 }): Promise<void> {
-  await apiFetch("/wallet/wallets/transfers", {
+  await apiFetch("/wallet/wallets/transfer", {
     method: "POST",
     body: JSON.stringify({
       amount: payload.amount,
       currency: payload.currency,
       payee_account_id: payload.payeeAccountId,
+      payee_public_id: payload.payeePublicId,
       remark: payload.remark,
       pin_code: payload.pinCode,
+      freeze: payload.freeze,
+      require_confirmation: payload.requireConfirmation,
+      payer_wallet_id: payload.payerWalletId,
     }),
+  });
+}
+
+export async function confirmTransaction(transactionId: string): Promise<void> {
+  await apiFetch(`/wallet/wallets/transactions/${transactionId}/confirm`, {
+    method: "POST",
+  });
+}
+
+export async function rejectTransaction(transactionId: string): Promise<void> {
+  await apiFetch(`/wallet/wallets/transactions/${transactionId}/reject`, {
+    method: "POST",
   });
 }
 
 export async function createFund(payload: {
   currency: string;
-  totalAmount: number;
+  totalAmount?: number;
   splitType: number;
   amountOfSplits: number;
-  recipientAccountIds: string[];
+  recipientAccountIds?: string[];
   message?: string;
-  pinCode: string;
+  pinCode?: string;
+  isRaising?: boolean;
+  isOpen?: boolean;
+  targetAmount?: number;
+  contributionType?: number;
+  contributionAmount?: number;
+  deadlineAt?: string;
+  payerWalletId?: string;
 }): Promise<Fund> {
   const response = await apiFetch("/wallet/wallets/funds", {
     method: "POST",
@@ -1331,9 +1456,27 @@ export async function createFund(payload: {
       recipient_account_ids: payload.recipientAccountIds,
       message: payload.message,
       pin_code: payload.pinCode,
+      is_raising: payload.isRaising,
+      is_open: payload.isOpen,
+      target_amount: payload.targetAmount,
+      contribution_type: payload.contributionType,
+      contribution_amount: payload.contributionAmount,
+      deadline_at: payload.deadlineAt,
+      payer_wallet_id: payload.payerWalletId,
     }),
   });
   return safeJsonParse<Fund>(response);
+}
+
+export async function fetchFund(fundId: string): Promise<Fund> {
+  const response = await apiFetch(`/wallet/wallets/funds/${fundId}`);
+  return safeJsonParse<Fund>(response);
+}
+
+export async function claimFund(fundId: string): Promise<void> {
+  await apiFetch(`/wallet/wallets/funds/${fundId}/receive`, {
+    method: "POST",
+  });
 }
 
 export async function fetchFunds(
