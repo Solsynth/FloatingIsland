@@ -38,6 +38,15 @@
           </div>
         </div>
 
+        <!-- Featured Posts -->
+        <ClientOnly>
+          <FeaturedPostsCarousel
+            @boost="handleBoost"
+            @share="handleShare"
+            @reply="handleReply"
+          />
+        </ClientOnly>
+
         <!-- Loading State -->
         <ConfuseSpinner
           v-if="status === 'pending' && timelineEvents.length === 0"

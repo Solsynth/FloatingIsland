@@ -16,15 +16,24 @@
 
     <!-- Video -->
     <template v-else-if="isVideo">
-      <div class="relative w-full h-full">
+      <div class="relative w-full h-full group">
         <video
           v-if="fileUrl"
           :src="fileUrl"
           class="w-full h-full object-cover"
           preload="metadata"
+          playsinline
         />
-        <div class="absolute inset-0 flex items-center justify-center bg-black/20">
-          <IconPlay class="w-12 h-12 text-white/80" />
+        <!-- Play button overlay -->
+        <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+          <div class="flex flex-col items-center gap-2">
+            <div class="w-14 h-14 rounded-full bg-black/50 flex items-center justify-center backdrop-blur-sm">
+              <IconPlay class="w-7 h-7 text-white ml-0.5" />
+            </div>
+            <span class="text-xs text-white/80 font-medium px-2 py-0.5 rounded bg-black/40 truncate max-w-[200px]">
+              {{ attachment.name }}
+            </span>
+          </div>
         </div>
       </div>
     </template>

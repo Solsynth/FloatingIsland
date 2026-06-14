@@ -200,7 +200,9 @@
     "composePlaceholder": "What's on your mind?",
     "loadingPosts": "Loading posts...",
     "loadFailed": "Failed to load posts: {error}",
-    "sharePostFallbackTitle": "Post on Floating Island"
+    "sharePostFallbackTitle": "Post on Floating Island",
+    "featuredPosts": "Featured Posts",
+    "featuredPostsFailed": "Could not load featured posts"
   },
   "presence": {
     "unknown": "Unknown Activity",

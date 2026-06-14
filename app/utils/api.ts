@@ -590,6 +590,14 @@ export async function fetchTimeline(
   return { items, nextCursor, mode };
 }
 
+export async function fetchFeaturedPosts(): Promise<Post[]> {
+  const { isAuthenticated } = useAuth();
+  const response = await apiFetch("/sphere/posts/featured", {
+    skipAuth: !isAuthenticated.value,
+  });
+  return safeJsonParse<Post[]>(response);
+}
+
 export async function fetchPost(id: string): Promise<Post> {
   const { isAuthenticated } = useAuth();
   const response = await apiFetch(`/sphere/posts/${id}`, { skipAuth: !isAuthenticated.value });

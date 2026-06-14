@@ -5,7 +5,7 @@
 			<div
 				class="relative overflow-hidden rounded-xl cursor-pointer"
 				:style="singleAttachmentStyle"
-				@click.prevent.stop="openLightbox(0)"
+				@click.prevent.stop="openViewer(0)"
 			>
 				<AttachmentItem
 					v-if="attachments[0]"
@@ -28,7 +28,7 @@
 					:key="attachment.id"
 					class="shrink-0 snap-start relative overflow-hidden rounded-xl cursor-pointer"
 					:style="getItemStyle(attachment)"
-					@click.prevent.stop="openLightbox(index)"
+					@click.prevent.stop="openViewer(index)"
 				>
 					<AttachmentItem
 						:attachment="attachment"
@@ -80,17 +80,68 @@
 			<IconChevronUp class="w-3 h-3" />
 			Show less
 		</button>
+
+		<!-- Media viewer (full-screen video/audio player) -->
+		<Teleport to="body">
+			<div
+				v-if="mediaViewerAttachment"
+				class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90"
+				@click.self="mediaViewerAttachment = null"
+			>
+				<button
+					class="absolute right-4 top-4 z-10 btn btn-sm btn-circle bg-white/10 border-none text-white hover:bg-white/20"
+					@click="mediaViewerAttachment = null"
+				>
+					<IconX class="w-5 h-5" />
+				</button>
+
+				<!-- Video player -->
+				<template v-if="isVideoAttachment(mediaViewerAttachment)">
+					<div class="relative w-screen h-screen flex flex-col items-center justify-center select-none">
+						<video
+							:src="getAttachmentUrl(mediaViewerAttachment)"
+							class="max-w-full max-h-full w-full h-full object-contain"
+							controls
+							autoplay
+							playsinline
+							@click.stop
+						/>
+						<div class="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/60 rounded-full text-sm text-white/90 font-medium backdrop-blur-sm">
+							{{ mediaViewerAttachment.name }}
+						</div>
+					</div>
+				</template>
+
+				<!-- Audio player -->
+				<template v-else-if="isAudioAttachment(mediaViewerAttachment)">
+					<div class="flex flex-col items-center justify-center text-white select-none">
+						<IconHeadphones class="w-16 h-16 text-white/30 mb-4" />
+						<span class="text-lg font-medium mb-1">{{ mediaViewerAttachment.name }}</span>
+						<span class="text-sm text-white/50 mb-6">Audio file</span>
+						<audio
+							:src="getAttachmentUrl(mediaViewerAttachment)"
+							controls
+							autoplay
+							class="w-full max-w-md"
+						/>
+					</div>
+				</template>
+			</div>
+		</Teleport>
 	</div>
 </template>
 
 <script setup lang="ts">
 import type { FileAttachment } from '~/types/post';
-import { isImageFile } from '~/utils/fileType';
+import { isImageFile, isVideoFile, isAudioFile } from '~/utils/fileType';
+import { getFileUrl } from '~/utils/files';
 import {
 	IconChevronLeft,
 	IconChevronRight,
 	IconChevronDown,
-	IconChevronUp
+	IconChevronUp,
+	IconX,
+	IconHeadphones
 } from '#components';
 
 interface Props {
@@ -108,6 +159,7 @@ const showAll = ref(false);
 const scrollContainer = ref<HTMLElement | null>(null);
 const canScrollLeft = ref(false);
 const canScrollRight = ref(false);
+const mediaViewerAttachment = ref<FileAttachment | null>(null);
 
 const { open: openLightboxModal } = useLightbox();
 
@@ -117,9 +169,21 @@ const displayAttachments = computed(() => {
 	return props.attachments.slice(0, props.maxVisible);
 });
 
-// Check if attachment is an image
+// Check attachment type
 function isImageAttachment(attachment: FileAttachment): boolean {
 	return isImageFile(attachment);
+}
+
+function isVideoAttachment(attachment: FileAttachment): boolean {
+	return isVideoFile(attachment);
+}
+
+function isAudioAttachment(attachment: FileAttachment): boolean {
+	return isAudioFile(attachment);
+}
+
+function getAttachmentUrl(attachment: FileAttachment): string {
+	return attachment.url || getFileUrl(attachment.id) || '';
 }
 
 // Get aspect ratio from file meta
@@ -188,16 +252,21 @@ function scrollBy(direction: number) {
 	});
 }
 
-// Lightbox function - opens the global lightbox
-function openLightbox(index: number) {
-	const imageAttachments = props.attachments.filter(a => isImageFile(a));
-	if (imageAttachments.length === 0) return;
+// Viewer function - opens lightbox for images, inline player for video/audio
+function openViewer(index: number) {
+	const attachment = displayAttachments.value[index];
+	if (!attachment) return;
 
-	// Find the correct index in the filtered image attachments
-	const clickedAttachment = displayAttachments.value[index];
-	const imageIndex = imageAttachments.findIndex(a => a.id === clickedAttachment?.id);
-
-	openLightboxModal(imageAttachments, imageIndex >= 0 ? imageIndex : 0);
+	if (isImageFile(attachment)) {
+		// Open global lightbox for images
+		const imageAttachments = props.attachments.filter(a => isImageFile(a));
+		if (imageAttachments.length === 0) return;
+		const imageIndex = imageAttachments.findIndex(a => a.id === attachment.id);
+		openLightboxModal(imageAttachments, imageIndex >= 0 ? imageIndex : 0);
+	} else if (isVideoFile(attachment) || isAudioFile(attachment)) {
+		// Open inline media player for video/audio
+		mediaViewerAttachment.value = attachment;
+	}
 }
 
 // Initialize scroll state on mount

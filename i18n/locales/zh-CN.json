@@ -181,7 +181,9 @@
     "composePlaceholder": "有什么新鲜事？",
     "loadingPosts": "正在加载帖子...",
     "loadFailed": "加载帖子失败：{error}",
-    "sharePostFallbackTitle": "Floating Island 上的帖子"
+    "sharePostFallbackTitle": "Floating Island 上的帖子",
+    "featuredPosts": "精选帖子",
+    "featuredPostsFailed": "无法加载精选帖子"
   },
   "presence": {
     "unknown": "未知活动",

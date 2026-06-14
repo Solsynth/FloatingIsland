@@ -3,40 +3,42 @@
     v-if="reactions.length > 0 || showAddButton"
     class="flex items-center gap-1.5 flex-wrap"
   >
-    <!-- Add reaction button -->
-    <PopoverRoot v-if="showAddButton" v-model:open="showReactionPicker">
-      <PopoverTrigger class="btn btn-glass btn-xs gap-1 h-7 px-2">
-        <IconSmilePlus class="h-3.5 w-3.5" />
-        <span class="text-xs">React</span>
-      </PopoverTrigger>
+    <!-- Add reaction button (client-only to avoid Teleport to body SSR issues) -->
+    <ClientOnly>
+      <PopoverRoot v-if="showAddButton" v-model:open="showReactionPicker">
+        <PopoverTrigger class="btn btn-glass btn-xs gap-1 h-7 px-2">
+          <IconSmilePlus class="h-3.5 w-3.5" />
+          <span class="text-xs">React</span>
+        </PopoverTrigger>
 
-      <PopoverPortal>
-        <PopoverContent
-          class="bg-base-100 rounded-2xl border border-base-300 shadow-xl p-4 z-50"
-          :side-offset="8"
-          align="center"
-          :collision-padding="16"
-        >
-          <div class="grid grid-cols-3 gap-3">
-            <button
-              v-for="emoji in availableReactions"
-              :key="emoji.symbol"
-              class="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-base-200 transition-colors"
-              @click.stop="addReaction(emoji.symbol)"
-            >
-              <img
-                :src="`/images/stickers/${emoji.symbol}.webp`"
-                :alt="emoji.label"
-                class="w-10 h-10 object-contain"
-              />
-              <span class="text-xs font-medium text-base-content/70">
-                {{ emoji.label }}
-              </span>
-            </button>
-          </div>
-        </PopoverContent>
-      </PopoverPortal>
-    </PopoverRoot>
+        <PopoverPortal>
+          <PopoverContent
+            class="bg-base-100 rounded-2xl border border-base-300 shadow-xl p-4 z-50"
+            :side-offset="8"
+            align="center"
+            :collision-padding="16"
+          >
+            <div class="grid grid-cols-3 gap-3">
+              <button
+                v-for="emoji in availableReactions"
+                :key="emoji.symbol"
+                class="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-base-200 transition-colors"
+                @click.stop="addReaction(emoji.symbol)"
+              >
+                <img
+                  :src="`/images/stickers/${emoji.symbol}.webp`"
+                  :alt="emoji.label"
+                  class="w-10 h-10 object-contain"
+                />
+                <span class="text-xs font-medium text-base-content/70">
+                  {{ emoji.label }}
+                </span>
+              </button>
+            </div>
+          </PopoverContent>
+        </PopoverPortal>
+      </PopoverRoot>
+    </ClientOnly>
 
     <!-- Reaction chips -->
     <button

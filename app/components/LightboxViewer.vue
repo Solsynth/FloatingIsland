@@ -1,53 +1,51 @@
 <template>
   <Teleport to="body">
-    <dialog
+    <div
       v-if="state.isOpen"
-      class="modal modal-open"
-      @close="close"
+      class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85"
+      @click.self="close"
     >
-      <div class="modal-box max-w-5xl p-0 bg-black">
-        <button
-          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 z-10"
-          @click="close"
+      <!-- Close button -->
+      <button
+        class="absolute right-4 top-4 z-10 btn btn-sm btn-circle bg-white/10 border-none text-white hover:bg-white/20"
+        @click="close"
+      >
+        <IconX class="w-5 h-5" />
+      </button>
+
+      <!-- Full-screen image viewer -->
+      <div class="relative flex items-center justify-center w-screen h-screen select-none">
+        <img
+          v-if="currentAttachment"
+          :src="getFileUrl(currentAttachment.id)"
+          :alt="currentAttachment.name"
+          class="w-full h-full object-contain"
+          draggable="false"
+          @click.stop
         >
-          <IconX class="w-5 h-5" />
+
+        <!-- Navigation -->
+        <button
+          v-if="state.currentIndex > 0"
+          class="absolute left-4 top-1/2 -translate-y-1/2 btn btn-circle bg-white/10 border-none text-white hover:bg-white/40 transition-all"
+          @click.stop="prev"
+        >
+          <IconChevronLeft class="w-6 h-6" />
+        </button>
+        <button
+          v-if="state.currentIndex < state.attachments.length - 1"
+          class="absolute right-4 top-1/2 -translate-y-1/2 btn btn-circle bg-white/10 border-none text-white hover:bg-white/40 transition-all"
+          @click.stop="next"
+        >
+          <IconChevronRight class="w-6 h-6" />
         </button>
 
-        <!-- Image viewer -->
-        <div class="relative">
-          <img
-            v-if="currentAttachment"
-            :src="getFileUrl(currentAttachment.id)"
-            :alt="currentAttachment.name"
-            class="w-full h-auto max-h-[80vh] object-contain"
-          >
-
-          <!-- Navigation -->
-          <button
-            v-if="state.currentIndex > 0"
-            class="absolute left-4 top-1/2 -translate-y-1/2 btn btn-circle btn-sm bg-black/50 border-none text-white hover:bg-black/70"
-            @click="prev"
-          >
-            <IconChevronLeft class="w-5 h-5" />
-          </button>
-          <button
-            v-if="state.currentIndex < state.attachments.length - 1"
-            class="absolute right-4 top-1/2 -translate-y-1/2 btn btn-circle btn-sm bg-black/50 border-none text-white hover:bg-black/70"
-            @click="next"
-          >
-            <IconChevronRight class="w-5 h-5" />
-          </button>
-
-          <!-- Counter -->
-          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/60 rounded-full text-sm text-white backdrop-blur-sm">
-            {{ state.currentIndex + 1 }} / {{ state.attachments.length }}
-          </div>
+        <!-- Counter -->
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/60 rounded-full text-sm text-white/90 font-medium backdrop-blur-sm">
+          {{ state.currentIndex + 1 }} / {{ state.attachments.length }}
         </div>
       </div>
-      <form method="dialog" class="modal-backdrop">
-        <button @click="close">close</button>
-      </form>
-    </dialog>
+    </div>
   </Teleport>
 </template>
 
