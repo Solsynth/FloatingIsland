@@ -2,9 +2,9 @@
   <span class="inline-flex items-center gap-1 align-middle">
     <!-- Account name with optional color -->
     <span
-      class="truncate font-medium leading-none"
+      class="truncate leading-none"
       :style="nameStyle"
-      :class="nameClasses"
+      :class="[nameClasses, fontWeightClass]"
     >
       {{ displayName }}
     </span>
@@ -73,11 +73,13 @@ const props = withDefaults(defineProps<{
   hideVerificationMark?: boolean
   hideOverlay?: boolean
   size?: 'sm' | 'md' | 'lg'
+  bold?: boolean
 }>(), {
   ignorePermissions: false,
   hideVerificationMark: false,
   hideOverlay: false,
   size: 'md',
+  bold: true,
 })
 
 const { t } = useI18n()
@@ -203,6 +205,11 @@ const nameClasses = computed(() => {
   else if (props.size === 'lg') classes.push('text-base')
   else classes.push('text-sm')
   return classes
+})
+
+// Font weight class
+const fontWeightClass = computed(() => {
+  return props.bold ? 'font-semibold' : 'font-medium'
 })
 
 // Membership mark

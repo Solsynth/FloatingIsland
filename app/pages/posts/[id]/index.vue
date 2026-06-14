@@ -176,13 +176,11 @@
 											</div>
 										</NuxtLink>
 										<div class="flex-1 min-w-0">
-											<NuxtLink
+											<AccountName
 												v-if="boost.account"
-												:to="`/publishers/${boost.account.name}`"
-												class="font-semibold text-sm hover:underline"
-											>
-												{{ boost.account.nick || boost.account.name }}
-											</NuxtLink>
+												:account="boost.account"
+												size="sm"
+											/>
 											<p class="text-xs text-base-content/50">
 												{{ t('post.boostedTime', { time: formatRelativeTime(boost.boostedAt) }) }}
 											</p>
@@ -234,13 +232,11 @@
 											</div>
 										</NuxtLink>
 										<div class="flex-1 min-w-0">
-											<NuxtLink
+											<AccountName
 												v-if="reaction.account"
-												:to="`/publishers/${reaction.account.name}`"
-												class="font-semibold text-sm hover:underline"
-											>
-												{{ reaction.account.nick || reaction.account.name }}
-											</NuxtLink>
+												:account="reaction.account"
+												size="sm"
+											/>
 											<p class="text-xs text-base-content/50">
 												{{ formatRelativeTime(reaction.createdAt) }}
 											</p>

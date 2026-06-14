@@ -39,33 +39,12 @@
           >
             <!-- Author info -->
             <div class="flex items-center gap-2 mb-1">
-              <div v-if="getAvatarUrl(referencePost)" class="avatar">
-                <div class="h-6 w-6 rounded-full">
-                  <img
-                    :src="getAvatarUrl(referencePost)"
-                    :alt="getDisplayName(referencePost.publisher)"
-                    class="h-full w-full rounded-full object-cover"
-                  />
-                </div>
-              </div>
-              <div v-else class="avatar avatar-placeholder">
-                <div
-                  class="h-6 w-6 rounded-full bg-primary text-primary-content"
-                >
-                  <span class="text-[10px] font-medium">
-                    {{ getInitials(getDisplayName(referencePost.publisher)) }}
-                  </span>
-                </div>
-              </div>
-              <span class="text-xs font-semibold truncate">
-                {{ getDisplayName(referencePost.publisher) }}
-              </span>
-              <span
-                v-if="referencePost.publisher?.name"
-                class="text-xs text-base-content/50 truncate"
-              >
-                @{{ referencePost.publisher.name }}
-              </span>
+              <AccountName
+                :account="referencePost.publisher.account || referencePost.publisher"
+                :text-override="getDisplayName(referencePost.publisher)"
+                size="sm"
+                hide-verification-mark
+              />
             </div>
 
             <!-- Content preview -->
@@ -134,28 +113,18 @@
             <NuxtLink
               v-if="post.publisher"
               :to="`/publishers/${post.publisher.name}`"
-              class="text-sm leading-tight font-semibold truncate hover:underline"
+              class="hover:underline"
               @click.stop
             >
-              {{ getDisplayName(post.publisher) }}
+              <AccountName
+                :account="post.publisher.account || post.publisher"
+                :text-override="getDisplayName(post.publisher)"
+                size="sm"
+              />
             </NuxtLink>
             <span v-else class="text-sm leading-tight font-semibold truncate">
               {{ getDisplayName(post.publisher) }}
             </span>
-
-            <IconBadgeCheck
-              v-if="post.publisher?.verification"
-              class="h-4 w-4 text-primary shrink-0"
-            />
-
-            <NuxtLink
-              v-if="post.publisher?.name"
-              :to="`/publishers/${post.publisher.name}`"
-              class="text-xs text-base-content/50 truncate hover:underline"
-              @click.stop
-            >
-              @{{ post.publisher.name }}
-            </NuxtLink>
 
             <!-- Realm -->
             <template v-if="post.realm">
