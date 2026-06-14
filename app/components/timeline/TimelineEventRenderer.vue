@@ -70,6 +70,14 @@
     <FriendPresenceCard
       v-else-if="isPresenceEvent && presenceActivity"
       :activity="presenceActivity"
+      :raw-data="presenceRawData"
+    />
+
+    <!-- Friend status events -->
+    <FriendStatusCard
+      v-else-if="isStatusEvent && statusData"
+      :status="statusData"
+      :created-at="event.createdAt"
     />
   </div>
 </template>
@@ -111,6 +119,10 @@ const isDiscoveryEvent = computed(() =>
 
 const isPresenceEvent = computed(() =>
   props.event.type === "presence.friend"
+);
+
+const isStatusEvent = computed(() =>
+  props.event.type === "status.friend"
 );
 
 const discoveryData = computed(() => {
@@ -167,6 +179,17 @@ const presenceActivity = computed<SnPresenceActivity | null>(() => {
   if (!isPresenceEvent.value) return null;
   const data = props.event.data as Record<string, unknown>;
   return (data?.activity as SnPresenceActivity) ?? null;
+});
+
+const presenceRawData = computed<Record<string, unknown>>(() => {
+  if (!isPresenceEvent.value) return {};
+  return (props.event.data as Record<string, unknown>) ?? {};
+});
+
+const statusData = computed(() => {
+  if (!isStatusEvent.value) return null;
+  const data = props.event.data as Record<string, unknown>;
+  return (data?.status as import("~/types/post").SnAccountStatus) ?? null;
 });
 </script>
 

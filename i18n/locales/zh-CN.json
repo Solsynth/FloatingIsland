@@ -109,6 +109,29 @@
     "loadFailed": "加载帖子失败：{error}",
     "sharePostFallbackTitle": "Floating Island 上的帖子"
   },
+  "presence": {
+    "unknown": "未知活动",
+    "gaming": "游戏中",
+    "music": "听音乐",
+    "workout": "运动中",
+    "activity": "活动中",
+    "ongoing": "进行中"
+  },
+  "status": {
+    "online": "在线",
+    "offline": "离线",
+    "idle": "闲置",
+    "busy": "忙碌",
+    "doNotDisturb": "请勿打扰",
+    "invisible": "隐身",
+    "bot": "机器人"
+  },
+  "time": {
+    "justNow": "刚刚",
+    "minutesAgo": "{count}分钟前",
+    "hoursAgo": "{count}小时前",
+    "daysAgo": "{count}天前"
+  },
   "appearance": {
     "title": "外观设置",
     "theme": {

@@ -123,6 +123,31 @@ export interface SnPresenceActivity {
   leaseMinutes: number
   leaseExpiresAt: string
   accountId: string
+  account?: Account | null
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
+}
+
+export enum SnAccountStatusType {
+  defaultType = 0,
+  busy = 1,
+  doNotDisturb = 2,
+  invisible = 3,
+}
+
+export interface SnAccountStatus {
+  id: string
+  accountId: string
+  type: SnAccountStatusType
+  isOnline: boolean
+  isIdleOrOnline: boolean
+  isInvisible: boolean
+  isAutomated: boolean
+  label: string | null
+  symbol: string | null
+  attitude: number
+  account?: Account | null
   createdAt: string
   updatedAt: string
   deletedAt: string | null
