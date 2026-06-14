@@ -614,8 +614,6 @@ function selectEndpoint(ep: SwaggerEndpoint) {
   responseHeaders.value = {}
   responseBody.value = null
   responseTime.value = null
-
-  $toast.success(`Loaded ${ep.method} ${ep.path}`)
 }
 
 // ---- Send request ----

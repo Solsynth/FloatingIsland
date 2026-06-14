@@ -558,6 +558,20 @@ const emit = defineEmits<{
 
 const auth = useAuth();
 const { user } = auth;
+const { $toast } = useNuxtApp();
+
+// Local optimistic reaction state
+const localReactionsCount = ref<Record<string, number>>({ ...props.post.reactionsCount });
+const localReactionsMade = ref<Record<string, boolean>>({ ...(props.post.reactionsMade || {}) });
+
+// Sync from props when they change (e.g. after parent refreshes)
+watch(
+  () => [props.post.reactionsCount, props.post.reactionsMade],
+  () => {
+    localReactionsCount.value = { ...props.post.reactionsCount };
+    localReactionsMade.value = { ...(props.post.reactionsMade || {}) };
+  },
+);
 
 // State
 const showMenu = ref(false);
@@ -631,14 +645,11 @@ const hasEdits = computed(() => props.post.editedAt != null);
 
 // Reactions
 const formattedReactions = computed(() => {
-  const reactionsCount = props.post.reactionsCount || {};
-  const reactionsMade = props.post.reactionsMade || {};
-
-  return Object.entries(reactionsCount).map(([symbol, count]) => ({
+  return Object.entries(localReactionsCount.value).map(([symbol, count]) => ({
     symbol,
     attitude: 0,
     count: count as number,
-    userReacted: reactionsMade[symbol] || false,
+    userReacted: localReactionsMade.value[symbol] || false,
   }));
 });
 
@@ -880,44 +891,49 @@ function handleDownvote() {
 }
 
 async function handleReact(symbol: string, attitude: number) {
+  // Optimistic update
+  localReactionsCount.value = {
+    ...localReactionsCount.value,
+    [symbol]: (localReactionsCount.value[symbol] || 0) + 1,
+  };
+  localReactionsMade.value = { ...localReactionsMade.value, [symbol]: true };
+
   try {
     const { reactToPost } = await import("~/utils/api");
     await reactToPost(props.post.id, symbol, attitude);
-
-    // Update local state
-    const reactionsCount = { ...props.post.reactionsCount };
-    reactionsCount[symbol] = (reactionsCount[symbol] || 0) + 1;
-
-    const reactionsMade = { ...(props.post.reactionsMade || {}) };
-    reactionsMade[symbol] = true;
-
-    // Emit update if needed
-    // Note: The parent should handle post updates
+    $toast.success('Reaction sent!');
   } catch (e) {
+    // Revert on failure
+    localReactionsCount.value = {
+      ...localReactionsCount.value,
+      [symbol]: Math.max(0, (localReactionsCount.value[symbol] || 1) - 1),
+    };
+    localReactionsMade.value = { ...localReactionsMade.value, [symbol]: false };
     console.error("Failed to react:", e);
+    $toast.error('Failed to send reaction');
   }
 }
 
 async function handleRemoveReaction(symbol: string) {
+  // Optimistic update
+  const updatedCount = Math.max(0, (localReactionsCount.value[symbol] || 1) - 1);
+  const { [symbol]: _, ...restCounts } = localReactionsCount.value;
+  localReactionsCount.value = updatedCount > 0 ? { ...restCounts, [symbol]: updatedCount } : restCounts;
+  localReactionsMade.value = { ...localReactionsMade.value, [symbol]: false };
+
   try {
     const { removeReaction } = await import("~/utils/api");
     await removeReaction(props.post.id, symbol);
-
-    // Update local state
-    const reactionsCount = { ...props.post.reactionsCount };
-    if (reactionsCount[symbol]) {
-      reactionsCount[symbol] = Math.max(0, reactionsCount[symbol] - 1);
-      if (reactionsCount[symbol] === 0) {
-        delete reactionsCount[symbol];
-      }
-    }
-
-    const reactionsMade = { ...(props.post.reactionsMade || {}) };
-    reactionsMade[symbol] = false;
-
-    // Emit update if needed
+    $toast.success('Reaction removed!');
   } catch (e) {
+    // Revert on failure
+    localReactionsCount.value = {
+      ...localReactionsCount.value,
+      [symbol]: (localReactionsCount.value[symbol] || 0) + 1,
+    };
+    localReactionsMade.value = { ...localReactionsMade.value, [symbol]: true };
     console.error("Failed to remove reaction:", e);
+    $toast.error('Failed to remove reaction');
   }
 }
 

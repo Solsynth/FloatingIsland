@@ -539,8 +539,10 @@ export async function fetchPosts(
   if (options.orderDesc) params.set("orderDesc", String(options.orderDesc));
   if (options.pub) params.set("pub", options.pub);
 
+  // Send auth when logged in so API can return reactionsMade
+  const { isAuthenticated } = useAuth();
   const response = await apiFetch(`/sphere/posts?${params.toString()}`, {
-    skipAuth: true,
+    skipAuth: !isAuthenticated.value,
   });
 
   const total = parseInt(response.headers.get("x-total") || "0", 10);
@@ -569,8 +571,9 @@ export async function fetchTimeline(
   if (options.aggressive !== undefined)
     params.set("aggressive", String(options.aggressive));
 
+  const { isAuthenticated } = useAuth();
   const response = await apiFetch(`/sphere/timeline?${params.toString()}`, {
-    skipAuth: true,
+    skipAuth: !isAuthenticated.value,
   });
 
   const payload = (await parseResponse(response)) as Record<string, unknown>;
@@ -588,13 +591,15 @@ export async function fetchTimeline(
 }
 
 export async function fetchPost(id: string): Promise<Post> {
-  const response = await apiFetch(`/sphere/posts/${id}`, { skipAuth: true });
+  const { isAuthenticated } = useAuth();
+  const response = await apiFetch(`/sphere/posts/${id}`, { skipAuth: !isAuthenticated.value });
   return safeJsonParse<Post>(response);
 }
 
 export async function fetchPostReplies(id: string): Promise<Post[]> {
+  const { isAuthenticated } = useAuth();
   const response = await apiFetch(`/sphere/posts/${id}/replies`, {
-    skipAuth: true,
+    skipAuth: !isAuthenticated.value,
   });
   return safeJsonParse<Post[]>(response);
 }

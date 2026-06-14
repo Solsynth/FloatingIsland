@@ -4,14 +4,39 @@
     class="flex items-center gap-1.5 flex-wrap"
   >
     <!-- Add reaction button -->
-    <button
-      v-if="showAddButton"
-      class="btn btn-glass btn-xs gap-1 h-7 px-2"
-      @click.stop="showReactionPicker = !showReactionPicker"
-    >
-      <IconSmilePlus class="h-3.5 w-3.5" />
-      <span class="text-xs">React</span>
-    </button>
+    <PopoverRoot v-if="showAddButton" v-model:open="showReactionPicker">
+      <PopoverTrigger class="btn btn-glass btn-xs gap-1 h-7 px-2">
+        <IconSmilePlus class="h-3.5 w-3.5" />
+        <span class="text-xs">React</span>
+      </PopoverTrigger>
+
+      <PopoverPortal>
+        <PopoverContent
+          class="bg-base-100 rounded-2xl border border-base-300 shadow-xl p-4 z-50"
+          :side-offset="8"
+          align="center"
+          :collision-padding="16"
+        >
+          <div class="grid grid-cols-3 gap-3">
+            <button
+              v-for="emoji in availableReactions"
+              :key="emoji.symbol"
+              class="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-base-200 transition-colors"
+              @click.stop="addReaction(emoji.symbol)"
+            >
+              <img
+                :src="`/images/stickers/${emoji.symbol}.webp`"
+                :alt="emoji.label"
+                class="w-10 h-10 object-contain"
+              />
+              <span class="text-xs font-medium text-base-content/70">
+                {{ emoji.label }}
+              </span>
+            </button>
+          </div>
+        </PopoverContent>
+      </PopoverPortal>
+    </PopoverRoot>
 
     <!-- Reaction chips -->
     <button
@@ -46,43 +71,17 @@
       +{{ reactions.length - maxVisible }}
     </button>
   </div>
-
-  <!-- Reaction picker dropdown -->
-  <Teleport to="body">
-    <div
-      v-if="showReactionPicker"
-      class="fixed z-[100] inset-0"
-      @click.self="showReactionPicker = false"
-    >
-      <div
-        class="absolute bg-base-100 rounded-2xl border border-base-300 shadow-xl p-4"
-        :style="pickerStyle"
-      >
-        <div class="grid grid-cols-3 gap-3">
-          <button
-            v-for="emoji in availableReactions"
-            :key="emoji.symbol"
-            class="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-base-200 transition-colors"
-            @click.stop="addReaction(emoji.symbol)"
-          >
-            <img
-              :src="`/images/stickers/${emoji.symbol}.webp`"
-              :alt="emoji.label"
-              class="w-10 h-10 object-contain"
-            />
-            <span class="text-xs font-medium text-base-content/70">
-              {{ emoji.label }}
-            </span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </Teleport>
 </template>
 
 <script setup lang="ts">
 import { IconSmilePlus } from "#components";
 import { camelToSnakeStr } from "~/utils/case";
+import {
+  PopoverContent,
+  PopoverPortal,
+  PopoverRoot,
+  PopoverTrigger,
+} from "reka-ui";
 
 interface Reaction {
   symbol: string;
@@ -148,15 +147,6 @@ const displayReactions = computed(() => {
   return props.reactions.slice(0, props.maxVisible);
 });
 
-// Picker position
-const pickerStyle = computed(() => {
-  return {
-    bottom: "80px",
-    left: "50%",
-    transform: "translateX(-50%)",
-  };
-});
-
 function normalizeSymbol(symbol: string): string {
   return camelToSnakeStr(symbol).toLowerCase();
 }
@@ -193,17 +183,4 @@ function addReaction(symbol: string) {
   emit("react", symbol, 0);
   showReactionPicker.value = false;
 }
-
-// Close picker when clicking outside
-onMounted(() => {
-  const handleKeydown = (e: KeyboardEvent) => {
-    if (e.key === "Escape") {
-      showReactionPicker.value = false;
-    }
-  };
-  document.addEventListener("keydown", handleKeydown);
-  onUnmounted(() => {
-    document.removeEventListener("keydown", handleKeydown);
-  });
-});
 </script>
