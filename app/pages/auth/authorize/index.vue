@@ -118,9 +118,9 @@
 							</div>
 
 							<!-- App Info Summary -->
-							<div class="flex items-center gap-3 mb-6">
-								<div class="avatar md:hidden">
-									<div class="w-12 h-12 rounded-2xl overflow-hidden">
+							<div class="flex flex-col items-center text-center mb-6">
+								<div class="avatar mb-2">
+									<div class="w-11 h-11 rounded-2xl overflow-hidden ring-2 ring-base-300/30">
 										<img
 											v-if="clientPictureUrl"
 											:src="clientPictureUrl"
@@ -131,18 +131,16 @@
 											v-else
 											class="w-full h-full flex items-center justify-center bg-primary/15 text-primary"
 										>
-											<IconPlug class="w-6 h-6" />
+											<IconPlug class="w-5 h-5" />
 										</div>
 									</div>
 								</div>
-								<div class="min-w-0">
-									<p class="font-bold truncate text-xl">
-										{{ clientInfo.clientName || 'Unknown App' }}
-									</p>
-									<p class="text-sm text-base-content/50">
-										wants access to your account
-									</p>
-								</div>
+								<p class="font-bold text-xl">
+									{{ clientInfo.clientName || 'Unknown App' }}
+								</p>
+								<p class="text-sm text-base-content/50">
+									wants access to your account
+								</p>
 							</div>
 
 							<!-- Permissions -->
