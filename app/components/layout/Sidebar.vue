@@ -19,7 +19,7 @@
         v-for="item in navItems"
         :key="item.href"
         :to="item.href"
-        class="group flex items-center gap-4 rounded-xl py-3 transition-all duration-300 hover:bg-base-200"
+        class="group relative flex items-center gap-4 rounded-xl py-3 transition-all duration-300 hover:bg-base-200"
         :class="collapsed ? 'justify-center px-3' : 'justify-end px-4'"
       >
         <span
@@ -28,15 +28,26 @@
         >
           {{ item.label }}
         </span>
-        <component
-          :is="item.icon"
-          class="h-6 w-6 shrink-0 transition-colors group-hover:text-primary"
-        />
+        <div class="relative">
+          <component
+            :is="item.icon"
+            class="h-6 w-6 shrink-0 transition-colors group-hover:text-primary"
+          />
+          <span
+            v-if="item.badge"
+            class="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-error px-1 text-[9px] font-bold text-error-content"
+          >
+            {{ item.badge > 99 ? '99+' : item.badge }}
+          </span>
+        </div>
       </NuxtLink>
     </nav>
 
     <!-- Bottom Section: User Profile -->
     <div class="mt-auto flex flex-col gap-2" :class="collapsed ? 'px-0' : 'px-2'">
+      <!-- Notification Bell (only when authenticated) -->
+      <NotificationBell v-if="isAuthenticated" />
+
       <!-- Toggle Button -->
       <button
         class="flex items-center rounded-xl py-3 transition-all duration-300 hover:bg-base-200 hover:text-primary"
@@ -135,6 +146,7 @@ import {
   IconPalette,
   IconCode,
   IconHardDrive,
+  IconMessageSquare,
   IconLogIn,
   IconLogOut,
   IconUser,
@@ -153,10 +165,18 @@ const {
   displayName: authDisplayName,
 } = useAuth();
 
+const { unreadCount: chatUnreadCount } = useChat();
+
 const navItems = computed(() => [
   { icon: IconCompass, label: t("nav.explore"), href: "/" },
   { icon: IconBuilding, label: t("nav.realms"), href: "/realms" },
   { icon: IconHardDrive, label: t("nav.drive"), href: "/drive" },
+  {
+    icon: IconMessageSquare,
+    label: t("nav.chat"),
+    href: "/chat",
+    badge: chatUnreadCount.value > 0 ? chatUnreadCount.value : null,
+  },
   { icon: IconPalette, label: t("nav.creatorHub"), href: "/creators" },
   { icon: IconCode, label: t("nav.developerHub"), href: "/developers" },
 ]);

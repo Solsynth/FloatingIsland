@@ -167,6 +167,12 @@
 
       <!-- Lightbox Viewer -->
       <LightboxViewer />
+
+      <!-- Notification Drawer -->
+      <NotificationDrawer />
+
+      <!-- WebSocket Status -->
+      <WebSocketStatus />
     </div>
   </div>
 </template>

@@ -1,12 +1,20 @@
 <template>
   <div
-    class="inline-flex items-center justify-center rounded-full cursor-default"
-    :class="sizeClasses"
-    :style="{ backgroundColor: badgeColor + '33' }"
+    class="inline-flex items-center justify-center cursor-default"
+    :class="[sizeClasses, inline ? '' : 'rounded-full']"
+    :style="inline ? {} : { backgroundColor: badgeColor + '20' }"
   >
-    <!-- SVG icon from manifest - inlined for color support -->
+    <!-- Badge icon from manifest or Lucide fallback -->
+    <component
+      :is="lucideIcon"
+      v-if="lucideIcon"
+      :class="iconSizeClasses"
+      :style="{ color: badgeColor, fill: badgeColor, stroke: badgeColor }"
+      fill="currentColor"
+    />
+    <!-- SVG icon from manifest -->
     <div
-      v-if="svgIconUrl && !svgError && svgContent"
+      v-else-if="svgIconUrl && !svgError && svgContent"
       class="badge-svg-container"
       :class="iconSizeClasses"
       v-html="svgContent"
@@ -17,8 +25,8 @@
       class="badge-svg-loading"
       :class="iconSizeClasses"
     />
-    <!-- Fallback icon -->
-    <IconStar
+    <!-- Default fallback -->
+    <IconAward
       v-else
       :class="iconSizeClasses"
       :style="{ color: badgeColor }"
@@ -27,20 +35,37 @@
 </template>
 
 <script setup lang="ts">
+import {
+  IconAward,
+  IconStar,
+  IconHeart,
+  IconShield,
+  IconCrown,
+  IconGem,
+  IconSword,
+  IconFlame,
+  IconZap,
+  IconTrophy,
+  IconMedal,
+  IconGift,
+  IconCode,
+  IconPalette,
+} from '#components'
 import type { SnAccountBadge } from "~/types/auth";
 import type { BadgeManifestEntry } from "~/utils/badges";
 import { getBadgeColor, getBadgeIconUrl } from "~/utils/badges";
-import { IconStar } from "#components";
 
 const props = withDefaults(
   defineProps<{
     badge: SnAccountBadge;
     manifest?: Record<string, BadgeManifestEntry> | null;
     size?: "sm" | "md" | "lg";
+    inline?: boolean;
   }>(),
   {
     manifest: null,
     size: "md",
+    inline: false,
   }
 );
 
@@ -52,9 +77,34 @@ const badgeColor = computed(() => getBadgeColor(props.badge, props.manifest ?? u
 
 const svgIconUrl = computed(() => getBadgeIconUrl(props.badge, props.manifest ?? undefined));
 
+// Map badge types to Lucide icons
+const kBadgeLucideIcons: Record<string, any> = {
+  sponsor: IconHeart,
+  supporter: IconHeart,
+  verified: IconShield,
+  premium: IconCrown,
+  stellar: IconStar,
+  nova: IconGem,
+  supernova: IconZap,
+  early_adopter: IconFlame,
+  contributor: IconSword,
+  developer: IconCode,
+  creator: IconPalette,
+  moderator: IconShield,
+  admin: IconCrown,
+  winner: IconTrophy,
+  participant: IconMedal,
+  gift: IconGift,
+}
+
+// Get Lucide icon for badge type
+const lucideIcon = computed(() => {
+  const type = props.badge.type?.toLowerCase() || ''
+  return kBadgeLucideIcons[type] || null
+})
+
 // Fetch and process SVG to apply color
 async function loadSvg(url: string, color: string) {
-  // Check cache first
   const cacheKey = `${url}:${color}`;
   if (svgCache.has(cacheKey)) {
     svgContent.value = svgCache.get(cacheKey)!;
@@ -97,8 +147,8 @@ async function loadSvg(url: string, color: string) {
 watch(
   [svgIconUrl, badgeColor],
   ([url, color]) => {
-    if (url && color) {
-      svgContent.value = ""; // Reset while loading
+    if (url && color && !lucideIcon.value) {
+      svgContent.value = "";
       loadSvg(url, color);
     } else {
       svgContent.value = "";
@@ -118,7 +168,7 @@ watch(
 const sizeClasses = computed(() => {
   switch (props.size) {
     case "sm":
-      return "w-6 h-6";
+      return "w-4 h-4";
     case "lg":
       return "w-12 h-12";
     default:

@@ -2472,3 +2472,183 @@ export function isOfficeFile(mimeType: string | null | undefined): boolean {
   if (!mimeType) return false;
   return OFFICE_MIME_TYPES.includes(mimeType);
 }
+
+// Chat API
+import type {
+  SnChatRoom,
+  SnChatMessage,
+  SnChatMember,
+  SnChatSummary,
+} from '~/types/chat'
+
+export async function fetchChatRooms(): Promise<SnChatRoom[]> {
+  const response = await apiFetch('/messager/chat')
+  const data = await parseResponse(response)
+  console.log('[API] fetchChatRooms raw response:', data)
+  // Ensure we return an array
+  if (Array.isArray(data)) {
+    return snakeToCamel(data) as SnChatRoom[]
+  }
+  // If it's an object with a data/items/rooms key, try that
+  if (data && typeof data === 'object') {
+    const obj = data as Record<string, unknown>
+    if (Array.isArray(obj.data)) return snakeToCamel(obj.data) as SnChatRoom[]
+    if (Array.isArray(obj.items)) return snakeToCamel(obj.items) as SnChatRoom[]
+    if (Array.isArray(obj.rooms)) return snakeToCamel(obj.rooms) as SnChatRoom[]
+  }
+  console.warn('[API] fetchChatRooms: unexpected response format, returning empty array')
+  return []
+}
+
+export async function fetchChatRoom(roomId: string): Promise<SnChatRoom> {
+  const response = await apiFetch(`/messager/chat/${roomId}`)
+  return safeJsonParse<SnChatRoom>(response)
+}
+
+export async function fetchChatMessages(
+  roomId: string,
+  offset = 0,
+  take = 50,
+): Promise<{ messages: SnChatMessage[]; total: number }> {
+  const params = new URLSearchParams({
+    offset: String(offset),
+    take: String(take),
+  })
+  const response = await apiFetch(
+    `/messager/chat/${roomId}/messages?${params.toString()}`,
+  )
+  const total = parseInt(response.headers.get('x-total') || '0', 10)
+  const data = await safeJsonParse<SnChatMessage[]>(response)
+  return { messages: data, total }
+}
+
+export async function sendChatMessage(
+  roomId: string,
+  payload: {
+    content?: string
+    type?: string
+    clientMessageId?: string
+    nonce?: string
+    meta?: Record<string, unknown>
+    membersMentioned?: string[]
+    repliedMessageId?: string
+    forwardedMessageId?: string
+  },
+): Promise<SnChatMessage> {
+  const response = await apiFetch(`/messager/chat/${roomId}/messages`, {
+    method: 'POST',
+    body: JSON.stringify(camelToSnake(payload)),
+  })
+  return safeJsonParse<SnChatMessage>(response)
+}
+
+export async function editChatMessage(
+  roomId: string,
+  messageId: string,
+  payload: {
+    content?: string
+    meta?: Record<string, unknown>
+  },
+): Promise<SnChatMessage> {
+  const response = await apiFetch(
+    `/messager/chat/${roomId}/messages/${messageId}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(camelToSnake(payload)),
+    },
+  )
+  return safeJsonParse<SnChatMessage>(response)
+}
+
+export async function deleteChatMessage(
+  roomId: string,
+  messageId: string,
+): Promise<void> {
+  await apiFetch(`/messager/chat/${roomId}/messages/${messageId}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function fetchChatSummary(): Promise<
+  Record<string, SnChatSummary>
+> {
+  const response = await apiFetch('/messager/chat/summary')
+  return safeJsonParse<Record<string, SnChatSummary>>(response)
+}
+
+export async function fetchChatUnreadCount(): Promise<number> {
+  try {
+    const response = await apiFetch('/messager/chat/unread')
+    const data = await response.text()
+    return parseInt(data, 10) || 0
+  } catch {
+    return 0
+  }
+}
+
+export async function markChatRoomRead(roomId: string): Promise<void> {
+  await apiFetch(`/messager/chat/${roomId}/read`, {
+    method: 'POST',
+  })
+}
+
+export async function markAllChatsRead(): Promise<void> {
+  await apiFetch('/messager/chat/read-all', {
+    method: 'POST',
+  })
+}
+
+export async function fetchChatRoomMembers(
+  roomId: string,
+): Promise<SnChatMember[]> {
+  const response = await apiFetch(`/messager/chat/${roomId}/members`)
+  return safeJsonParse<SnChatMember[]>(response)
+}
+
+export async function fetchChatRoomIdentity(
+  roomId: string,
+): Promise<SnChatMember> {
+  const response = await apiFetch(`/messager/chat/${roomId}/members/me`)
+  return safeJsonParse<SnChatMember>(response)
+}
+
+export async function fetchChatInvites(): Promise<
+  Array<{ id: string; chatRoom?: SnChatRoom; invitedByAccount?: SnAccount }>
+> {
+  const response = await apiFetch('/messager/chat/invites')
+  return safeJsonParse(response)
+}
+
+export async function acceptChatInvite(roomId: string): Promise<void> {
+  await apiFetch(`/messager/chat/invites/${roomId}/accept`, {
+    method: 'POST',
+  })
+}
+
+export async function declineChatInvite(roomId: string): Promise<void> {
+  await apiFetch(`/messager/chat/invites/${roomId}/decline`, {
+    method: 'POST',
+  })
+}
+
+export async function addReactionToMessage(
+  roomId: string,
+  messageId: string,
+  symbol: string,
+): Promise<void> {
+  await apiFetch(`/messager/chat/${roomId}/messages/${messageId}/reactions`, {
+    method: 'POST',
+    body: JSON.stringify({ symbol }),
+  })
+}
+
+export async function removeReactionFromMessage(
+  roomId: string,
+  messageId: string,
+  symbol: string,
+): Promise<void> {
+  await apiFetch(
+    `/messager/chat/${roomId}/messages/${messageId}/reactions/${symbol}`,
+    { method: 'DELETE' },
+  )
+}
