@@ -55,7 +55,7 @@
                 :accept="acceptAttribute"
                 :multiple="allowMultiple"
                 @change="handleFileInput"
-              />
+              >
 
               <!-- Preview selected files -->
               <div v-if="selectedFiles.length > 0" class="space-y-3">
@@ -74,7 +74,7 @@
                     :key="idx"
                     class="relative group rounded-lg overflow-hidden border border-base-300 aspect-square"
                   >
-                    <img v-if="file.preview" :src="file.preview" class="w-full h-full object-cover" />
+                    <img v-if="file.preview" :src="file.preview" class="w-full h-full object-cover" >
                     <div v-else class="w-full h-full flex items-center justify-center bg-base-200">
                       <IconFile class="w-8 h-8 text-base-content/40" />
                     </div>
@@ -107,7 +107,7 @@
                       </div>
                     </div>
 
-                    <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                    <div class="absolute bottom-0 inset-x-0 bg-linear-to-t from-black/70 to-transparent p-2">
                       <p class="text-xs text-white truncate">{{ file.file.name }}</p>
                     </div>
                   </div>
@@ -221,6 +221,8 @@ import {
   TabsTrigger,
   TabsContent,
 } from 'reka-ui'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 import VueCropper from 'vue-cropperjs'
 import {
   IconX,

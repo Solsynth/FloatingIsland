@@ -16,7 +16,7 @@
               :src="getPreviewUrl(attachment)"
               class="w-full h-full object-cover"
               alt="Attachment preview"
-            />
+            >
             <div v-else class="w-full h-full flex items-center justify-center">
               <IconImage class="w-8 h-8 text-base-content/30" />
             </div>
@@ -104,7 +104,7 @@
 
         <!-- Audio Preview -->
         <template v-else-if="isAudio(attachment)">
-          <div class="aspect-video relative bg-gradient-to-br from-primary/20 to-secondary/20 flex flex-col items-center justify-center p-4">
+          <div class="aspect-video relative bg-linear-to-br from-primary/20 to-secondary/20 flex flex-col items-center justify-center p-4">
             <IconMusic class="w-10 h-10 text-primary mb-2" />
             <p class="text-xs text-center text-base-content/70 truncate w-full">{{ getFileName(attachment) }}</p>
             <p class="text-xs text-base-content/50">{{ formatFileSize(attachment.file.size) }}</p>
@@ -213,8 +213,8 @@ function isLargeAttachment(attachment: ComposeAttachment): boolean {
 }
 
 function getPreviewUrl(attachment: ComposeAttachment): string | undefined {
-  if (attachment.preview) return attachment.preview;
   if (attachment.cloudFile?.id) return getFileUrl(attachment.cloudFile.id) ?? undefined;
+  if (attachment.preview) return attachment.preview;
   return undefined;
 }
 

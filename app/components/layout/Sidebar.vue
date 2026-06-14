@@ -19,16 +19,12 @@
         v-for="item in navItems"
         :key="item.href"
         :to="item.href"
-        class="group relative flex items-center gap-4 rounded-xl py-3 transition-all duration-300 hover:bg-base-200"
+        class="group flex items-center gap-4 rounded-xl py-3 transition-all duration-300 hover:bg-base-200"
         :class="collapsed ? 'justify-center px-3' : 'justify-end px-4'"
       >
         <span
+          v-if="!collapsed"
           class="text-lg font-medium transition-all duration-300 group-hover:text-primary"
-          :class="
-            collapsed
-              ? 'absolute left-full ml-2 hidden whitespace-nowrap rounded-lg bg-base-100 px-3 py-1.5 text-sm shadow-lg group-hover:block'
-              : ''
-          "
         >
           {{ item.label }}
         </span>

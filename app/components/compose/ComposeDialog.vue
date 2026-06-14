@@ -2,23 +2,33 @@
   <DrawerRoot :open="isOpen" @update:open="handleDrawerClose">
     <DrawerPortal>
       <DrawerOverlay class="fixed inset-0 bg-black/40 z-50" />
-      <DrawerContent class="fixed bottom-0 left-0 right-0 mx-auto z-50 bg-base-100 rounded-t-2xl h-[80vh] flex flex-col max-w-2xl">
+      <DrawerContent
+        class="fixed bottom-0 left-0 right-0 mx-auto z-50 bg-base-100 rounded-t-2xl h-[80vh] flex flex-col max-w-2xl"
+      >
         <!-- Drag handle -->
         <div class="flex justify-center pt-3 pb-2">
           <div class="w-10 h-1 rounded-full bg-base-content/20" />
         </div>
 
         <!-- Header -->
-        <div class="flex items-center justify-between px-4 py-3 border-b border-base-200">
+        <div
+          class="flex items-center justify-between px-4 py-3 border-b border-base-200"
+        >
           <div class="flex items-center gap-3">
-            <button class="btn btn-sm btn-circle btn-ghost" @click="handleClose">
+            <button
+              class="btn btn-sm btn-circle btn-ghost"
+              @click="handleClose"
+            >
               <IconX class="w-5 h-5" />
             </button>
             <h3 class="font-semibold">{{ dialogTitle }}</h3>
           </div>
 
           <div class="flex items-center gap-2">
-            <span v-if="lastSaved" class="text-xs text-base-content/50 hidden sm:block">
+            <span
+              v-if="lastSaved"
+              class="text-xs text-base-content/50 hidden sm:block"
+            >
               Saved {{ formatTimeAgo(lastSaved) }}
             </span>
 
@@ -63,8 +73,13 @@
             />
 
             <!-- Reply Context -->
-            <div v-if="replyingTo" class="p-3 bg-base-200/50 rounded-lg border-l-4 border-primary">
-              <div class="flex items-center gap-2 text-sm text-base-content/70 mb-1">
+            <div
+              v-if="replyingTo"
+              class="p-3 bg-base-200/50 rounded-lg border-l-4 border-primary"
+            >
+              <div
+                class="flex items-center gap-2 text-sm text-base-content/70 mb-1"
+              >
                 <IconReply class="w-4 h-4" />
                 <span>Replying to</span>
               </div>
@@ -77,19 +92,37 @@
                       alt=""
                       class="w-full h-full object-cover"
                     />
-                    <div v-else class="w-full h-full bg-primary/20 text-primary flex items-center justify-center text-xs">
-                      {{ getInitials(replyingTo.publisher?.nick || replyingTo.publisher?.name || "?") }}
+                    <div
+                      v-else
+                      class="w-full h-full bg-primary/20 text-primary flex items-center justify-center text-xs"
+                    >
+                      {{
+                        getInitials(
+                          replyingTo.publisher?.nick ||
+                            replyingTo.publisher?.name ||
+                            "?",
+                        )
+                      }}
                     </div>
                   </div>
                 </div>
-                <span class="text-sm font-medium">{{ replyingTo.publisher?.nick || replyingTo.publisher?.name }}</span>
-                <span class="text-sm text-base-content/50 line-clamp-1">{{ replyingTo.content.slice(0, 100) }}</span>
+                <span class="text-sm font-medium">{{
+                  replyingTo.publisher?.nick || replyingTo.publisher?.name
+                }}</span>
+                <span class="text-sm text-base-content/50 line-clamp-1">{{
+                  replyingTo.content.slice(0, 100)
+                }}</span>
               </div>
             </div>
 
             <!-- Forward Context -->
-            <div v-if="forwardingTo" class="p-3 bg-base-200/50 rounded-lg border-l-4 border-secondary">
-              <div class="flex items-center gap-2 text-sm text-base-content/70 mb-1">
+            <div
+              v-if="forwardingTo"
+              class="p-3 bg-base-200/50 rounded-lg border-l-4 border-secondary"
+            >
+              <div
+                class="flex items-center gap-2 text-sm text-base-content/70 mb-1"
+              >
                 <IconForward class="w-4 h-4" />
                 <span>Forwarding</span>
               </div>
@@ -102,13 +135,26 @@
                       alt=""
                       class="w-full h-full object-cover"
                     />
-                    <div v-else class="w-full h-full bg-secondary/20 text-secondary flex items-center justify-center text-xs">
-                      {{ getInitials(forwardingTo.publisher?.nick || forwardingTo.publisher?.name || "?") }}
+                    <div
+                      v-else
+                      class="w-full h-full bg-secondary/20 text-secondary flex items-center justify-center text-xs"
+                    >
+                      {{
+                        getInitials(
+                          forwardingTo.publisher?.nick ||
+                            forwardingTo.publisher?.name ||
+                            "?",
+                        )
+                      }}
                     </div>
                   </div>
                 </div>
-                <span class="text-sm font-medium">{{ forwardingTo.publisher?.nick || forwardingTo.publisher?.name }}</span>
-                <span class="text-sm text-base-content/50 line-clamp-1">{{ forwardingTo.content.slice(0, 100) }}</span>
+                <span class="text-sm font-medium">{{
+                  forwardingTo.publisher?.nick || forwardingTo.publisher?.name
+                }}</span>
+                <span class="text-sm text-base-content/50 line-clamp-1">{{
+                  forwardingTo.content.slice(0, 100)
+                }}</span>
               </div>
             </div>
 
@@ -144,13 +190,25 @@
                 :disabled="!currentPublisher"
                 @keydown="handleKeyDown"
               />
-              <div class="absolute bottom-2 right-2 text-xs text-base-content/40">
+              <div
+                class="absolute bottom-2 right-2 text-xs text-base-content/40"
+              >
                 {{ content.length }} chars
               </div>
             </div>
-            <div v-else class="prose prose-sm max-w-none p-4 rounded-lg border border-base-300 bg-base-100 min-h-[120px]">
-              <div v-if="content.trim().length > 0" v-html="renderedPreviewContent" @click="handleMarkdownClick" />
-              <p v-if="content.trim().length === 0" class="text-base-content/50">
+            <div
+              v-else
+              class="prose prose-sm max-w-none p-4 rounded-lg border border-base-300 bg-base-100 min-h-[120px]"
+            >
+              <div
+                v-if="content.trim().length > 0"
+                @click="handleMarkdownClick"
+                v-html="renderedPreviewContent"
+              />
+              <p
+                v-if="content.trim().length === 0"
+                class="text-base-content/50"
+              >
                 Nothing to preview yet.
               </p>
             </div>
@@ -158,7 +216,7 @@
             <!-- Tags Input -->
             <TagsInputRoot
               v-model="tags"
-              class="input input-bordered w-full h-auto min-h-[2.5rem] flex flex-wrap items-center gap-1.5"
+              class="input input-bordered w-full h-auto min-h-10 flex flex-wrap items-center gap-1.5"
               :disabled="!currentPublisher"
               add-on-blur
               add-on-tab
@@ -170,7 +228,9 @@
                 class="badge badge-primary gap-1"
               >
                 <TagsInputItemText>#{{ tag }}</TagsInputItemText>
-                <TagsInputItemDelete class="btn btn-xs btn-ghost btn-circle -mr-1">
+                <TagsInputItemDelete
+                  class="btn btn-xs btn-ghost btn-circle -mr-1"
+                >
                   <IconX class="w-3 h-3" />
                 </TagsInputItemDelete>
               </TagsInputItem>
@@ -182,6 +242,7 @@
 
             <!-- Attachments -->
             <ComposeAttachmentGrid
+              class="mx-1"
               :attachments="attachments"
               @add="handleAddAttachments"
               @remove="removeAttachment"
@@ -217,7 +278,8 @@
 
             <div class="flex items-center gap-3">
               <span class="text-xs text-base-content/50 hidden sm:block">
-                <kbd class="kbd kbd-sm">Ctrl</kbd> + <kbd class="kbd kbd-sm">Enter</kbd> to post
+                <kbd class="kbd kbd-sm">Ctrl</kbd> +
+                <kbd class="kbd kbd-sm">Enter</kbd> to post
               </span>
             </div>
           </div>
@@ -238,8 +300,10 @@
   <!-- Settings Sheet -->
   <DrawerRoot v-model:open="showSettingsPanel">
     <DrawerPortal>
-      <DrawerOverlay class="fixed inset-0 bg-black/40 z-[60]" />
-      <DrawerContent class="fixed bottom-0 left-0 right-0 mx-auto z-[60] bg-base-100 rounded-t-2xl max-h-[60vh] flex flex-col max-w-md">
+      <DrawerOverlay class="fixed inset-0 bg-black/40 z-60" />
+      <DrawerContent
+        class="fixed bottom-0 left-0 right-0 mx-auto z-60 bg-base-100 rounded-t-2xl max-h-[60vh] flex flex-col max-w-md"
+      >
         <!-- Drag handle -->
         <div class="flex justify-center pt-3 pb-2">
           <div class="w-10 h-1 rounded-full bg-base-content/20" />
@@ -248,7 +312,10 @@
         <!-- Header -->
         <div class="flex items-center justify-between px-5 pb-3">
           <h3 class="font-semibold">Post settings</h3>
-          <button class="btn btn-sm btn-ghost btn-square" @click="showSettingsPanel = false">
+          <button
+            class="btn btn-sm btn-ghost btn-square"
+            @click="showSettingsPanel = false"
+          >
             <IconX class="w-4 h-4" />
           </button>
         </div>
@@ -257,8 +324,14 @@
         <div class="flex-1 overflow-y-auto px-5 pb-5">
           <div class="space-y-4">
             <div>
-              <label class="text-xs font-medium text-base-content/70 mb-1.5 block">Visibility</label>
-              <select v-model="visibility" class="select select-bordered select-sm w-full">
+              <label
+                class="text-xs font-medium text-base-content/70 mb-1.5 block"
+                >Visibility</label
+              >
+              <select
+                v-model="visibility"
+                class="select select-bordered select-sm w-full"
+              >
                 <option :value="0">Public</option>
                 <option :value="1">Friends Only</option>
                 <option :value="2">Unlisted</option>
@@ -266,8 +339,14 @@
               </select>
             </div>
             <div>
-              <label class="text-xs font-medium text-base-content/70 mb-1.5 block">Language</label>
-              <select v-model="language" class="select select-bordered select-sm w-full">
+              <label
+                class="text-xs font-medium text-base-content/70 mb-1.5 block"
+                >Language</label
+              >
+              <select
+                v-model="language"
+                class="select select-bordered select-sm w-full"
+              >
                 <option :value="null">Auto-detect</option>
                 <option value="en">English</option>
                 <option value="zh">Chinese</option>
@@ -279,7 +358,10 @@
                 <option value="ru">Russian</option>
               </select>
             </div>
-            <button class="btn btn-sm btn-ghost w-full gap-2" @click="saveDraftManually">
+            <button
+              class="btn btn-sm btn-ghost w-full gap-2"
+              @click="saveDraftManually"
+            >
               <IconSave class="w-4 h-4" />
               Save Draft Now
             </button>
@@ -296,20 +378,20 @@ import {
   DrawerPortal,
   DrawerOverlay,
   DrawerContent,
-} from 'vaul-vue'
+} from "vaul-vue";
 import {
   TagsInputRoot,
   TagsInputItem,
   TagsInputItemText,
   TagsInputItemDelete,
   TagsInputInput,
-} from 'reka-ui'
+} from "reka-ui";
 import type { Post, Publisher, FileAttachment } from "~/types/post";
 import { getFileUrl } from "~/utils/files";
 import { fetchJson, API_BASE_URL } from "~/utils/api";
 import { getValidToken } from "~/utils/token";
 import { renderMarkdown } from "~/utils/markdown";
-import type { SnCloudFile } from '~/types/drive';
+import type { SnCloudFile } from "~/types/drive";
 
 const props = defineProps<{
   open?: boolean;
@@ -377,7 +459,9 @@ const submitButtonText = computed(() => {
   return "Post";
 });
 
-const renderedPreviewContent = computed(() => renderMarkdown(content.value || ""));
+const renderedPreviewContent = computed(() =>
+  renderMarkdown(content.value || ""),
+);
 
 // Lifecycle
 onMounted(() => {
@@ -401,7 +485,9 @@ watch(isOpen, (open) => {
 // Load publishers from API
 async function loadPublishers() {
   try {
-    const response = await fetchJson<Publisher[]>("/sphere/publishers?mine=true&take=100");
+    const response = await fetchJson<Publisher[]>(
+      "/sphere/publishers?mine=true&take=100",
+    );
     if (response) {
       setPublishers(response);
     }
@@ -420,7 +506,10 @@ async function maybeRestoreLatestDraft() {
   if (!latest) return;
 
   const { confirm } = useAlert();
-  const shouldRestore = await confirm("Restore draft?", "You have an unsaved draft. Would you like to restore it?");
+  const shouldRestore = await confirm(
+    "Restore draft?",
+    "You have an unsaved draft. Would you like to restore it?",
+  );
   if (!shouldRestore) return;
 
   const restored = loadDraft(latest.id);
@@ -444,18 +533,18 @@ function openFilePicker() {
 function handleFileSelected(files: SnCloudFile | SnCloudFile[] | null) {
   if (!files) return;
   const fileArray = Array.isArray(files) ? files : [files];
-  
+
   // Add each cloud file as an already-uploaded attachment
   for (const cloudFile of fileArray) {
     // Create a minimal File object for the attachment system
     const blob = new Blob([], { type: cloudFile.mimeType });
     const file = new File([blob], cloudFile.name, { type: cloudFile.mimeType });
-    
+
     // Add using the compose store's addAttachments
     const dataTransfer = new DataTransfer();
     dataTransfer.items.add(file);
     addAttachments(dataTransfer.files);
-    
+
     // Mark as uploaded with cloud file data
     const newAttachment = attachments.value[attachments.value.length - 1];
     if (newAttachment) {
@@ -530,7 +619,9 @@ async function handleSubmit() {
       visibility: visibility.value,
       language: language.value,
       tags: tags.value,
-      attachments: uploadedAttachments.map((a) => a.cloudFile?.id).filter(Boolean),
+      attachments: uploadedAttachments
+        .map((a) => a.cloudFile?.id)
+        .filter(Boolean),
     };
 
     if (replyingTo.value) payload.replied_post_id = replyingTo.value.id;
@@ -594,11 +685,14 @@ async function uploadAttachments(): Promise<UploadAttachment[]> {
 
       attachment.progress = 0;
 
-      const response = await fetch(`${API_BASE_URL}/drive/files/upload/direct`, {
-        method: "POST",
-        headers,
-        body: formData,
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/drive/files/upload/direct`,
+        {
+          method: "POST",
+          headers,
+          body: formData,
+        },
+      );
 
       if (!response.ok) throw new Error(`Upload failed: ${response.status}`);
 
@@ -633,7 +727,10 @@ function saveDraftManually() {
 async function handleClose() {
   if (hasContent.value) {
     const { confirm } = useAlert();
-    const confirmed = await confirm("Discard draft?", "You have unsaved content that will be lost.");
+    const confirmed = await confirm(
+      "Discard draft?",
+      "You have unsaved content that will be lost.",
+    );
     if (!confirmed) return;
   }
   stopAutoSave();
@@ -649,7 +746,12 @@ function handleDrawerClose(open: boolean) {
 // Helpers
 function getInitials(name: string): string {
   if (!name) return "?";
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 }
 
 function formatTimeAgo(date: Date): string {

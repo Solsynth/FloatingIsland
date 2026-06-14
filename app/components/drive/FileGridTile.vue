@@ -21,7 +21,7 @@
           class="checkbox checkbox-sm checkbox-primary"
           :checked="isSelected"
           @change="$emit('toggleSelect')"
-        />
+        >
       </div>
 
       <!-- Image preview -->
@@ -32,7 +32,7 @@
         :height="file.fileMeta?.height"
         class="w-full h-full object-cover"
         alt=""
-      />
+      >
       <!-- Video preview -->
       <div v-else-if="isVideo" class="relative w-full h-full">
         <div class="w-full h-full bg-base-300 flex items-center justify-center">
