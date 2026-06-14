@@ -13,7 +13,7 @@
     <Transition name="slide-right">
       <div
         v-if="drawerOpen"
-        class="fixed top-0 right-0 z-[9999] flex h-full w-full flex-col border-l border-base-300 bg-base-100 shadow-2xl sm:w-96"
+        class="fixed top-0 right-0 z-[9999] flex h-full w-full flex-col border-l border-base-300 bg-base-100 shadow-2xl sm:w-[28rem] md:w-[32rem]"
       >
         <!-- Header -->
         <div class="flex items-center justify-between border-b border-base-300 px-4 py-3">

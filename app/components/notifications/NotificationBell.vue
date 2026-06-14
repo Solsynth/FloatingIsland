@@ -1,14 +1,13 @@
 <template>
   <button
-    class="relative flex items-center justify-center rounded-xl p-3 transition-all duration-300 hover:bg-base-200 hover:text-primary"
-    :class="collapsed ? 'px-3' : ''"
+    class="btn btn-circle btn-ghost btn-sm relative"
     :aria-label="t('notifications.bellLabel')"
     @click="handleClick"
   >
-    <IconBell class="h-6 w-6 shrink-0 transition-colors" />
+    <IconBell class="h-5 w-5 shrink-0 transition-colors" />
     <span
       v-if="unreadCount > 0"
-      class="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-error px-1 text-xs font-bold text-error-content"
+      class="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-error px-1 text-[9px] font-bold text-error-content"
     >
       {{ displayCount }}
     </span>

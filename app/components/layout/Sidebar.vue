@@ -45,21 +45,43 @@
 
     <!-- Bottom Section: User Profile -->
     <div class="mt-auto flex flex-col gap-2" :class="collapsed ? 'px-0' : 'px-2'">
-      <!-- Notification Bell (only when authenticated) -->
-      <NotificationBell v-if="isAuthenticated" />
+      <!-- Toggle Button + Notification Bell Row (expanded) -->
+      <div v-if="isAuthenticated && !collapsed" class="flex items-center justify-start gap-4 ps-4">
+        <button
+          class="btn btn-ghost btn-circle btn-sm"
+          aria-label="Collapse sidebar"
+          @click="toggleSidebar"
+        >
+          <IconPanelLeftClose class="h-5 w-5" />
+        </button>
+        <NotificationBell />
+      </div>
 
-      <!-- Toggle Button -->
+      <!-- Toggle Button (expanded, no auth) -->
       <button
-        class="flex items-center rounded-xl py-3 transition-all duration-300 hover:bg-base-200 hover:text-primary"
-        :class="collapsed ? 'px-5' : 'pl-5'"
-        :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+        v-if="!isAuthenticated && !collapsed"
+        class="btn btn-ghost btn-circle btn-sm mx-auto"
+        aria-label="Collapse sidebar"
         @click="toggleSidebar"
       >
-        <IconPanelLeftClose
-          class="h-6 w-6 transition-transform duration-300"
-          :class="collapsed ? 'rotate-180' : ''"
-        />
+        <IconPanelLeftClose class="h-5 w-5" />
       </button>
+
+      <!-- Notification Bell + Toggle (collapsed) -->
+      <template v-if="collapsed">
+        <div v-if="isAuthenticated" class="flex justify-center">
+          <NotificationBell />
+        </div>
+        <div class="flex justify-center">
+          <button
+            class="btn btn-ghost btn-circle btn-sm"
+            aria-label="Expand sidebar"
+            @click="toggleSidebar"
+          >
+            <IconPanelLeftClose class="h-5 w-5 rotate-180" />
+          </button>
+        </div>
+      </template>
 
       <!-- User Profile Mini -->
       <div

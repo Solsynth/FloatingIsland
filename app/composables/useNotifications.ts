@@ -11,32 +11,34 @@ interface NotificationState {
 
 const PAGE_SIZE = 20
 
-export function useNotifications() {
-  const state = reactive<NotificationState>({
-    notifications: [],
-    unreadCount: 0,
-    isLoading: false,
-    hasMore: true,
-    offset: 0,
-  })
+// Global singleton state (shared across all callers)
+const globalState = reactive<NotificationState>({
+  notifications: [],
+  unreadCount: 0,
+  isLoading: false,
+  hasMore: true,
+  offset: 0,
+})
 
-  const drawerOpen = ref(false)
+const globalDrawerOpen = ref(false)
+let cleanupFn: (() => void) | null = null
+let isInitialized = false
+
+export function useNotifications() {
   const { isAuthenticated } = useAuth()
 
   // Subscribe to WebSocket events
-  let cleanupFn: (() => void) | null = null
-
   function setupListeners() {
     if (cleanupFn) return
 
     const onNewNotification = (notification: SnNotification) => {
       // Don't count messages.new notifications (those are chat messages)
       if (notification.topic !== 'messages.new') {
-        state.unreadCount++
+        globalState.unreadCount++
       }
       // Add to list if drawer was opened at least once
-      if (state.notifications.length > 0) {
-        state.notifications.unshift(notification)
+      if (globalState.notifications.length > 0) {
+        globalState.notifications.unshift(notification)
       }
     }
 
@@ -56,7 +58,7 @@ export function useNotifications() {
   async function fetchCount() {
     if (!isAuthenticated.value) return
     try {
-      state.unreadCount = await fetchNotificationCount()
+      globalState.unreadCount = await fetchNotificationCount()
     } catch (err) {
       console.error('[Notifications] Failed to fetch count:', err)
     }
@@ -64,37 +66,37 @@ export function useNotifications() {
 
   // Load notifications list
   async function loadMore() {
-    if (state.isLoading || !state.hasMore) return
+    if (globalState.isLoading || !globalState.hasMore) return
     if (!isAuthenticated.value) return
 
-    state.isLoading = true
+    globalState.isLoading = true
     try {
-      const result = await fetchNotifications(state.offset, PAGE_SIZE)
-      if (state.offset === 0) {
-        state.notifications = result.items
+      const result = await fetchNotifications(globalState.offset, PAGE_SIZE)
+      if (globalState.offset === 0) {
+        globalState.notifications = result.items
       } else {
-        state.notifications.push(...result.items)
+        globalState.notifications.push(...result.items)
       }
-      state.offset += result.items.length
-      state.hasMore = result.hasMore
+      globalState.offset += result.items.length
+      globalState.hasMore = result.hasMore
 
       // Mark fetched unread items as read locally
-      const unreadInView = result.items.filter((n) => !n.viewedAt).length
+      const unreadInView = result.items.filter((n: SnNotification) => !n.viewedAt).length
       if (unreadInView > 0) {
-        state.unreadCount = Math.max(0, state.unreadCount - unreadInView)
+        globalState.unreadCount = Math.max(0, globalState.unreadCount - unreadInView)
       }
     } catch (err) {
       console.error('[Notifications] Failed to load:', err)
     } finally {
-      state.isLoading = false
+      globalState.isLoading = false
     }
   }
 
   // Reload from scratch
   async function refresh() {
-    state.offset = 0
-    state.hasMore = true
-    state.notifications = []
+    globalState.offset = 0
+    globalState.hasMore = true
+    globalState.notifications = []
     await fetchCount()
     await loadMore()
   }
@@ -103,12 +105,12 @@ export function useNotifications() {
   async function markRead(notificationId: string) {
     try {
       await markNotificationRead(notificationId)
-      const notification = state.notifications.find(
+      const notification = globalState.notifications.find(
         (n) => n.id === notificationId,
       )
       if (notification && !notification.viewedAt) {
         notification.viewedAt = new Date().toISOString()
-        state.unreadCount = Math.max(0, state.unreadCount - 1)
+        globalState.unreadCount = Math.max(0, globalState.unreadCount - 1)
       }
     } catch (err) {
       console.error('[Notifications] Failed to mark read:', err)
@@ -119,12 +121,12 @@ export function useNotifications() {
   async function markAllRead() {
     try {
       await markAllNotificationsRead()
-      state.notifications.forEach((n) => {
+      globalState.notifications.forEach((n) => {
         if (!n.viewedAt) {
           n.viewedAt = new Date().toISOString()
         }
       })
-      state.unreadCount = 0
+      globalState.unreadCount = 0
     } catch (err) {
       console.error('[Notifications] Failed to mark all read:', err)
     }
@@ -132,41 +134,43 @@ export function useNotifications() {
 
   // Open drawer and load if needed
   function openDrawer() {
-    drawerOpen.value = true
-    if (state.notifications.length === 0) {
+    globalDrawerOpen.value = true
+    if (globalState.notifications.length === 0) {
       refresh()
     }
   }
 
   function closeDrawer() {
-    drawerOpen.value = false
+    globalDrawerOpen.value = false
   }
 
-  // Initialize on auth
+  // Initialize on auth (only once)
   watch(isAuthenticated, (auth) => {
-    if (auth) {
+    if (auth && !isInitialized) {
+      isInitialized = true
       setupListeners()
       fetchCount()
-    } else {
+    } else if (!auth) {
       teardownListeners()
-      state.notifications = []
-      state.unreadCount = 0
-      state.offset = 0
-      state.hasMore = true
+      globalState.notifications = []
+      globalState.unreadCount = 0
+      globalState.offset = 0
+      globalState.hasMore = true
+      isInitialized = false
     }
   }, { immediate: true })
 
   // Cleanup on unmount
   onUnmounted(() => {
-    teardownListeners()
+    // Don't teardown listeners on unmount since state is global
   })
 
   return {
-    notifications: computed(() => state.notifications),
-    unreadCount: computed(() => state.unreadCount),
-    isLoading: computed(() => state.isLoading),
-    hasMore: computed(() => state.hasMore),
-    drawerOpen,
+    notifications: computed(() => globalState.notifications),
+    unreadCount: computed(() => globalState.unreadCount),
+    isLoading: computed(() => globalState.isLoading),
+    hasMore: computed(() => globalState.hasMore),
+    drawerOpen: globalDrawerOpen,
     openDrawer,
     closeDrawer,
     loadMore,
