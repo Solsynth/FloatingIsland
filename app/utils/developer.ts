@@ -209,7 +209,7 @@ export async function createAppSecret(
   publisherName: string,
   projectId: string,
   appId: string,
-  data: { description?: string; type?: string; expiresIn?: string | null },
+  data: { description?: string; type?: number; expiresIn?: string | null },
 ): Promise<CustomAppSecret> {
   const response = await apiFetch(
     `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}/secrets`,
@@ -332,7 +332,7 @@ export async function createBotKey(
   publisherName: string,
   projectId: string,
   botId: string,
-  data: { label?: string; expiredAt?: string | null },
+  data: { label?: string },
 ): Promise<BotKey> {
   const response = await apiFetch(
     `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots/${encodeURIComponent(botId)}/keys`,

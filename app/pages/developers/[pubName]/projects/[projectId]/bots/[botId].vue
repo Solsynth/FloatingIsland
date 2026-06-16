@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="developer">
-    <div class="mx-auto max-w-4xl">
+    <div>
       <div v-if="isLoading" class="flex justify-center py-8">
         <span class="loading loading-spinner loading-lg" />
       </div>
@@ -58,117 +58,128 @@
           </div>
         </div>
 
-        <!-- Keys Section -->
-        <div class="card bg-base-100 shadow-sm mb-6">
-          <div class="card-body p-4">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="card-title text-base">{{ t('developer.bots.keys.title') }}</h3>
-              <button class="btn btn-primary btn-sm" @click="openCreateKeyModal">
-                <IconPlus class="w-4 h-4" />
-                {{ t('developer.bots.keys.create') }}
-              </button>
-            </div>
-            <div v-if="keys.length > 0" class="space-y-2">
-              <div
-                v-for="key in keys"
-                :key="key.id"
-                class="flex items-center gap-3 rounded-lg p-3 bg-base-200"
-              >
-                <div class="flex-1">
-                  <div class="font-medium text-sm">{{ key.label || t('developer.bots.keys.noLabel') }}</div>
-                  <div class="text-xs text-base-content/50">
-                    {{ key.key ? key.key.slice(0, 16) + '...' : '***' }}
-                    <span v-if="key.expiredAt"> &middot; {{ t('developer.bots.keys.expires') }}: {{ formatDate(key.expiredAt) }}</span>
-                  </div>
-                </div>
-                <button class="btn btn-ghost btn-xs text-error" @click="handleDeleteKey(key.id)">
-                  <IconTrash class="w-3 h-3" />
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Keys Section -->
+          <div class="card bg-base-100 shadow-sm">
+            <div class="card-body p-4">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="card-title text-base">{{ t('developer.bots.keys.title') }}</h3>
+                <button class="btn btn-primary btn-sm" @click="openCreateKeyModal">
+                  <IconPlus class="w-4 h-4" />
+                  {{ t('developer.bots.keys.create') }}
                 </button>
               </div>
+              <div v-if="createdKeyValue" class="rounded-lg p-3 bg-success/10 border border-success/30 mb-3">
+                <div class="text-sm font-medium text-success mb-1">{{ t('developer.bots.keys.created') }}</div>
+                <div class="flex items-center gap-2">
+                  <code class="text-xs font-mono bg-base-200 rounded px-2 py-1 flex-1 break-all">{{ createdKeyValue }}</code>
+                  <button class="btn btn-ghost btn-xs" @click="copyKey(createdKeyValue)">
+                    <IconCopy class="w-3 h-3" />
+                  </button>
+                </div>
+                <p class="text-xs text-base-content/50 mt-1">{{ t('developer.bots.keys.copyNow') }}</p>
+              </div>
+              <div v-if="keys.length > 0" class="space-y-2">
+                <div
+                  v-for="key in keys"
+                  :key="key.id"
+                  class="flex items-center gap-3 rounded-lg p-3 bg-base-200"
+                >
+                  <div class="flex-1">
+                    <div class="font-medium text-sm">{{ key.label || t('developer.bots.keys.noLabel') }}</div>
+                    <div class="text-xs text-base-content/50">
+                      {{ t('developer.bots.keys.createdAt') }}: {{ formatDate(key.createdAt) }}
+                    </div>
+                  </div>
+                  <button class="btn btn-ghost btn-xs text-error" @click="handleDeleteKey(key.id)">
+                    <IconTrash class="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+              <p v-else class="text-sm text-base-content/50">{{ t('developer.bots.keys.noKeys') }}</p>
             </div>
-            <p v-else class="text-sm text-base-content/50">{{ t('developer.bots.keys.noKeys') }}</p>
           </div>
-        </div>
 
-        <!-- Chat Config Section -->
-        <div class="card bg-base-100 shadow-sm mb-6">
-          <div class="card-body p-4">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="card-title text-base">{{ t('developer.bots.chat.title') }}</h3>
-              <button class="btn btn-ghost btn-sm" @click="openChatConfigModal">
-                <IconEdit class="w-4 h-4" />
-                {{ t('common.edit') }}
-              </button>
-            </div>
-            <div v-if="chatConfig" class="space-y-3">
-              <div class="flex gap-6">
-                <div>
-                  <div class="text-sm font-medium">{{ t('developer.bots.chat.autoApproveDm') }}</div>
-                  <div class="text-sm text-base-content/70">{{ chatConfig.autoApproveDm ? 'Yes' : 'No' }}</div>
-                </div>
-                <div>
-                  <div class="text-sm font-medium">{{ t('developer.bots.chat.autoApproveGroupChat') }}</div>
-                  <div class="text-sm text-base-content/70">{{ chatConfig.autoApproveGroupChat ? 'Yes' : 'No' }}</div>
-                </div>
-                <div>
-                  <div class="text-sm font-medium">{{ t('developer.bots.chat.supportChat') }}</div>
-                  <div class="text-sm text-base-content/70">{{ chatConfig.supportChat ? 'Yes' : 'No' }}</div>
-                </div>
+          <!-- Chat Config Section -->
+          <div class="card bg-base-100 shadow-sm">
+            <div class="card-body p-4">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="card-title text-base">{{ t('developer.bots.chat.title') }}</h3>
+                <button class="btn btn-ghost btn-sm" @click="openChatConfigModal">
+                  <IconEdit class="w-4 h-4" />
+                  {{ t('common.edit') }}
+                </button>
               </div>
-              <div>
-                <div class="text-sm font-medium">{{ t('developer.bots.chat.subscribedEvents') }}</div>
-                <div class="flex flex-wrap gap-1 mt-1">
-                  <span v-for="evt in chatConfig.subscribedEvents" :key="evt" class="badge badge-sm">{{ evt }}</span>
+              <div v-if="chatConfig" class="space-y-3">
+                <div class="flex gap-6">
+                  <div>
+                    <div class="text-sm font-medium">{{ t('developer.bots.chat.autoApproveDm') }}</div>
+                    <div class="text-sm text-base-content/70">{{ chatConfig.autoApproveDm ? 'Yes' : 'No' }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm font-medium">{{ t('developer.bots.chat.autoApproveGroupChat') }}</div>
+                    <div class="text-sm text-base-content/70">{{ chatConfig.autoApproveGroupChat ? 'Yes' : 'No' }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm font-medium">{{ t('developer.bots.chat.supportChat') }}</div>
+                    <div class="text-sm text-base-content/70">{{ chatConfig.supportChat ? 'Yes' : 'No' }}</div>
+                  </div>
                 </div>
-              </div>
-              <div v-if="chatConfig.commands.length > 0">
-                <div class="text-sm font-medium mb-1">{{ t('developer.bots.chat.commands') }}</div>
-                <div class="space-y-1">
-                  <div v-for="cmd in chatConfig.commands" :key="cmd.name" class="text-sm bg-base-200 rounded px-2 py-1">
-                    <span class="font-mono font-medium">/{{ cmd.name }}</span>
-                    <span class="text-base-content/50 ml-2">{{ cmd.description }}</span>
+                <div>
+                  <div class="text-sm font-medium">{{ t('developer.bots.chat.subscribedEvents') }}</div>
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    <span v-for="evt in chatConfig.subscribedEvents" :key="evt" class="badge badge-sm">{{ evt }}</span>
+                  </div>
+                </div>
+                <div v-if="chatConfig.commands?.length > 0">
+                  <div class="text-sm font-medium mb-1">{{ t('developer.bots.chat.commands') }}</div>
+                  <div class="space-y-1">
+                    <div v-for="cmd in chatConfig.commands" :key="cmd.name" class="text-sm bg-base-200 rounded px-2 py-1">
+                      <span class="font-mono font-medium">/{{ cmd.name }}</span>
+                      <span class="text-base-content/50 ml-2">{{ cmd.description }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="chatConfig.webhooks?.length > 0">
+                  <div class="text-sm font-medium mb-1">{{ t('developer.bots.chat.webhooks') }}</div>
+                  <div class="space-y-1">
+                    <div v-for="wh in chatConfig.webhooks" :key="wh.url" class="text-sm bg-base-200 rounded px-2 py-1 font-mono truncate">{{ wh.url }}</div>
                   </div>
                 </div>
               </div>
-              <div v-if="chatConfig.webhooks.length > 0">
-                <div class="text-sm font-medium mb-1">{{ t('developer.bots.chat.webhooks') }}</div>
-                <div class="space-y-1">
-                  <div v-for="wh in chatConfig.webhooks" :key="wh.url" class="text-sm bg-base-200 rounded px-2 py-1 font-mono truncate">{{ wh.url }}</div>
-                </div>
-              </div>
+              <p v-else class="text-sm text-base-content/50">{{ t('developer.bots.chat.noConfig') }}</p>
             </div>
-            <p v-else class="text-sm text-base-content/50">{{ t('developer.bots.chat.noConfig') }}</p>
           </div>
-        </div>
 
-        <!-- Bot Info -->
-        <div class="card bg-base-100 shadow-sm">
-          <div class="card-body p-4">
-            <h3 class="card-title text-base mb-4">{{ t('developer.bots.info.title') }}</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <div class="text-sm font-medium">{{ t('developer.bots.info.id') }}</div>
-                <div class="text-sm text-base-content/70 font-mono">{{ bot.id }}</div>
-              </div>
-              <div>
-                <div class="text-sm font-medium">{{ t('developer.bots.info.slug') }}</div>
-                <div class="text-sm text-base-content/70 font-mono">{{ bot.slug }}</div>
-              </div>
-              <div>
-                <div class="text-sm font-medium">{{ t('developer.bots.info.accountName') }}</div>
-                <div class="text-sm text-base-content/70">{{ bot.account.name }}</div>
-              </div>
-              <div>
-                <div class="text-sm font-medium">{{ t('developer.bots.info.language') }}</div>
-                <div class="text-sm text-base-content/70">{{ bot.account.language ?? '-' }}</div>
-              </div>
-              <div>
-                <div class="text-sm font-medium">{{ t('developer.bots.info.projectId') }}</div>
-                <div class="text-sm text-base-content/70 font-mono">{{ bot.projectId }}</div>
-              </div>
-              <div>
-                <div class="text-sm font-medium">{{ t('developer.bots.info.accountId') }}</div>
-                <div class="text-sm text-base-content/70 font-mono">{{ bot.account.id }}</div>
+          <!-- Bot Info -->
+          <div class="card bg-base-100 shadow-sm">
+            <div class="card-body p-4">
+              <h3 class="card-title text-base mb-4">{{ t('developer.bots.info.title') }}</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <div class="text-sm font-medium">{{ t('developer.bots.info.id') }}</div>
+                  <div class="text-sm text-base-content/70 font-mono">{{ bot.id }}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium">{{ t('developer.bots.info.slug') }}</div>
+                  <div class="text-sm text-base-content/70 font-mono">{{ bot.slug }}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium">{{ t('developer.bots.info.accountName') }}</div>
+                  <div class="text-sm text-base-content/70">{{ bot.account.name }}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium">{{ t('developer.bots.info.language') }}</div>
+                  <div class="text-sm text-base-content/70">{{ bot.account.language ?? '-' }}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium">{{ t('developer.bots.info.projectId') }}</div>
+                  <div class="text-sm text-base-content/70 font-mono">{{ bot.projectId }}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium">{{ t('developer.bots.info.accountId') }}</div>
+                  <div class="text-sm text-base-content/70 font-mono">{{ bot.account.id }}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -370,6 +381,7 @@ import {
   IconPlus,
   IconBot,
   IconCamera,
+  IconCopy,
 } from '#components'
 import { getFileUrl } from '~/utils/files'
 import type { Bot, BotKey, BotChatConfig } from '~/types/developer'
@@ -420,6 +432,7 @@ const editForm = reactive({
 const newKey = reactive({
   label: '',
 })
+const createdKeyValue = ref<string | null>(null)
 
 const chatForm = reactive({
   autoApproveDm: true,
@@ -437,9 +450,16 @@ const backgroundPickerOpen = ref(false)
 const picturePreview = computed(() => getFileUrl(pictureId.value))
 const backgroundPreview = computed(() => getFileUrl(backgroundId.value))
 
-defineOgImage('UniOgImage', { title: `${t('developer.bots.detail')} - ${pubName.value}` })
+const pageTitle = computed(() => {
+  const parts = [t('developer.bots.detail')]
+  if (bot.value) parts.push(bot.value.account.nick)
+  parts.push('Solar Network')
+  return parts.join(' · ')
+})
 
-useSolarSeo({ title: `${t('developer.bots.detail')} - ${pubName.value}` })
+defineOgImage('UniOgImage', { title: pageTitle })
+
+useSolarSeo({ title: pageTitle })
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString()
@@ -546,9 +566,10 @@ function openCreateKeyModal() {
 async function handleCreateKey() {
   isCreatingKey.value = true
   try {
-    await createBotKey(pubName.value, projectId.value, botId.value, {
+    const created = await createBotKey(pubName.value, projectId.value, botId.value, {
       label: newKey.label || undefined,
     })
+    createdKeyValue.value = created.key ?? null
     keyModalOpen.value = false
     keys.value = await fetchBotKeys(pubName.value, projectId.value, botId.value)
   } catch (e) {
@@ -556,6 +577,10 @@ async function handleCreateKey() {
   } finally {
     isCreatingKey.value = false
   }
+}
+
+function copyKey(value: string | null) {
+  if (value) navigator.clipboard.writeText(value)
 }
 
 async function handleDeleteKey(keyId: string) {

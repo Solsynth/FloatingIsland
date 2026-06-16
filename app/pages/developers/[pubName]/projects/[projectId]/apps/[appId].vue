@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="developer">
-    <div class="mx-auto max-w-4xl">
+    <div>
       <div v-if="isLoading" class="flex justify-center py-8">
         <span class="loading loading-spinner loading-lg" />
       </div>
@@ -56,102 +56,113 @@
           </div>
         </div>
 
-        <!-- Secrets Section -->
-        <div class="card bg-base-100 shadow-sm mb-6">
-          <div class="card-body p-4">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="card-title text-base">{{ t('developer.apps.secrets.title') }}</h3>
-              <button class="btn btn-primary btn-sm" @click="openCreateSecretModal">
-                <IconPlus class="w-4 h-4" />
-                {{ t('developer.apps.secrets.create') }}
-              </button>
-            </div>
-            <div v-if="secrets.length > 0" class="space-y-2">
-              <div
-                v-for="secret in secrets"
-                :key="secret.id"
-                class="flex items-center gap-3 rounded-lg p-3 bg-base-200"
-              >
-                <div class="flex-1">
-                  <div class="font-medium text-sm">{{ secret.description || t('developer.apps.secrets.noDescription') }}</div>
-                  <div class="text-xs text-base-content/50">
-                    {{ secret.type }}
-                    <span v-if="secret.expiredAt"> &middot; {{ t('developer.apps.secrets.expires') }}: {{ formatDate(secret.expiredAt) }}</span>
-                  </div>
-                </div>
-                <button class="btn btn-ghost btn-xs text-error" @click="handleDeleteSecret(secret.id)">
-                  <IconTrash class="w-3 h-3" />
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Secrets Section -->
+          <div class="card bg-base-100 shadow-sm">
+            <div class="card-body p-4">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="card-title text-base">{{ t('developer.apps.secrets.title') }}</h3>
+                <button class="btn btn-primary btn-sm" @click="openCreateSecretModal">
+                  <IconPlus class="w-4 h-4" />
+                  {{ t('developer.apps.secrets.create') }}
                 </button>
               </div>
-            </div>
-            <p v-else class="text-sm text-base-content/50">{{ t('developer.apps.secrets.noSecrets') }}</p>
-          </div>
-        </div>
-
-        <!-- OAuth Config -->
-        <div v-if="app.oauthConfig" class="card bg-base-100 shadow-sm mb-6">
-          <div class="card-body p-4">
-            <h3 class="card-title text-base mb-4">{{ t('developer.apps.oauth.title') }}</h3>
-            <div class="space-y-3">
-              <div>
-                <div class="text-sm font-medium">{{ t('developer.apps.oauth.clientUri') }}</div>
-                <div class="text-sm text-base-content/70">{{ app.oauthConfig.clientUri || '-' }}</div>
+              <div v-if="createdSecretValue" class="rounded-lg p-3 bg-success/10 border border-success/30 mb-3">
+                <div class="text-sm font-medium text-success mb-1">{{ t('developer.apps.secrets.created') }}</div>
+                <div class="flex items-center gap-2">
+                  <code class="text-xs font-mono bg-base-200 rounded px-2 py-1 flex-1 break-all">{{ createdSecretValue }}</code>
+                  <button class="btn btn-ghost btn-xs" @click="copySecret(createdSecretValue)">
+                    <IconCopy class="w-3 h-3" />
+                  </button>
+                </div>
+                <p class="text-xs text-base-content/50 mt-1">{{ t('developer.apps.secrets.copyNow') }}</p>
               </div>
-              <div>
-                <div class="text-sm font-medium">{{ t('developer.apps.oauth.redirectUris') }}</div>
-                <div v-if="app.oauthConfig.redirectUris.length > 0" class="mt-1 space-y-1">
-                  <div v-for="uri in app.oauthConfig.redirectUris" :key="uri" class="text-sm text-base-content/70 bg-base-200 rounded px-2 py-1">
-                    {{ uri }}
+              <div v-if="secrets.length > 0" class="space-y-2">
+                <div
+                  v-for="secret in secrets"
+                  :key="secret.id"
+                  class="flex items-center gap-3 rounded-lg p-3 bg-base-200"
+                >
+                  <div class="flex-1">
+                    <div class="font-medium text-sm">{{ secret.description || t('developer.apps.secrets.noDescription') }}</div>
+                    <div class="text-xs text-base-content/50">
+                      {{ secretTypeLabel(secret.type) }} &middot; {{ t('developer.apps.secrets.createdAt') }}: {{ formatDate(secret.createdAt) }}
+                    </div>
+                  </div>
+                  <button class="btn btn-ghost btn-xs text-error" @click="handleDeleteSecret(secret.id)">
+                    <IconTrash class="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+              <p v-else class="text-sm text-base-content/50">{{ t('developer.apps.secrets.noSecrets') }}</p>
+            </div>
+          </div>
+
+          <!-- OAuth Config -->
+          <div v-if="app.oauthConfig" class="card bg-base-100 shadow-sm">
+            <div class="card-body p-4">
+              <h3 class="card-title text-base mb-4">{{ t('developer.apps.oauth.title') }}</h3>
+              <div class="space-y-3">
+                <div>
+                  <div class="text-sm font-medium">{{ t('developer.apps.oauth.clientUri') }}</div>
+                  <div class="text-sm text-base-content/70">{{ app.oauthConfig.clientUri || '-' }}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium">{{ t('developer.apps.oauth.redirectUris') }}</div>
+                  <div v-if="app.oauthConfig.redirectUris.length > 0" class="mt-1 space-y-1">
+                    <div v-for="uri in app.oauthConfig.redirectUris" :key="uri" class="text-sm text-base-content/70 bg-base-200 rounded px-2 py-1">
+                      {{ uri }}
+                    </div>
+                  </div>
+                  <div v-else class="text-sm text-base-content/50">-</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium">{{ t('developer.apps.oauth.allowedScopes') }}</div>
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    <span v-for="scope in app.oauthConfig.allowedScopes" :key="scope" class="badge badge-sm">
+                      {{ scope }}
+                    </span>
                   </div>
                 </div>
-                <div v-else class="text-sm text-base-content/50">-</div>
-              </div>
-              <div>
-                <div class="text-sm font-medium">{{ t('developer.apps.oauth.allowedScopes') }}</div>
-                <div class="flex flex-wrap gap-1 mt-1">
-                  <span v-for="scope in app.oauthConfig.allowedScopes" :key="scope" class="badge badge-sm">
-                    {{ scope }}
-                  </span>
-                </div>
-              </div>
-              <div class="flex gap-4">
-                <div>
-                  <div class="text-sm font-medium">{{ t('developer.apps.oauth.requirePkce') }}</div>
-                  <div class="text-sm text-base-content/70">{{ app.oauthConfig.requirePkce ? 'Yes' : 'No' }}</div>
-                </div>
-                <div>
-                  <div class="text-sm font-medium">{{ t('developer.apps.oauth.allowOfflineAccess') }}</div>
-                  <div class="text-sm text-base-content/70">{{ app.oauthConfig.allowOfflineAccess ? 'Yes' : 'No' }}</div>
-                </div>
-                <div>
-                  <div class="text-sm font-medium">{{ t('developer.apps.oauth.isPublicClient') }}</div>
-                  <div class="text-sm text-base-content/70">{{ app.oauthConfig.isPublicClient ? 'Yes' : 'No' }}</div>
+                <div class="flex gap-4">
+                  <div>
+                    <div class="text-sm font-medium">{{ t('developer.apps.oauth.requirePkce') }}</div>
+                    <div class="text-sm text-base-content/70">{{ app.oauthConfig.requirePkce ? 'Yes' : 'No' }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm font-medium">{{ t('developer.apps.oauth.allowOfflineAccess') }}</div>
+                    <div class="text-sm text-base-content/70">{{ app.oauthConfig.allowOfflineAccess ? 'Yes' : 'No' }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm font-medium">{{ t('developer.apps.oauth.isPublicClient') }}</div>
+                    <div class="text-sm text-base-content/70">{{ app.oauthConfig.isPublicClient ? 'Yes' : 'No' }}</div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Links -->
-        <div v-if="app.links" class="card bg-base-100 shadow-sm">
-          <div class="card-body p-4">
-            <h3 class="card-title text-base mb-4">{{ t('developer.apps.links.title') }}</h3>
-            <div class="space-y-2">
-              <div v-if="app.links.homePage" class="flex items-center gap-2">
-                <IconLink class="w-4 h-4 text-base-content/50" />
-                <a :href="app.links.homePage" target="_blank" class="link link-primary text-sm">{{ app.links.homePage }}</a>
+          <!-- Links -->
+          <div v-if="app.links" class="card bg-base-100 shadow-sm">
+            <div class="card-body p-4">
+              <h3 class="card-title text-base mb-4">{{ t('developer.apps.links.title') }}</h3>
+              <div class="space-y-2">
+                <div v-if="app.links.homePage" class="flex items-center gap-2">
+                  <IconLink class="w-4 h-4 text-base-content/50" />
+                  <a :href="app.links.homePage" target="_blank" class="link link-primary text-sm">{{ app.links.homePage }}</a>
+                </div>
+                <div v-if="app.links.privacyPolicy" class="flex items-center gap-2">
+                  <IconShield class="w-4 h-4 text-base-content/50" />
+                  <a :href="app.links.privacyPolicy" target="_blank" class="link link-primary text-sm">{{ app.links.privacyPolicy }}</a>
+                </div>
+                <div v-if="app.links.termsOfService" class="flex items-center gap-2">
+                  <IconFileText class="w-4 h-4 text-base-content/50" />
+                  <a :href="app.links.termsOfService" target="_blank" class="link link-primary text-sm">{{ app.links.termsOfService }}</a>
+                </div>
+                <p v-if="!app.links.homePage && !app.links.privacyPolicy && !app.links.termsOfService" class="text-sm text-base-content/50">
+                  {{ t('developer.apps.links.noLinks') }}
+                </p>
               </div>
-              <div v-if="app.links.privacyPolicy" class="flex items-center gap-2">
-                <IconShield class="w-4 h-4 text-base-content/50" />
-                <a :href="app.links.privacyPolicy" target="_blank" class="link link-primary text-sm">{{ app.links.privacyPolicy }}</a>
-              </div>
-              <div v-if="app.links.termsOfService" class="flex items-center gap-2">
-                <IconFileText class="w-4 h-4 text-base-content/50" />
-                <a :href="app.links.termsOfService" target="_blank" class="link link-primary text-sm">{{ app.links.termsOfService }}</a>
-              </div>
-              <p v-if="!app.links.homePage && !app.links.privacyPolicy && !app.links.termsOfService" class="text-sm text-base-content/50">
-                {{ t('developer.apps.links.noLinks') }}
-              </p>
             </div>
           </div>
         </div>
@@ -329,8 +340,8 @@
           <fieldset class="fieldset mb-4">
             <legend class="fieldset-legend">{{ t('developer.apps.secrets.type') }}</legend>
             <select v-model="newSecret.type" class="select w-full">
-              <option value="AppConnect">{{ t('developer.apps.secrets.typeAppConnect') }}</option>
-              <option value="Oidc">{{ t('developer.apps.secrets.typeOidc') }}</option>
+              <option :value="1">{{ t('developer.apps.secrets.typeAppConnect') }}</option>
+              <option :value="0">{{ t('developer.apps.secrets.typeOidc') }}</option>
             </select>
           </fieldset>
           <div class="flex items-center justify-between gap-3">
@@ -373,6 +384,7 @@ import {
   IconShield,
   IconFileText,
   IconCamera,
+  IconCopy,
 } from '#components'
 import { getFileUrl } from '~/utils/files'
 import type { SnCloudFile } from '~/types/drive'
@@ -435,8 +447,9 @@ const linksForm = reactive({
 
 const newSecret = reactive({
   description: '',
-  type: 'AppConnect',
+  type: 1 as number,
 })
+const createdSecretValue = ref<string | null>(null)
 
 // Picture / background
 const pictureId = ref<string | null>(null)
@@ -608,10 +621,11 @@ function openCreateSecretModal() {
 async function handleCreateSecret() {
   isCreatingSecret.value = true
   try {
-    await createAppSecret(pubName.value, projectId.value, appId.value, {
+    const created = await createAppSecret(pubName.value, projectId.value, appId.value, {
       description: newSecret.description || undefined,
       type: newSecret.type,
     })
+    createdSecretValue.value = created.secret ?? null
     secretModalOpen.value = false
     secrets.value = await fetchAppSecrets(pubName.value, projectId.value, appId.value)
   } catch (e) {
@@ -619,6 +633,14 @@ async function handleCreateSecret() {
   } finally {
     isCreatingSecret.value = false
   }
+}
+
+function copySecret(value: string | null) {
+  if (value) navigator.clipboard.writeText(value)
+}
+
+function secretTypeLabel(type: number) {
+  return type === 0 ? 'OIDC' : 'App Connect'
 }
 
 async function handleDeleteSecret(secretId: string) {

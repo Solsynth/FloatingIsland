@@ -76,11 +76,12 @@ export interface CustomAppOauthConfig {
 
 export interface CustomAppSecret {
   id: string
-  secret: string | null
+  secret?: string | null
   description: string | null
-  expiredAt: string | null
-  type: string
+  type: number
   appId: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface Bot {
@@ -119,10 +120,10 @@ export interface BotAccountProfile {
 
 export interface BotKey {
   id: string
-  key: string | null
+  key?: string | null
   label: string | null
-  expiredAt: string | null
-  botId: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface BotChatConfig {

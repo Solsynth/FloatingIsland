@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="developer">
-    <div class="mx-auto max-w-4xl">
+    <div>
       <div v-if="isLoading" class="flex justify-center py-8">
         <span class="loading loading-spinner loading-lg" />
       </div>
@@ -42,74 +42,76 @@
           </div>
         </div>
 
-        <!-- Apps Section -->
-        <div class="card bg-base-100 shadow-sm mb-6">
-          <div class="card-body p-4">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="card-title text-base">{{ t('developer.apps.title') }}</h3>
-              <NuxtLink :to="`/developers/${pubName}/projects/${projectId}/apps`" class="btn btn-ghost btn-sm">
-                {{ t('developer.apps.viewAll') }}
-                <IconChevronRight class="w-4 h-4" />
-              </NuxtLink>
-            </div>
-            <div v-if="apps.length > 0" class="space-y-2">
-              <NuxtLink
-                v-for="app in apps"
-                :key="app.id"
-                :to="`/developers/${pubName}/projects/${projectId}/apps/${app.id}`"
-                class="flex items-center gap-3 rounded-lg p-3 hover:bg-base-200"
-              >
-                <div class="avatar">
-                  <div class="w-8 rounded-full">
-                    <img v-if="getFileUrl(app.picture?.id)" :src="getFileUrl(app.picture?.id)!" :alt="app.name" />
-                    <div v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-content text-xs font-bold">
-                      {{ app.name?.slice(0, 2).toUpperCase() }}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Apps Section -->
+          <div class="card bg-base-100 shadow-sm">
+            <div class="card-body p-4">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="card-title text-base">{{ t('developer.apps.title') }}</h3>
+                <NuxtLink :to="`/developers/${pubName}/projects/${projectId}/apps`" class="btn btn-ghost btn-sm">
+                  {{ t('developer.apps.viewAll') }}
+                  <IconChevronRight class="w-4 h-4" />
+                </NuxtLink>
+              </div>
+              <div v-if="apps.length > 0" class="space-y-2">
+                <NuxtLink
+                  v-for="app in apps"
+                  :key="app.id"
+                  :to="`/developers/${pubName}/projects/${projectId}/apps/${app.id}`"
+                  class="flex items-center gap-3 rounded-lg p-3 hover:bg-base-200"
+                >
+                  <div class="avatar">
+                    <div class="w-8 rounded-full">
+                      <img v-if="getFileUrl(app.picture?.id)" :src="getFileUrl(app.picture?.id)!" :alt="app.name" />
+                      <div v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-content text-xs font-bold">
+                        {{ app.name?.slice(0, 2).toUpperCase() }}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="min-w-0 flex-1">
-                  <div class="font-medium text-sm">{{ app.name }}</div>
-                </div>
-                <IconChevronRight class="w-4 h-4 text-base-content/30" />
-              </NuxtLink>
+                  <div class="min-w-0 flex-1">
+                    <div class="font-medium text-sm">{{ app.name }}</div>
+                  </div>
+                  <IconChevronRight class="w-4 h-4 text-base-content/30" />
+                </NuxtLink>
+              </div>
+              <p v-else class="text-sm text-base-content/50">{{ t('developer.apps.noApps') }}</p>
             </div>
-            <p v-else class="text-sm text-base-content/50">{{ t('developer.apps.noApps') }}</p>
           </div>
-        </div>
 
-        <!-- Bots Section -->
-        <div class="card bg-base-100 shadow-sm">
-          <div class="card-body p-4">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="card-title text-base">{{ t('developer.bots.title') }}</h3>
-              <NuxtLink :to="`/developers/${pubName}/projects/${projectId}/bots`" class="btn btn-ghost btn-sm">
-                {{ t('developer.bots.viewAll') }}
-                <IconChevronRight class="w-4 h-4" />
-              </NuxtLink>
-            </div>
-            <div v-if="bots.length > 0" class="space-y-2">
-              <NuxtLink
-                v-for="bot in bots"
-                :key="bot.id"
-                :to="`/developers/${pubName}/projects/${projectId}/bots/${bot.id}`"
-                class="flex items-center gap-3 rounded-lg p-3 hover:bg-base-200"
-              >
-                <div class="avatar">
-                  <div class="w-8 rounded-full">
-                    <img v-if="getFileUrl(bot.account.profile?.picture?.id)" :src="getFileUrl(bot.account.profile?.picture?.id)!" :alt="bot.account.nick" />
-                    <div v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-info text-info-content text-xs font-bold">
-                      {{ bot.account.nick?.slice(0, 2).toUpperCase() }}
+          <!-- Bots Section -->
+          <div class="card bg-base-100 shadow-sm">
+            <div class="card-body p-4">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="card-title text-base">{{ t('developer.bots.title') }}</h3>
+                <NuxtLink :to="`/developers/${pubName}/projects/${projectId}/bots`" class="btn btn-ghost btn-sm">
+                  {{ t('developer.bots.viewAll') }}
+                  <IconChevronRight class="w-4 h-4" />
+                </NuxtLink>
+              </div>
+              <div v-if="bots.length > 0" class="space-y-2">
+                <NuxtLink
+                  v-for="bot in bots"
+                  :key="bot.id"
+                  :to="`/developers/${pubName}/projects/${projectId}/bots/${bot.id}`"
+                  class="flex items-center gap-3 rounded-lg p-3 hover:bg-base-200"
+                >
+                  <div class="avatar">
+                    <div class="w-8 rounded-full">
+                      <img v-if="getFileUrl(bot.account.profile?.picture?.id)" :src="getFileUrl(bot.account.profile?.picture?.id)!" :alt="bot.account.nick" />
+                      <div v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-info text-info-content text-xs font-bold">
+                        {{ bot.account.nick?.slice(0, 2).toUpperCase() }}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="min-w-0 flex-1">
-                  <div class="font-medium text-sm">{{ bot.account.nick }}</div>
-                  <div class="text-xs text-base-content/50">@{{ bot.account.name }}</div>
-                </div>
-                <IconChevronRight class="w-4 h-4 text-base-content/30" />
-              </NuxtLink>
+                  <div class="min-w-0 flex-1">
+                    <div class="font-medium text-sm">{{ bot.account.nick }}</div>
+                    <div class="text-xs text-base-content/50">@{{ bot.account.name }}</div>
+                  </div>
+                  <IconChevronRight class="w-4 h-4 text-base-content/30" />
+                </NuxtLink>
+              </div>
+              <p v-else class="text-sm text-base-content/50">{{ t('developer.bots.noBots') }}</p>
             </div>
-            <p v-else class="text-sm text-base-content/50">{{ t('developer.bots.noBots') }}</p>
           </div>
         </div>
       </template>
