@@ -2803,3 +2803,34 @@ export async function removeReactionFromMessage(
     { method: 'DELETE' },
   )
 }
+
+// Device Authorization Flow (RFC 8628)
+export interface DeviceCodeStatus {
+  userCode: string;
+  clientId: string;
+  scopes: string[];
+  status: 'pending' | 'approved' | 'declined' | 'expired';
+  expiresAt: string;
+}
+
+export async function getDeviceCodeStatus(userCode: string): Promise<DeviceCodeStatus> {
+  const response = await apiFetch(
+    `/padlock/auth/open/device/code/${encodeURIComponent(userCode)}`,
+    { skipAuth: true },
+  );
+  return safeJsonParse<DeviceCodeStatus>(response);
+}
+
+export async function approveDeviceCode(userCode: string): Promise<void> {
+  await apiFetch(
+    `/padlock/auth/open/device/code/${encodeURIComponent(userCode)}/approve`,
+    { method: 'POST' },
+  );
+}
+
+export async function declineDeviceCode(userCode: string): Promise<void> {
+  await apiFetch(
+    `/padlock/auth/open/device/code/${encodeURIComponent(userCode)}/decline`,
+    { method: 'POST' },
+  );
+}
