@@ -160,6 +160,7 @@ export async function updateCustomApp(
       privacyPolicy?: string | null
       termsOfService?: string | null
     }
+    paymentWalletId?: string | null
     oauthConfig?: {
       clientUri?: string | null
       redirectUris?: string[]

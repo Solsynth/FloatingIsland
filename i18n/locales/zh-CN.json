@@ -865,6 +865,14 @@
         "termsOfService": "服务条款",
         "noLinks": "未配置链接。"
       },
+      "payment": {
+        "title": "支付",
+        "defaultWallet": "钱包",
+        "loadingWallet": "加载钱包中...",
+        "noWallet": "未配置支付钱包。",
+        "noWallets": "未找到钱包。请先创建一个。",
+        "createWallet": "创建钱包"
+      },
       "background": "背景",
       "products": {
         "title": "产品",

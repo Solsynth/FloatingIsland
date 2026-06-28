@@ -885,6 +885,14 @@
         "termsOfService": "Terms of Service",
         "noLinks": "No links configured."
       },
+      "payment": {
+        "title": "Payment",
+        "defaultWallet": "Wallet",
+        "loadingWallet": "Loading wallet...",
+        "noWallet": "No payment wallet configured.",
+        "noWallets": "No wallets found. Create one first.",
+        "createWallet": "Create Wallet"
+      },
       "background": "Background",
       "products": {
         "title": "Products",

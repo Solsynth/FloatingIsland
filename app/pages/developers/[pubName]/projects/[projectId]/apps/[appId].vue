@@ -209,6 +209,34 @@
               </div>
             </div>
           </div>
+
+          <!-- Payment Wallet -->
+          <div class="card bg-base-100 shadow-sm">
+            <div class="card-body p-4 flex flex-col">
+              <h3 class="card-title text-base mb-4">{{ t('developer.apps.payment.title') ?? 'Payment' }}</h3>
+              <div class="space-y-2 flex-1">
+                <div v-if="app.paymentWalletId" class="space-y-2">
+                  <div v-if="paymentWallet" class="flex items-center gap-3 rounded-lg p-3 bg-base-200">
+                    <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <IconWallet class="w-5 h-5 text-primary" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="font-medium text-sm truncate">{{ paymentWallet.name || (t('developer.apps.payment.defaultWallet') ?? 'Wallet') }}</div>
+                      <div class="text-xs text-base-content/50 truncate">
+                        {{ formatAmount(paymentWallet.pockets?.[0]?.amount) }} {{ paymentWallet.pockets?.[0]?.currency || '' }}
+                      </div>
+                    </div>
+                  </div>
+                  <p v-else class="text-sm text-base-content/50">
+                    {{ t('developer.apps.payment.loadingWallet') ?? 'Loading wallet...' }}
+                  </p>
+                </div>
+                <p v-else class="text-sm text-base-content/50">
+                  {{ t('developer.apps.payment.noWallet') ?? 'No payment wallet configured.' }}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </template>
 
@@ -236,7 +264,7 @@
             :key="tab.key"
             class="tab"
             :class="{ 'tab-active': editActiveTab === tab.key }"
-            @click="editActiveTab = tab.key"
+            @click="editActiveTab = tab.key; loadWalletsForPayment()"
           >
             {{ tab.label }}
           </button>
@@ -357,6 +385,54 @@
             <input v-model="linksForm.termsOfService" type="url" class="input w-full" placeholder="https://example.com/terms" />
           </fieldset>
           <div class="flex items-center justify-between gap-3">
+            <button type="button" class="btn btn-ghost" @click="editModalOpen = false">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn btn-primary" :disabled="isUpdatingApp">
+              <span v-if="isUpdatingApp" class="loading loading-spinner loading-sm" />
+              {{ t('common.save') }}
+            </button>
+          </div>
+        </form>
+
+        <!-- Payment Tab -->
+        <form v-else-if="editActiveTab === 'payment'" @submit.prevent="handleUpdatePayment">
+          <div class="space-y-4">
+            <div v-if="paymentWalletsLoading" class="flex items-center justify-center py-8">
+              <span class="loading loading-spinner loading-md" />
+            </div>
+            <template v-else>
+              <div v-if="allWallets.length === 0" class="rounded-lg p-4 bg-base-200 text-center">
+                <p class="text-sm text-base-content/50">{{ t('developer.apps.payment.noWallets') ?? 'No wallets found. Create one first.' }}</p>
+                <NuxtLink to="/wallets" class="btn btn-primary btn-sm mt-3">{{ t('developer.apps.payment.createWallet') ?? 'Create Wallet' }}</NuxtLink>
+              </div>
+              <template v-else>
+                <div class="space-y-2">
+                  <label class="flex items-center gap-3 rounded-lg p-3 bg-base-200 cursor-pointer hover:bg-base-300 transition-colors" @click="paymentWalletId = null">
+                    <input type="radio" name="paymentWallet" :checked="paymentWalletId === null" class="radio radio-sm" />
+                    <span class="text-sm">{{ t('developer.apps.payment.noWallet') ?? 'None (no payment wallet)' }}</span>
+                  </label>
+                  <div
+                    v-for="wallet in allWallets"
+                    :key="wallet.id"
+                    class="flex items-center gap-3 rounded-lg p-3 bg-base-200 cursor-pointer hover:bg-base-300 transition-colors"
+                    @click="paymentWalletId = wallet.id"
+                  >
+                    <input type="radio" name="paymentWallet" :checked="paymentWalletId === wallet.id" class="radio radio-sm" />
+                    <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <IconWallet class="w-4 h-4 text-primary" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-medium truncate">{{ wallet.name || 'Wallet' }}</div>
+                      <div class="text-xs text-base-content/50">
+                        {{ formatAmount(wallet.pockets?.[0]?.amount) }} {{ wallet.pockets?.[0]?.currency || '' }}
+                      </div>
+                    </div>
+                    <span v-if="wallet.isPrimary" class="badge badge-sm badge-primary shrink-0">{{ t('common.default') ?? 'Default' }}</span>
+                  </div>
+                </div>
+              </template>
+            </template>
+          </div>
+          <div class="flex items-center justify-between gap-3 mt-6">
             <button type="button" class="btn btn-ghost" @click="editModalOpen = false">{{ t('common.cancel') }}</button>
             <button type="submit" class="btn btn-primary" :disabled="isUpdatingApp">
               <span v-if="isUpdatingApp" class="loading loading-spinner loading-sm" />
@@ -516,10 +592,13 @@ import {
   IconFileText,
   IconCamera,
   IconCopy,
+  IconWallet,
 } from '#components'
 import { getFileUrl } from '~/utils/files'
 import type { SnCloudFile } from '~/types/drive'
 import type { CustomApp, CustomAppSecret, AppProduct } from '~/types/developer'
+import type { Wallet } from '~/utils/api'
+import { fetchWallets, fetchWalletById } from '~/utils/api'
 import {
   fetchCustomApp,
   updateCustomApp,
@@ -551,7 +630,7 @@ const secretModalOpen = ref(false)
 const isCreatingSecret = ref(false)
 const editModalOpen = ref(false)
 const isUpdatingApp = ref(false)
-const editActiveTab = ref<'basic' | 'oauth' | 'links'>('basic')
+const editActiveTab = ref<'basic' | 'oauth' | 'links' | 'payment'>('basic')
 const productModalOpen = ref(false)
 const isSavingProduct = ref(false)
 const editingProduct = ref<AppProduct | null>(null)
@@ -560,10 +639,17 @@ const productBackgroundId = ref<string | null>(null)
 const productPicturePickerOpen = ref(false)
 const productBackgroundPickerOpen = ref(false)
 
+// ponytail: payment wallet selection is a simple id picker, no multi-wallet orchestration
+const paymentWalletId = ref<string | null>(null)
+const allWallets = ref<Wallet[]>([])
+const paymentWalletsLoading = ref(false)
+const paymentWallet = ref<Wallet | null>(null)
+
 const editTabs = computed(() => [
   { key: 'basic' as const, label: t('developer.apps.name') },
   { key: 'oauth' as const, label: t('developer.apps.oauth.title') },
   { key: 'links' as const, label: t('developer.apps.links.title') },
+  { key: 'payment' as const, label: t('developer.apps.payment.title') ?? 'Payment' },
 ])
 
 const editForm = reactive({
@@ -620,8 +706,25 @@ useSolarSeo({ title: `${t('developer.apps.detail')} - ${pubName.value}` })
 const productPicturePreview = computed(() => getFileUrl(productPictureId.value))
 const productBackgroundPreview = computed(() => getFileUrl(productBackgroundId.value))
 
+function formatAmount(amount: number | undefined | null) {
+  if (amount == null) return '0'
+  return new Intl.NumberFormat().format(amount)
+}
+
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString()
+}
+
+async function loadPaymentWallet() {
+  if (!app.value?.paymentWalletId) {
+    paymentWallet.value = null
+    return
+  }
+  try {
+    paymentWallet.value = await fetchWalletById(app.value.paymentWalletId)
+  } catch {
+    paymentWallet.value = null
+  }
 }
 
 async function loadData() {
@@ -642,6 +745,8 @@ async function loadData() {
 
     const productsResult = await fetchAppProducts(pubName.value, projectId.value, appId.value)
     products.value = productsResult
+
+    await loadPaymentWallet()
   } catch (e) {
     console.error(e)
   } finally {
@@ -689,6 +794,7 @@ function openEditModal() {
   linksForm.termsOfService = lk?.termsOfService ?? ''
   pictureId.value = app.value.picture?.id ?? null
   backgroundId.value = app.value.background?.id ?? null
+  paymentWalletId.value = app.value.paymentWalletId ?? null
   editModalOpen.value = true
 }
 
@@ -754,6 +860,35 @@ async function handleUpdateLinks() {
     })
     editModalOpen.value = false
     app.value = await fetchCustomApp(pubName.value, projectId.value, appId.value)
+  } catch (e) {
+    console.error(e)
+  } finally {
+    isUpdatingApp.value = false
+  }
+}
+
+// ponytail: single wallet selector, no multi-wallet orchestration needed yet
+async function loadWalletsForPayment() {
+  if (allWallets.value.length > 0) return
+  paymentWalletsLoading.value = true
+  try {
+    allWallets.value = await fetchWallets()
+  } catch {
+    allWallets.value = []
+  } finally {
+    paymentWalletsLoading.value = false
+  }
+}
+
+async function handleUpdatePayment() {
+  isUpdatingApp.value = true
+  try {
+    await updateCustomApp(pubName.value, projectId.value, appId.value, {
+      paymentWalletId: paymentWalletId.value,
+    })
+    editModalOpen.value = false
+    app.value = await fetchCustomApp(pubName.value, projectId.value, appId.value)
+    await loadPaymentWallet()
   } catch (e) {
     console.error(e)
   } finally {
