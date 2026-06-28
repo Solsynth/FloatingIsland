@@ -471,15 +471,18 @@ export async function getOrder(orderId: string): Promise<WalletOrder> {
 export async function payOrder(
   orderId: string,
   pinCode: string,
-): Promise<unknown> {
+  payerWalletId?: string,
+): Promise<WalletOrder> {
+  const body: Record<string, string> = { pin_code: pinCode };
+  if (payerWalletId) body.payer_wallet_id = payerWalletId;
   const response = await apiFetch(
     `/passport/orders/${encodeURIComponent(orderId)}/pay`,
     {
       method: "POST",
-      body: JSON.stringify({ pin_code: pinCode }),
+      body: JSON.stringify(body),
     },
   );
-  return safeJsonParse(response);
+  return safeJsonParse<WalletOrder>(response);
 }
 
 export async function getSpell(spellWord: string): Promise<SpellInfo> {

@@ -202,13 +202,27 @@ export interface CaptchaConfig {
   apiKey: string;
 }
 
+export interface WalletOrderItem {
+  productIdentifier: string;
+  quantity: number;
+  unitPrice: number;
+  currency: string;
+}
+
 export interface WalletOrder {
   id: string;
+  status: string;
   productIdentifier: string | null;
   remarks: string | null;
   amount: number;
   currency: string;
+  items?: WalletOrderItem[];
+  appIdentifier?: string;
+  transactionId?: string | null;
+  payeeWalletId?: string;
   expiredAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface SnAccountPunishment {
