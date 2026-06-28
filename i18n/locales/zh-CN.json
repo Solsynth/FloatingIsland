@@ -841,7 +841,7 @@
         "noDescription": "无描述",
         "expires": "过期时间",
         "type": "类型",
-        "typeAppConnect": "应用连接",
+        "typeApiKey": "ApiKey",
         "typeOidc": "OIDC",
         "noSecrets": "暂无密钥。",
         "deleteConfirm": "确定要删除此密钥吗？",
@@ -865,7 +865,22 @@
         "termsOfService": "服务条款",
         "noLinks": "未配置链接。"
       },
-      "background": "背景"
+      "background": "背景",
+      "products": {
+        "title": "产品",
+        "create": "创建产品",
+        "edit": "编辑产品",
+        "sku": "SKU",
+        "identifierHint": "完整标识符: project.slug + '.' + app.slug + '.' + sku",
+        "displayName": "显示名称",
+        "description": "描述",
+        "currency": "货币",
+        "price": "价格",
+        "noProducts": "暂无产品。",
+        "deleteConfirm": "确定要删除此产品吗？",
+        "picture": "图片",
+        "background": "背景"
+      }
     },
     "apiPlayground": "API 调试工具",
     "playground": {

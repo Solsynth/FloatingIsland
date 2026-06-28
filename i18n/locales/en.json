@@ -861,7 +861,7 @@
         "noDescription": "No description",
         "expires": "Expires",
         "type": "Type",
-        "typeAppConnect": "App Connect",
+        "typeApiKey": "ApiKey",
         "typeOidc": "OIDC",
         "noSecrets": "No secrets yet.",
         "deleteConfirm": "Are you sure you want to delete this secret?",
@@ -885,7 +885,22 @@
         "termsOfService": "Terms of Service",
         "noLinks": "No links configured."
       },
-      "background": "Background"
+      "background": "Background",
+      "products": {
+        "title": "Products",
+        "create": "Create Product",
+        "edit": "Edit Product",
+        "sku": "SKU",
+        "identifierHint": "Full identifier: project.slug + '.' + app.slug + '.' + sku",
+        "displayName": "Display Name",
+        "description": "Description",
+        "currency": "Currency",
+        "price": "Price",
+        "noProducts": "No products yet.",
+        "deleteConfirm": "Are you sure you want to delete this product?",
+        "picture": "Picture",
+        "background": "Background"
+      }
     },
     "apiPlayground": "API Playground",
     "playground": {

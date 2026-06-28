@@ -118,6 +118,18 @@ export interface BotAccountProfile {
 }
 
 
+export interface AppProduct {
+  id: string
+  identifier: string
+  displayName: string
+  description: string | null
+  currency: string
+  price: number
+  picture: FileAttachment | null
+  background: FileAttachment | null
+  appId: string
+}
+
 export interface BotKey {
   id: string
   key?: string | null

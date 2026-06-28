@@ -4,6 +4,7 @@ import type {
   DevProject,
   CustomApp,
   CustomAppSecret,
+  AppProduct,
   Bot,
   BotKey,
 } from '~/types/developer'
@@ -192,6 +193,80 @@ export async function deleteCustomApp(
   )
 }
 
+// ==================== App Products ====================
+
+export async function fetchAppProducts(
+  publisherName: string,
+  projectId: string,
+  appId: string,
+): Promise<AppProduct[]> {
+  const response = await apiFetch(
+    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}/products`,
+  )
+  return safeJsonParse<AppProduct[]>(response)
+}
+
+export async function createAppProduct(
+  publisherName: string,
+  projectId: string,
+  appId: string,
+  data: {
+    identifier: string
+    displayName: string
+    description?: string
+    currency: string
+    price: number
+    pictureId?: string
+    backgroundId?: string
+  },
+): Promise<AppProduct> {
+  const response = await apiFetch(
+    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}/products`,
+    {
+      method: 'POST',
+      body: JSON.stringify(camelToSnake(data)),
+    },
+  )
+  return safeJsonParse<AppProduct>(response)
+}
+
+export async function updateAppProduct(
+  publisherName: string,
+  projectId: string,
+  appId: string,
+  productId: string,
+  data: {
+    identifier?: string
+    displayName?: string
+    description?: string
+    currency?: string
+    price?: number
+    pictureId?: string
+    backgroundId?: string
+  },
+): Promise<AppProduct> {
+  const response = await apiFetch(
+    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}/products/${encodeURIComponent(productId)}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(camelToSnake(data)),
+    },
+  )
+  return safeJsonParse<AppProduct>(response)
+}
+
+export async function deleteAppProduct(
+  publisherName: string,
+  projectId: string,
+  appId: string,
+  productId: string,
+): Promise<void> {
+  await apiFetch(
+    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}/products/${encodeURIComponent(productId)}`,
+    { method: 'DELETE' },
+  )
+}
+
 // ==================== App Secrets ====================
 
 export async function fetchAppSecrets(
@@ -209,7 +284,7 @@ export async function createAppSecret(
   publisherName: string,
   projectId: string,
   appId: string,
-  data: { description?: string; type?: number; expiresIn?: string | null },
+  data: { description?: string; type?: string; expiresIn?: string | null },
 ): Promise<CustomAppSecret> {
   const response = await apiFetch(
     `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}/secrets`,

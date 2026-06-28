@@ -98,11 +98,55 @@
             </div>
           </div>
 
+          <!-- Products Section -->
+          <div class="card bg-base-100 shadow-sm">
+            <div class="card-body p-4">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="card-title text-base">{{ t('developer.apps.products.title') }}</h3>
+                <button class="btn btn-primary btn-sm" @click="openCreateProductModal">
+                  <IconPlus class="w-4 h-4" />
+                  {{ t('developer.apps.products.create') }}
+                </button>
+              </div>
+              <div v-if="products.length > 0" class="space-y-2">
+                <div
+                  v-for="product in products"
+                  :key="product.id"
+                  class="flex items-center gap-3 rounded-lg p-3 bg-base-200"
+                >
+                  <div class="avatar">
+                    <div class="w-10 rounded">
+                      <img v-if="getFileUrl(product.picture?.id)" :src="getFileUrl(product.picture?.id)" :alt="product.displayName" />
+                      <div v-else class="flex h-10 w-10 items-center justify-center rounded bg-base-300 text-base-content/50 text-xs">
+                        {{ product.displayName?.slice(0, 2).toUpperCase() }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="font-medium text-sm">{{ product.displayName }}</div>
+                    <div class="text-xs text-base-content/50">
+                      <code class="font-mono text-xs">{{ product.identifier }}</code> &middot; {{ product.currency }} {{ product.price }}
+                    </div>
+                  </div>
+                  <div class="flex gap-1">
+                    <button class="btn btn-ghost btn-xs" @click="openEditProductModal(product)">
+                      <IconEdit class="w-3 h-3" />
+                    </button>
+                    <button class="btn btn-ghost btn-xs text-error" @click="handleDeleteProduct(product.id)">
+                      <IconTrash class="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <p v-else class="text-sm text-base-content/50">{{ t('developer.apps.products.noProducts') }}</p>
+            </div>
+          </div>
+
           <!-- OAuth Config -->
           <div v-if="app.oauthConfig" class="card bg-base-100 shadow-sm">
-            <div class="card-body p-4">
+            <div class="card-body p-4 flex flex-col">
               <h3 class="card-title text-base mb-4">{{ t('developer.apps.oauth.title') }}</h3>
-              <div class="space-y-3">
+              <div class="space-y-3 flex-1">
                 <div>
                   <div class="text-sm font-medium">{{ t('developer.apps.oauth.clientUri') }}</div>
                   <div class="text-sm text-base-content/70">{{ app.oauthConfig.clientUri || '-' }}</div>
@@ -144,9 +188,9 @@
 
           <!-- Links -->
           <div v-if="app.links" class="card bg-base-100 shadow-sm">
-            <div class="card-body p-4">
+            <div class="card-body p-4 flex flex-col">
               <h3 class="card-title text-base mb-4">{{ t('developer.apps.links.title') }}</h3>
-              <div class="space-y-2">
+              <div class="space-y-2 flex-1">
                 <div v-if="app.links.homePage" class="flex items-center gap-2">
                   <IconLink class="w-4 h-4 text-base-content/50" />
                   <a :href="app.links.homePage" target="_blank" class="link link-primary text-sm">{{ app.links.homePage }}</a>
@@ -340,8 +384,8 @@
           <fieldset class="fieldset mb-4">
             <legend class="fieldset-legend">{{ t('developer.apps.secrets.type') }}</legend>
             <select v-model="newSecret.type" class="select w-full">
-              <option :value="1">{{ t('developer.apps.secrets.typeAppConnect') }}</option>
-              <option :value="0">{{ t('developer.apps.secrets.typeOidc') }}</option>
+              <option value="ApiKey">{{ t('developer.apps.secrets.typeApiKey') }}</option>
+              <option value="Oidc">{{ t('developer.apps.secrets.typeOidc') }}</option>
             </select>
           </fieldset>
           <div class="flex items-center justify-between gap-3">
@@ -356,6 +400,79 @@
     </div>
 
     <!-- File Pickers -->
+    <!-- Product Drawer -->
+    <AdminDrawer
+      :open="productModalOpen"
+      :title="editingProduct ? t('developer.apps.products.edit') : t('developer.apps.products.create')"
+      @update:open="productModalOpen = $event"
+      content-class="max-w-2xl"
+    >
+      <form @submit.prevent="handleSaveProduct">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="relative group">
+            <div class="avatar cursor-pointer" @click="pickProductPicture">
+              <div class="w-16 rounded">
+                <img v-if="productPicturePreview" :src="productPicturePreview" />
+                <div v-else class="flex h-16 w-16 items-center justify-center rounded bg-base-300 text-base-content/50">
+                  <IconCamera class="w-6 h-6" />
+                </div>
+              </div>
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center rounded bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" @click="pickProductPicture">
+              <IconCamera class="w-5 h-5 text-white" />
+            </div>
+          </div>
+          <div class="flex-1">
+            <div class="relative group cursor-pointer rounded-lg overflow-hidden h-16 bg-base-300" @click="pickProductBackground">
+              <img v-if="productBackgroundPreview" :src="productBackgroundPreview" class="w-full h-full object-cover" />
+              <div v-else class="flex h-full items-center justify-center text-base-content/50">
+                <span class="text-xs">{{ t('developer.apps.products.background') }}</span>
+              </div>
+              <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                <IconCamera class="w-5 h-5 text-white" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <fieldset class="fieldset mb-4">
+          <legend class="fieldset-legend">{{ t('developer.apps.products.sku') }}</legend>
+          <input v-model="productForm.sku" type="text" class="input w-full" required :disabled="!!editingProduct" placeholder="premium_boost" />
+          <p class="text-xs text-base-content/50 mt-1">
+            {{ t('developer.apps.products.identifierHint') }}
+          </p>
+        </fieldset>
+        <fieldset class="fieldset mb-4">
+          <legend class="fieldset-legend">{{ t('developer.apps.products.displayName') }}</legend>
+          <input v-model="productForm.displayName" type="text" class="input w-full" required />
+        </fieldset>
+        <fieldset class="fieldset mb-4">
+          <legend class="fieldset-legend">{{ t('developer.apps.products.description') }}</legend>
+          <textarea v-model="productForm.description" class="textarea w-full" rows="2" />
+        </fieldset>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">{{ t('developer.apps.products.currency') }}</legend>
+            <select v-model="productForm.currency" class="select w-full" required>
+              <option value="points">points</option>
+              <option value="golds">golds</option>
+            </select>
+          </fieldset>
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">{{ t('developer.apps.products.price') }}</legend>
+            <input v-model.number="productForm.price" type="number" class="input w-full" required min="0" step="0.01" />
+          </fieldset>
+        </div>
+        <div class="flex items-center justify-between gap-3">
+          <button type="button" class="btn btn-ghost" @click="productModalOpen = false">{{ t('common.cancel') }}</button>
+          <button type="submit" class="btn btn-primary" :disabled="isSavingProduct">
+            <span v-if="isSavingProduct" class="loading loading-spinner loading-sm" />
+            {{ editingProduct ? t('common.save') : t('common.create') }}
+          </button>
+        </div>
+      </form>
+    </AdminDrawer>
+
     <CloudFileDrawer
       v-model:open="picturePickerOpen"
       :allowed-types="['image']"
@@ -369,6 +486,20 @@
       :crop-aspect-ratio="16/7"
       usage="app.background"
       @select="onBackgroundSelected"
+    />
+    <CloudFileDrawer
+      v-model:open="productPicturePickerOpen"
+      :allowed-types="['image']"
+      :crop-aspect-ratio="1"
+      usage="app.product"
+      @select="onProductPictureSelected"
+    />
+    <CloudFileDrawer
+      v-model:open="productBackgroundPickerOpen"
+      :allowed-types="['image']"
+      :crop-aspect-ratio="16/7"
+      usage="app.product"
+      @select="onProductBackgroundSelected"
     />
   </NuxtLayout>
 </template>
@@ -388,7 +519,7 @@ import {
 } from '#components'
 import { getFileUrl } from '~/utils/files'
 import type { SnCloudFile } from '~/types/drive'
-import type { CustomApp, CustomAppSecret } from '~/types/developer'
+import type { CustomApp, CustomAppSecret, AppProduct } from '~/types/developer'
 import {
   fetchCustomApp,
   updateCustomApp,
@@ -396,6 +527,10 @@ import {
   fetchAppSecrets,
   createAppSecret,
   deleteAppSecret,
+  fetchAppProducts,
+  createAppProduct,
+  updateAppProduct,
+  deleteAppProduct,
 } from '~/utils/developer'
 
 definePageMeta({ middleware: 'developer' })
@@ -410,12 +545,20 @@ const developer = useDeveloper()
 
 const app = ref<CustomApp | null>(null)
 const secrets = ref<CustomAppSecret[]>([])
+const products = ref<AppProduct[]>([])
 const isLoading = ref(false)
 const secretModalOpen = ref(false)
 const isCreatingSecret = ref(false)
 const editModalOpen = ref(false)
 const isUpdatingApp = ref(false)
 const editActiveTab = ref<'basic' | 'oauth' | 'links'>('basic')
+const productModalOpen = ref(false)
+const isSavingProduct = ref(false)
+const editingProduct = ref<AppProduct | null>(null)
+const productPictureId = ref<string | null>(null)
+const productBackgroundId = ref<string | null>(null)
+const productPicturePickerOpen = ref(false)
+const productBackgroundPickerOpen = ref(false)
 
 const editTabs = computed(() => [
   { key: 'basic' as const, label: t('developer.apps.name') },
@@ -447,9 +590,19 @@ const linksForm = reactive({
 
 const newSecret = reactive({
   description: '',
-  type: 1 as number,
+  type: 'ApiKey',
 })
 const createdSecretValue = ref<string | null>(null)
+
+const productForm = reactive({
+  sku: '',
+  displayName: '',
+  description: '',
+  currency: '',
+  price: 0,
+})
+
+// ponytail: full identifier is <project.slug>.<app.slug>.<sku>, stored as-is
 
 // Picture / background
 const pictureId = ref<string | null>(null)
@@ -463,6 +616,9 @@ const backgroundPreview = computed(() => getFileUrl(backgroundId.value))
 defineOgImage('UniOgImage', { title: `${t('developer.apps.detail')} - ${pubName.value}` })
 
 useSolarSeo({ title: `${t('developer.apps.detail')} - ${pubName.value}` })
+
+const productPicturePreview = computed(() => getFileUrl(productPictureId.value))
+const productBackgroundPreview = computed(() => getFileUrl(productBackgroundId.value))
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString()
@@ -483,6 +639,9 @@ async function loadData() {
 
     const secretsResult = await fetchAppSecrets(pubName.value, projectId.value, appId.value)
     secrets.value = secretsResult
+
+    const productsResult = await fetchAppProducts(pubName.value, projectId.value, appId.value)
+    products.value = productsResult
   } catch (e) {
     console.error(e)
   } finally {
@@ -614,7 +773,7 @@ async function handleDelete() {
 
 function openCreateSecretModal() {
   newSecret.description = ''
-  newSecret.type = 'AppConnect'
+  newSecret.type = 'ApiKey'
   secretModalOpen.value = true
 }
 
@@ -639,8 +798,8 @@ function copySecret(value: string | null) {
   if (value) navigator.clipboard.writeText(value)
 }
 
-function secretTypeLabel(type: number) {
-  return type === 0 ? 'OIDC' : 'App Connect'
+function secretTypeLabel(type: string) {
+  return type === 'Oidc' ? 'OIDC' : 'ApiKey'
 }
 
 async function handleDeleteSecret(secretId: string) {
@@ -648,6 +807,88 @@ async function handleDeleteSecret(secretId: string) {
   try {
     await deleteAppSecret(pubName.value, projectId.value, appId.value, secretId)
     secrets.value = await fetchAppSecrets(pubName.value, projectId.value, appId.value)
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+// ── Product handlers ──
+
+function openCreateProductModal() {
+  editingProduct.value = null
+  productForm.sku = ''
+  productForm.displayName = ''
+  productForm.description = ''
+  productForm.currency = 'points'
+  productForm.price = 0
+  productPictureId.value = null
+  productBackgroundId.value = null
+  productModalOpen.value = true
+}
+
+function openEditProductModal(product: AppProduct) {
+  editingProduct.value = product
+  productForm.sku = product.identifier
+  productForm.displayName = product.displayName
+  productForm.description = product.description ?? ''
+  productForm.currency = product.currency
+  productForm.price = product.price
+  productPictureId.value = product.picture?.id ?? null
+  productBackgroundId.value = product.background?.id ?? null
+  productModalOpen.value = true
+}
+
+function pickProductPicture() {
+  productPicturePickerOpen.value = true
+}
+
+function pickProductBackground() {
+  productBackgroundPickerOpen.value = true
+}
+
+function onProductPictureSelected(file: SnCloudFile | SnCloudFile[] | null) {
+  if (file && !Array.isArray(file)) {
+    productPictureId.value = file.id
+  }
+}
+
+function onProductBackgroundSelected(file: SnCloudFile | SnCloudFile[] | null) {
+  if (file && !Array.isArray(file)) {
+    productBackgroundId.value = file.id
+  }
+}
+
+async function handleSaveProduct() {
+  isSavingProduct.value = true
+  try {
+    const data = {
+      identifier: productForm.sku,
+      displayName: productForm.displayName,
+      description: productForm.description || undefined,
+      currency: productForm.currency,
+      price: productForm.price,
+      pictureId: productPictureId.value ?? undefined,
+      backgroundId: productBackgroundId.value ?? undefined,
+    }
+    if (editingProduct.value) {
+      await updateAppProduct(pubName.value, projectId.value, appId.value, editingProduct.value.id, data)
+    } else {
+      await createAppProduct(pubName.value, projectId.value, appId.value, data)
+    }
+    productModalOpen.value = false
+    products.value = await fetchAppProducts(pubName.value, projectId.value, appId.value)
+  } catch (e) {
+    console.error(e)
+  } finally {
+    isSavingProduct.value = false
+  }
+}
+
+async function handleDeleteProduct(productId: string) {
+  if (!confirm(t('developer.apps.products.deleteConfirm'))) return
+  try {
+    await deleteAppProduct(pubName.value, projectId.value, appId.value, productId)
+    products.value = await fetchAppProducts(pubName.value, projectId.value, appId.value)
   } catch (e) {
     console.error(e)
   }
