@@ -9,7 +9,10 @@ import type {
   FediverseStatus,
   SnStickerPack,
   SnSticker,
-  SnPollWithStats,
+  SnSurvey,
+  SnSurveyWithStats,
+  SnSurveyAnswer,
+  SnSurveySubscription,
   SnWebFeed,
   SnPostCollection,
   PublisherFeatureFlags,
@@ -643,25 +646,97 @@ export async function batchUpdatePostVisibility(
   })
 }
 
-// ==================== Polls ====================
+// ==================== Surveys ====================
 
-export async function fetchPolls(
+export async function fetchSurveys(
   publisherName: string,
   offset = 0,
   take = 20,
-): Promise<{ items: SnPollWithStats[]; total: number }> {
+): Promise<{ items: SnSurvey[]; total: number }> {
   const response = await apiFetch(
-    `/sphere/polls/me?pub=${encodeURIComponent(publisherName)}&offset=${offset}&take=${take}`,
+    `/sphere/surveys/me?pub=${encodeURIComponent(publisherName)}&offset=${offset}&take=${take}`,
   )
   const total = parseInt(response.headers.get('x-total') || '0', 10)
-  const items = await safeJsonParse<SnPollWithStats[]>(response)
+  const items = await safeJsonParse<SnSurvey[]>(response)
   return { items, total }
 }
 
-export async function deletePoll(pollId: string): Promise<void> {
-  await apiFetch(`/sphere/polls/${encodeURIComponent(pollId)}`, {
+export async function fetchSurvey(
+  id: string,
+): Promise<SnSurveyWithStats> {
+  const response = await apiFetch(`/sphere/surveys/${encodeURIComponent(id)}`)
+  return safeJsonParse<SnSurveyWithStats>(response)
+}
+
+export async function createSurvey(
+  publisherName: string,
+  data: Record<string, unknown>,
+): Promise<SnSurvey> {
+  const response = await apiFetch(
+    `/sphere/surveys?pub=${encodeURIComponent(publisherName)}`,
+    {
+      method: 'POST',
+      body: JSON.stringify(camelToSnake(data)),
+    },
+  )
+  return safeJsonParse<SnSurvey>(response)
+}
+
+export async function updateSurvey(
+  id: string,
+  data: Record<string, unknown>,
+): Promise<SnSurvey> {
+  const response = await apiFetch(
+    `/sphere/surveys/${encodeURIComponent(id)}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(camelToSnake(data)),
+    },
+  )
+  return safeJsonParse<SnSurvey>(response)
+}
+
+export async function deleteSurvey(id: string): Promise<void> {
+  await apiFetch(`/sphere/surveys/${encodeURIComponent(id)}`, {
     method: 'DELETE',
   })
+}
+
+export async function publishSurvey(id: string): Promise<SnSurvey> {
+  const response = await apiFetch(
+    `/sphere/surveys/${encodeURIComponent(id)}/publish`,
+    { method: 'POST' },
+  )
+  return safeJsonParse<SnSurvey>(response)
+}
+
+export async function archiveSurvey(id: string): Promise<SnSurvey> {
+  const response = await apiFetch(
+    `/sphere/surveys/${encodeURIComponent(id)}/archive`,
+    { method: 'POST' },
+  )
+  return safeJsonParse<SnSurvey>(response)
+}
+
+export async function cloneSurvey(id: string): Promise<SnSurvey> {
+  const response = await apiFetch(
+    `/sphere/surveys/${encodeURIComponent(id)}/clone`,
+    { method: 'POST' },
+  )
+  return safeJsonParse<SnSurvey>(response)
+}
+
+export async function fetchSurveyFeedback(
+  id: string,
+  offset = 0,
+  take = 20,
+): Promise<{ items: SnSurveyAnswer[]; total: number }> {
+  const response = await apiFetch(
+    `/sphere/surveys/${encodeURIComponent(id)}/feedback?offset=${offset}&take=${take}`,
+  )
+  const total = parseInt(response.headers.get('x-total') || '0', 10)
+  const items = await safeJsonParse<SnSurveyAnswer[]>(response)
+  return { items, total }
 }
 
 // ==================== Web Feeds ====================

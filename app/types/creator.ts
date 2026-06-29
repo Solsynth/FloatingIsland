@@ -108,22 +108,71 @@ export interface SnSticker {
   updatedAt: string
 }
 
-export interface SnPollQuestion {
+export type SnSurveyStatus = 0 | 1 | 2
+export type SnSurveyQuestionType = 0 | 1 | 2 | 3 | 4
+
+export interface SnSurveyOption {
   id: string
-  content: string
-  type: number
-  options: string[]
+  label: string
+  description: string | null
+  order: number
 }
 
-export interface SnPollWithStats {
+export interface SnSurveyQuestion {
+  id: string
+  type: SnSurveyQuestionType
+  options: SnSurveyOption[] | null
+  title: string
+  description: string | null
+  order: number
+  isRequired: boolean
+  attachments: unknown[]
+  maxSelections: number | null
+  maxLength: number | null
+  minValue: number | null
+  maxValue: number | null
+}
+
+export interface SnSurvey {
   id: string
   title: string | null
   description: string | null
-  questions: SnPollQuestion[]
-  publisherId: string
   endedAt: string | null
+  isAnonymous: boolean
+  status: SnSurveyStatus
+  publishedAt: string | null
+  notifySubscribers: boolean
+  attachments: unknown[]
+  publisherId: string
+  questions: SnSurveyQuestion[]
   createdAt: string
   updatedAt: string
+  deletedAt: string | null
+}
+
+export interface SnSurveyAnswer {
+  id: string
+  answer: Record<string, unknown>
+  accountId: string
+  surveyId: string
+  account: Account | null
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
+}
+
+export interface SnSurveyWithStats extends SnSurvey {
+  userAnswer: SnSurveyAnswer | null
+  stats: Record<string, Record<string, number>> | null
+}
+
+export interface SnSurveySubscription {
+  id: string
+  surveyId: string
+  accountId: string
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
 }
 
 export interface SnWebFeedConfig {

@@ -103,7 +103,7 @@ const segmentLabels: Record<string, string> = {
   feeds: "Feeds",
   stickers: "Stickers",
   collections: "Collections",
-  polls: "Polls",
+  surveys: "Surveys",
   leaderboard: "Leaderboard",
   subscribers: "Subscribers",
   projects: "Projects",

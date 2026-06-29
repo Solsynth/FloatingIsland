@@ -117,7 +117,7 @@ const navGroups = computed(() => {
         { icon: IconFileText, label: t('creator.posts.title'), href: `/creators/${p}/posts` },
         { icon: IconFolder, label: t('creator.collections.title'), href: `/creators/${p}/collections` },
         { icon: IconSticker, label: t('creator.stickers.title'), href: `/creators/${p}/stickers` },
-        { icon: IconChartBar, label: t('creator.polls.title'), href: `/creators/${p}/polls` },
+        { icon: IconChartBar, label: t('creator.surveys.title'), href: `/creators/${p}/surveys` },
         { icon: IconRss, label: t('creator.feeds.title'), href: `/creators/${p}/feeds` },
       ],
     },
