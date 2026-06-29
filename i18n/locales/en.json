@@ -1200,6 +1200,8 @@
       "isRequired": "Required",
       "addOption": "Add Option",
       "optionLabel": "Option",
+      "questionDefault": "Untitled Question",
+      "optionDefault": "Option {n}",
       "maxSelections": "Max selections",
       "maxLength": "Max length",
       "minValue": "Min value",

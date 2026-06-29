@@ -1180,6 +1180,8 @@
       "isRequired": "必答",
       "addOption": "添加选项",
       "optionLabel": "选项",
+      "questionDefault": "未命名题目",
+      "optionDefault": "选项 {n}",
       "maxSelections": "最多选择",
       "maxLength": "最大长度",
       "minValue": "最小值",

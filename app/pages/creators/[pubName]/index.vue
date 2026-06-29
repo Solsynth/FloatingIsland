@@ -197,7 +197,7 @@ import {
   IconFileText,
   IconFolder,
   IconSticker,
-  IconChartBar,
+  IconClipboardCheck,
   IconRss,
   IconUsers,
   IconUserPlus,
@@ -334,9 +334,9 @@ const navItems = computed(() => {
       href: `/creators/${p}/stickers`,
     },
     {
-      icon: IconChartBar,
-      label: t("creator.polls.title"),
-      href: `/creators/${p}/polls`,
+      icon: IconClipboardCheck,
+      label: t("creator.surveys.title"),
+      href: `/creators/${p}/surveys`,
     },
     {
       icon: IconRss,

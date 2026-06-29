@@ -437,6 +437,7 @@ function resetForm() {
 function openCreate() {
   editingSurvey.value = null
   resetForm()
+  addQuestion(t('creator.surveys.questionDefault'))
   editorOpen.value = true
 }
 
@@ -471,15 +472,18 @@ function closeEditor() {
   editorOpen.value = false
 }
 
-const canSave = computed(() => form.questions.some((q) => q.title.trim()))
+const canSave = computed(() => form.questions.length > 0 && form.title.trim().length > 0)
 
-function addQuestion() {
+function addQuestion(title?: string) {
   form.questions.push({
     _key: freshKey(),
-    title: '',
+    title: title || '',
     type: 0,
     isRequired: false,
-    options: [],
+    options: [
+      { _key: freshKey(), label: t('creator.surveys.optionDefault', { n: 1 }), order: 0 },
+      { _key: freshKey(), label: t('creator.surveys.optionDefault', { n: 2 }), order: 1 },
+    ],
     maxSelections: null,
     maxLength: null,
     minValue: null,
