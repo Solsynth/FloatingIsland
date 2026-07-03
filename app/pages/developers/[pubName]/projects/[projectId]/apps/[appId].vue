@@ -460,8 +460,8 @@
           <fieldset class="fieldset mb-4">
             <legend class="fieldset-legend">{{ t('developer.apps.secrets.type') }}</legend>
             <select v-model.number="newSecret.type" class="select w-full">
-              <option :value="0">{{ t('developer.apps.secrets.typeApiKey') }}</option>
-              <option :value="1">{{ t('developer.apps.secrets.typeOidc') }}</option>
+              <option :value="1">{{ t('developer.apps.secrets.typeApiKey') }}</option>
+              <option :value="0">{{ t('developer.apps.secrets.typeOidc') }}</option>
             </select>
           </fieldset>
           <div class="flex items-center justify-between gap-3">
@@ -934,7 +934,7 @@ function copySecret(value: string | null) {
 }
 
 function secretTypeLabel(type: number) {
-  return type === 1 ? 'OIDC' : 'ApiKey'
+  return type === 0 ? 'OIDC' : 'ApiKey'
 }
 
 async function handleDeleteSecret(secretId: string) {
