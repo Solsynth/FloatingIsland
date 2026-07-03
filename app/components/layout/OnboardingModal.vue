@@ -159,10 +159,19 @@ const { t } = useI18n()
 
 const STORAGE_KEY = 'floating_island_onboarding_seen'
 const totalSteps = 3
+
+// Module-level guard: survives double-mount (HMR, layout re-render)
+let hasOpenedGlobal = false
+
 const currentStep = ref(1)
 const isOpen = ref(false)
 const seenAndClosed = ref(false)
 const hasOpened = ref(false)
+
+// Keep the ref in sync with the global guard
+watch(hasOpened, (val) => {
+  if (val) hasOpenedGlobal = true
+})
 
 function next() {
   if (currentStep.value < totalSteps) {
@@ -181,7 +190,8 @@ function goTo(step: number) {
 }
 
 function open() {
-  if (hasOpened.value) return
+  if (hasOpenedGlobal || hasOpened.value) return
+  hasOpenedGlobal = true
   hasOpened.value = true
   currentStep.value = 1
   isOpen.value = true
