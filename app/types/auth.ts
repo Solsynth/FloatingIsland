@@ -190,9 +190,22 @@ export const FACTOR_TYPES: Record<
     icon: "timer",
   },
   4: { label: "PIN", description: "Enter your security PIN", icon: "shield" },
-  5: { label: "Recovery Code", description: "Single-use recovery code", icon: "key-round" },
-  6: { label: "Physical Passport", description: "NFC-based authentication (unavailable on web)", icon: "nfc", webUnavailable: true },
-  7: { label: "Passkey", description: "Platform authenticator", icon: "key-square" },
+  5: {
+    label: "Recovery Code",
+    description: "Single-use recovery code",
+    icon: "key-round",
+  },
+  6: {
+    label: "Physical Passport",
+    description: "NFC-based authentication (unavailable on web)",
+    icon: "nfc",
+    webUnavailable: true,
+  },
+  7: {
+    label: "Passkey",
+    description: "Platform authenticator",
+    icon: "key-square",
+  },
 };
 
 export type LoginStep = "lookup" | "picker" | "check";
@@ -209,9 +222,63 @@ export interface WalletOrderItem {
   currency: string;
 }
 
+export interface WalletOrderAppImage {
+  id: string;
+  name: string;
+  mime_type?: string;
+  blurhash?: string;
+  url?: string;
+}
+
+export interface WalletOrderApp {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  picture: WalletOrderAppImage | null;
+  background: WalletOrderAppImage | null;
+}
+
+export interface WalletOrderDeveloper {
+  id: string;
+  publisherId: string;
+  publisherName: string;
+}
+
+export enum WalletOrderStatus {
+  Unpaid = 0,
+  Paid = 1,
+  Finished = 2,
+  Cancelled = 3,
+  Expired = 4,
+}
+
+export interface WalletOrderTimestamp {
+  seconds: number;
+  nanos: number;
+}
+
+export interface AppProduct {
+  id: string;
+  identifier: string;
+  displayName: string | null;
+  description: string | null;
+  currency: string;
+  price: number;
+  picture: WalletOrderAppImage | null;
+  background?: WalletOrderAppImage | null;
+  app_id: string;
+  app?: WalletOrderApp;
+  recurrence?: number;
+  groupIdentifier?: string | null;
+  createdAt?: string | WalletOrderTimestamp;
+  updatedAt?: string | WalletOrderTimestamp;
+  deletedAt?: string | WalletOrderTimestamp | null;
+}
+
 export interface WalletOrder {
   id: string;
-  status: string;
+  status: WalletOrderStatus;
   productIdentifier: string | null;
   remarks: string | null;
   amount: number;
@@ -221,8 +288,10 @@ export interface WalletOrder {
   transactionId?: string | null;
   payeeWalletId?: string;
   expiredAt?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: string | WalletOrderTimestamp;
+  updatedAt?: string | WalletOrderTimestamp;
+  app?: WalletOrderApp;
+  developer?: WalletOrderDeveloper;
 }
 
 export interface SnAccountPunishment {

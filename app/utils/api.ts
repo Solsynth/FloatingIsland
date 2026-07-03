@@ -10,10 +10,27 @@ import type {
   SnAuthSession,
   CaptchaConfig,
   WalletOrder,
+  WalletOrderStatus,
+  WalletOrderApp,
+  WalletOrderDeveloper,
+  WalletOrderAppImage,
+  WalletOrderTimestamp,
+  AppProduct,
   SpellInfo,
   SnAccountPunishment,
   SnAccountTimelineItem,
 } from "~/types/auth";
+
+export type {
+  WalletOrder,
+  WalletOrderStatus,
+  WalletOrderApp,
+  WalletOrderDeveloper,
+  WalletOrderAppImage,
+  WalletOrderTimestamp,
+  AppProduct,
+  fetchStoreProducts,
+};
 import type {
   Publisher,
   Post,
@@ -463,7 +480,7 @@ export async function submitAuthorizeDecision(
 
 export async function getOrder(orderId: string): Promise<WalletOrder> {
   const response = await apiFetch(
-    `/passport/orders/${encodeURIComponent(orderId)}`,
+    `/wallet/orders/${encodeURIComponent(orderId)}`,
   );
   return safeJsonParse<WalletOrder>(response);
 }
@@ -476,13 +493,20 @@ export async function payOrder(
   const body: Record<string, string> = { pin_code: pinCode };
   if (payerWalletId) body.payer_wallet_id = payerWalletId;
   const response = await apiFetch(
-    `/passport/orders/${encodeURIComponent(orderId)}/pay`,
+    `/wallet/orders/${encodeURIComponent(orderId)}/pay`,
     {
       method: "POST",
       body: JSON.stringify(body),
     },
   );
   return safeJsonParse<WalletOrder>(response);
+}
+
+export async function fetchStoreProducts(appSlug: string): Promise<AppProduct[]> {
+  const response = await apiFetch(
+    `/develop/apps/${encodeURIComponent(appSlug)}/products`,
+  );
+  return safeJsonParse<AppProduct[]>(response);
 }
 
 export async function getSpell(spellWord: string): Promise<SpellInfo> {
@@ -603,7 +627,9 @@ export async function fetchFeaturedPosts(): Promise<Post[]> {
 
 export async function fetchPost(id: string): Promise<Post> {
   const { isAuthenticated } = useAuth();
-  const response = await apiFetch(`/sphere/posts/${id}`, { skipAuth: !isAuthenticated.value });
+  const response = await apiFetch(`/sphere/posts/${id}`, {
+    skipAuth: !isAuthenticated.value,
+  });
   return safeJsonParse<Post>(response);
 }
 
@@ -779,7 +805,6 @@ export async function fetchPostForwards(
 export async function fetchPublisher(name: string): Promise<Publisher> {
   const response = await apiFetch(
     `/sphere/publishers/${encodeURIComponent(name)}`,
-    { skipAuth: true },
   );
   return safeJsonParse<Publisher>(response);
 }
@@ -1368,11 +1393,13 @@ export async function fetchWalletStats(params?: {
   currency?: string;
 }): Promise<WalletStats> {
   const searchParams = new URLSearchParams();
-  if (params?.period) searchParams.set('period', String(params.period));
-  if (params?.walletId) searchParams.set('wallets', params.walletId);
-  if (params?.currency) searchParams.set('currencies', params.currency);
+  if (params?.period) searchParams.set("period", String(params.period));
+  if (params?.walletId) searchParams.set("wallets", params.walletId);
+  if (params?.currency) searchParams.set("currencies", params.currency);
   const query = searchParams.toString();
-  const response = await apiFetch(`/wallet/wallets/stats${query ? '?' + query : ''}`);
+  const response = await apiFetch(
+    `/wallet/wallets/stats${query ? "?" + query : ""}`,
+  );
   return safeJsonParse<WalletStats>(response);
 }
 
@@ -2633,30 +2660,34 @@ import type {
   SnChatMessage,
   SnChatMember,
   SnChatSummary,
-} from '~/types/chat'
+} from "~/types/chat";
 
 export async function fetchChatRooms(): Promise<SnChatRoom[]> {
-  const response = await apiFetch('/messager/chat')
-  const data = await parseResponse(response)
-  console.log('[API] fetchChatRooms raw response:', data)
+  const response = await apiFetch("/messager/chat");
+  const data = await parseResponse(response);
+  console.log("[API] fetchChatRooms raw response:", data);
   // Ensure we return an array
   if (Array.isArray(data)) {
-    return snakeToCamel(data) as SnChatRoom[]
+    return snakeToCamel(data) as SnChatRoom[];
   }
   // If it's an object with a data/items/rooms key, try that
-  if (data && typeof data === 'object') {
-    const obj = data as Record<string, unknown>
-    if (Array.isArray(obj.data)) return snakeToCamel(obj.data) as SnChatRoom[]
-    if (Array.isArray(obj.items)) return snakeToCamel(obj.items) as SnChatRoom[]
-    if (Array.isArray(obj.rooms)) return snakeToCamel(obj.rooms) as SnChatRoom[]
+  if (data && typeof data === "object") {
+    const obj = data as Record<string, unknown>;
+    if (Array.isArray(obj.data)) return snakeToCamel(obj.data) as SnChatRoom[];
+    if (Array.isArray(obj.items))
+      return snakeToCamel(obj.items) as SnChatRoom[];
+    if (Array.isArray(obj.rooms))
+      return snakeToCamel(obj.rooms) as SnChatRoom[];
   }
-  console.warn('[API] fetchChatRooms: unexpected response format, returning empty array')
-  return []
+  console.warn(
+    "[API] fetchChatRooms: unexpected response format, returning empty array",
+  );
+  return [];
 }
 
 export async function fetchChatRoom(roomId: string): Promise<SnChatRoom> {
-  const response = await apiFetch(`/messager/chat/${roomId}`)
-  return safeJsonParse<SnChatRoom>(response)
+  const response = await apiFetch(`/messager/chat/${roomId}`);
+  return safeJsonParse<SnChatRoom>(response);
 }
 
 export async function fetchChatMessages(
@@ -2667,51 +2698,51 @@ export async function fetchChatMessages(
   const params = new URLSearchParams({
     offset: String(offset),
     take: String(take),
-  })
+  });
   const response = await apiFetch(
     `/messager/chat/${roomId}/messages?${params.toString()}`,
-  )
-  const total = parseInt(response.headers.get('x-total') || '0', 10)
-  const data = await safeJsonParse<SnChatMessage[]>(response)
-  return { messages: data, total }
+  );
+  const total = parseInt(response.headers.get("x-total") || "0", 10);
+  const data = await safeJsonParse<SnChatMessage[]>(response);
+  return { messages: data, total };
 }
 
 export async function sendChatMessage(
   roomId: string,
   payload: {
-    content?: string
-    type?: string
-    clientMessageId?: string
-    nonce?: string
-    meta?: Record<string, unknown>
-    membersMentioned?: string[]
-    repliedMessageId?: string
-    forwardedMessageId?: string
+    content?: string;
+    type?: string;
+    clientMessageId?: string;
+    nonce?: string;
+    meta?: Record<string, unknown>;
+    membersMentioned?: string[];
+    repliedMessageId?: string;
+    forwardedMessageId?: string;
   },
 ): Promise<SnChatMessage> {
   const response = await apiFetch(`/messager/chat/${roomId}/messages`, {
-    method: 'POST',
+    method: "POST",
     body: JSON.stringify(camelToSnake(payload)),
-  })
-  return safeJsonParse<SnChatMessage>(response)
+  });
+  return safeJsonParse<SnChatMessage>(response);
 }
 
 export async function editChatMessage(
   roomId: string,
   messageId: string,
   payload: {
-    content?: string
-    meta?: Record<string, unknown>
+    content?: string;
+    meta?: Record<string, unknown>;
   },
 ): Promise<SnChatMessage> {
   const response = await apiFetch(
     `/messager/chat/${roomId}/messages/${messageId}`,
     {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify(camelToSnake(payload)),
     },
-  )
-  return safeJsonParse<SnChatMessage>(response)
+  );
+  return safeJsonParse<SnChatMessage>(response);
 }
 
 export async function deleteChatMessage(
@@ -2719,70 +2750,70 @@ export async function deleteChatMessage(
   messageId: string,
 ): Promise<void> {
   await apiFetch(`/messager/chat/${roomId}/messages/${messageId}`, {
-    method: 'DELETE',
-  })
+    method: "DELETE",
+  });
 }
 
 export async function fetchChatSummary(): Promise<
   Record<string, SnChatSummary>
 > {
-  const response = await apiFetch('/messager/chat/summary')
-  return safeJsonParse<Record<string, SnChatSummary>>(response)
+  const response = await apiFetch("/messager/chat/summary");
+  return safeJsonParse<Record<string, SnChatSummary>>(response);
 }
 
 export async function fetchChatUnreadCount(): Promise<number> {
   try {
-    const response = await apiFetch('/messager/chat/unread')
-    const data = await response.text()
-    return parseInt(data, 10) || 0
+    const response = await apiFetch("/messager/chat/unread");
+    const data = await response.text();
+    return parseInt(data, 10) || 0;
   } catch {
-    return 0
+    return 0;
   }
 }
 
 export async function markChatRoomRead(roomId: string): Promise<void> {
   await apiFetch(`/messager/chat/${roomId}/read`, {
-    method: 'POST',
-  })
+    method: "POST",
+  });
 }
 
 export async function markAllChatsRead(): Promise<void> {
-  await apiFetch('/messager/chat/read-all', {
-    method: 'POST',
-  })
+  await apiFetch("/messager/chat/read-all", {
+    method: "POST",
+  });
 }
 
 export async function fetchChatRoomMembers(
   roomId: string,
 ): Promise<SnChatMember[]> {
-  const response = await apiFetch(`/messager/chat/${roomId}/members`)
-  return safeJsonParse<SnChatMember[]>(response)
+  const response = await apiFetch(`/messager/chat/${roomId}/members`);
+  return safeJsonParse<SnChatMember[]>(response);
 }
 
 export async function fetchChatRoomIdentity(
   roomId: string,
 ): Promise<SnChatMember> {
-  const response = await apiFetch(`/messager/chat/${roomId}/members/me`)
-  return safeJsonParse<SnChatMember>(response)
+  const response = await apiFetch(`/messager/chat/${roomId}/members/me`);
+  return safeJsonParse<SnChatMember>(response);
 }
 
 export async function fetchChatInvites(): Promise<
   Array<{ id: string; chatRoom?: SnChatRoom; invitedByAccount?: SnAccount }>
 > {
-  const response = await apiFetch('/messager/chat/invites')
-  return safeJsonParse(response)
+  const response = await apiFetch("/messager/chat/invites");
+  return safeJsonParse(response);
 }
 
 export async function acceptChatInvite(roomId: string): Promise<void> {
   await apiFetch(`/messager/chat/invites/${roomId}/accept`, {
-    method: 'POST',
-  })
+    method: "POST",
+  });
 }
 
 export async function declineChatInvite(roomId: string): Promise<void> {
   await apiFetch(`/messager/chat/invites/${roomId}/decline`, {
-    method: 'POST',
-  })
+    method: "POST",
+  });
 }
 
 export async function addReactionToMessage(
@@ -2791,9 +2822,9 @@ export async function addReactionToMessage(
   symbol: string,
 ): Promise<void> {
   await apiFetch(`/messager/chat/${roomId}/messages/${messageId}/reactions`, {
-    method: 'POST',
+    method: "POST",
     body: JSON.stringify({ symbol }),
-  })
+  });
 }
 
 export async function removeReactionFromMessage(
@@ -2803,8 +2834,8 @@ export async function removeReactionFromMessage(
 ): Promise<void> {
   await apiFetch(
     `/messager/chat/${roomId}/messages/${messageId}/reactions/${symbol}`,
-    { method: 'DELETE' },
-  )
+    { method: "DELETE" },
+  );
 }
 
 // Device Authorization Flow (RFC 8628)
@@ -2812,11 +2843,13 @@ export interface DeviceCodeStatus {
   userCode: string;
   clientId: string;
   scopes: string[];
-  status: 'pending' | 'approved' | 'declined' | 'expired';
+  status: "pending" | "approved" | "declined" | "expired";
   expiresAt: string;
 }
 
-export async function getDeviceCodeStatus(userCode: string): Promise<DeviceCodeStatus> {
+export async function getDeviceCodeStatus(
+  userCode: string,
+): Promise<DeviceCodeStatus> {
   const response = await apiFetch(
     `/padlock/auth/open/device/code/${encodeURIComponent(userCode)}`,
     { skipAuth: true },
@@ -2827,13 +2860,13 @@ export async function getDeviceCodeStatus(userCode: string): Promise<DeviceCodeS
 export async function approveDeviceCode(userCode: string): Promise<void> {
   await apiFetch(
     `/padlock/auth/open/device/code/${encodeURIComponent(userCode)}/approve`,
-    { method: 'POST' },
+    { method: "POST" },
   );
 }
 
 export async function declineDeviceCode(userCode: string): Promise<void> {
   await apiFetch(
     `/padlock/auth/open/device/code/${encodeURIComponent(userCode)}/decline`,
-    { method: 'POST' },
+    { method: "POST" },
   );
 }
