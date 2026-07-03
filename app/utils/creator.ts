@@ -17,6 +17,7 @@ import type {
   SnPostCollection,
   PublisherFeatureFlags,
   PublisherLeaderboardEntry,
+  SnPublisherVerifiedDomain,
 } from '~/types/creator'
 import type { Post } from '~/types/post'
 import { apiFetch, safeJsonParse } from '~/utils/api'
@@ -819,6 +820,51 @@ export async function scrapWebFeed(
 ): Promise<void> {
   await apiFetch(
     `/insight/publishers/${encodeURIComponent(publisherName)}/feeds/${encodeURIComponent(feedId)}/scrap`,
+    { method: 'POST' },
+  )
+}
+
+// ==================== Verified Domains ====================
+
+export async function fetchPublisherDomains(
+  publisherName: string,
+): Promise<SnPublisherVerifiedDomain[]> {
+  const response = await apiFetch(
+    `/sphere/publishers/${encodeURIComponent(publisherName)}/domains`,
+  )
+  return safeJsonParse<SnPublisherVerifiedDomain[]>(response)
+}
+
+export async function addDomain(
+  publisherName: string,
+  domain: string,
+): Promise<SnPublisherVerifiedDomain> {
+  const response = await apiFetch(
+    `/sphere/publishers/${encodeURIComponent(publisherName)}/domains`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ domain }),
+    },
+  )
+  return safeJsonParse<SnPublisherVerifiedDomain>(response)
+}
+
+export async function removeDomain(
+  publisherName: string,
+  domainId: string,
+): Promise<void> {
+  await apiFetch(
+    `/sphere/publishers/${encodeURIComponent(publisherName)}/domains/${encodeURIComponent(domainId)}`,
+    { method: 'DELETE' },
+  )
+}
+
+export async function recheckDomain(
+  publisherName: string,
+  domainId: string,
+): Promise<void> {
+  await apiFetch(
+    `/sphere/publishers/${encodeURIComponent(publisherName)}/domains/${encodeURIComponent(domainId)}/recheck`,
     { method: 'POST' },
   )
 }

@@ -97,8 +97,7 @@ const { currentDeveloper } = developer;
 const mobileMenuOpen = ref(false);
 
 const publisherName = computed(() => {
-  const name = route.params.pubName;
-  return typeof name === "string" ? name : null;
+  return developer.currentPublisherNick.value || null;
 });
 
 const segmentLabels: Record<string, string> = {

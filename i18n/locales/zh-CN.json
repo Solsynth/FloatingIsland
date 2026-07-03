@@ -1205,7 +1205,15 @@
       "answer": "答案",
       "responseCount": "{count} 个回答",
       "startedAt": "开始于",
-      "empty": "暂无问卷，创建你的第一份吧！"
+      "empty": "暂无问卷，创建你的第一份吧！",
+      "hideResults": "隐藏结果",
+      "hideResultsHint": "只有发布者成员才能查看汇总统计。",
+      "dragToReorder": "拖动重新排序",
+      "questionDescriptionPlaceholder": "问题的可选描述",
+      "createSuccess": "问卷创建成功。",
+      "updateSuccess": "问卷更新成功。",
+      "deleteSuccess": "问卷删除成功。",
+      "yesNoHint": "受访者将以布尔值回答。"
     },
     "feeds": {
       "title": "网络订阅",
@@ -1239,6 +1247,25 @@
       "status": "状态",
       "actions": "操作",
       "noEnd": "无结束日期"
+    },
+    "domains": {
+      "title": "已验证域名",
+      "add": "添加域名",
+      "empty": "暂无已验证域名。添加一个以启用自定义域名功能。",
+      "domainField": "域名",
+      "domainPlaceholder": "blog.example.com",
+      "hint": "添加域名以验证所有权。您需要配置 DNS 记录进行验证。",
+      "statusPending": "待验证",
+      "statusVerified": "已验证",
+      "statusFailed": "验证失败",
+      "statusRevoked": "已撤销",
+      "verifiedAt": "验证时间",
+      "recheck": "重新检查",
+      "remove": "移除",
+      "removeConfirm": "确定要移除此域名吗？",
+      "addSuccess": "域名添加成功，正在进行 DNS 验证。",
+      "removeSuccess": "域名移除成功。",
+      "recheckSuccess": "已触发重新检查。"
     }
   }
 }

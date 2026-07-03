@@ -1225,7 +1225,15 @@
       "answer": "Answer",
       "responseCount": "{count} responses",
       "startedAt": "Started",
-      "empty": "No surveys yet. Create your first one!"
+      "empty": "No surveys yet. Create your first one!",
+      "hideResults": "Hide Results",
+      "hideResultsHint": "Only publisher members can see aggregate statistics.",
+      "dragToReorder": "Drag to reorder",
+      "questionDescriptionPlaceholder": "Optional description for this question",
+      "createSuccess": "Survey created successfully.",
+      "updateSuccess": "Survey updated successfully.",
+      "deleteSuccess": "Survey deleted successfully.",
+      "yesNoHint": "Respondents will answer with a boolean value."
     },
     "feeds": {
       "title": "Web Feeds",
@@ -1259,6 +1267,25 @@
       "status": "Status",
       "actions": "Actions",
       "noEnd": "No end date"
+    },
+    "domains": {
+      "title": "Verified Domains",
+      "add": "Add Domain",
+      "empty": "No verified domains. Add one to enable custom email domain features.",
+      "domainField": "Domain",
+      "domainPlaceholder": "blog.example.com",
+      "hint": "Add a domain to verify ownership. You will need to configure DNS records for verification.",
+      "statusPending": "Pending Verification",
+      "statusVerified": "Verified",
+      "statusFailed": "Verification Failed",
+      "statusRevoked": "Revoked",
+      "verifiedAt": "Verified at",
+      "recheck": "Recheck",
+      "remove": "Remove",
+      "removeConfirm": "Are you sure you want to remove this domain?",
+      "addSuccess": "Domain added successfully. DNS verification in progress.",
+      "removeSuccess": "Domain removed successfully.",
+      "recheckSuccess": "Recheck triggered."
     }
   }
 }

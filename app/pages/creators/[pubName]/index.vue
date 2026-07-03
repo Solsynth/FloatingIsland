@@ -209,6 +209,7 @@ import {
   IconThumbsUp,
   IconMinus,
   IconMedal,
+  IconGlobe,
 } from "#components";
 import {
   fetchPublisherStats,
@@ -362,6 +363,11 @@ const navItems = computed(() => {
       icon: IconSettings,
       label: t("creator.settings"),
       href: `/creators/${p}/settings`,
+    },
+    {
+      icon: IconGlobe,
+      label: t("creator.domains.title"),
+      href: `/creators/${p}/domains`,
     },
   ];
 });

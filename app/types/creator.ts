@@ -139,6 +139,7 @@ export interface SnSurvey {
   description: string | null
   endedAt: string | null
   isAnonymous: boolean
+  hideResults: boolean
   status: SnSurveyStatus
   publishedAt: string | null
   notifySubscribers: boolean
@@ -223,4 +224,16 @@ export interface PublisherLeaderboardEntry {
   name: string
   nick: string
   picture: FileAttachment | null
+}
+
+// ==================== Verified Domains ====================
+
+export type DomainVerificationStatus = 'pending' | 'verified' | 'failed' | 'revoked'
+
+export interface SnPublisherVerifiedDomain {
+  id: string
+  domain: string
+  status: DomainVerificationStatus
+  verifiedAt: string | null
+  lastError: string | null
 }
