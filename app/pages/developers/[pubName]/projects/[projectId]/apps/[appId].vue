@@ -459,9 +459,9 @@
           </fieldset>
           <fieldset class="fieldset mb-4">
             <legend class="fieldset-legend">{{ t('developer.apps.secrets.type') }}</legend>
-            <select v-model="newSecret.type" class="select w-full">
-              <option value="ApiKey">{{ t('developer.apps.secrets.typeApiKey') }}</option>
-              <option value="Oidc">{{ t('developer.apps.secrets.typeOidc') }}</option>
+            <select v-model.number="newSecret.type" class="select w-full">
+              <option :value="0">{{ t('developer.apps.secrets.typeApiKey') }}</option>
+              <option :value="1">{{ t('developer.apps.secrets.typeOidc') }}</option>
             </select>
           </fieldset>
           <div class="flex items-center justify-between gap-3">
@@ -676,7 +676,7 @@ const linksForm = reactive({
 
 const newSecret = reactive({
   description: '',
-  type: 'ApiKey',
+  type: 0,
 })
 const createdSecretValue = ref<string | null>(null)
 
@@ -908,7 +908,7 @@ async function handleDelete() {
 
 function openCreateSecretModal() {
   newSecret.description = ''
-  newSecret.type = 'ApiKey'
+  newSecret.type = 0
   secretModalOpen.value = true
 }
 
@@ -933,8 +933,8 @@ function copySecret(value: string | null) {
   if (value) navigator.clipboard.writeText(value)
 }
 
-function secretTypeLabel(type: string) {
-  return type === 'Oidc' ? 'OIDC' : 'ApiKey'
+function secretTypeLabel(type: number) {
+  return type === 1 ? 'OIDC' : 'ApiKey'
 }
 
 async function handleDeleteSecret(secretId: string) {
