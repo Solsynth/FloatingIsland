@@ -168,3 +168,27 @@ export interface BotWebhook {
   events: string[]
   isActive: boolean
 }
+
+// ==================== Custom App Notifications ====================
+
+export interface CustomAppNotificationMeta {
+  sent_by_app?: {
+    id: string
+    slug: string
+    name: string
+    publisher: string
+  }
+  [key: string]: unknown
+}
+
+export interface CustomAppNotification {
+  id: string
+  topic: string
+  title: string
+  subtitle?: string
+  body: string
+  actionUri?: string
+  meta: CustomAppNotificationMeta
+  viewedAt?: string
+  createdAt: string
+}

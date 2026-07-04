@@ -210,6 +210,42 @@
             </div>
           </div>
 
+          <!-- Notifications Section -->
+          <div class="card bg-base-100 shadow-sm">
+            <div class="card-body p-4 flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="card-title text-base">
+                  <IconBell class="w-5 h-5" />
+                  {{ t('developer.apps.notifications.title') }}
+                </h3>
+                <NuxtLink :to="`/developers/${pubName}/projects/${projectId}/apps/${appId}/notifications`" class="btn btn-primary btn-sm">
+                  <IconFlaskConical class="w-4 h-4" />
+                  {{ t('developer.apps.notifications.playground') }}
+                </NuxtLink>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
+                <!-- API Endpoint -->
+                <div class="rounded-xl bg-base-200/60 p-3 flex flex-col justify-center">
+                  <div class="flex items-center gap-2">
+                    <span class="badge badge-success badge-xs font-bold">POST</span>
+                    <code class="text-[11px] text-base-content/50 font-mono truncate">.../{{ appId.slice(0, 8) }}.../notifications</code>
+                  </div>
+                  <p class="text-xs text-base-content/50 mt-1.5">{{ t('developer.apps.notifications.auth') }}: <code class="bg-base-200 rounded px-1 text-[11px]">X-Api-Key</code></p>
+                </div>
+                <!-- Delivery & Targeting -->
+                <div class="rounded-xl bg-base-200/60 p-3 flex flex-col justify-center">
+                  <div class="text-sm font-semibold mb-1.5">{{ t('developer.apps.notifications.targetingModes') }}</div>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="badge badge-sm badge-outline">{{ t('developer.apps.notifications.singleAccount') }}</span>
+                    <span class="badge badge-sm badge-outline">{{ t('developer.apps.notifications.multipleAccounts') }}</span>
+                    <span class="badge badge-sm badge-outline">{{ t('developer.apps.notifications.broadcastAll') }}</span>
+                  </div>
+                  <p class="text-[11px] text-base-content/40 mt-2">{{ t('developer.apps.notifications.noteDelivery') }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Payment Wallet -->
           <div class="card bg-base-100 shadow-sm">
             <div class="card-body p-4 flex flex-col">
@@ -237,6 +273,7 @@
               </div>
             </div>
           </div>
+
         </div>
       </template>
 
@@ -583,6 +620,7 @@
 <script setup lang="ts">
 import {
   IconArrowLeft,
+  IconBell,
   IconEdit,
   IconTrash,
   IconPlus,
@@ -593,6 +631,7 @@ import {
   IconCamera,
   IconCopy,
   IconWallet,
+  IconFlaskConical,
 } from '#components'
 import { getFileUrl } from '~/utils/files'
 import type { SnCloudFile } from '~/types/drive'
