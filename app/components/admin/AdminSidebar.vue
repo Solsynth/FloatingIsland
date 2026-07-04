@@ -19,26 +19,37 @@
     <div v-if="isPublisherSelected && showPortalToggle" class="px-3 pt-3 pb-1">
       <div class="flex rounded-xl bg-base-200/70 p-0.5 border border-base-300/20">
         <button
-          class="flex-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+          class="flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-all"
           :class="portalMode === 'creator'
             ? 'bg-base-100 text-primary shadow-sm'
             : 'text-base-content/40 hover:text-base-content/70'"
           :disabled="portalMode === 'creator' || !currentOrg"
           @click="portalMode !== 'creator' && handleTogglePortal('creator')"
         >
-          <IconPalette class="w-3.5 h-3.5 inline-block mr-1.5 -mt-0.5" />
+          <IconPalette class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5" />
           {{ t('portal.creator') }}
         </button>
         <button
-          class="flex-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+          class="flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-all"
           :class="portalMode === 'developer'
             ? 'bg-base-100 text-primary shadow-sm'
             : 'text-base-content/40 hover:text-base-content/70'"
           :disabled="portalMode === 'developer' || !currentOrg"
           @click="portalMode !== 'developer' && handleTogglePortal('developer')"
         >
-          <IconCode class="w-3.5 h-3.5 inline-block mr-1.5 -mt-0.5" />
+          <IconCode class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5" />
           {{ t('portal.developer') }}
+        </button>
+        <button
+          class="flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-all"
+          :class="portalMode === 'merchant'
+            ? 'bg-base-100 text-primary shadow-sm'
+            : 'text-base-content/40 hover:text-base-content/70'"
+          :disabled="portalMode === 'merchant' || !currentOrg"
+          @click="portalMode !== 'merchant' && handleTogglePortal('merchant')"
+        >
+          <IconWallet class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5" />
+          {{ t('portal.merchant') }}
         </button>
       </div>
 
@@ -255,6 +266,7 @@ import {
   IconSettings,
   IconPalette,
   IconCode,
+  IconWallet,
   IconAlertTriangle,
 } from '#components'
 
@@ -298,7 +310,7 @@ const props = withDefaults(defineProps<{
   /** Whether data is still loading */
   loading?: boolean
   /** Current portal mode */
-  portalMode?: 'creator' | 'developer'
+  portalMode?: 'creator' | 'developer' | 'merchant'
   /** Whether a publisher is selected */
   isPublisherSelected?: boolean
   /** Whether to show the portal toggle */
@@ -308,7 +320,7 @@ const props = withDefaults(defineProps<{
   /** Whether enrollment is in progress */
   enrolling?: boolean
 }>(), {
-  portalMode: 'creator',
+  portalMode: 'creator' as 'creator' | 'developer' | 'merchant',
   isPublisherSelected: false,
   showPortalToggle: true,
   showEnrollPrompt: false,
@@ -318,7 +330,7 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
   navigate: []
   clearSelection: []
-  togglePortal: [mode: 'creator' | 'developer']
+  togglePortal: [mode: 'creator' | 'developer' | 'merchant']
   enrollDeveloper: []
   dismissEnroll: []
 }>()
@@ -339,7 +351,9 @@ function getOrgSubtitle(org: any): string {
 }
 
 function getOrgLink(org: any): string {
-  return `/${props.portalMode === 'creator' ? 'creators' : 'developers'}/${org.name}`
+  const prefix = props.portalMode === 'merchant' ? 'merchants'
+    : props.portalMode === 'developer' ? 'developers' : 'creators'
+  return `/${prefix}/${org.name}`
 }
 
 function handleNavigate() {
@@ -350,7 +364,7 @@ function handleClearSelection() {
   emit('clearSelection')
 }
 
-function handleTogglePortal(mode: 'creator' | 'developer') {
+function handleTogglePortal(mode: 'creator' | 'developer' | 'merchant') {
   emit('togglePortal', mode)
 }
 

@@ -44,11 +44,16 @@ const orgList = computed(() =>
   }>
 )
 
-function handleTogglePortal(mode: 'creator' | 'developer') {
+function handleTogglePortal(mode: 'creator' | 'developer' | 'merchant') {
   if (mode === 'creator') {
     const name = pubName.value
     if (name) {
       navigateTo(`/creators/${name}`)
+    }
+  } else if (mode === 'merchant') {
+    const name = pubName.value
+    if (name) {
+      navigateTo(`/merchants/${name}`)
     }
   }
 }

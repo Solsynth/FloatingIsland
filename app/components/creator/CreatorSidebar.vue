@@ -54,16 +54,18 @@ const hasDeveloperIdentity = computed(() => {
   return developer.developers.value.some(d => d.publisher?.name === name)
 })
 
-function handleTogglePortal(mode: 'creator' | 'developer') {
-  if (mode === 'developer') {
-    const name = pubName.value
-    if (!name) return
+function handleTogglePortal(mode: 'creator' | 'developer' | 'merchant') {
+  const name = pubName.value
+  if (!name) return
 
+  if (mode === 'developer') {
     if (hasDeveloperIdentity.value) {
       navigateTo(`/developers/${name}`)
     } else {
       showEnrollPrompt.value = true
     }
+  } else if (mode === 'merchant') {
+    navigateTo(`/merchants/${name}`)
   }
 }
 

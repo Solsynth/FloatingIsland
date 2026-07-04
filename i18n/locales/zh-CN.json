@@ -14,6 +14,8 @@
     "previous": "上一个",
     "next": "下一个",
     "confirm": "确认",
+    "viewAll": "查看全部",
+    "refresh": "刷新",
     "notifications": "通知"
   },
   "drive": {
@@ -101,6 +103,7 @@
     "wallet": "钱包",
     "creatorHub": "创作者中心",
     "developerHub": "开发者中心",
+    "merchantHub": "商户中心",
     "overview": "概览",
     "content": "内容",
     "community": "社区"
@@ -1060,7 +1063,8 @@
   },
   "portal": {
     "creator": "创作者",
-    "developer": "开发者"
+    "developer": "开发者",
+    "merchant": "商户"
   },
   "creator": {
     "title": "创作者中心",
@@ -1324,6 +1328,99 @@
       "addSuccess": "域名添加成功，正在进行 DNS 验证。",
       "removeSuccess": "域名移除成功。",
       "recheckSuccess": "已触发重新检查。"
+    }
+  },
+  "merchant": {
+    "title": "商户中心",
+    "hub": "商户中心",
+    "hubInfo": "查看结算余额、管理支出，并跨发布者追踪赞助广告表现。",
+    "selectPublisher": "选择发布者",
+    "clearPublisher": "清除发布者",
+    "dashboard": "仪表盘",
+    "settlements": "结算",
+    "orders": "订单",
+    "ads": "赞助帖子",
+    "noOrders": "未找到订单",
+    "settings": "设置",
+    "revenue": "收入",
+    "noPublishers": "未找到发布者。请创建发布者开始管理收入。",
+    "totalPending": "待结算",
+    "totalSettled": "已结算",
+    "totalAllTime": "总计",
+    "activeAds": "投放中",
+    "sponsoredPosts": "赞助帖子",
+    "pendingByCurrency": "按币种待结算",
+    "noPending": "无待结算项",
+    "pendingFunds": "待结算资金",
+    "noPendingSettlements": "全部已结清！无待处理项。",
+    "settleNow": "立即结算",
+    "countSettlements": "{count} 笔结算",
+    "topAds": "热门赞助帖子",
+    "impressions": "展示次数",
+    "bids": "投标",
+    "golds": "金积分",
+    "live": "投放中",
+    "noAds": "暂无赞助帖子",
+    "recentIncome": "近期收入（30天）",
+    "noIncomeData": "暂无收入数据",
+    "settlementHistory": "结算历史",
+    "noSettlements": "未找到结算记录",
+    "allTime": "总记录数",
+    "totalAdPosts": "赞助帖子",
+    "totalImpressions": "总展示次数",
+    "currentlyPlaced": "当前投放",
+    "adPerformance": "广告表现",
+    "noAdData": "无广告表现数据",
+    "adsHint": "赞助帖子以在时间线中推广",
+    "status": {
+      "live": "投放中",
+      "queued": "排队中",
+      "active": "活跃",
+      "all": "全部",
+      "unpaid": "未支付",
+      "paid": "已支付",
+      "finished": "已完成",
+      "cancelled": "已取消",
+      "expired": "已过期"
+    },
+    "sourceAward": "帖子打赏",
+    "sourceOrder": "应用订单",
+    "table": {
+      "date": "日期",
+      "amount": "金额",
+      "currency": "币种",
+      "status": "状态",
+      "source": "来源",
+      "post": "帖子",
+      "bidTotal": "总投标",
+      "bids": "投标数",
+      "impressions": "展示次数",
+      "lastShown": "最后展示",
+      "orderId": "订单号",
+      "product": "产品"
+    },
+    "settings": {
+      "title": "商户设置",
+      "accountType": "账户类型",
+      "merchantAccount": "商户",
+      "status": "状态",
+      "active": "活跃",
+      "payoutWallet": "收款钱包",
+      "payoutWalletHint": "所有来自打赏和应用程序销售的收入将结算到此钱包。",
+      "noWallet": "无（未设置收款钱包）",
+      "noWallets": "未找到钱包，请先创建一个。",
+      "createWallet": "创建钱包",
+      "walletSaved": "收款钱包更新成功",
+      "walletSaveFailed": "更新收款钱包失败",
+      "dangerZone": "危险区域",
+      "dangerZoneHint": "此发布者商户账户的不可逆操作。"
+    },
+    "settledSuccess": "成功结算 {count} 笔交易",
+    "error": {
+      "loadingSettlements": "加载结算失败",
+       "loadingAds": "加载广告数据失败",
+       "loadingOrders": "加载订单失败",
+       "settleFailed": "结算失败，请重试。"
     }
   }
 }

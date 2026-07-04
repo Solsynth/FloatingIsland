@@ -6,6 +6,7 @@ import {
   IconPalette,
   IconCode,
   IconWallet,
+  IconTrendingUp,
 } from "#components";
 
 export interface NavItem {
@@ -37,6 +38,7 @@ export function useMainNav() {
     { icon: IconWallet, labelKey: "nav.wallet", href: "/wallets" },
     { icon: IconPalette, labelKey: "nav.creatorHub", href: "/creators" },
     { icon: IconCode, labelKey: "nav.developerHub", href: "/developers" },
+    { icon: IconTrendingUp, labelKey: "nav.merchantHub", href: "/merchants" },
   ]);
 
   return { navItems };

@@ -14,6 +14,8 @@
     "previous": "Previous",
     "next": "Next",
     "confirm": "Confirm",
+    "viewAll": "View All",
+    "refresh": "Refresh",
     "notifications": "Notifications"
   },
   "drive": {
@@ -120,6 +122,7 @@
     "wallet": "Wallet",
     "creatorHub": "Creator Hub",
     "developerHub": "Developer Hub",
+    "merchantHub": "Merchant Hub",
     "overview": "Overview",
     "content": "Content",
     "community": "Community"
@@ -1080,7 +1083,8 @@
   },
   "portal": {
     "creator": "Creator",
-    "developer": "Developer"
+    "developer": "Developer",
+    "merchant": "Merchant"
   },
   "creator": {
     "title": "Creator Hub",
@@ -1343,7 +1347,100 @@
       "removeConfirm": "Are you sure you want to remove this domain?",
       "addSuccess": "Domain added successfully. DNS verification in progress.",
       "removeSuccess": "Domain removed successfully.",
-      "recheckSuccess": "Recheck triggered."
+       "recheckSuccess": "Recheck triggered."
+    }
+  },
+  "merchant": {
+    "title": "Merchant Hub",
+    "hub": "Merchant Hub",
+    "hubInfo": "View settlement balances, manage payouts, and track sponsored ad performance across your publishers.",
+    "selectPublisher": "Select Publisher",
+    "clearPublisher": "Clear Publisher",
+    "dashboard": "Dashboard",
+    "settlements": "Settlements",
+    "orders": "Orders",
+    "ads": "Sponsored Posts",
+    "noOrders": "No orders found",
+    "settings": "Settings",
+    "revenue": "Revenue",
+    "noPublishers": "No publishers found. Create a publisher to start managing revenue.",
+    "totalPending": "Pending",
+    "totalSettled": "Settled",
+    "totalAllTime": "All-Time",
+    "activeAds": "Live Ads",
+    "sponsoredPosts": "Sponsored Posts",
+    "pendingByCurrency": "Pending by Currency",
+    "noPending": "No pending settlements",
+    "pendingFunds": "Pending Funds",
+    "noPendingSettlements": "All settled! Nothing pending.",
+    "settleNow": "Settle Now",
+    "countSettlements": "{count} settlements",
+    "topAds": "Top Sponsored Posts",
+    "impressions": "impressions",
+    "bids": "bids",
+    "golds": "golds",
+    "live": "Live",
+    "noAds": "No sponsored posts yet",
+    "recentIncome": "Recent Income (30 Days)",
+    "noIncomeData": "No income data available",
+    "settlementHistory": "Settlement History",
+    "noSettlements": "No settlements found",
+    "allTime": "total records",
+    "totalAdPosts": "Sponsored Posts",
+    "totalImpressions": "Total Impressions",
+    "currentlyPlaced": "Currently Placed",
+    "adPerformance": "Ad Performance",
+    "noAdData": "No ad performance data",
+    "adsHint": "Sponsor posts to promote them in the timeline",
+    "status": {
+      "live": "Live",
+      "queued": "Queued",
+      "active": "Active",
+      "all": "All",
+      "unpaid": "Unpaid",
+      "paid": "Paid",
+      "finished": "Finished",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    },
+    "sourceAward": "Post Award",
+    "sourceOrder": "App Order",
+    "table": {
+      "date": "Date",
+      "amount": "Amount",
+      "currency": "Currency",
+      "status": "Status",
+      "source": "Source",
+      "post": "Post",
+      "bidTotal": "Total Bid",
+      "bids": "Bids",
+      "impressions": "Impressions",
+      "lastShown": "Last Shown",
+      "orderId": "Order ID",
+      "product": "Product"
+    },
+    "settings": {
+      "title": "Merchant Settings",
+      "accountType": "Account Type",
+      "merchantAccount": "Merchant",
+      "status": "Status",
+      "active": "Active",
+      "payoutWallet": "Payout Wallet",
+      "payoutWalletHint": "All revenue from post awards and app sales will be settled to this wallet.",
+      "noWallet": "None (no payout wallet)",
+      "noWallets": "No wallets found. Create one first.",
+      "createWallet": "Create Wallet",
+      "walletSaved": "Payout wallet updated successfully",
+      "walletSaveFailed": "Failed to update payout wallet",
+      "dangerZone": "Danger Zone",
+      "dangerZoneHint": "Irreversible actions for this publisher's merchant account."
+    },
+    "settledSuccess": "Successfully settled {count} transactions",
+    "error": {
+      "loadingSettlements": "Failed to load settlements",
+       "loadingAds": "Failed to load ad stats",
+       "loadingOrders": "Failed to load orders",
+       "settleFailed": "Settlement failed. Please try again."
     }
   }
 }
