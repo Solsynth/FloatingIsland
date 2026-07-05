@@ -7,9 +7,42 @@
 
         <template v-else-if="order">
             <!-- Brand header -->
-            <div class="flex items-center justify-center gap-2 mb-6 pt-2">
-                <img src="/favicon.png" class="w-8 h-8" />
-                <span class="text-xl font-black tracking-tight">Solarpay</span>
+            <div class="flex items-center justify-between gap-2 mb-6 pt-2">
+                <div class="w-20" />
+                <div class="flex items-center gap-2">
+                    <img src="/favicon.png" class="w-8 h-8" />
+                    <span class="text-xl font-black tracking-tight">Solarpay</span>
+                </div>
+                <DialogRoot v-model:open="showAppLinkDialog">
+                    <DialogTrigger class="btn btn-ghost btn-xs text-base-content/50 gap-1">
+                        <IconExternalLink class="w-3 h-3" />
+                        Open
+                    </DialogTrigger>
+                    <DialogPortal>
+                        <DialogOverlay class="fixed inset-0 bg-black/50 z-50" />
+                        <DialogContent class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[calc(100%-2rem)] max-w-xs bg-base-100 rounded-2xl shadow-xl p-6 flex flex-col items-center gap-4">
+                            <DialogTitle class="text-lg font-bold">Open in App</DialogTitle>
+                            <DialogDescription class="text-sm text-base-content/50 text-center">
+                                Scan the QR code or tap below to open in the Solar Network app.
+                            </DialogDescription>
+                            <img
+                                :src="`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(appDeepLink)}`"
+                                alt="QR Code"
+                                class="w-48 h-48 rounded-xl"
+                            />
+                            <a
+                                :href="appDeepLink"
+                                class="btn btn-primary w-full gap-2"
+                            >
+                                <IconExternalLink class="w-4 h-4" />
+                                Open in App
+                            </a>
+                            <DialogClose class="btn btn-ghost btn-sm w-full">
+                                Close
+                            </DialogClose>
+                        </DialogContent>
+                    </DialogPortal>
+                </DialogRoot>
             </div>
 
             <!-- Error alert -->
@@ -517,10 +550,12 @@ import {
     AccordionTrigger,
     DialogClose,
     DialogContent,
+    DialogDescription,
     DialogOverlay,
     DialogPortal,
     DialogRoot,
     DialogTitle,
+    DialogTrigger,
 } from "reka-ui";
 
 defineOgImage("UniOgImage", {
@@ -534,6 +569,8 @@ useSolarSeo({
 
 const route = useRoute();
 const orderId = computed(() => route.params.id as string);
+const appDeepLink = computed(() => `solian:/${route.fullPath}`);
+const showAppLinkDialog = ref(false);
 
 const paying = ref(false);
 const pinDigits = ref<string[]>([]);
