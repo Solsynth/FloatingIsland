@@ -7,6 +7,7 @@ import type {
   AppProduct,
   Bot,
   BotKey,
+  BotChatConfig,
 } from '~/types/developer'
 import { apiFetch, safeJsonParse } from '~/utils/api'
 import { camelToSnake } from '~/utils/case'
@@ -44,7 +45,7 @@ export async function fetchDevProjects(
   publisherName: string,
 ): Promise<DevProject[]> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects`,
+    `/develop/private/projects?dev=${encodeURIComponent(publisherName)}`,
   )
   return safeJsonParse<DevProject[]>(response)
 }
@@ -55,7 +56,7 @@ export async function fetchDevProject(
 ): Promise<DevProject | null> {
   try {
     const response = await apiFetch(
-      `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}`,
+      `/develop/private/projects/${encodeURIComponent(projectId)}?dev=${encodeURIComponent(publisherName)}`,
     )
     return safeJsonParse<DevProject>(response)
   } catch {
@@ -68,7 +69,7 @@ export async function createDevProject(
   data: { name: string; slug: string; description: string },
 ): Promise<DevProject> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects`,
+    `/develop/private/projects?dev=${encodeURIComponent(publisherName)}`,
     {
       method: 'POST',
       body: JSON.stringify(camelToSnake(data)),
@@ -83,9 +84,9 @@ export async function updateDevProject(
   data: { name?: string; slug?: string; description?: string },
 ): Promise<DevProject> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}`,
+    `/develop/private/projects/${encodeURIComponent(projectId)}?dev=${encodeURIComponent(publisherName)}`,
     {
-      method: 'PATCH',
+      method: 'PUT',
       body: JSON.stringify(camelToSnake(data)),
     },
   )
@@ -97,7 +98,7 @@ export async function deleteDevProject(
   projectId: string,
 ): Promise<void> {
   await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}`,
+    `/develop/private/projects/${encodeURIComponent(projectId)}?dev=${encodeURIComponent(publisherName)}`,
     { method: 'DELETE' },
   )
 }
@@ -109,7 +110,7 @@ export async function fetchCustomApps(
   projectId: string,
 ): Promise<CustomApp[]> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps`,
+    `/develop/private/apps?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
   )
   return safeJsonParse<CustomApp[]>(response)
 }
@@ -120,7 +121,7 @@ export async function fetchCustomApp(
   appId: string,
 ): Promise<CustomApp> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}`,
+    `/develop/private/apps/${encodeURIComponent(appId)}?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
   )
   return safeJsonParse<CustomApp>(response)
 }
@@ -135,7 +136,7 @@ export async function createCustomApp(
   },
 ): Promise<CustomApp> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps`,
+    `/develop/private/apps?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     {
       method: 'POST',
       body: JSON.stringify(camelToSnake(data)),
@@ -174,7 +175,7 @@ export async function updateCustomApp(
   },
 ): Promise<CustomApp> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}`,
+    `/develop/private/apps/${encodeURIComponent(appId)}?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     {
       method: 'PATCH',
       body: JSON.stringify(camelToSnake(data)),
@@ -189,7 +190,7 @@ export async function deleteCustomApp(
   appId: string,
 ): Promise<void> {
   await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}`,
+    `/develop/private/apps/${encodeURIComponent(appId)}?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     { method: 'DELETE' },
   )
 }
@@ -202,7 +203,7 @@ export async function fetchAppProducts(
   appId: string,
 ): Promise<AppProduct[]> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}/products`,
+    `/develop/private/apps/${encodeURIComponent(appId)}/products?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
   )
   return safeJsonParse<AppProduct[]>(response)
 }
@@ -222,7 +223,7 @@ export async function createAppProduct(
   },
 ): Promise<AppProduct> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}/products`,
+    `/develop/private/apps/${encodeURIComponent(appId)}/products?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     {
       method: 'POST',
       body: JSON.stringify(camelToSnake(data)),
@@ -247,7 +248,7 @@ export async function updateAppProduct(
   },
 ): Promise<AppProduct> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}/products/${encodeURIComponent(productId)}`,
+    `/develop/private/apps/${encodeURIComponent(appId)}/products/${encodeURIComponent(productId)}?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     {
       method: 'PATCH',
       body: JSON.stringify(camelToSnake(data)),
@@ -263,7 +264,7 @@ export async function deleteAppProduct(
   productId: string,
 ): Promise<void> {
   await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}/products/${encodeURIComponent(productId)}`,
+    `/develop/private/apps/${encodeURIComponent(appId)}/products/${encodeURIComponent(productId)}?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     { method: 'DELETE' },
   )
 }
@@ -276,7 +277,7 @@ export async function fetchAppSecrets(
   appId: string,
 ): Promise<CustomAppSecret[]> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}/secrets`,
+    `/develop/private/apps/${encodeURIComponent(appId)}/secrets?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
   )
   return safeJsonParse<CustomAppSecret[]>(response)
 }
@@ -288,7 +289,7 @@ export async function createAppSecret(
   data: { description?: string; type?: number; expiresIn?: string | null },
 ): Promise<CustomAppSecret> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}/secrets`,
+    `/develop/private/apps/${encodeURIComponent(appId)}/secrets?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     {
       method: 'POST',
       body: JSON.stringify(camelToSnake(data)),
@@ -304,7 +305,7 @@ export async function deleteAppSecret(
   secretId: string,
 ): Promise<void> {
   await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/apps/${encodeURIComponent(appId)}/secrets/${encodeURIComponent(secretId)}`,
+    `/develop/private/apps/${encodeURIComponent(appId)}/secrets/${encodeURIComponent(secretId)}?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     { method: 'DELETE' },
   )
 }
@@ -316,7 +317,7 @@ export async function fetchBots(
   projectId: string,
 ): Promise<Bot[]> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots`,
+    `/develop/private/bots?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
   )
   return safeJsonParse<Bot[]>(response)
 }
@@ -327,7 +328,7 @@ export async function fetchBot(
   botId: string,
 ): Promise<Bot> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots/${encodeURIComponent(botId)}`,
+    `/develop/private/bots/${encodeURIComponent(botId)}?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
   )
   return safeJsonParse<Bot>(response)
 }
@@ -346,7 +347,7 @@ export async function createBot(
   },
 ): Promise<Bot> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots`,
+    `/develop/private/bots?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     {
       method: 'POST',
       body: JSON.stringify(camelToSnake(data)),
@@ -371,7 +372,7 @@ export async function updateBot(
   },
 ): Promise<Bot> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots/${encodeURIComponent(botId)}`,
+    `/develop/private/bots/${encodeURIComponent(botId)}?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     {
       method: 'PATCH',
       body: JSON.stringify(camelToSnake(data)),
@@ -386,7 +387,7 @@ export async function deleteBot(
   botId: string,
 ): Promise<void> {
   await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots/${encodeURIComponent(botId)}`,
+    `/develop/private/bots/${encodeURIComponent(botId)}?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     { method: 'DELETE' },
   )
 }
@@ -399,7 +400,7 @@ export async function fetchBotKeys(
   botId: string,
 ): Promise<BotKey[]> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots/${encodeURIComponent(botId)}/keys`,
+    `/develop/private/bots/${encodeURIComponent(botId)}/keys?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
   )
   return safeJsonParse<BotKey[]>(response)
 }
@@ -411,7 +412,7 @@ export async function createBotKey(
   data: { label?: string },
 ): Promise<BotKey> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots/${encodeURIComponent(botId)}/keys`,
+    `/develop/private/bots/${encodeURIComponent(botId)}/keys?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     {
       method: 'POST',
       body: JSON.stringify(camelToSnake(data)),
@@ -427,7 +428,7 @@ export async function deleteBotKey(
   keyId: string,
 ): Promise<void> {
   await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots/${encodeURIComponent(botId)}/keys/${encodeURIComponent(keyId)}`,
+    `/develop/private/bots/${encodeURIComponent(botId)}/keys/${encodeURIComponent(keyId)}?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     { method: 'DELETE' },
   )
 }
@@ -441,7 +442,7 @@ export async function fetchBotChatConfig(
 ): Promise<BotChatConfig | null> {
   try {
     const response = await apiFetch(
-      `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots/${encodeURIComponent(botId)}/chat`,
+      `/develop/private/bots/${encodeURIComponent(botId)}/chat?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     )
     return safeJsonParse<BotChatConfig>(response)
   } catch {
@@ -456,7 +457,7 @@ export async function updateBotChatConfig(
   data: BotChatConfig,
 ): Promise<BotChatConfig> {
   const response = await apiFetch(
-    `/develop/developers/${encodeURIComponent(publisherName)}/projects/${encodeURIComponent(projectId)}/bots/${encodeURIComponent(botId)}/chat`,
+    `/develop/private/bots/${encodeURIComponent(botId)}/chat?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
     {
       method: 'PUT',
       body: JSON.stringify(camelToSnake(data)),
