@@ -46,9 +46,9 @@
 									v-for="tab in interactionTabs"
 									:key="tab.value"
 									:value="tab.value"
-									class="tab flex-1 gap-1.5"
-								>
-									<component :is="tab.icon" class="h-4 w-4" />
+							class="tab flex-1 gap-1.5 whitespace-nowrap"
+						>
+							<component :is="tab.icon" class="h-4 w-4 shrink-0" />
 									<span>{{ tab.label }}</span>
 								</TabsTrigger>
 							</TabsList>

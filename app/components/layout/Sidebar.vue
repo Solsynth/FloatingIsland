@@ -67,16 +67,6 @@
         <IconPanelLeftClose class="h-5 w-5" />
       </button>
 
-      <!-- Toggle Button (collapsed, no auth) -->
-      <button
-        v-if="!isAuthenticated && collapsed"
-        class="btn btn-ghost btn-circle btn-sm"
-        aria-label="Expand sidebar"
-        @click="toggleSidebar"
-      >
-        <IconPanelLeftClose class="h-5 w-5 rotate-180" />
-      </button>
-
       <!-- Notification Bell + Toggle (collapsed) -->
       <template v-if="collapsed">
         <div v-if="isAuthenticated" class="flex justify-center">
