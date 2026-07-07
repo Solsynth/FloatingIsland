@@ -22,7 +22,7 @@
         "markdown-it": "^14.3.0",
         "mitt": "^3.0.1",
         "nuxt": "^4.4.8",
-        "nuxt-email-renderer": "2.8.0",
+        "nuxt-email-renderer": "^2.8.0",
         "nuxt-og-image": "^6.7.2",
         "nuxt-schema-org": "^6.2.3",
         "nuxt-seo-utils": "^8.3.1",
@@ -51,6 +51,10 @@
       },
     },
   },
+  "trustedDependencies": [
+    "unrs-resolver",
+    "@parcel/watcher",
+  ],
   "packages": {
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
 

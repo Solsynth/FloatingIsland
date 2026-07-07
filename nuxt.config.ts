@@ -1,9 +1,41 @@
-import tailwindcss from "@tailwindcss/vite";
+import { existsSync, writeFileSync } from "node:fs"
+import { resolve } from "node:path"
+import tailwindcss from "@tailwindcss/vite"
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
+  hooks: {
+    "prepare:types"() {
+      const dotNuxt = resolve(process.cwd(), ".nuxt")
+      const serverTsConfig = resolve(dotNuxt, "tsconfig.server.json")
+      if (!existsSync(serverTsConfig)) {
+        writeFileSync(serverTsConfig, JSON.stringify({
+          compilerOptions: {
+            target: "ESNext",
+            module: "ESNext",
+            moduleResolution: "Bundler",
+            strict: true,
+            skipLibCheck: true,
+            allowJs: true,
+            resolveJsonModule: true,
+            isolatedModules: true,
+            verbatimModuleSyntax: true,
+            allowArbitraryExtensions: true,
+            noEmit: true,
+            lib: ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
+            types: ["node"]
+          },
+          include: [
+            resolve(dotNuxt, "nuxt.d.ts"),
+            "../server/**/*"
+          ],
+          exclude: ["../node_modules", "../dist"]
+        }, null, 2))
+      }
+    }
+  },
   modules: [
     "nuxt-lucide-icons",
     "@nuxt/eslint",
@@ -17,7 +49,7 @@ export default defineNuxtConfig({
     "@nuxtjs/sitemap",
     "@nuxtjs/robots",
     "vue-sonner/nuxt",
-    //"nuxt-email-renderer",
+    "nuxt-email-renderer",
   ],
   site: {
     url: "https://solian.app",
