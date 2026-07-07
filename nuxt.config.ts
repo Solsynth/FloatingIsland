@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     "@nuxtjs/sitemap",
     "@nuxtjs/robots",
     "vue-sonner/nuxt",
+    //"nuxt-email-renderer",
   ],
   site: {
     url: "https://solian.app",
@@ -234,6 +235,27 @@ export default defineNuxtConfig({
     sitemap: "https://solian.app/sitemap.xml",
   },
   nitro: {
+    buildDir: "./.nitro",
     routeRules: {},
+    storage: {
+      root: {
+        driver: "fs",
+        readOnly: true,
+        base: ".",
+      },
+      src: {
+        driver: "fs",
+        readOnly: true,
+        base: "app",
+      },
+      build: {
+        driver: "fs",
+        base: "./.nuxt",
+      },
+      cache: {
+        driver: "fs",
+        base: "./.nuxt/cache",
+      },
+    },
   },
 });

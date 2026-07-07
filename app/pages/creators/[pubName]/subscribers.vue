@@ -114,6 +114,7 @@ import {
   IconBellOff,
 } from '#components'
 import type { PublisherSubscriber } from '~/types/creator'
+import type { SnAccount } from '~/types/auth'
 import {
   fetchPublisherSubscribers,
   fetchFollowRequests,
@@ -178,7 +179,7 @@ async function handleReject(requestId: string) {
   refreshNuxtData(`creator-follow-requests-${pubName.value}`)
 }
 
-async function handleAddSubscriber(account: { id: string }) {
+async function handleAddSubscriber(account: SnAccount) {
   await addSubscriber(pubName.value, account.id)
   closeAddModal()
   await refreshSubscribers()

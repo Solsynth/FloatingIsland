@@ -98,6 +98,7 @@
 <script setup lang="ts">
 import { IconUserPlus, IconPencil, IconTrash, IconSave } from '#components'
 import type { PublisherMember } from '~/types/creator'
+import type { SnAccount } from '~/types/auth'
 import {
   fetchPublisherMembers,
   inviteMember,
@@ -177,7 +178,7 @@ async function handleRemove(accountId: string) {
   await refreshMembers()
 }
 
-async function handleInviteSelect(account: { id: string }) {
+async function handleInviteSelect(account: SnAccount) {
   await inviteMember(pubName.value, account.id)
   closeInviteModal()
   await refreshMembers()

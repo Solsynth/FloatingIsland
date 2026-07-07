@@ -87,11 +87,15 @@
 import {
   IconArrowLeft,
   IconMenu,
+  IconLayoutDashboard,
   IconUsers,
   IconShieldAlert,
   IconBell,
   IconMail,
   IconActivity,
+  IconFileText,
+  IconWallet,
+  IconDatabase,
 } from '#components'
 
 const route = useRoute()
@@ -99,17 +103,47 @@ const mobileMenuOpen = ref(false)
 
 const navGroups = [
   {
-    label: 'Management',
+    label: '',
+    items: [
+      {
+        icon: IconLayoutDashboard,
+        label: 'Dashboard',
+        href: '/admin',
+      },
+    ],
+  },
+  {
+    label: 'Accounts',
     items: [
       {
         icon: IconUsers,
         label: 'Accounts',
-        href: '/admin',
+        href: '/admin/accounts',
       },
       {
         icon: IconShieldAlert,
         label: 'Punishments',
         href: '/admin/punishments',
+      },
+    ],
+  },
+  {
+    label: 'Content',
+    items: [
+      {
+        icon: IconFileText,
+        label: 'Posts',
+        href: '/admin/posts',
+      },
+    ],
+  },
+  {
+    label: 'Economy',
+    items: [
+      {
+        icon: IconWallet,
+        label: 'Wallet',
+        href: '/admin/wallet',
       },
     ],
   },
@@ -136,6 +170,11 @@ const navGroups = [
         label: 'Presence Scan',
         href: '/admin/presence',
       },
+      {
+        icon: IconDatabase,
+        label: 'Cache',
+        href: '/admin/cache',
+      },
     ],
   },
 ]
@@ -160,6 +199,8 @@ const breadcrumbs = computed(() => {
 
 const pageTitle = computed(() => {
   const last = breadcrumbs.value[breadcrumbs.value.length - 1]
-  return last ? last.label : 'Admin Panel'
+  if (!last) return 'Admin Panel'
+  if (last.href === '/admin') return 'Dashboard'
+  return last.label
 })
 </script>
