@@ -439,3 +439,44 @@ export interface BadgeGrantPayload {
   caption?: string
   meta?: Record<string, unknown>
 }
+
+// ============ Notification Observability ============
+
+export type NotificationProvider = 'websocket' | 'sop' | 'google' | 'apple' | 'appk' | 'unifiedpush'
+
+export type DeliveryOutcome = 'success' | 'failure' | 'invalid_token' | 'skipped' | 'no_subscription'
+
+export type PreferenceResult = 'normal' | 'silent' | 'reject'
+
+export interface ProviderDeliveryMetrics {
+  provider: NotificationProvider
+  attempts: number
+  results: Record<DeliveryOutcome, number>
+  successRate: number
+}
+
+export interface TopicMetric {
+  topic: string
+  sendRequests: number
+  deliveryAttempts: number
+}
+
+export interface DeliveryLatency {
+  p50: number
+  p95: number
+  p99: number
+  avg: number
+}
+
+export interface NotificationObservability {
+  totalSendRequests: number
+  totalTargetAccounts: number
+  totalDeliveryAttempts: number
+  totalDeliveryResults: Record<DeliveryOutcome, number>
+  overallSuccessRate: number
+  providers: ProviderDeliveryMetrics[]
+  topics: TopicMetric[]
+  latency: DeliveryLatency
+  batchSizes: { avg: number; max: number }
+  preferenceResults: Record<PreferenceResult, number>
+}

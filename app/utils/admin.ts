@@ -45,6 +45,7 @@ import type {
   AdminSession,
   AdminSessionQuery,
   DeviceLabelPayload,
+  NotificationObservability,
 } from '~/types/admin'
 
 // Padlock service: auth, sessions, punishments, suspend, delete, notifications, emails
@@ -59,6 +60,8 @@ const WALLET_SUBSCRIPTIONS = '/wallet/admin/subscriptions'
 const WALLET_PRODUCTS = '/wallet/admin/wallet-products'
 // Padlock service: cache management
 const PADLOCK_CACHE = '/padlock/admin/cache'
+// Ring service: notification observability
+const RING_ADMIN = '/ring/admin'
 
 async function fetchPaginated<T>(
   endpoint: string,
@@ -209,6 +212,10 @@ export async function sendAdminEmails(
     method: 'POST',
     body: JSON.stringify(camelToSnake(payload)),
   })
+}
+
+export async function fetchNotificationObservability(): Promise<NotificationObservability> {
+  return fetchJson<NotificationObservability>(`${RING_ADMIN}/notifications/observability`)
 }
 
 export async function fetchPunishmentsCreated(): Promise<SnAccountPunishment[]> {
