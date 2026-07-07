@@ -182,7 +182,7 @@ export async function apiFetch(
     }
 
     // Refresh failed - clear auth state
-    if (typeof window !== "undefined") {
+    if (import.meta.client) {
       const auth = useAuth();
       auth.logout();
     }

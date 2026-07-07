@@ -7,6 +7,7 @@ import {
   IconCode,
   IconWallet,
   IconTrendingUp,
+  IconShield,
 } from "#components";
 
 export interface NavItem {
@@ -15,6 +16,7 @@ export interface NavItem {
   href: string;
   badge?: number | null;
   requiresAuth?: boolean;
+  requiresSuperuser?: boolean;
 }
 
 /**
@@ -24,22 +26,36 @@ export interface NavItem {
 export function useMainNav() {
   const { t } = useI18n();
   const { unreadCount: chatUnreadCount } = useChat();
+  const { isSuperuser } = useAuth();
 
-  const navItems = computed<NavItem[]>(() => [
-    { icon: IconCompass, labelKey: "nav.explore", href: "/" },
-    { icon: IconBuilding, labelKey: "nav.realms", href: "/realms" },
-    { icon: IconHardDrive, labelKey: "nav.drive", href: "/drive" },
-    {
-      icon: IconMessageSquare,
-      labelKey: "nav.chat",
-      href: "/chat",
-      badge: chatUnreadCount.value > 0 ? chatUnreadCount.value : null,
-    },
-    { icon: IconWallet, labelKey: "nav.wallet", href: "/wallets" },
-    { icon: IconPalette, labelKey: "nav.creatorHub", href: "/creators" },
-    { icon: IconCode, labelKey: "nav.developerHub", href: "/developers" },
-    { icon: IconTrendingUp, labelKey: "nav.merchantHub", href: "/merchants" },
-  ]);
+  const navItems = computed<NavItem[]>(() => {
+    const items: NavItem[] = [
+      { icon: IconCompass, labelKey: "nav.explore", href: "/" },
+      { icon: IconBuilding, labelKey: "nav.realms", href: "/realms" },
+      { icon: IconHardDrive, labelKey: "nav.drive", href: "/drive" },
+      {
+        icon: IconMessageSquare,
+        labelKey: "nav.chat",
+        href: "/chat",
+        badge: chatUnreadCount.value > 0 ? chatUnreadCount.value : null,
+      },
+      { icon: IconWallet, labelKey: "nav.wallet", href: "/wallets" },
+      { icon: IconPalette, labelKey: "nav.creatorHub", href: "/creators" },
+      { icon: IconCode, labelKey: "nav.developerHub", href: "/developers" },
+      { icon: IconTrendingUp, labelKey: "nav.merchantHub", href: "/merchants" },
+    ];
+
+    if (isSuperuser.value) {
+      items.push({
+        icon: IconShield,
+        labelKey: "nav.adminPanel",
+        href: "/admin",
+        requiresSuperuser: true,
+      });
+    }
+
+    return items;
+  });
 
   return { navItems };
 }

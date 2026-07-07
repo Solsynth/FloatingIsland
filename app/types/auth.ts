@@ -67,17 +67,18 @@ export interface SnAccountBadge {
 }
 
 export interface SnAccount {
-  id: string;
-  name: string;
-  nick?: string;
-  language?: string;
-  region?: string;
-  automatedId?: string | null;
-  profile?: SnAccountProfile;
-  badges?: SnAccountBadge[];
-  contacts?: SnContactMethod[];
-  createdAt?: string;
-  updatedAt?: string;
+  id: string
+  name: string
+  nick?: string
+  language?: string
+  region?: string
+  automatedId?: string | null
+  isSuperuser?: boolean
+  profile?: SnAccountProfile
+  badges?: SnAccountBadge[]
+  contacts?: SnContactMethod[]
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface SnContactMethod {

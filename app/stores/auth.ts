@@ -85,6 +85,8 @@ export const useAuthStore = defineStore("auth", () => {
 
     const displayName = computed(() => user.value?.nick || user.value?.name || "");
 
+    const isSuperuser = computed(() => user.value?.isSuperuser === true);
+
     // Actions
     async function initAuth() {
         isLoading.value = true;
@@ -218,6 +220,7 @@ export const useAuthStore = defineStore("auth", () => {
         loginProgress,
         loginStep,
         displayName,
+        isSuperuser,
         // Actions
         initAuth,
         fetchUser,

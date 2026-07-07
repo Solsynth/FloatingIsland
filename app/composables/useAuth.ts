@@ -20,6 +20,7 @@ export function useAuth() {
         loginProgress,
         loginStep,
         displayName,
+        isSuperuser,
     } = storeToRefs(store);
 
     return {
@@ -35,6 +36,7 @@ export function useAuth() {
         loginProgress,
         loginStep,
         displayName,
+        isSuperuser,
         // Methods
         initAuth: store.initAuth,
         fetchUser: store.fetchUser,
