@@ -40,6 +40,11 @@ import type {
   BadgeGrantPayload,
   SnContact,
   AdminAuthFactor,
+  AdminDevice,
+  AdminDeviceQuery,
+  AdminSession,
+  AdminSessionQuery,
+  DeviceLabelPayload,
 } from '~/types/admin'
 
 // Padlock service: auth, sessions, punishments, suspend, delete, notifications, emails
@@ -106,6 +111,69 @@ export async function fetchAdminAccountDetail(
 export async function revokeAccountSessions(name: string): Promise<void> {
   await fetchJson(`${PADLOCK_BASE}/${name}/sessions/revoke`, {
     method: 'POST',
+  })
+}
+
+export async function fetchAccountDevices(
+  name: string,
+  params: AdminDeviceQuery = {},
+): Promise<{ items: AdminDevice[]; total: number }> {
+  const qs = buildQuery(params as unknown as Record<string, unknown>)
+  const endpoint = `${PADLOCK_BASE}/${name}/devices${qs ? `?${qs}` : ''}`
+  return fetchPaginated<AdminDevice>(endpoint)
+}
+
+export async function adminUpdateDeviceLabel(
+  name: string,
+  deviceId: string,
+  payload: DeviceLabelPayload,
+): Promise<void> {
+  await fetchJson(`${PADLOCK_BASE}/${name}/devices/${deviceId}/label`, {
+    method: 'PATCH',
+    body: JSON.stringify(camelToSnake(payload)),
+  })
+}
+
+export async function revokeDeviceSessions(
+  name: string,
+  deviceId: string,
+): Promise<void> {
+  await fetchJson(`${PADLOCK_BASE}/${name}/devices/${deviceId}/sessions/revoke`, {
+    method: 'POST',
+  })
+}
+
+export async function deleteAccountDevice(
+  name: string,
+  deviceId: string,
+): Promise<void> {
+  await fetchJson(`${PADLOCK_BASE}/${name}/devices/${deviceId}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function fetchAccountSessions(
+  name: string,
+  params: AdminSessionQuery = {},
+): Promise<{ items: AdminSession[]; total: number }> {
+  const qs = buildQuery(params as unknown as Record<string, unknown>)
+  const endpoint = `${PADLOCK_BASE}/${name}/sessions${qs ? `?${qs}` : ''}`
+  return fetchPaginated<AdminSession>(endpoint)
+}
+
+export async function adminFetchSessionChildren(
+  name: string,
+  sessionId: string,
+): Promise<AdminSession[]> {
+  return fetchJson<AdminSession[]>(`${PADLOCK_BASE}/${name}/sessions/${sessionId}/children`)
+}
+
+export async function adminRevokeSession(
+  name: string,
+  sessionId: string,
+): Promise<void> {
+  await fetchJson(`${PADLOCK_BASE}/${name}/sessions/${sessionId}`, {
+    method: 'DELETE',
   })
 }
 

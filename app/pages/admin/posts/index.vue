@@ -70,7 +70,7 @@
                     {{ post.title || '(Untitled)' }}
                   </div>
                   <div class="text-xs text-base-content/40 truncate max-w-[16rem]">
-                    {{ post.description || stripHtml(post.body).slice(0, 80) }}
+                    {{ post.description || stripHtml(post.body || '').slice(0, 80) }}
                   </div>
                 </NuxtLink>
               </td>
@@ -155,8 +155,8 @@ const filters = ref({
   locked: '' as string,
 })
 
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, '').trim()
+function stripHtml(html: string | null | undefined): string {
+  return (html || '').replace(/<[^>]*>/g, '').trim()
 }
 
 function visibilityClass(v: PostVisibility): string {

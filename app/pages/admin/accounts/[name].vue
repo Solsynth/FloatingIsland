@@ -181,6 +181,125 @@
               </div>
             </div>
           </AdminCard>
+
+          <!-- Devices -->
+          <AdminCard title="Devices">
+            <template #actions>
+              <button class="btn btn-ghost btn-xs" @click="loadDevices">
+                <IconRefreshCw class="w-3.5 h-3.5" /> Refresh
+              </button>
+            </template>
+            <div v-if="devicesLoading" class="flex justify-center py-4">
+              <span class="loading loading-spinner loading-sm" />
+            </div>
+            <div v-else-if="devices.length" class="space-y-2">
+              <div
+                v-for="device in devices"
+                :key="device.id"
+                class="p-3 rounded-lg bg-base-200/50 space-y-2"
+              >
+                <div class="flex items-center gap-2">
+                  <IconMonitor class="w-4 h-4 text-base-content/40" />
+                  <span class="text-sm font-medium flex-1 truncate">{{ device.label || 'Unnamed Device' }}</span>
+                  <span v-if="device.lastActiveAt" class="text-xs text-base-content/40">{{ formatTimeAgo(device.lastActiveAt) }}</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-base-content/50 pl-6">
+                  <span class="font-mono truncate">{{ device.clientId?.slice(0, 16) || device.id.slice(0, 16) }}...</span>
+                </div>
+                <div class="flex items-center gap-1.5 pl-6">
+                  <button class="btn btn-ghost btn-xs" @click="editDeviceLabel(device)">
+                    <IconPencil class="w-3 h-3" /> Rename
+                  </button>
+                  <button class="btn btn-ghost btn-xs text-warning" @click="revokeDevice(device)">
+                    <IconLogOut class="w-3 h-3" /> Revoke Sessions
+                  </button>
+                  <button class="btn btn-ghost btn-xs text-error" @click="deleteDevice(device)">
+                    <IconTrash2 class="w-3 h-3" /> Remove
+                  </button>
+                </div>
+                <div v-if="device.sessions?.length" class="pl-6 space-y-1.5 mt-1">
+                  <div
+                    v-for="session in device.sessions"
+                    :key="session.id"
+                    class="flex items-center gap-2 text-xs p-1.5 rounded bg-base-100/50"
+                  >
+                    <span class="inline-block w-1.5 h-1.5 rounded-full" :class="session.expiredAt ? 'bg-base-300' : 'bg-success'" />
+                    <span class="text-base-content/60">{{ session.ipAddress || 'Unknown IP' }}</span>
+                    <span class="text-base-content/40 truncate flex-1">{{ session.userAgent?.slice(0, 40) || 'Unknown' }}</span>
+                    <span class="text-base-content/30">{{ session.type === 0 ? 'Login' : session.type === 1 ? 'OAuth' : 'OIDC' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p v-else class="text-sm text-base-content/40">No devices found</p>
+          </AdminCard>
+
+          <!-- Sessions -->
+          <AdminCard title="Sessions">
+            <template #actions>
+              <button class="btn btn-ghost btn-xs" @click="loadSessions">
+                <IconRefreshCw class="w-3.5 h-3.5" /> Refresh
+              </button>
+            </template>
+            <div v-if="sessionsLoading" class="flex justify-center py-4">
+              <span class="loading loading-spinner loading-sm" />
+            </div>
+            <div v-else-if="sessions.length" class="space-y-2">
+              <div
+                v-for="session in sessions"
+                :key="session.id"
+                class="p-3 rounded-lg bg-base-200/50 space-y-2"
+              >
+                <div class="flex items-start gap-2">
+                  <span class="inline-block w-2 h-2 rounded-full mt-1.5" :class="session.expiredAt ? 'bg-base-300' : 'bg-success'" />
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 text-sm">
+                      <span class="font-mono text-xs">{{ session.id.slice(0, 12) }}...</span>
+                      <span class="text-xs px-1.5 py-0.5 rounded bg-base-300/60 text-base-content/50">
+                        {{ session.type === 0 ? 'Login' : session.type === 1 ? 'OAuth' : 'OIDC' }}
+                      </span>
+                      <span v-if="session.expiredAt" class="text-xs text-base-content/30">Expired</span>
+                    </div>
+                    <div class="text-xs text-base-content/50 mt-1 space-y-0.5">
+                      <div class="flex items-center gap-1.5">
+                        <IconGlobe class="w-3 h-3 text-base-content/30" />
+                        <span>{{ session.ipAddress || 'Unknown IP' }}</span>
+                        <span v-if="session.location" class="text-base-content/30">- {{ session.location }}</span>
+                      </div>
+                      <div v-if="session.userAgent" class="truncate">{{ session.userAgent }}</div>
+                      <div v-if="session.lastGrantedAt" class="text-base-content/30">
+                        Last active: {{ formatTimeAgo(session.lastGrantedAt) }}
+                      </div>
+                    </div>
+                  </div>
+                  <button class="btn btn-ghost btn-xs text-error shrink-0" @click="revokeOneSession(session)">
+                    <IconX class="w-3 h-3" />
+                  </button>
+                </div>
+                <div v-if="session.childrenCount" class="pl-4">
+                  <button class="text-xs text-primary/70 hover:text-primary" @click="toggleSessionChildren(session)">
+                    {{ session.children?.length ? 'Hide' : 'Show' }} {{ session.childrenCount }} child sessions
+                  </button>
+                </div>
+                <div v-if="session.children?.length" class="pl-4 space-y-1.5 mt-1">
+                  <div
+                    v-for="child in session.children"
+                    :key="child.id"
+                    class="flex items-center gap-2 text-xs p-2 rounded bg-base-100/50"
+                  >
+                    <span class="inline-block w-1.5 h-1.5 rounded-full" :class="child.expiredAt ? 'bg-base-300' : 'bg-success'" />
+                    <span class="font-mono">{{ child.id.slice(0, 10) }}...</span>
+                    <span class="text-base-content/50">{{ child.ipAddress || 'Unknown' }}</span>
+                    <span class="text-base-content/30">{{ child.type === 1 ? 'OAuth' : 'OIDC' }}</span>
+                    <button class="btn btn-ghost btn-xs text-error ml-auto" @click="revokeOneSession(child)">
+                      <IconX class="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p v-else class="text-sm text-base-content/40">No sessions found</p>
+          </AdminCard>
         </div>
 
         <!-- Right Column -->
@@ -356,6 +475,19 @@
         </form>
       </AdminDrawer>
 
+      <!-- Device Label Drawer -->
+      <AdminDrawer :open="deviceLabelOpen" title="Rename Device" @update:open="deviceLabelOpen = $event">
+        <form class="space-y-3" @submit.prevent="doUpdateDeviceLabel">
+          <div>
+            <label class="text-xs text-base-content/50">Device Label</label>
+            <input v-model="deviceLabelForm.label" type="text" class="input input-sm w-full bg-base-200/60 border-0 rounded-xl" placeholder="e.g. Alice's MacBook Pro" />
+          </div>
+          <button class="btn btn-sm btn-primary w-full" :disabled="deviceLabelLoading">
+            {{ deviceLabelLoading ? 'Saving...' : 'Save Label' }}
+          </button>
+        </form>
+      </AdminDrawer>
+
       <!-- Delete Dialog -->
       <AdminDrawer :open="deleteOpen" title="Delete Account" @update:open="deleteOpen = $event">
         <div class="space-y-4">
@@ -400,6 +532,11 @@ import {
   IconUserX,
   IconPlus,
   IconBadgeCheck,
+  IconMonitor,
+  IconRefreshCw,
+  IconPencil,
+  IconGlobe,
+  IconX,
 } from '#components'
 import { getFileUrl } from '~/utils/files'
 import {
@@ -425,7 +562,15 @@ import {
   grantBadge,
   activateBadge,
   revokeBadge,
+  fetchAccountDevices,
+  adminUpdateDeviceLabel,
+  revokeDeviceSessions,
+  deleteAccountDevice,
+  fetchAccountSessions,
+  adminFetchSessionChildren,
+  adminRevokeSession,
 } from '~/utils/admin'
+import type { AdminDevice, AdminSession } from '~/types/admin'
 import type { PunishmentType } from '~/types/admin'
 
 definePageMeta({ middleware: 'auth' })
@@ -548,6 +693,86 @@ async function doRevokeBadge(badgeId: string) {
   try { await revokeBadge(identifier.value, badgeId); await loadBadges() } catch { }
 }
 
+// Devices
+const devices = ref<AdminDevice[]>([])
+const devicesLoading = ref(false)
+const deviceLabelOpen = ref(false)
+const deviceLabelLoading = ref(false)
+const deviceLabelEdit = ref<AdminDevice | null>(null)
+const deviceLabelForm = ref({ label: '' })
+
+async function loadDevices() {
+  devicesLoading.value = true
+  try {
+    const { items } = await fetchAccountDevices(identifier.value, { includeSessions: true })
+    devices.value = items
+  } catch { devices.value = [] } finally { devicesLoading.value = false }
+}
+
+function editDeviceLabel(device: AdminDevice) {
+  deviceLabelEdit.value = device
+  deviceLabelForm.value = { label: device.label || '' }
+  deviceLabelOpen.value = true
+}
+
+async function doUpdateDeviceLabel() {
+  if (!deviceLabelEdit.value) return
+  deviceLabelLoading.value = true
+  try {
+    await adminUpdateDeviceLabel(identifier.value, deviceLabelEdit.value.id, deviceLabelForm.value)
+    deviceLabelOpen.value = false
+    await loadDevices()
+  } catch { } finally { deviceLabelLoading.value = false }
+}
+
+async function revokeDevice(device: AdminDevice) {
+  try { await revokeDeviceSessions(identifier.value, device.id); await loadDevices() } catch { }
+}
+
+async function deleteDevice(device: AdminDevice) {
+  try { await deleteAccountDevice(identifier.value, device.id); await loadDevices() } catch { }
+}
+
+// Sessions
+const sessions = ref<AdminSession[]>([])
+const sessionsLoading = ref(false)
+
+async function loadSessions() {
+  sessionsLoading.value = true
+  try {
+    const { items } = await fetchAccountSessions(identifier.value, { activeOnly: false })
+    sessions.value = items
+  } catch { sessions.value = [] } finally { sessionsLoading.value = false }
+}
+
+async function toggleSessionChildren(session: AdminSession) {
+  if (session.children?.length) {
+    session.children = []
+  } else {
+    try {
+      const children = await adminFetchSessionChildren(identifier.value, session.id)
+      session.children = children
+    } catch { }
+  }
+}
+
+async function revokeOneSession(session: AdminSession) {
+  try { await adminRevokeSession(identifier.value, session.id); await loadSessions(); await loadDevices() } catch { }
+}
+
+function formatTimeAgo(dateStr: string): string {
+  const now = Date.now()
+  const diff = now - new Date(dateStr).getTime()
+  const seconds = Math.floor(diff / 1000)
+  if (seconds < 60) return 'just now'
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  return `${days}d ago`
+}
+
 // Suspend
 const suspendOpen = ref(false)
 const isSuspending = ref(false)
@@ -602,6 +827,8 @@ onMounted(() => {
   loadContacts()
   loadFactors()
   loadBadges()
+  loadDevices()
+  loadSessions()
 })
 
 onUnmounted(() => {

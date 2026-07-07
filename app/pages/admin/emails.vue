@@ -30,15 +30,29 @@
               </div>
             </div>
 
-            <!-- Account IDs -->
+            <!-- Account Targeting -->
             <div v-if="targetMode === 'accounts'">
-              <label class="label label-text text-sm font-medium">Account IDs</label>
-              <textarea
-                v-model="form.accountIdsRaw"
-                class="textarea textarea-sm w-full text-sm font-mono bg-base-200/60 border-0 rounded-xl"
-                rows="3"
-                placeholder="One GUID per line"
-              />
+              <label class="label label-text text-sm font-medium">Target Accounts</label>
+              <div v-if="selectedAccounts.length" class="flex flex-wrap gap-1.5 mb-2">
+                <span
+                  v-for="acc in selectedAccounts"
+                  :key="acc.id"
+                  class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-lg bg-primary/10 text-primary"
+                >
+                  {{ acc.nick || acc.name }}
+                  <button class="hover:text-error" @click="removeSelectedAccount(acc.id)">
+                    <IconX class="w-3 h-3" />
+                  </button>
+                </span>
+              </div>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline w-full"
+                @click="openAccountPicker"
+              >
+                <IconUsers class="w-4 h-4" />
+                {{ selectedAccounts.length ? 'Add More Accounts' : 'Select Accounts' }}
+              </button>
             </div>
 
             <!-- Email Content -->
@@ -91,31 +105,66 @@
         </AdminCard>
       </div>
     </div>
+
+    <AccountPickerDrawer
+      :open="pickerOpen"
+      :allow-multiple="true"
+      title="Select Target Accounts"
+      placeholder="Search by name or nick..."
+      @select="picker.handleSelect"
+      @update:open="pickerOpen = $event"
+    />
   </NuxtLayout>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { IconUsers, IconX } from '#components'
 import { sendAdminEmails } from '~/utils/admin'
+import { useAccountPicker } from '~/composables/useAccountPicker'
+import AccountPickerDrawer from '~/components/shared/AccountPickerDrawer.vue'
 import type { BulkDeliveryResult, EmailPayload } from '~/types/admin'
+import type { SnAccount } from '~/types/auth'
 
 definePageMeta({ middleware: 'auth' })
 
 const isSending = ref(false)
 const targetMode = ref<'accounts' | 'broadcast'>('accounts')
 const result = ref<BulkDeliveryResult | null>(null)
+const selectedAccounts = ref<SnAccount[]>([])
+
+const picker = useAccountPicker()
+const pickerOpen = computed({
+  get: () => picker.isOpen.value,
+  set: (val: boolean) => { picker.isOpen.value = val },
+})
 
 const form = ref({
-  accountIdsRaw: '',
   subject: '',
   htmlBody: '',
 })
+
+async function openAccountPicker() {
+  const accounts = await picker.open({ allowMultiple: true, title: 'Select Target Accounts' })
+  if (accounts && Array.isArray(accounts)) {
+    for (const acc of accounts) {
+      if (!selectedAccounts.value.find(a => a.id === acc.id)) {
+        selectedAccounts.value.push(acc)
+      }
+    }
+  }
+}
+
+function removeSelectedAccount(id: string) {
+  selectedAccounts.value = selectedAccounts.value.filter(a => a.id !== id)
+}
 
 async function handleSendEmail() {
   isSending.value = true
   result.value = null
 
   const accountIds = targetMode.value === 'accounts'
-    ? form.value.accountIdsRaw.split('\n').map(s => s.trim()).filter(Boolean)
+    ? selectedAccounts.value.map(a => a.id)
     : undefined
 
   const payload: EmailPayload = {
@@ -127,8 +176,11 @@ async function handleSendEmail() {
 
   try {
     result.value = await sendAdminEmails(payload)
+    if (result.value.sent > 0) {
+      selectedAccounts.value = []
+    }
   } catch {
-    toast.error('Failed to send emails')
+    useNuxtApp().$toast.error('Failed to send emails')
   } finally {
     isSending.value = false
   }

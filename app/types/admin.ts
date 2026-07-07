@@ -107,6 +107,57 @@ export interface AdminAccountQuery {
   orderBy?: OrderByField
 }
 
+// ============ Device & Session Management ============
+
+export interface AdminDevice {
+  id: string
+  label?: string | null
+  clientId?: string
+  lastActiveAt?: string | null
+  createdAt?: string
+  deletedAt?: string | null
+  sessions?: AdminSession[]
+}
+
+export interface AdminDeviceQuery {
+  take?: number
+  offset?: number
+  includeDeleted?: boolean
+  includeSessions?: boolean
+}
+
+export interface AdminSession {
+  id: string
+  type: number
+  ipAddress?: string | null
+  userAgent?: string | null
+  location?: string | null
+  clientId?: string | null
+  parentSessionId?: string | null
+  appId?: string | null
+  scopes?: string[]
+  audiences?: string[]
+  lastGrantedAt?: string | null
+  expiredAt?: string | null
+  createdAt?: string
+  deletedAt?: string | null
+  childrenCount?: number
+  children?: AdminSession[]
+}
+
+export interface AdminSessionQuery {
+  take?: number
+  offset?: number
+  type?: number
+  clientId?: string
+  includeChildren?: boolean
+  activeOnly?: boolean
+}
+
+export interface DeviceLabelPayload {
+  label: string
+}
+
 // ============ Post Admin ============
 
 export type PostVisibility = 'public' | 'private' | 'unlisted' | 'publisher' | 'realm'

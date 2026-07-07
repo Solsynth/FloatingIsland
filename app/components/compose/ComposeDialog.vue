@@ -1,4 +1,5 @@
 <template>
+  <ClientOnly>
   <DrawerRoot :open="isOpen" @update:open="handleDrawerClose">
     <DrawerPortal>
       <DrawerOverlay class="fixed inset-0 bg-black/40 z-50" />
@@ -287,6 +288,10 @@
       </DrawerContent>
     </DrawerPortal>
   </DrawerRoot>
+  <template #fallback>
+    <span></span>
+  </template>
+  </ClientOnly>
 
   <!-- File Picker Drawer -->
   <CloudFileDrawer
@@ -298,6 +303,7 @@
   />
 
   <!-- Settings Sheet -->
+  <ClientOnly>
   <DrawerRoot v-model:open="showSettingsPanel">
     <DrawerPortal>
       <DrawerOverlay class="fixed inset-0 bg-black/40 z-60" />
@@ -370,6 +376,10 @@
       </DrawerContent>
     </DrawerPortal>
   </DrawerRoot>
+  <template #fallback>
+    <span></span>
+  </template>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">

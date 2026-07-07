@@ -1,4 +1,5 @@
 <template>
+  <ClientOnly>
   <DrawerRoot v-bind="$attrs" :open="open" @update:open="$emit('update:open', $event)">
     <DrawerPortal>
       <DrawerOverlay class="fixed inset-0 bg-black/40 z-50" />
@@ -206,6 +207,10 @@
       </DrawerContent>
     </DrawerPortal>
   </DrawerRoot>
+  <template #fallback>
+    <span></span>
+  </template>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
