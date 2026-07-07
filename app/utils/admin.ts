@@ -7,6 +7,9 @@ import type {
   SuspendPayload,
   NotificationPayload,
   EmailPayload,
+  EmailPlanCreatePayload,
+  EmailPlan,
+  EmailPlanQuery,
   BulkDeliveryResult,
   SnAccountPunishment,
   AdminPost,
@@ -62,6 +65,8 @@ const WALLET_PRODUCTS = '/wallet/admin/wallet-products'
 const PADLOCK_CACHE = '/padlock/admin/cache'
 // Ring service: notification observability
 const RING_ADMIN = '/ring/admin'
+// Ring service: email sending plans
+const RING_EMAIL_PLANS = '/ring/admin/email-plans'
 
 async function fetchPaginated<T>(
   endpoint: string,
@@ -683,4 +688,40 @@ export async function scanSteamPresenceByStage(stage: string): Promise<void> {
   await fetchJson(`${PASSPORT_BASE}/presences/steam/scan/stages/${stage}`, {
     method: 'POST',
   })
+}
+
+// ============ Email Sending Plans (Ring) ============
+
+export async function createEmailPlan(
+  payload: EmailPlanCreatePayload,
+): Promise<EmailPlan> {
+  return fetchJson<EmailPlan>(RING_EMAIL_PLANS, {
+    method: 'POST',
+    body: JSON.stringify(camelToSnake(payload)),
+  })
+}
+
+export async function fetchEmailPlans(
+  params: EmailPlanQuery = {},
+): Promise<{ plans: EmailPlan[]; total: number }> {
+  const qs = buildQuery(params as unknown as Record<string, unknown>)
+  const endpoint = `${RING_EMAIL_PLANS}${qs ? `?${qs}` : ''}`
+  const { items, total } = await fetchPaginated<EmailPlan>(endpoint)
+  return { plans: items, total }
+}
+
+export async function fetchEmailPlan(planId: string): Promise<EmailPlan> {
+  return fetchJson<EmailPlan>(`${RING_EMAIL_PLANS}/${planId}`)
+}
+
+export async function pauseEmailPlan(planId: string): Promise<void> {
+  await fetchJson(`${RING_EMAIL_PLANS}/${planId}/pause`, { method: 'POST' })
+}
+
+export async function resumeEmailPlan(planId: string): Promise<void> {
+  await fetchJson(`${RING_EMAIL_PLANS}/${planId}/resume`, { method: 'POST' })
+}
+
+export async function advanceEmailPlan(planId: string): Promise<void> {
+  await fetchJson(`${RING_EMAIL_PLANS}/${planId}/advance`, { method: 'POST' })
 }

@@ -480,3 +480,64 @@ export interface NotificationObservability {
   batchSizes: { avg: number; max: number }
   preferenceResults: Record<PreferenceResult, number>
 }
+
+// ============ Email Sending Plans ============
+
+export interface EmailPlanCreatePayload {
+  accountIds?: string[]
+  broadcastToAll?: boolean
+  sendingPlanKey?: string
+  subject: string
+  htmlBody: string
+  plannedStartAt?: string
+  maxEmailsPerInterval?: number
+  intervalMinutes?: number
+  maxEmailsPerDay?: number
+}
+
+export interface EmailPlanCounts {
+  total: number
+  pending: number
+  sent: number
+  skipped: number
+  failed: number
+}
+
+export interface EmailPlanAdvance {
+  intervalNumber: number
+  isManual: boolean
+  attemptedCount: number
+  sentCount: number
+  skippedCount: number
+  failedCount: number
+  pendingCountAfter: number
+  startedAt: string
+  completedAt: string
+}
+
+export interface EmailPlan {
+  id: string
+  sendingPlanKey?: string
+  createdByAccountId?: string
+  subject: string
+  broadcastToAll: boolean
+  recipientCount: number
+  maxEmailsPerInterval: number
+  intervalMinutes: number
+  maxEmailsPerDay: number
+  status: number
+  advancedIntervalsCount: number
+  plannedStartAt?: string
+  nextIntervalAt?: string
+  lastAdvancedAt?: string
+  pausedAt?: string
+  completedAt?: string
+  counts: EmailPlanCounts
+  advances?: EmailPlanAdvance[]
+}
+
+export interface EmailPlanQuery {
+  take?: number
+  offset?: number
+  status?: number
+}
