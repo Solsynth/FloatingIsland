@@ -280,14 +280,15 @@
                     </span>
                   </div>
                   <div v-if="app.boardWidgets && app.boardWidgets.length > 0" class="flex flex-wrap gap-1.5">
-                    <code
+                    <span
                       v-for="widget in app.boardWidgets.slice(0, 4)"
                       :key="widget.key"
-                      class="badge badge-sm badge-outline font-mono"
+                      class="badge badge-sm badge-outline"
                       :class="widget.isEnabled ? '' : 'opacity-50'"
+                      :title="widget.key"
                     >
-                      {{ widget.key }}
-                    </code>
+                      {{ widget.name || widget.key }}
+                    </span>
                     <span
                       v-if="app.boardWidgets.length > 4"
                       class="badge badge-sm badge-ghost"

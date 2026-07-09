@@ -192,6 +192,10 @@ export interface BoardWidgetFieldManifest {
 
 export interface BoardWidgetManifest {
   key: string
+  /** Human-readable widget name shown to users. Required by Develop. */
+  name: string
+  /** Human-readable explanation of what the widget displays. Required by Develop. */
+  description: string
   slug?: string
   isEnabled: boolean
   rendererType: string
@@ -259,6 +263,8 @@ export interface BoardWidgetDiscoveryItem {
   isEnabled: boolean
   rendererType: string
   key: string
+  name: string
+  description: string
   fieldTypes: BoardWidgetFieldManifest[]
   requiredFields: string[]
   maxPayloadBytes: number

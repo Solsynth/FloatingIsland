@@ -38,6 +38,7 @@
               <table class="table table-sm">
                 <thead>
                   <tr>
+                    <th>{{ t('developer.apps.boardWidgets.name') }}</th>
                     <th>{{ t('developer.apps.boardWidgets.key') }}</th>
                     <th>{{ t('developer.apps.boardWidgets.rendererType') }}</th>
                     <th>{{ t('developer.apps.boardWidgets.fieldTypes') }}</th>
@@ -47,6 +48,16 @@
                 </thead>
                 <tbody>
                   <tr v-for="(widget, index) in widgets" :key="widget.key" class="hover">
+                    <td>
+                      <div class="font-medium text-sm">{{ widget.name || '—' }}</div>
+                      <div
+                        v-if="widget.description"
+                        class="text-[11px] text-base-content/40 mt-0.5 line-clamp-2 max-w-[14rem]"
+                        :title="widget.description"
+                      >
+                        {{ widget.description }}
+                      </div>
+                    </td>
                     <td>
                       <div class="flex items-center gap-2">
                         <code class="text-sm font-mono font-medium">{{ widget.key }}</code>
@@ -220,9 +231,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <fieldset class="fieldset">
                 <legend class="fieldset-legend">{{ t('developer.apps.boardWidgets.payloadPush.widgetKey') }}</legend>
-                <select v-model="pushForm.widgetKey" class="select w-full font-mono text-sm">
+                <select v-model="pushForm.widgetKey" class="select w-full text-sm">
                   <option value="" disabled>{{ t('developer.apps.boardWidgets.payloadPush.selectWidget') }}</option>
-                  <option v-for="w in widgets" :key="w.key" :value="w.key">{{ w.key }}</option>
+                  <option v-for="w in widgets" :key="w.key" :value="w.key">
+                    {{ w.name ? `${w.name} (${w.key})` : w.key }}
+                  </option>
                 </select>
               </fieldset>
 
@@ -350,16 +363,37 @@
               <p class="text-xs text-base-content/40 mt-1">{{ t('developer.apps.boardWidgets.keyHint') }}</p>
             </fieldset>
 
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ t('developer.apps.boardWidgets.name') }}</legend>
+              <input
+                v-model="widgetForm.name"
+                type="text"
+                class="input w-full text-sm"
+                required
+                placeholder="Summary Card"
+              />
+              <p class="text-xs text-base-content/40 mt-1">{{ t('developer.apps.boardWidgets.nameHint') }}</p>
+            </fieldset>
+
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ t('developer.apps.boardWidgets.descriptionLabel') }}</legend>
+              <textarea
+                v-model="widgetForm.description"
+                class="textarea w-full text-sm"
+                rows="2"
+                required
+                :placeholder="t('developer.apps.boardWidgets.descriptionPlaceholder')"
+              />
+              <p class="text-xs text-base-content/40 mt-1">{{ t('developer.apps.boardWidgets.descriptionHint') }}</p>
+            </fieldset>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <fieldset class="fieldset">
                 <legend class="fieldset-legend">{{ t('developer.apps.boardWidgets.rendererType') }}</legend>
                 <select v-model="widgetForm.rendererType" class="select w-full">
-                  <option value="data">data</option>
-                  <option value="card">card</option>
-                  <option value="inline">inline</option>
                   <option value="hero">hero</option>
-                  <option value="list">list</option>
-                  <option value="stat">stat</option>
+                  <option value="inline">inline</option>
+                  <option value="grid">grid</option>
                 </select>
               </fieldset>
 
@@ -520,8 +554,10 @@ const editingIndex = ref(-1)
 
 const defaultWidget = (): BoardWidgetManifest => ({
   key: '',
+  name: '',
+  description: '',
   isEnabled: true,
-  rendererType: 'data',
+  rendererType: 'inline',
   fieldTypes: [],
   requiredFields: [],
   maxPayloadBytes: 2048,
@@ -603,7 +639,13 @@ function openCreateModal() {
 function openEditModal(widget: BoardWidgetManifest, index: number) {
   editingWidget.value = widget
   editingIndex.value = index
-  Object.assign(widgetForm, JSON.parse(JSON.stringify(widget)))
+  const copy = JSON.parse(JSON.stringify(widget)) as BoardWidgetManifest
+  Object.assign(widgetForm, {
+    ...defaultWidget(),
+    ...copy,
+    name: copy.name ?? '',
+    description: copy.description ?? '',
+  })
   widgetModalOpen.value = true
 }
 
