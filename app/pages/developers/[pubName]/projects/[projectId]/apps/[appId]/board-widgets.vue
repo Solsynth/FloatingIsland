@@ -670,10 +670,34 @@ function onFieldTypeChange(field: BoardWidgetFieldManifest) {
   }
 }
 
+/** Plain serializable body for create/update (avoids reactive proxy edge cases). */
+function buildWidgetPayload(): BoardWidgetManifest {
+  return {
+    key: widgetForm.key.trim(),
+    name: widgetForm.name.trim(),
+    description: widgetForm.description.trim(),
+    isEnabled: widgetForm.isEnabled,
+    rendererType: widgetForm.rendererType,
+    fieldTypes: widgetForm.fieldTypes.map(f => ({
+      name: f.name.trim(),
+      type: f.type,
+      label: f.label?.trim() || f.name.trim(),
+      format: f.format || '',
+      required: !!f.required,
+    })),
+    requiredFields: requiredFieldsSync.value,
+    maxPayloadBytes: widgetForm.maxPayloadBytes,
+    allowMultiple: widgetForm.allowMultiple,
+  }
+}
+
 async function handleSaveWidget() {
   isSavingWidget.value = true
   try {
-    widgetForm.requiredFields = requiredFieldsSync.value
+    const payload = buildWidgetPayload()
+    if (!payload.key || !payload.name || !payload.description) {
+      return
+    }
 
     if (editingWidget.value) {
       const updated = await updateBoardWidget(
@@ -681,7 +705,7 @@ async function handleSaveWidget() {
         projectId.value,
         appId.value,
         editingWidget.value.key,
-        widgetForm,
+        payload,
       )
       widgets.value[editingIndex.value] = updated
     } else {
@@ -689,7 +713,7 @@ async function handleSaveWidget() {
         pubName.value,
         projectId.value,
         appId.value,
-        widgetForm,
+        payload,
       )
       widgets.value.push(created)
       if (!pushForm.widgetKey) {
