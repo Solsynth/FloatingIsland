@@ -259,30 +259,45 @@
                   {{ t('developer.apps.boardWidgets.manage') }}
                 </NuxtLink>
               </div>
-              <div class="space-y-2 flex-1">
-                <div v-if="app.boardWidgets && app.boardWidgets.length > 0" class="space-y-1.5">
-                  <div
-                    v-for="widget in app.boardWidgets"
-                    :key="widget.key"
-                    class="flex items-center gap-3 rounded-lg px-3 py-2 bg-base-200/60"
-                  >
-                    <span
-                      class="badge badge-xs"
-                      :class="widget.isEnabled ? 'badge-success' : 'badge-ghost'"
-                    >
-                      {{ widget.isEnabled ? t('common.active') ?? 'Active' : t('common.disabled') ?? 'Disabled' }}
-                    </span>
-                    <code class="text-xs font-mono text-base-content/70">{{ widget.key }}</code>
-                    <span class="text-xs text-base-content/40">{{ widget.rendererType }}</span>
-                    <span v-if="!widget.allowMultiple" class="badge badge-xs badge-info">{{ t('developer.apps.boardWidgets.singleton') ?? 'Singleton' }}</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
+                <!-- API Endpoint -->
+                <div class="rounded-xl bg-base-200/60 p-3 flex flex-col justify-center">
+                  <div class="flex items-center gap-2">
+                    <span class="badge badge-success badge-xs font-bold">POST</span>
+                    <code class="text-[11px] text-base-content/50 font-mono truncate">.../{{ appId.slice(0, 8) }}.../board/payload</code>
                   </div>
+                  <p class="text-xs text-base-content/50 mt-1.5">
+                    {{ t('developer.apps.boardWidgets.payloadPush.authLabel') }}:
+                    <code class="bg-base-200 rounded px-1 text-[11px]">X-App-Secret</code>
+                  </p>
                 </div>
-                <div v-else class="flex items-center justify-center py-4 rounded-lg bg-base-200/30">
-                  <p class="text-sm text-base-content/40">{{ t('developer.apps.boardWidgets.noWidgets') }}</p>
-                </div>
-                <div class="rounded-xl bg-info/5 border border-info/10 p-2.5 mt-2">
-                  <p class="text-[11px] text-info/70 leading-relaxed">
-                    {{ t('developer.apps.boardWidgets.scopeHint') }}
+                <!-- Widgets summary -->
+                <div class="rounded-xl bg-base-200/60 p-3 flex flex-col justify-center">
+                  <div class="text-sm font-semibold mb-1.5">
+                    {{ t('developer.apps.boardWidgets.widgetList') }}
+                    <span class="text-base-content/40 font-normal">
+                      · {{ app.boardWidgets?.length ?? 0 }}
+                    </span>
+                  </div>
+                  <div v-if="app.boardWidgets && app.boardWidgets.length > 0" class="flex flex-wrap gap-1.5">
+                    <code
+                      v-for="widget in app.boardWidgets.slice(0, 4)"
+                      :key="widget.key"
+                      class="badge badge-sm badge-outline font-mono"
+                      :class="widget.isEnabled ? '' : 'opacity-50'"
+                    >
+                      {{ widget.key }}
+                    </code>
+                    <span
+                      v-if="app.boardWidgets.length > 4"
+                      class="badge badge-sm badge-ghost"
+                    >
+                      +{{ app.boardWidgets.length - 4 }}
+                    </span>
+                  </div>
+                  <p v-else class="text-xs text-base-content/40">{{ t('developer.apps.boardWidgets.noWidgets') }}</p>
+                  <p class="text-[11px] text-base-content/40 mt-2">
+                    <code class="bg-base-200 rounded px-1 text-[10px]">accounts.profile.board</code>
                   </p>
                 </div>
               </div>
