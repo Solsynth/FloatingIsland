@@ -172,9 +172,19 @@ export interface BotWebhook {
 
 // ==================== Board Widgets ====================
 
+/** Declared type of a widget field's envelope `value`. */
+export type BoardWidgetFieldValueType =
+  | 'string'
+  | 'number'
+  | 'boolean'
+  | 'array'
+  | 'object'
+  | 'null'
+
 export interface BoardWidgetFieldManifest {
   name: string
-  type: string
+  /** Expected type of the envelope `value` (string | number | boolean | array | object | null). */
+  type: BoardWidgetFieldValueType | string
   label: string
   format?: string
   required: boolean
@@ -192,11 +202,28 @@ export interface BoardWidgetManifest {
 }
 
 /**
+ * Any JSON value: string, number, boolean, null, object, or array.
+ * Objects and arrays may contain arbitrarily nested JSON values.
+ */
+export type BoardJsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | BoardJsonValue[]
+  | { [key: string]: BoardJsonValue }
+
+/**
  * Universal payload envelope — every payload field MUST use this shape.
  * Enforced on every write path (PUT /board, POST /board/payload, gRPC).
+ *
+ * - `value` — required. Any JSON value (`string`, `number`, `boolean`, `null`,
+ *   `object`, `array`). Objects and arrays may contain arbitrarily nested JSON values.
+ * - `label` — required display label
+ * - `format` — optional display/format hint (e.g. boolean, number, date, currency)
  */
 export interface BoardFieldValueEnvelope {
-  value: unknown
+  value: BoardJsonValue
   label: string
   format?: string
 }

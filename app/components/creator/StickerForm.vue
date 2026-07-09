@@ -1,34 +1,35 @@
 <template>
-  <form @submit.prevent="handleSubmit">
+  <div>
+  <form class="portal-form" @submit.prevent="handleSubmit">
     <AdminCard
       :title="sticker ? 'Edit Sticker' : 'New Sticker'"
       description="Add a sticker to your sticker pack"
-      class="mb-6"
+      class="mb-5"
     >
       <!-- Image Upload -->
-      <div class="flex items-start gap-4 mb-6 p-4 rounded-xl bg-base-200/50 border border-dashed border-base-300/50">
-        <div class="w-20 h-20 rounded-xl bg-base-200 overflow-hidden shrink-0 border border-base-300/30">
+      <div class="flex items-start gap-4 mb-5 p-4 rounded-xl bg-base-200/50 border border-dashed border-base-300/50">
+        <div class="w-20 h-20 rounded-xl bg-base-200 overflow-hidden shrink-0 border border-base-300/40">
           <img
             v-if="imageUrl"
             :src="imageUrl"
             class="w-full h-full object-contain"
             alt="Sticker"
-          />
+          >
           <div v-else class="flex items-center justify-center h-full">
             <IconImage class="w-8 h-8 text-base-content/20" />
           </div>
         </div>
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-1.5 min-w-0">
           <p class="text-sm font-medium">Image</p>
-          <p class="text-xs text-base-content/40">Upload the sticker image asset</p>
-          <button type="button" class="btn btn-ghost btn-sm w-fit" @click="pickImage">
+          <p class="text-xs text-base-content/45 leading-relaxed">Upload the sticker image asset</p>
+          <button type="button" class="btn btn-ghost btn-sm w-fit mt-1" @click="pickImage">
             <IconUpload class="w-4 h-4" />
             {{ imageId ? 'Change' : 'Upload' }}
           </button>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 fieldset-row">
         <!-- Name -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend">Name</legend>
@@ -37,14 +38,14 @@
             type="text"
             class="input w-full"
             placeholder="My Sticker"
-          />
+          >
         </fieldset>
 
         <!-- Slug -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend">
             {{ t('creator.stickers.stickerSlug') }}
-            <span class="text-xs text-error">*</span>
+            <span class="text-error">*</span>
           </legend>
           <input
             v-model="form.slug"
@@ -52,12 +53,12 @@
             class="input w-full font-mono text-sm"
             placeholder="my-sticker"
             required
-          />
+          >
           <p class="fieldset-label">{{ t('creator.stickers.stickerSlugHint') }}</p>
         </fieldset>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 fieldset-row mt-4">
         <!-- Size -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend">{{ t('creator.stickers.size') }}</legend>
@@ -81,7 +82,7 @@
     </AdminCard>
 
     <!-- Actions -->
-    <div class="flex items-center justify-between gap-3">
+    <div class="portal-form-actions">
       <button
         type="button"
         class="btn btn-ghost"
@@ -91,8 +92,8 @@
       </button>
       <button
         type="submit"
-        class="btn btn-primary min-w-[120px]"
-        :class="{ 'loading': submitting }"
+        class="btn btn-primary min-w-[7.5rem]"
+        :class="{ loading: submitting }"
         :disabled="submitting || !form.slug || (!imageId && !sticker)"
       >
         <IconSave class="w-4 h-4" />
@@ -100,15 +101,16 @@
       </button>
     </div>
   </form>
-</template>
 
-<!-- File Picker -->
-<CloudFileDrawer
-  v-model:open="imagePickerOpen"
-  :allowed-types="['image']"
-  usage="sticker.image"
-  @select="onImageSelected"
-/>
+  <!-- File Picker -->
+  <CloudFileDrawer
+    v-model:open="imagePickerOpen"
+    :allowed-types="['image']"
+    usage="sticker.image"
+    @select="onImageSelected"
+  />
+  </div>
+</template>
 
 <script setup lang="ts">
 import { IconSave, IconImage, IconUpload } from '#components'

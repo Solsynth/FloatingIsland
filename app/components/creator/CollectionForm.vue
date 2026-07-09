@@ -1,26 +1,26 @@
 <template>
-  <form @submit.prevent="handleSubmit">
+  <form class="portal-form" @submit.prevent="handleSubmit">
     <AdminCard
       :title="collection ? 'Edit Collection' : 'New Collection'"
       description="Organize your posts into collections"
-      class="mb-6"
+      class="mb-5"
     >
       <!-- Slug -->
       <fieldset class="fieldset">
         <legend class="fieldset-legend">
           {{ t('creator.collections.slug') }}
-          <span class="text-xs text-error">*</span>
+          <span class="text-error">*</span>
         </legend>
-        <div class="join">
-          <span class="join-item btn btn-disabled btn-sm bg-base-200/80">/</span>
+        <div class="join w-full">
+          <span class="join-item btn btn-disabled btn-sm bg-base-200 border-base-300/60">/</span>
           <input
             v-model="form.slug"
             type="text"
-            class="input join-item flex-1 font-mono text-sm"
+            class="input join-item flex-1 min-w-0 font-mono text-sm"
             :disabled="!!collection"
             placeholder="my-collection"
             required
-          />
+          >
         </div>
         <p class="fieldset-label">{{ t('creator.collections.slugHint') }}</p>
       </fieldset>
@@ -33,7 +33,7 @@
           type="text"
           class="input w-full"
           placeholder="My Collection"
-        />
+        >
       </fieldset>
 
       <!-- Description -->
@@ -41,7 +41,7 @@
         <legend class="fieldset-legend">{{ t('creator.collections.description') }}</legend>
         <textarea
           v-model="form.description"
-          class="textarea w-full min-h-[80px]"
+          class="textarea w-full min-h-[80px] leading-relaxed"
           rows="3"
           placeholder="Describe this collection..."
         />
@@ -49,7 +49,7 @@
     </AdminCard>
 
     <!-- Actions -->
-    <div class="flex items-center justify-between gap-3">
+    <div class="portal-form-actions">
       <button
         type="button"
         class="btn btn-ghost"
@@ -59,8 +59,8 @@
       </button>
       <button
         type="submit"
-        class="btn btn-primary min-w-[120px]"
-        :class="{ 'loading': submitting }"
+        class="btn btn-primary min-w-[7.5rem]"
+        :class="{ loading: submitting }"
         :disabled="submitting || !form.slug"
       >
         <IconSave class="w-4 h-4" />

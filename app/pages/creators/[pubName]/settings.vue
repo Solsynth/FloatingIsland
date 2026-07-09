@@ -1,112 +1,100 @@
 <template>
   <NuxtLayout name="creator">
-    <div class="">
-      <h1 class="text-xl font-bold mb-6">{{ t('creator.settings') }}</h1>
+    <div class="mx-auto max-w-5xl">
+      <AdminPageHeader :title="t('creator.settings')" />
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <!-- Main Column (Publisher Form) -->
         <div>
-          <div class="card bg-base-100 shadow-sm">
-            <div class="card-body p-5">
-              <h2 class="card-title text-base mb-4">{{ t('creator.editPublisher') }}</h2>
-              <PublisherForm :publisher="currentPublisher" @saved="handleSaved" />
-            </div>
-          </div>
+          <PublisherForm :publisher="currentPublisher" @saved="handleSaved" />
         </div>
 
         <!-- Side Column (Settings) -->
-        <div class="space-y-6">
+        <div class="space-y-5">
           <!-- Feature Flags -->
-          <div class="card bg-base-100 shadow-sm">
-            <div class="card-body p-5">
-              <h2 class="card-title text-base mb-4">{{ t('creator.features.title') }}</h2>
-              <div class="space-y-4">
-                <div
-                  v-for="flag in featureFlags"
-                  :key="flag.key"
-                  class="flex items-start justify-between gap-4 p-3 rounded-lg bg-base-200"
-                >
-                  <div>
-                    <div class="font-medium text-sm">{{ flag.label }}</div>
-                    <div class="text-xs text-base-content/60">{{ flag.description }}</div>
-                  </div>
-                  <input
-                    type="checkbox"
-                    class="toggle toggle-primary toggle-sm"
-                    :checked="features?.[flag.key] ?? false"
-                    @change="toggleFeature(flag.key, ($event.target as HTMLInputElement).checked)"
-                  />
+          <AdminCard :title="t('creator.features.title')">
+            <div class="space-y-2.5">
+              <div
+                v-for="flag in featureFlags"
+                :key="flag.key"
+                class="portal-setting-row"
+              >
+                <div class="min-w-0">
+                  <div class="font-medium text-sm">{{ flag.label }}</div>
+                  <div class="text-xs text-base-content/50 mt-0.5 leading-relaxed">{{ flag.description }}</div>
                 </div>
+                <input
+                  type="checkbox"
+                  class="toggle toggle-primary toggle-sm shrink-0"
+                  :checked="features?.[flag.key] ?? false"
+                  @change="toggleFeature(flag.key, ($event.target as HTMLInputElement).checked)"
+                >
               </div>
             </div>
-          </div>
+          </AdminCard>
 
           <!-- Fediverse -->
-          <div class="card bg-base-100 shadow-sm">
-            <div class="card-body p-5">
-              <h2 class="card-title text-base mb-4">{{ t('creator.fediverse.title') }}</h2>
+          <AdminCard :title="t('creator.fediverse.title')">
+            <ConfuseSpinner v-if="fediverseStatus === 'pending'" />
 
-              <ConfuseSpinner v-if="fediverseStatus === 'pending'" />
-
-              <template v-else-if="fediverse">
-                <div class="flex items-start justify-between gap-4 p-3 rounded-lg bg-base-200 mb-4">
-                  <div>
-                    <div class="font-medium text-sm">
-                      {{ fediverse.enabled ? t('creator.fediverse.enabled') : t('creator.fediverse.disabled') }}
-                    </div>
-                    <div class="text-xs text-base-content/60">
-                      {{ fediverse.enabled ? t('creator.fediverse.disableHint') : t('creator.fediverse.enableHint') }}
-                    </div>
+            <template v-else-if="fediverse">
+              <div class="portal-setting-row mb-4">
+                <div class="min-w-0">
+                  <div class="font-medium text-sm">
+                    {{ fediverse.enabled ? t('creator.fediverse.enabled') : t('creator.fediverse.disabled') }}
                   </div>
-                  <input
-                    type="checkbox"
-                    class="toggle toggle-primary toggle-sm"
-                    :checked="fediverse.enabled"
-                    @change="toggleFediverse"
-                  />
-                </div>
-
-                <div v-if="fediverse.enabled && fediverse.actor" class="space-y-3">
-                  <div class="flex items-center gap-3 p-3 rounded-lg bg-base-100">
-                    <div class="avatar">
-                      <div class="w-10 rounded-full bg-primary text-primary-content flex items-center justify-center text-sm font-bold">
-                        {{ (fediverse.actor.displayName || fediverse.actor.username).slice(0, 2).toUpperCase() }}
-                      </div>
-                    </div>
-                    <div>
-                      <div class="font-medium text-sm">{{ fediverse.actor.displayName || fediverse.actor.username }}</div>
-                      <div class="text-xs text-base-content/50">
-                        @{{ fediverse.actor.username }}@{{ fediverse.actor.instance.domain }}
-                      </div>
-                    </div>
-                  </div>
-                  <div class="text-xs text-base-content/50 space-y-1 px-3">
-                    <div>{{ t('creator.fediverse.actorUri') }}: {{ fediverse.actorUri || 'N/A' }}</div>
-                    <div>{{ t('creator.fediverse.followerCount') }}: {{ fediverse.followerCount || 0 }}</div>
+                  <div class="text-xs text-base-content/50 mt-0.5 leading-relaxed">
+                    {{ fediverse.enabled ? t('creator.fediverse.disableHint') : t('creator.fediverse.enableHint') }}
                   </div>
                 </div>
+                <input
+                  type="checkbox"
+                  class="toggle toggle-primary toggle-sm shrink-0"
+                  :checked="fediverse.enabled"
+                  @change="toggleFediverse"
+                >
+              </div>
 
-                <details class="collapse collapse-arrow bg-base-200 mt-2">
-                  <summary class="collapse-title text-sm font-medium">{{ t('creator.fediverse.whatIs') }}</summary>
-                  <div class="collapse-content text-sm text-base-content/70">
-                    {{ t('creator.fediverse.about') }}
+              <div v-if="fediverse.enabled && fediverse.actor" class="space-y-3">
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-base-200/50 border border-base-300/40">
+                  <div class="avatar shrink-0">
+                    <div class="w-10 rounded-full bg-primary text-primary-content flex items-center justify-center text-sm font-bold">
+                      {{ (fediverse.actor.displayName || fediverse.actor.username).slice(0, 2).toUpperCase() }}
+                    </div>
                   </div>
-                </details>
-              </template>
-            </div>
-          </div>
+                  <div class="min-w-0">
+                    <div class="font-medium text-sm truncate">{{ fediverse.actor.displayName || fediverse.actor.username }}</div>
+                    <div class="text-xs text-base-content/50 truncate">
+                      @{{ fediverse.actor.username }}@{{ fediverse.actor.instance.domain }}
+                    </div>
+                  </div>
+                </div>
+                <div class="text-xs text-base-content/50 space-y-1 px-1">
+                  <div>{{ t('creator.fediverse.actorUri') }}: {{ fediverse.actorUri || 'N/A' }}</div>
+                  <div>{{ t('creator.fediverse.followerCount') }}: {{ fediverse.followerCount || 0 }}</div>
+                </div>
+              </div>
+
+              <details class="collapse collapse-arrow bg-base-200/60 border border-base-300/40 rounded-xl mt-3">
+                <summary class="collapse-title text-sm font-medium min-h-0 py-3">{{ t('creator.fediverse.whatIs') }}</summary>
+                <div class="collapse-content text-sm text-base-content/65 leading-relaxed">
+                  {{ t('creator.fediverse.about') }}
+                </div>
+              </details>
+            </template>
+          </AdminCard>
 
           <!-- Danger Zone -->
-          <div class="card bg-error/5 border border-error/20 shadow-sm">
-            <div class="card-body p-5">
-              <h2 class="card-title text-base text-error mb-4">{{ t('creator.deletePublisher') }}</h2>
-              <p class="text-sm text-base-content/70 mb-4">{{ t('creator.deletePublisherConfirm') }}</p>
-              <button class="btn btn-error btn-sm" @click="handleDelete">
-                <IconTrash class="w-4 h-4" />
-                {{ t('creator.deletePublisher') }}
-              </button>
-            </div>
-          </div>
+          <AdminCard class="!border-error/25 !bg-error/[0.03]">
+            <template #header>
+              <h3 class="font-semibold text-sm text-error">{{ t('creator.deletePublisher') }}</h3>
+            </template>
+            <p class="text-sm text-base-content/60 mb-4 leading-relaxed">{{ t('creator.deletePublisherConfirm') }}</p>
+            <button type="button" class="btn btn-error btn-sm" @click="handleDelete">
+              <IconTrash class="w-4 h-4" />
+              {{ t('creator.deletePublisher') }}
+            </button>
+          </AdminCard>
         </div>
       </div>
     </div>

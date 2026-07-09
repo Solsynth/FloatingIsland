@@ -239,33 +239,76 @@
                   <IconPlus class="w-3 h-3" />
                 </button>
               </legend>
-              <p class="text-[11px] text-base-content/40 mb-2">{{ t('developer.apps.boardWidgets.fieldEnvelopeHint') }}</p>
+              <p class="text-[11px] text-base-content/40 mb-1.5 leading-relaxed">
+                {{ t('developer.apps.boardWidgets.fieldEnvelopeHint') }}
+              </p>
+              <p class="text-[11px] text-base-content/35 mb-2 leading-relaxed">
+                {{ t('developer.apps.boardWidgets.fieldValueTypesHint') }}
+              </p>
+
+              <!-- Envelope shape reference -->
+              <div class="rounded-lg bg-base-200/50 border border-base-300/40 p-2.5 mb-2 font-mono text-[11px] text-base-content/55 leading-relaxed">
+                <div class="text-base-content/40 mb-1 not-italic font-sans text-[10px] font-semibold uppercase tracking-wide">
+                  envelope
+                </div>
+                <div>{</div>
+                <div class="pl-3">
+                  <span class="text-primary">"value"</span>:
+                  <span class="text-base-content/70"> string | number | boolean | null | object | array</span>
+                  <span class="text-error">*</span>
+                </div>
+                <div class="pl-3">
+                  <span class="text-primary">"label"</span>:
+                  <span class="text-base-content/70"> string</span>
+                  <span class="text-error">*</span>
+                </div>
+                <div class="pl-3">
+                  <span class="text-primary">"format"</span>:
+                  <span class="text-base-content/70"> string?</span>
+                </div>
+                <div>}</div>
+                <p class="mt-1.5 font-sans text-[10px] text-base-content/40 leading-relaxed">
+                  object / array values may contain arbitrarily nested JSON.
+                </p>
+              </div>
+
               <div v-if="widgetForm.fieldTypes.length > 0" class="space-y-2">
                 <div
                   v-for="(field, fi) in widgetForm.fieldTypes"
                   :key="fi"
-                  class="rounded-lg bg-base-200/40 p-2.5 space-y-1.5"
+                  class="rounded-lg bg-base-200/40 border border-base-300/30 p-2.5 space-y-1.5"
                 >
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-2 flex-wrap">
                     <input
                       v-model="field.name"
                       type="text"
                       class="input input-sm w-28 font-mono text-xs"
                       :placeholder="t('developer.apps.boardWidgets.fieldName') ?? 'Name'"
-                    />
-                    <select v-model="field.type" class="select select-sm flex-1 text-xs">
+                    >
+                    <select
+                      v-model="field.type"
+                      class="select select-sm flex-1 min-w-[6.5rem] text-xs"
+                      @change="onFieldTypeChange(field)"
+                    >
                       <option value="string">string</option>
                       <option value="number">number</option>
                       <option value="boolean">boolean</option>
+                      <option value="null">null</option>
                       <option value="array">array</option>
                       <option value="object">object</option>
                     </select>
-                    <select v-model="field.format" class="select select-sm w-24 text-xs">
+                    <select
+                      v-model="field.format"
+                      class="select select-sm w-24 text-xs"
+                      :disabled="isNestedFieldType(field.type)"
+                      :title="isNestedFieldType(field.type) ? t('developer.apps.boardWidgets.formatHintNested') : undefined"
+                    >
                       <option value="">{{ t('developer.apps.boardWidgets.formatAuto') ?? 'Auto' }}</option>
                       <option value="boolean">boolean</option>
                       <option value="number">number</option>
                       <option value="date">date</option>
                       <option value="currency">currency</option>
+                      <option value="json">json</option>
                     </select>
                     <button type="button" class="btn btn-ghost btn-xs btn-square text-error" @click="removeFieldType(fi)">
                       <IconX class="w-3.5 h-3.5" />
@@ -277,12 +320,18 @@
                       type="text"
                       class="input input-sm flex-1 text-xs"
                       :placeholder="t('developer.apps.boardWidgets.fieldLabel') ?? 'Label'"
-                    />
-                    <label class="flex items-center gap-1 cursor-pointer text-xs">
-                      <input v-model="field.required" type="checkbox" class="checkbox checkbox-xs" />
+                    >
+                    <label class="flex items-center gap-1 cursor-pointer text-xs shrink-0">
+                      <input v-model="field.required" type="checkbox" class="checkbox checkbox-xs">
                       {{ t('common.required') ?? 'Required' }}
                     </label>
                   </div>
+                  <p
+                    v-if="isNestedFieldType(field.type)"
+                    class="text-[10px] text-base-content/40 leading-relaxed px-0.5"
+                  >
+                    {{ t('developer.apps.boardWidgets.formatHintNested') }}
+                  </p>
                 </div>
               </div>
               <p v-else class="text-xs text-base-content/40 italic">{{ t('developer.apps.boardWidgets.noFieldTypes') }}</p>
@@ -355,12 +404,25 @@
           </fieldset>
 
           <fieldset class="fieldset">
-            <legend class="fieldset-legend">{{ t('developer.apps.boardWidgets.payload') }}</legend>
+            <legend class="fieldset-legend flex items-center justify-between w-full pr-1">
+              <span>{{ t('developer.apps.boardWidgets.payload') }}</span>
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs"
+                :disabled="!selectedPushWidget"
+                @click="fillSamplePayload"
+              >
+                {{ t('developer.apps.boardWidgets.fillSample') }}
+              </button>
+            </legend>
+            <p class="text-[11px] text-base-content/40 mb-1.5 leading-relaxed">
+              {{ t('developer.apps.boardWidgets.payloadHintNested') }}
+            </p>
             <textarea
               v-model="pushPayloadInput"
-              class="textarea w-full font-mono text-sm"
-              rows="8"
-              placeholder='{ "title": { "value": "Updated from app backend", "label": "Title" }, "show_points": { "value": false, "label": "Show points", "format": "boolean" } }'
+              class="textarea w-full font-mono text-sm leading-relaxed"
+              rows="12"
+              :placeholder="payloadPlaceholder"
             />
           </fieldset>
 
@@ -425,13 +487,19 @@ import {
   IconInfo,
   IconTerminal,
 } from '#components'
-import type { BoardWidgetManifest, BoardWidgetPayload, BoardWidgetValidationError, BoardWidgetPayloadPushResponse } from '~/types/developer'
+import type {
+  BoardWidgetFieldManifest,
+  BoardWidgetManifest,
+  BoardWidgetPayload,
+  BoardWidgetPayloadPushResponse,
+} from '~/types/developer'
 import {
   fetchBoardWidgets,
   createBoardWidget,
   updateBoardWidget,
   deleteBoardWidget,
   pushBoardWidgetPayload,
+  sampleBoardWidgetPayload,
 } from '~/utils/developer'
 
 definePageMeta({ middleware: 'developer' })
@@ -508,6 +576,20 @@ function removeFieldType(index: number) {
   widgetForm.fieldTypes.splice(index, 1)
 }
 
+function isNestedFieldType(type?: string): boolean {
+  const t = (type || '').toLowerCase()
+  return t === 'object' || t === 'array' || t === 'null'
+}
+
+function onFieldTypeChange(field: BoardWidgetFieldManifest) {
+  // Display formats apply to scalar values; nested types use json, null has no format
+  if (field.type === 'object' || field.type === 'array') {
+    field.format = 'json'
+  } else if (field.type === 'null' || field.format === 'json') {
+    field.format = ''
+  }
+}
+
 async function handleSaveWidget() {
   isSavingWidget.value = true
   try {
@@ -563,22 +645,131 @@ const pushForm = reactive({
 })
 const pushPayloadInput = ref('')
 
+const selectedPushWidget = computed(() =>
+  widgets.value.find(w => w.key === pushForm.widgetKey) ?? null,
+)
+
+const payloadPlaceholder = `{
+  "title": {
+    "value": "Updated from app backend",
+    "label": "Title"
+  },
+  "show_points": {
+    "value": false,
+    "label": "Show points",
+    "format": "boolean"
+  },
+  "meta": {
+    "value": {
+      "source": "backend",
+      "tags": ["featured", "live"],
+      "stats": { "views": 120, "likes": 8 }
+    },
+    "label": "Metadata"
+  },
+  "items": {
+    "value": [
+      { "id": 1, "name": "Alpha" },
+      { "id": 2, "name": "Beta", "nested": { "ok": true } }
+    ],
+    "label": "Items"
+  }
+}`
+
 function openPushModal() {
   pushForm.widgetKey = widgets.value.length > 0 ? widgets.value[0]!.key : ''
   pushForm.accountId = ''
   pushForm.boardItemId = ''
-  pushPayloadInput.value = ''
   pushResult.value = null
+  // Prefill sample from selected widget field types (supports object/array values)
+  const first = widgets.value[0]
+  pushPayloadInput.value = first && first.fieldTypes.length > 0
+    ? JSON.stringify(sampleBoardWidgetPayload(first.fieldTypes), null, 2)
+    : ''
   pushModalOpen.value = true
 }
+
+function fillSamplePayload() {
+  const widget = selectedPushWidget.value
+  if (!widget) return
+  pushPayloadInput.value = widget.fieldTypes.length > 0
+    ? JSON.stringify(sampleBoardWidgetPayload(widget.fieldTypes), null, 2)
+    : payloadPlaceholder
+}
+
+/**
+ * Client-side envelope check: each field must be { value: any JSON, label: string, format?: string }.
+ * value may be string | number | boolean | null | object | array (arbitrarily nested).
+ */
+function validateEnvelopePayload(raw: unknown): { ok: true; payload: BoardWidgetPayload } | { ok: false; message: string } {
+  if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+    return { ok: false, message: t('developer.apps.boardWidgets.invalidEnvelope') }
+  }
+  const payload = raw as Record<string, unknown>
+  for (const [key, field] of Object.entries(payload)) {
+    if (field === null || typeof field !== 'object' || Array.isArray(field)) {
+      return {
+        ok: false,
+        message: `${t('developer.apps.boardWidgets.invalidEnvelope')} (${key})`,
+      }
+    }
+    const env = field as Record<string, unknown>
+    if (!('value' in env)) {
+      return {
+        ok: false,
+        message: `${t('developer.apps.boardWidgets.invalidEnvelope')} (${key}: missing value)`,
+      }
+    }
+    // value: any JSON (string | number | boolean | null | object | array)
+    if (!isJsonValue(env.value)) {
+      return {
+        ok: false,
+        message: `${t('developer.apps.boardWidgets.invalidEnvelope')} (${key}: value is not JSON)`,
+      }
+    }
+    if (typeof env.label !== 'string' || !env.label.trim()) {
+      return {
+        ok: false,
+        message: `${t('developer.apps.boardWidgets.invalidEnvelope')} (${key}: label must be a non-empty string)`,
+      }
+    }
+    if (env.format !== undefined && typeof env.format !== 'string') {
+      return {
+        ok: false,
+        message: `${t('developer.apps.boardWidgets.invalidEnvelope')} (${key}: format must be a string)`,
+      }
+    }
+  }
+  return { ok: true, payload: payload as BoardWidgetPayload }
+}
+
+function isJsonValue(v: unknown): boolean {
+  if (v === null) return true
+  const ty = typeof v
+  if (ty === 'string' || ty === 'number' || ty === 'boolean') return true
+  if (ty === 'undefined' || ty === 'function' || ty === 'symbol' || ty === 'bigint') return false
+  if (Array.isArray(v)) return v.every(isJsonValue)
+  if (ty === 'object') {
+    return Object.values(v as Record<string, unknown>).every(isJsonValue)
+  }
+  return false
+}
+
+watch(() => pushForm.widgetKey, (key) => {
+  if (!pushModalOpen.value || !key) return
+  // When switching widgets, refresh sample if textarea still empty
+  if (!pushPayloadInput.value.trim()) {
+    fillSamplePayload()
+  }
+})
 
 async function handlePushPayload() {
   if (!pushForm.widgetKey || !pushForm.accountId) return
   isPushing.value = true
   try {
-    let payload: BoardWidgetPayload
+    let parsed: unknown
     try {
-      payload = JSON.parse(pushPayloadInput.value || '{}')
+      parsed = JSON.parse(pushPayloadInput.value || '{}')
     } catch {
       pushResult.value = {
         success: false,
@@ -591,13 +782,28 @@ async function handlePushPayload() {
       }
       return
     }
+
+    const check = validateEnvelopePayload(parsed)
+    if (!check.ok) {
+      pushResult.value = {
+        success: false,
+        message: check.message,
+        accountId: pushForm.accountId,
+        boardItemId: pushForm.boardItemId || undefined,
+        widgetKey: pushForm.widgetKey,
+        normalizedPayload: null,
+        boardItem: null,
+      }
+      return
+    }
+
     pushResult.value = await pushBoardWidgetPayload(
       appId.value,
       {
         accountId: pushForm.accountId,
         boardItemId: pushForm.boardItemId || undefined,
         widgetKey: pushForm.widgetKey,
-        payload,
+        payload: check.payload,
       },
     )
   } catch (e) {

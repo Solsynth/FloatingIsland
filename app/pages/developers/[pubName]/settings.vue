@@ -1,71 +1,65 @@
 <template>
   <NuxtLayout name="developer">
     <div class="mx-auto max-w-4xl">
-      <h2 class="text-2xl font-bold mb-6">{{ t('developer.settings') }}</h2>
+      <AdminPageHeader :title="t('developer.settings')" />
 
-      <div class="space-y-6">
+      <div class="space-y-5">
         <!-- Developer Info Card -->
-        <div class="card bg-base-100 shadow-sm">
-          <div class="card-body p-5">
-            <h3 class="card-title text-base mb-4">{{ t('developer.settingsDeveloperInfo') }}</h3>
-            <div v-if="developerInfo" class="space-y-4">
-              <div class="flex items-center gap-4">
-                <div class="avatar">
-                  <div class="w-14 rounded-full">
-                    <img
-                      v-if="getFileUrl(developerInfo.publisher?.picture?.id)"
-                      :src="getFileUrl(developerInfo.publisher?.picture?.id)"
-                      :alt="developerInfo.publisher?.nick"
-                    />
-                    <div
-                      v-else
-                      class="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-content text-lg font-bold"
-                    >
-                      {{ developerInfo.publisher?.nick?.slice(0, 2).toUpperCase() }}
-                    </div>
+        <AdminCard :title="t('developer.settingsDeveloperInfo')">
+          <div v-if="developerInfo" class="space-y-4">
+            <div class="flex items-center gap-4">
+              <div class="avatar shrink-0">
+                <div class="w-14 rounded-full">
+                  <img
+                    v-if="getFileUrl(developerInfo.publisher?.picture?.id)"
+                    :src="getFileUrl(developerInfo.publisher?.picture?.id)"
+                    :alt="developerInfo.publisher?.nick"
+                  >
+                  <div
+                    v-else
+                    class="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary text-lg font-bold"
+                  >
+                    {{ developerInfo.publisher?.nick?.slice(0, 2).toUpperCase() }}
                   </div>
                 </div>
-                <div>
-                  <div class="text-lg font-bold">{{ developerInfo.publisher?.nick }}</div>
-                  <div class="text-sm text-base-content/50">@{{ developerInfo.publisher?.name }}</div>
-                </div>
               </div>
-              <div v-if="developerInfo.publisher?.bio" class="text-sm text-base-content/70">
-                {{ developerInfo.publisher.bio }}
-              </div>
-              <div class="text-xs text-base-content/40">
-                {{ t('developer.settingsMemberSince') }}: {{ formatDate(developerInfo.publisher?.createdAt) }}
+              <div class="min-w-0">
+                <div class="text-base font-bold truncate">{{ developerInfo.publisher?.nick }}</div>
+                <div class="text-sm text-base-content/50">@{{ developerInfo.publisher?.name }}</div>
               </div>
             </div>
-            <div v-else class="flex justify-center py-4">
-              <span class="loading loading-spinner loading-md" />
+            <div v-if="developerInfo.publisher?.bio" class="text-sm text-base-content/65 leading-relaxed">
+              {{ developerInfo.publisher.bio }}
+            </div>
+            <div class="text-xs text-base-content/45">
+              {{ t('developer.settingsMemberSince') }}: {{ formatDate(developerInfo.publisher?.createdAt) }}
             </div>
           </div>
-        </div>
+          <div v-else class="flex justify-center py-4">
+            <span class="loading loading-spinner loading-md" />
+          </div>
+        </AdminCard>
 
         <!-- Quick Stats -->
-        <div class="card bg-base-100 shadow-sm">
-          <div class="card-body p-5">
-            <h3 class="card-title text-base mb-4">{{ t('developer.settingsQuickStats') }}</h3>
-            <div v-if="stats" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div class="stat bg-base-200 rounded-box">
-                <div class="stat-title">{{ t('developer.stats.totalCustomApps') }}</div>
-                <div class="stat-value text-primary text-2xl">{{ stats.totalCustomApps }}</div>
-              </div>
-              <div class="stat bg-base-200 rounded-box">
-                <div class="stat-title">{{ t('developer.projects.title') }}</div>
-                <div class="stat-value text-secondary text-2xl">{{ stats.totalProjects ?? 0 }}</div>
-              </div>
-              <div class="stat bg-base-200 rounded-box">
-                <div class="stat-title">{{ t('developer.bots.title') }}</div>
-                <div class="stat-value text-accent text-2xl">{{ stats.totalBots ?? 0 }}</div>
-              </div>
+        <AdminCard :title="t('developer.settingsQuickStats')">
+          <div v-if="stats" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="rounded-xl bg-base-200/60 border border-base-300/40 px-4 py-3">
+              <div class="text-xs text-base-content/45 mb-1">{{ t('developer.stats.totalCustomApps') }}</div>
+              <div class="text-2xl font-bold text-primary tabular-nums">{{ stats.totalCustomApps }}</div>
             </div>
-            <div v-else class="flex justify-center py-4">
-              <span class="loading loading-spinner loading-md" />
+            <div class="rounded-xl bg-base-200/60 border border-base-300/40 px-4 py-3">
+              <div class="text-xs text-base-content/45 mb-1">{{ t('developer.projects.title') }}</div>
+              <div class="text-2xl font-bold text-secondary tabular-nums">{{ stats.totalProjects ?? 0 }}</div>
+            </div>
+            <div class="rounded-xl bg-base-200/60 border border-base-300/40 px-4 py-3">
+              <div class="text-xs text-base-content/45 mb-1">{{ t('developer.bots.title') }}</div>
+              <div class="text-2xl font-bold text-accent tabular-nums">{{ stats.totalBots ?? 0 }}</div>
             </div>
           </div>
-        </div>
+          <div v-else class="flex justify-center py-4">
+            <span class="loading loading-spinner loading-md" />
+          </div>
+        </AdminCard>
       </div>
     </div>
   </NuxtLayout>

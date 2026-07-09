@@ -1,16 +1,16 @@
 <template>
-  <form @submit.prevent="handleSubmit">
+  <form class="portal-form" @submit.prevent="handleSubmit">
     <AdminCard
       :title="feed ? 'Edit Feed' : 'New Feed'"
       description="Import content from external RSS/Atom feeds"
-      class="mb-6"
+      class="mb-5"
     >
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 fieldset-row">
         <!-- Title -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend">
             Title
-            <span class="text-xs text-error">*</span>
+            <span class="text-error">*</span>
           </legend>
           <input
             v-model="form.title"
@@ -18,14 +18,14 @@
             class="input w-full"
             placeholder="My News Feed"
             required
-          />
+          >
         </fieldset>
 
         <!-- URL -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend">
             {{ t('creator.feeds.url') }}
-            <span class="text-xs text-error">*</span>
+            <span class="text-error">*</span>
           </legend>
           <input
             v-model="form.url"
@@ -33,16 +33,16 @@
             class="input w-full font-mono text-sm"
             placeholder="https://example.com/feed"
             required
-          />
+          >
         </fieldset>
       </div>
 
       <!-- Description -->
-      <fieldset class="fieldset mt-2">
+      <fieldset class="fieldset">
         <legend class="fieldset-legend">{{ t('creator.collections.description') }}</legend>
         <textarea
           v-model="form.description"
-          class="textarea w-full min-h-[80px]"
+          class="textarea w-full min-h-[80px] leading-relaxed"
           rows="3"
           placeholder="Describe this feed..."
         />
@@ -50,18 +50,18 @@
 
       <!-- Scrape toggle -->
       <div class="form-control mt-4">
-        <label class="flex items-start gap-3 p-4 rounded-xl bg-base-200/60 border border-base-300/30 cursor-pointer hover:bg-base-200/80 transition-colors">
-          <input v-model="form.scrapPage" type="checkbox" class="toggle toggle-primary toggle-sm mt-0.5" />
-          <div>
+        <label class="portal-setting-row cursor-pointer hover:bg-base-200 transition-colors duration-150">
+          <div class="min-w-0">
             <div class="text-sm font-medium">{{ t('creator.feeds.scrapPage') }}</div>
-            <div class="text-xs text-base-content/40 mt-0.5">{{ t('creator.feeds.scrapPageHint') }}</div>
+            <div class="text-xs text-base-content/45 mt-0.5 leading-relaxed">{{ t('creator.feeds.scrapPageHint') }}</div>
           </div>
+          <input v-model="form.scrapPage" type="checkbox" class="toggle toggle-primary toggle-sm shrink-0" />
         </label>
       </div>
     </AdminCard>
 
     <!-- Actions -->
-    <div class="flex items-center justify-between gap-3">
+    <div class="portal-form-actions">
       <div class="flex items-center gap-2">
         <button
           v-if="feed"

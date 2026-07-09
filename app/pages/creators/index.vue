@@ -2,178 +2,179 @@
   <NuxtLayout name="creator">
     <div class="mx-auto max-w-4xl">
       <!-- Quota Card -->
-      <div v-if="quota" class="card bg-base-100 shadow-sm mb-6">
-        <div class="card-body p-5">
-          <div class="flex items-center justify-between mb-1">
-            <h3 class="text-lg font-bold">
-              {{
-                t("creator.quota.used", {
-                  used: quota.used,
-                  total: quota.total,
-                })
-              }}
-            </h3>
-          </div>
-          <progress
-            class="progress progress-primary w-full"
-            :value="quota.used"
-            :max="quota.total"
-          />
+      <AdminCard v-if="quota" class="mb-5" compact>
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-sm font-semibold">
+            {{
+              t("creator.quota.used", {
+                used: quota.used,
+                total: quota.total,
+              })
+            }}
+          </h3>
         </div>
-      </div>
+        <progress
+          class="progress progress-primary w-full h-2"
+          :value="quota.used"
+          :max="quota.total"
+        />
+      </AdminCard>
 
       <!-- Managed Publishers -->
-      <div class="card bg-base-100 shadow-sm">
-        <div class="card-body p-4">
-          <div v-if="isLoading" class="flex justify-center py-8">
+      <AdminCard no-padding>
+        <div class="p-2">
+          <div v-if="isLoading" class="flex justify-center py-10">
             <span class="loading loading-spinner loading-lg" />
           </div>
 
           <template v-else>
             <!-- Publisher List -->
-            <div v-if="managedPublishers.length > 0" class="space-y-1">
+            <div v-if="managedPublishers.length > 0" class="space-y-0.5">
               <NuxtLink
                 v-for="pub in managedPublishers"
                 :key="pub.id"
                 :to="`/creators/${pub.name}`"
-                class="flex items-center gap-4 rounded-xl p-3 transition-colors hover:bg-base-200"
+                class="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors duration-150 hover:bg-base-200"
               >
-                <div class="avatar">
+                <div class="avatar shrink-0">
                   <div class="w-10 rounded-full">
                     <img
                       v-if="getFileUrl(pub.picture?.id)"
                       :src="getFileUrl(pub.picture?.id)"
                       :alt="pub.nick"
-                    />
+                    >
                     <div
                       v-else
-                      class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-content text-sm font-bold"
+                      class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-bold"
                     >
                       {{ pub.nick?.slice(0, 2).toUpperCase() }}
                     </div>
                   </div>
                 </div>
                 <div class="min-w-0 flex-1">
-                  <div class="font-medium">{{ pub.nick }}</div>
-                  <div class="text-sm text-base-content/50">
+                  <div class="font-medium text-sm">{{ pub.nick }}</div>
+                  <div class="text-xs text-base-content/50">
                     @{{ pub.name }}
                   </div>
                 </div>
-                <IconChevronRight class="w-5 h-5 text-base-content/30" />
+                <IconChevronRight class="w-4 h-4 text-base-content/30" />
               </NuxtLink>
             </div>
 
             <!-- Empty State -->
-            <div v-else class="flex flex-col items-center py-8 text-center">
-              <IconInfo class="w-12 h-12 text-base-content/20 mb-4" />
-              <p class="text-base-content/60 mb-4">
+            <div v-else class="flex flex-col items-center py-10 text-center px-4">
+              <IconInfo class="w-10 h-10 text-base-content/20 mb-3" />
+              <p class="text-sm text-base-content/55">
                 {{ t("creator.noResults") }}
               </p>
             </div>
 
-            <div class="divider my-1" />
+            <div class="divider my-1 mx-3" />
 
             <!-- Invites -->
             <NuxtLink
               to="/creators"
-              class="flex items-center gap-4 rounded-xl p-3 transition-colors hover:bg-base-200"
+              class="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors duration-150 hover:bg-base-200"
             >
-              <div class="avatar avatar-placeholder">
+              <div class="avatar avatar-placeholder shrink-0">
                 <div
-                  class="w-10 rounded-full bg-secondary text-secondary-content"
+                  class="w-10 rounded-full bg-secondary/15 text-secondary"
                 >
                   <IconMail class="w-5 h-5" />
                 </div>
               </div>
               <div class="min-w-0 flex-1">
-                <div class="font-medium">{{ t("creator.invites.title") }}</div>
-                <div class="text-sm text-base-content/50">
+                <div class="font-medium text-sm">{{ t("creator.invites.title") }}</div>
+                <div class="text-xs text-base-content/50">
                   {{ t("creator.invites.count", { count: invites.length }) }}
                 </div>
               </div>
-              <IconChevronRight class="w-5 h-5 text-base-content/30" />
+              <IconChevronRight class="w-4 h-4 text-base-content/30" />
             </NuxtLink>
 
             <!-- Create Publisher -->
             <button
-              class="flex w-full items-center gap-4 rounded-xl p-3 transition-colors hover:bg-base-200"
+              type="button"
+              class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 transition-colors duration-150 hover:bg-base-200"
               @click="openCreateModal"
             >
-              <div class="avatar avatar-placeholder">
-                <div class="w-10 rounded-full bg-primary text-primary-content">
+              <div class="avatar avatar-placeholder shrink-0">
+                <div class="w-10 rounded-full bg-primary/10 text-primary">
                   <IconPlus class="w-5 h-5" />
                 </div>
               </div>
               <div class="text-left min-w-0 flex-1">
-                <div class="font-medium">
+                <div class="font-medium text-sm">
                   {{ t("creator.createPublisher") }}
                 </div>
               </div>
-              <IconChevronRight class="w-5 h-5 text-base-content/30" />
+              <IconChevronRight class="w-4 h-4 text-base-content/30" />
             </button>
           </template>
         </div>
-      </div>
+      </AdminCard>
 
       <!-- Invites Sheet -->
-      <div v-if="invites.length > 0" class="card bg-base-100 shadow-sm mt-4">
-        <div class="card-body p-4">
-          <h3 class="card-title text-base mb-2">
-            {{ t("creator.invites.title") }}
-          </h3>
-          <div class="space-y-2">
-            <div
-              v-for="invite in invites"
-              :key="invite.id"
-              class="flex items-center gap-3 rounded-lg p-3 bg-base-200"
-            >
-              <div class="avatar">
-                <div class="w-9 rounded-full">
-                  <img
-                    v-if="getFileUrl(invite.publisher?.picture?.id)"
-                    :src="getFileUrl(invite.publisher?.picture?.id)"
-                    :alt="invite.publisher?.nick"
-                  />
-                  <div
-                    v-else
-                    class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-content text-xs font-bold"
-                  >
-                    {{ invite.publisher?.nick?.slice(0, 2).toUpperCase() }}
-                  </div>
-                </div>
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="font-medium text-sm">
-                  {{ invite.publisher?.nick }}
-                </div>
-                <div class="text-xs text-base-content/50">
-                  {{
-                    invite.role >= 100
-                      ? t("creator.members.owner")
-                      : invite.role >= 50
-                        ? t("creator.members.moderator")
-                        : t("creator.members.member")
-                  }}
-                </div>
-              </div>
-              <div class="flex gap-1">
-                <button
-                  class="btn btn-success btn-xs"
-                  @click="handleAcceptInvite(invite.publisher!.name)"
+      <AdminCard
+        v-if="invites.length > 0"
+        class="mt-4"
+        :title="t('creator.invites.title')"
+        compact
+      >
+        <div class="space-y-2">
+          <div
+            v-for="invite in invites"
+            :key="invite.id"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 bg-base-200/60 border border-base-300/40"
+          >
+            <div class="avatar shrink-0">
+              <div class="w-9 rounded-full">
+                <img
+                  v-if="getFileUrl(invite.publisher?.picture?.id)"
+                  :src="getFileUrl(invite.publisher?.picture?.id)"
+                  :alt="invite.publisher?.nick"
                 >
-                  <IconCheck class="w-3 h-3" />
-                </button>
-                <button
-                  class="btn btn-ghost btn-xs"
-                  @click="handleDeclineInvite(invite.publisher!.name)"
+                <div
+                  v-else
+                  class="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold"
                 >
-                  <IconX class="w-3 h-3" />
-                </button>
+                  {{ invite.publisher?.nick?.slice(0, 2).toUpperCase() }}
+                </div>
               </div>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="font-medium text-sm">
+                {{ invite.publisher?.nick }}
+              </div>
+              <div class="text-xs text-base-content/50">
+                {{
+                  invite.role >= 100
+                    ? t("creator.members.owner")
+                    : invite.role >= 50
+                      ? t("creator.members.moderator")
+                      : t("creator.members.member")
+                }}
+              </div>
+            </div>
+            <div class="flex gap-1 shrink-0">
+              <button
+                type="button"
+                class="btn btn-success btn-xs"
+                @click="handleAcceptInvite(invite.publisher!.name)"
+              >
+                <IconCheck class="w-3 h-3" />
+              </button>
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs"
+                @click="handleDeclineInvite(invite.publisher!.name)"
+              >
+                <IconX class="w-3 h-3" />
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      </AdminCard>
 
       <!-- Create Publisher Drawer -->
       <AdminDrawer
@@ -189,13 +190,11 @@
     </div>
 
     <template #rightbar>
-      <div class="card bg-base-100 shadow-sm min-h-full rounded-none">
-        <div class="card-body p-4">
-          <h3 class="font-semibold text-sm mb-3">{{ t("creator.title") }}</h3>
-          <p class="text-xs text-base-content/60">
-            {{ t("creator.quota.info") }}
-          </p>
-        </div>
+      <div class="min-h-full bg-base-100 border-l border-base-300/40 p-5">
+        <h3 class="font-semibold text-sm mb-2">{{ t("creator.title") }}</h3>
+        <p class="text-xs text-base-content/55 leading-relaxed">
+          {{ t("creator.quota.info") }}
+        </p>
       </div>
     </template>
   </NuxtLayout>

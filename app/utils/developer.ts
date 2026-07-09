@@ -14,6 +14,7 @@ import type {
   BoardWidgetPayloadPushRequest,
   BoardWidgetPayloadPushResponse,
   BoardAppDiscoveryResponse,
+  BoardJsonValue,
 } from '~/types/developer'
 import { apiFetch, safeJsonParse } from '~/utils/api'
 import { camelToSnake } from '~/utils/case'
@@ -637,7 +638,68 @@ export function getBoardPushApiInfo(appId: string): BoardPushApiInfo {
           label: 'Show points',
           format: 'boolean',
         },
+        // value may be any JSON (object / array / nested)
+        meta: {
+          value: {
+            source: 'backend',
+            tags: ['featured', 'live'],
+            stats: { views: 120, likes: 8 },
+          },
+          label: 'Metadata',
+        },
+        items: {
+          value: [
+            { id: 1, name: 'Alpha' },
+            { id: 2, name: 'Beta', nested: { ok: true } },
+          ],
+          label: 'Items',
+        },
       },
     },
+  }
+}
+
+/**
+ * Build a sample envelope payload from a widget's field type declarations.
+ * `value` is filled with a representative JSON value for each declared type,
+ * including nested objects/arrays when applicable.
+ */
+export function sampleBoardWidgetPayload(
+  fieldTypes: Array<{ name: string; type?: string; label?: string; format?: string }>,
+): BoardWidgetPayload {
+  const payload: BoardWidgetPayload = {}
+  for (const field of fieldTypes) {
+    const name = field.name?.trim()
+    if (!name) continue
+    payload[name] = {
+      value: sampleValueForFieldType(field.type),
+      label: field.label?.trim() || name,
+      ...(field.format ? { format: field.format } : {}),
+    }
+  }
+  return payload
+}
+
+function sampleValueForFieldType(type?: string): BoardJsonValue {
+  switch ((type || 'string').toLowerCase()) {
+    case 'number':
+      return 42
+    case 'boolean':
+      return true
+    case 'null':
+      return null
+    case 'array':
+      return [
+        { id: 1, name: 'Item A' },
+        { id: 2, name: 'Item B', nested: { ok: true } },
+      ]
+    case 'object':
+      return {
+        nested: { key: 'value', count: 1 },
+        tags: ['a', 'b'],
+        enabled: true,
+      }
+    default:
+      return 'example'
   }
 }

@@ -3,18 +3,18 @@
     <!-- Desktop Admin Layout -->
     <div class="hidden lg:flex min-h-screen">
       <!-- Sidebar -->
-      <aside class="fixed left-0 top-0 bottom-0 w-[20rem] z-40 overflow-y-auto scrollbar-none">
+      <aside class="fixed left-0 top-0 bottom-0 w-[16.5rem] z-40 overflow-y-auto scrollbar-none">
         <MerchantSidebar />
       </aside>
 
       <!-- Main Area -->
-      <div class="ml-[20rem] flex-1 flex flex-col min-h-screen max-h-screen" :class="{ 'mr-[22rem]': $slots.rightbar }">
+      <div class="ml-[16.5rem] flex-1 flex flex-col min-h-screen max-h-screen" :class="{ 'mr-[22rem]': $slots.rightbar }">
         <!-- Header -->
         <AdminHeader :breadcrumbs="breadcrumbs" :page-title="pageTitle" />
 
         <!-- Content -->
         <div class="flex-1 flex min-h-0">
-          <main class="flex-1 min-w-0 overflow-y-auto px-6 py-6 scrollbar-none">
+          <main class="flex-1 min-w-0 overflow-y-auto px-5 py-5 lg:px-6 lg:py-6 scrollbar-none">
             <div class="mx-auto" :class="contentWidthClass">
               <slot />
             </div>
@@ -35,16 +35,17 @@
     <div class="lg:hidden flex flex-col min-h-screen">
       <!-- Mobile Header -->
       <header
-        class="fixed top-0 left-0 right-0 z-50 border-b border-base-300/50 bg-base-100/95 backdrop-blur-xl"
+        class="fixed top-0 left-0 right-0 z-50 border-b border-base-300/50 bg-base-100/95 backdrop-blur-md"
       >
         <div class="flex h-14 items-center justify-between px-4">
           <NuxtLink to="/merchants" class="btn btn-circle btn-ghost btn-sm">
             <IconArrowLeft class="w-5 h-5" />
           </NuxtLink>
-          <span class="text-sm font-semibold">{{
+          <span class="text-sm font-semibold truncate px-2">{{
             publisherName || t("merchant.title")
           }}</span>
           <button
+            type="button"
             class="btn btn-circle btn-ghost btn-sm"
             @click="mobileMenuOpen = !mobileMenuOpen"
           >
@@ -66,7 +67,7 @@
       <Transition name="drawer-slide">
         <div
           v-if="mobileMenuOpen"
-          class="fixed right-0 top-14 bottom-0 z-50 w-72 bg-base-100 p-4 overflow-y-auto shadow-xl scrollbar-none"
+          class="fixed right-0 top-14 bottom-0 z-50 w-72 bg-base-100 overflow-y-auto shadow-xl border-l border-base-300/50 scrollbar-none"
           @click.stop
         >
           <MerchantSidebar @navigate="mobileMenuOpen = false" />
@@ -74,7 +75,7 @@
       </Transition>
 
       <!-- Mobile Main Content -->
-      <main class="flex-1 px-4 py-3 pt-[4.5rem]">
+      <main class="flex-1 px-4 py-4 pt-[4.5rem]">
         <slot />
       </main>
     </div>
