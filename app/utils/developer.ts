@@ -8,6 +8,12 @@ import type {
   Bot,
   BotKey,
   BotChatConfig,
+  BoardWidgetManifest,
+  BoardWidgetPayload,
+  BoardWidgetValidationError,
+  BoardWidgetPayloadPushRequest,
+  BoardWidgetPayloadPushResponse,
+  BoardAppDiscoveryResponse,
 } from '~/types/developer'
 import { apiFetch, safeJsonParse } from '~/utils/api'
 import { camelToSnake } from '~/utils/case'
@@ -464,4 +470,171 @@ export async function updateBotChatConfig(
     },
   )
   return safeJsonParse<BotChatConfig>(response)
+}
+
+// ==================== Board Widget Config (App) ====================
+
+export async function fetchBoardWidgets(
+  publisherName: string,
+  projectId: string,
+  appId: string,
+): Promise<BoardWidgetManifest[]> {
+  try {
+    const app = await fetchCustomApp(publisherName, projectId, appId)
+    return app?.boardWidgets || []
+  } catch {
+    return []
+  }
+}
+
+// ==================== Public Board Widget Discovery ====================
+
+export async function discoverBoardWidgets(options?: {
+  slug?: string
+  take?: number
+  offset?: number
+}): Promise<BoardAppDiscoveryResponse[]> {
+  const params = new URLSearchParams()
+  if (options?.slug) params.set('slug', options.slug)
+  if (options?.take) params.set('take', String(options.take))
+  if (options?.offset) params.set('offset', String(options.offset))
+  const query = params.toString()
+  const response = await apiFetch(
+    `/develop/apps/board${query ? `?${query}` : ''}`,
+    { skipAuth: true },
+  )
+  return safeJsonParse<BoardAppDiscoveryResponse[]>(response)
+}
+
+export async function createBoardWidget(
+  publisherName: string,
+  projectId: string,
+  appId: string,
+  data: BoardWidgetManifest,
+): Promise<BoardWidgetManifest> {
+  const response = await apiFetch(
+    `/develop/private/apps/${encodeURIComponent(appId)}/board?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
+    {
+      method: 'POST',
+      body: JSON.stringify(camelToSnake(data)),
+    },
+  )
+  return safeJsonParse<BoardWidgetManifest>(response)
+}
+
+export async function updateBoardWidget(
+  publisherName: string,
+  projectId: string,
+  appId: string,
+  widgetKey: string,
+  data: BoardWidgetManifest,
+): Promise<BoardWidgetManifest> {
+  const response = await apiFetch(
+    `/develop/private/apps/${encodeURIComponent(appId)}/board/${encodeURIComponent(widgetKey)}?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(camelToSnake(data)),
+    },
+  )
+  return safeJsonParse<BoardWidgetManifest>(response)
+}
+
+export async function deleteBoardWidget(
+  publisherName: string,
+  projectId: string,
+  appId: string,
+  widgetKey: string,
+): Promise<void> {
+  await apiFetch(
+    `/develop/private/apps/${encodeURIComponent(appId)}/board/${encodeURIComponent(widgetKey)}?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
+    { method: 'DELETE' },
+  )
+}
+
+// ==================== Account Board Items ====================
+
+export interface AccountBoardItem {
+  id: string
+  accountId?: string
+  order: number
+  kind: 'prebuilt' | 'custom_app'
+  widgetKey: string
+  customAppId?: string | null
+  customAppWidgetKey?: string | null
+  isEnabled: boolean
+  payload: BoardWidgetPayload
+}
+
+export async function fetchAccountBoard(): Promise<AccountBoardItem[]> {
+  const response = await apiFetch('/passport/accounts/me/board')
+  return safeJsonParse<AccountBoardItem[]>(response)
+}
+
+export async function updateAccountBoard(
+  items: Omit<AccountBoardItem, 'id' | 'accountId'>[],
+): Promise<AccountBoardItem[]> {
+  const response = await apiFetch('/passport/accounts/me/board', {
+    method: 'PUT',
+    body: JSON.stringify(camelToSnake(items)),
+  })
+  return safeJsonParse<AccountBoardItem[]>(response)
+}
+
+// ==================== Board Widget Payload Push (App Backend) ====================
+
+/**
+ * Push a board widget payload update from the custom app backend.
+ * Authenticates via a custom app API secret.
+ * The endpoint lives in Develop, validates the payload against the widget manifest,
+ * and forwards the normalized payload to Passport via gRPC.
+ */
+export async function pushBoardWidgetPayload(
+  appId: string,
+  data: BoardWidgetPayloadPushRequest,
+): Promise<BoardWidgetPayloadPushResponse> {
+  const response = await apiFetch(
+    `/develop/private/apps/${encodeURIComponent(appId)}/board/payload`,
+    {
+      method: 'POST',
+      body: JSON.stringify(camelToSnake(data)),
+    },
+  )
+  return safeJsonParse<BoardWidgetPayloadPushResponse>(response)
+}
+
+export interface BoardPushApiInfo {
+  method: string
+  endpoint: string
+  authHeader: string
+  authExample: string
+  exampleBody: {
+    account_id: string
+    board_item_id?: string
+    widget_key: string
+    payload: Record<string, unknown>
+  }
+}
+
+export function getBoardPushApiInfo(appId: string): BoardPushApiInfo {
+  return {
+    method: 'POST',
+    endpoint: `/develop/private/apps/${appId}/board/payload`,
+    authHeader: 'Authorization: Bearer <custom_app_secret>',
+    authExample: 'Authorization: Bearer sk_live_xxxxx',
+    exampleBody: {
+      account_id: '550e8400-e29b-41d4-a716-446655440000',
+      widget_key: 'summary_card',
+      payload: {
+        title: {
+          value: 'Updated from app backend',
+          label: 'Title',
+        },
+        show_points: {
+          value: false,
+          label: 'Show points',
+          format: 'boolean',
+        },
+      },
+    },
+  }
 }

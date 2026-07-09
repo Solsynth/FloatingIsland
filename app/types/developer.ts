@@ -50,6 +50,7 @@ export interface CustomApp {
   secrets: CustomAppSecret[]
   publisherId: string
   paymentWalletId: string | null
+  boardWidgets: BoardWidgetManifest[]
 }
 
 export interface CustomAppVerificationMark {
@@ -167,6 +168,94 @@ export interface BotWebhook {
   secret?: string
   events: string[]
   isActive: boolean
+}
+
+// ==================== Board Widgets ====================
+
+export interface BoardWidgetFieldManifest {
+  name: string
+  type: string
+  label: string
+  format?: string
+  required: boolean
+}
+
+export interface BoardWidgetManifest {
+  key: string
+  slug?: string
+  isEnabled: boolean
+  rendererType: string
+  fieldTypes: BoardWidgetFieldManifest[]
+  requiredFields: string[]
+  maxPayloadBytes: number
+  allowMultiple: boolean
+}
+
+/**
+ * Universal payload envelope — every payload field MUST use this shape.
+ * Enforced on every write path (PUT /board, POST /board/payload, gRPC).
+ */
+export interface BoardFieldValueEnvelope {
+  value: unknown
+  label: string
+  format?: string
+}
+
+export type BoardWidgetPayload = Record<string, BoardFieldValueEnvelope>
+
+export interface BoardWidgetValidationError {
+  valid: boolean
+  message: string
+  normalizedPayload: BoardWidgetPayload | null
+}
+
+export interface BoardWidgetPayloadPushRequest {
+  accountId: string
+  boardItemId?: string
+  widgetKey: string
+  payload: BoardWidgetPayload
+}
+
+export interface BoardWidgetPayloadPushResponse {
+  success: boolean
+  message: string
+  accountId: string
+  boardItemId: string
+  widgetKey: string
+  normalizedPayload: BoardWidgetPayload | null
+  boardItem: AccountBoardPushItem | null
+}
+
+export interface BoardWidgetDiscoveryItem {
+  id: string
+  slug: string
+  isEnabled: boolean
+  rendererType: string
+  key: string
+  fieldTypes: BoardWidgetFieldManifest[]
+  requiredFields: string[]
+  maxPayloadBytes: number
+  allowMultiple: boolean
+}
+
+export interface BoardAppDiscoveryResponse {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  publisherName: string
+  boardWidgets: BoardWidgetDiscoveryItem[]
+}
+
+export interface AccountBoardPushItem {
+  id: string
+  order: number
+  kind: string
+  widgetKey: string
+  customAppId: string
+  customAppWidgetKey: string
+  isEnabled: boolean
+  payload: BoardWidgetPayload
 }
 
 // ==================== Custom App Notifications ====================

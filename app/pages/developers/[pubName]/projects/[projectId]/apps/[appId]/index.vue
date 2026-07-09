@@ -246,6 +246,49 @@
             </div>
           </div>
 
+          <!-- Board Widgets Section -->
+          <div class="card bg-base-100 shadow-sm">
+            <div class="card-body p-4 flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="card-title text-base">
+                  <IconLayoutDashboard class="w-5 h-5" />
+                  {{ t('developer.apps.boardWidgets.title') }}
+                </h3>
+                <NuxtLink :to="`/developers/${pubName}/projects/${projectId}/apps/${appId}/board-widgets`" class="btn btn-primary btn-sm">
+                  <IconSettings class="w-4 h-4" />
+                  {{ t('developer.apps.boardWidgets.manage') }}
+                </NuxtLink>
+              </div>
+              <div class="space-y-2 flex-1">
+                <div v-if="app.boardWidgets && app.boardWidgets.length > 0" class="space-y-1.5">
+                  <div
+                    v-for="widget in app.boardWidgets"
+                    :key="widget.key"
+                    class="flex items-center gap-3 rounded-lg px-3 py-2 bg-base-200/60"
+                  >
+                    <span
+                      class="badge badge-xs"
+                      :class="widget.isEnabled ? 'badge-success' : 'badge-ghost'"
+                    >
+                      {{ widget.isEnabled ? t('common.active') ?? 'Active' : t('common.disabled') ?? 'Disabled' }}
+                    </span>
+                    <code class="text-xs font-mono text-base-content/70">{{ widget.key }}</code>
+                    <span class="text-xs text-base-content/40">{{ widget.rendererType }}</span>
+                    <span v-if="!widget.allowMultiple" class="badge badge-xs badge-info">{{ t('developer.apps.boardWidgets.singleton') ?? 'Singleton' }}</span>
+                  </div>
+                </div>
+                <div v-else class="flex items-center justify-center py-4 rounded-lg bg-base-200/30">
+                  <p class="text-sm text-base-content/40">{{ t('developer.apps.boardWidgets.noWidgets') }}</p>
+                </div>
+                <div class="rounded-xl bg-info/5 border border-info/10 p-2.5 mt-2">
+                  <p class="text-[11px] text-info/70 leading-relaxed">
+                    {{ t('developer.apps.boardWidgets.scopeHint') }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </template>
 
@@ -556,6 +599,8 @@ import {
   IconCamera,
   IconCopy,
   IconFlaskConical,
+  IconLayoutDashboard,
+  IconSettings,
 } from '#components'
 import { getFileUrl } from '~/utils/files'
 import type { SnCloudFile } from '~/types/drive'
