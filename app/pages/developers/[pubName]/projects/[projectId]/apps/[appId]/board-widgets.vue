@@ -479,7 +479,7 @@ async function loadWidgets() {
   try {
     widgets.value = await fetchBoardWidgets(pubName.value, projectId.value, appId.value)
   } catch (e) {
-    console.error(e)
+    console.error('[board-widgets] Failed to load widgets:', e)
   } finally {
     isLoading.value = false
   }

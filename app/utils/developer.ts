@@ -480,9 +480,12 @@ export async function fetchBoardWidgets(
   appId: string,
 ): Promise<BoardWidgetManifest[]> {
   try {
-    const app = await fetchCustomApp(publisherName, projectId, appId)
-    return app?.boardWidgets || []
-  } catch {
+    const response = await apiFetch(
+      `/develop/private/apps/${encodeURIComponent(appId)}/board?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,
+    )
+    return safeJsonParse<BoardWidgetManifest[]>(response)
+  } catch (e) {
+    console.error('[Developer] fetchBoardWidgets failed:', e)
     return []
   }
 }
