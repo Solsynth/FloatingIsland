@@ -122,9 +122,17 @@ export async function apiFetch(
   const url = `${API_BASE_URL}${endpoint}`;
   const { skipAuth = false, retryCount = 0, ...fetchOptions } = options;
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
     ...((fetchOptions.headers as Record<string, string>) || {}),
   };
+  // Let the browser add the multipart boundary for file uploads.
+  if (
+    !(
+      typeof FormData !== "undefined" && fetchOptions.body instanceof FormData
+    ) &&
+    !headers["Content-Type"]
+  ) {
+    headers["Content-Type"] = "application/json";
+  }
 
   // SSR: Forward cookies from incoming request
   if (import.meta.server) {
@@ -502,7 +510,9 @@ export async function payOrder(
   return safeJsonParse<WalletOrder>(response);
 }
 
-export async function fetchStoreProducts(appSlug: string): Promise<AppProduct[]> {
+export async function fetchStoreProducts(
+  appSlug: string,
+): Promise<AppProduct[]> {
   const response = await apiFetch(
     `/develop/apps/${encodeURIComponent(appSlug)}/products`,
   );

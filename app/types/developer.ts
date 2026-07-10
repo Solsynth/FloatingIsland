@@ -1,208 +1,258 @@
-import type { FileAttachment } from './post'
+import type { FileAttachment } from "./post";
 
 export interface Developer {
-  id: string
-  publisherId: string
-  publisher?: DeveloperPublisher | null
+  id: string;
+  publisherId: string;
+  publisher?: DeveloperPublisher | null;
 }
 
 export interface DeveloperPublisher {
-  id: string
-  name: string
-  nick: string
-  bio: string | null
-  picture: FileAttachment | null
-  background: FileAttachment | null
-  type: number
-  realmId: string | null
-  createdAt: string
+  id: string;
+  name: string;
+  nick: string;
+  bio: string | null;
+  picture: FileAttachment | null;
+  background: FileAttachment | null;
+  type: number;
+  realmId: string | null;
+  createdAt: string;
 }
 
 export interface DeveloperStats {
-  totalCustomApps: number
-  totalBots: number
-  totalProjects: number
+  totalCustomApps: number;
+  totalBots: number;
+  totalProjects: number;
 }
 
 export interface DevProject {
-  id: string
-  slug: string
-  name: string
-  description: string
-  developer: Developer
-  developerId: string
-  createdAt: string
-  updatedAt: string
-  deletedAt: string | null
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  developer: Developer;
+  developerId: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
 }
 
 export interface CustomApp {
-  id: string
-  slug: string
-  name: string
-  description: string | null
-  status: number
-  picture: FileAttachment | null
-  background: FileAttachment | null
-  verification: CustomAppVerificationMark | null
-  oauthConfig: CustomAppOauthConfig | null
-  links: CustomAppLinks | null
-  secrets: CustomAppSecret[]
-  publisherId: string
-  paymentWalletId: string | null
-  boardWidgets: BoardWidgetManifest[]
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  status: number;
+  picture: FileAttachment | null;
+  background: FileAttachment | null;
+  verification: CustomAppVerificationMark | null;
+  oauthConfig: CustomAppOauthConfig | null;
+  links: CustomAppLinks | null;
+  secrets: CustomAppSecret[];
+  publisherId: string;
+  paymentWalletId: string | null;
+  boardWidgets: BoardWidgetManifest[];
+}
+
+export interface PluginManifest {
+  id: string;
+  name: string;
+  version?: string;
+  author?: string;
+  description?: string;
+  entry?: string;
+  permissions?: string[];
+  background?: boolean;
+  icon?: string;
+  homepage?: string;
+  [key: string]: unknown;
+}
+
+export interface MiniApp {
+  id: string;
+  slug: string;
+  stage: number;
+  manifest: PluginManifest;
+  pluginId?: string;
+  name?: string;
+  version?: string;
+  author?: string;
+  description?: string | null;
+  homepage?: string | null;
+  packageKey?: string | null;
+  packageStorageKey?: string | null;
+  packageUrl?: string | null;
+  packageFileName?: string | null;
+  packageContentType?: string | null;
+  packageSize?: number | null;
+  packageSha256?: string | null;
+  icon?: FileAttachment | null;
+  background?: FileAttachment | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface PluginPackageResult {
+  key: string;
+  url?: string | null;
+  fileName: string;
+  contentType: string;
+  size: number;
+  sha256: string;
+}
+
+export interface MarketplacePlugin extends MiniApp {
+  publisher?: DeveloperPublisher | null;
 }
 
 export interface CustomAppVerificationMark {
-  verified: boolean
-  grade: string | null
+  verified: boolean;
+  grade: string | null;
 }
 
 export interface CustomAppLinks {
-  homePage: string | null
-  privacyPolicy: string | null
-  termsOfService: string | null
+  homePage: string | null;
+  privacyPolicy: string | null;
+  termsOfService: string | null;
 }
 
 export interface CustomAppOauthConfig {
-  clientUri: string | null
-  redirectUris: string[]
-  postLogoutRedirectUris: string[] | null
-  allowedScopes: string[]
-  allowedGrantTypes: string[]
-  requirePkce: boolean
-  allowOfflineAccess: boolean
-  isPublicClient: boolean
+  clientUri: string | null;
+  redirectUris: string[];
+  postLogoutRedirectUris: string[] | null;
+  allowedScopes: string[];
+  allowedGrantTypes: string[];
+  requirePkce: boolean;
+  allowOfflineAccess: boolean;
+  isPublicClient: boolean;
 }
 
 export interface CustomAppSecret {
-  id: string
-  secret?: string | null
-  description: string | null
-  type: number
-  appId: string
-  createdAt: string
-  updatedAt: string
+  id: string;
+  secret?: string | null;
+  description: string | null;
+  type: number;
+  appId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Bot {
-  id: string
-  slug: string
-  isActive: boolean
-  projectId: string
-  createdAt: string
-  updatedAt: string
-  account: BotAccount
-  developer: Developer | null
+  id: string;
+  slug: string;
+  isActive: boolean;
+  projectId: string;
+  createdAt: string;
+  updatedAt: string;
+  account: BotAccount;
+  developer: Developer | null;
 }
 
 export interface BotAccount {
-  id: string
-  name: string
-  nick: string
-  language: string | null
-  profile: BotAccountProfile
+  id: string;
+  name: string;
+  nick: string;
+  language: string | null;
+  profile: BotAccountProfile;
 }
 
 export interface BotAccountProfile {
-  firstName: string | null
-  middleName: string | null
-  lastName: string | null
-  gender: string | null
-  pronouns: string | null
-  timeZone: string | null
-  location: string | null
-  bio: string | null
-  birthday: string | null
-  picture?: FileAttachment | null
-  background?: FileAttachment | null
+  firstName: string | null;
+  middleName: string | null;
+  lastName: string | null;
+  gender: string | null;
+  pronouns: string | null;
+  timeZone: string | null;
+  location: string | null;
+  bio: string | null;
+  birthday: string | null;
+  picture?: FileAttachment | null;
+  background?: FileAttachment | null;
 }
 
-
 export interface AppProduct {
-  id: string
-  identifier: string
-  displayName: string
-  description: string | null
-  currency: string
-  price: number
-  picture: FileAttachment | null
-  background: FileAttachment | null
-  appId: string
+  id: string;
+  identifier: string;
+  displayName: string;
+  description: string | null;
+  currency: string;
+  price: number;
+  picture: FileAttachment | null;
+  background: FileAttachment | null;
+  appId: string;
 }
 
 export interface BotKey {
-  id: string
-  key?: string | null
-  label: string | null
-  createdAt: string
-  updatedAt: string
+  id: string;
+  key?: string | null;
+  label: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface BotChatConfig {
-  id: string
-  commands: BotCommand[]
-  webhooks: BotWebhook[]
-  autoApproveDm: boolean
-  autoApproveGroupChat: boolean
-  supportChat: boolean
-  subscribedEvents: string[]
+  id: string;
+  commands: BotCommand[];
+  webhooks: BotWebhook[];
+  autoApproveDm: boolean;
+  autoApproveGroupChat: boolean;
+  supportChat: boolean;
+  subscribedEvents: string[];
 }
 
 export interface BotCommand {
-  name: string
-  description: string
-  usage?: string
-  parameters?: BotCommandParameter[]
+  name: string;
+  description: string;
+  usage?: string;
+  parameters?: BotCommandParameter[];
 }
 
 export interface BotCommandParameter {
-  name: string
-  description?: string
-  required: boolean
-  type?: string
+  name: string;
+  description?: string;
+  required: boolean;
+  type?: string;
 }
 
 export interface BotWebhook {
-  url: string
-  secret?: string
-  events: string[]
-  isActive: boolean
+  url: string;
+  secret?: string;
+  events: string[];
+  isActive: boolean;
 }
 
 // ==================== Board Widgets ====================
 
 /** Declared type of a widget field's envelope `value`. */
 export type BoardWidgetFieldValueType =
-  | 'string'
-  | 'number'
-  | 'boolean'
-  | 'array'
-  | 'object'
-  | 'null'
+  | "string"
+  | "number"
+  | "boolean"
+  | "array"
+  | "object"
+  | "null";
 
 export interface BoardWidgetFieldManifest {
-  name: string
+  name: string;
   /** Expected type of the envelope `value` (string | number | boolean | array | object | null). */
-  type: BoardWidgetFieldValueType | string
-  label: string
-  format?: string
-  required: boolean
+  type: BoardWidgetFieldValueType | string;
+  label: string;
+  format?: string;
+  required: boolean;
 }
 
 export interface BoardWidgetManifest {
-  key: string
+  key: string;
   /** Human-readable widget name shown to users. Required by Develop. */
-  name: string
+  name: string;
   /** Human-readable explanation of what the widget displays. Required by Develop. */
-  description: string
-  slug?: string
-  isEnabled: boolean
-  rendererType: string
-  fieldTypes: BoardWidgetFieldManifest[]
-  requiredFields: string[]
-  maxPayloadBytes: number
-  allowMultiple: boolean
+  description: string;
+  slug?: string;
+  isEnabled: boolean;
+  rendererType: string;
+  fieldTypes: BoardWidgetFieldManifest[];
+  requiredFields: string[];
+  maxPayloadBytes: number;
+  allowMultiple: boolean;
 }
 
 /**
@@ -215,7 +265,7 @@ export type BoardJsonValue =
   | boolean
   | null
   | BoardJsonValue[]
-  | { [key: string]: BoardJsonValue }
+  | { [key: string]: BoardJsonValue };
 
 /**
  * Universal payload envelope — every payload field MUST use this shape.
@@ -227,90 +277,90 @@ export type BoardJsonValue =
  * - `format` — optional display/format hint (e.g. boolean, number, date, currency)
  */
 export interface BoardFieldValueEnvelope {
-  value: BoardJsonValue
-  label: string
-  format?: string
+  value: BoardJsonValue;
+  label: string;
+  format?: string;
 }
 
-export type BoardWidgetPayload = Record<string, BoardFieldValueEnvelope>
+export type BoardWidgetPayload = Record<string, BoardFieldValueEnvelope>;
 
 export interface BoardWidgetValidationError {
-  valid: boolean
-  message: string
-  normalizedPayload: BoardWidgetPayload | null
+  valid: boolean;
+  message: string;
+  normalizedPayload: BoardWidgetPayload | null;
 }
 
 export interface BoardWidgetPayloadPushRequest {
-  accountId: string
-  boardItemId?: string
-  widgetKey: string
-  payload: BoardWidgetPayload
+  accountId: string;
+  boardItemId?: string;
+  widgetKey: string;
+  payload: BoardWidgetPayload;
 }
 
 export interface BoardWidgetPayloadPushResponse {
-  success: boolean
-  message: string
-  accountId: string
-  boardItemId: string
-  widgetKey: string
-  normalizedPayload: BoardWidgetPayload | null
-  boardItem: AccountBoardPushItem | null
+  success: boolean;
+  message: string;
+  accountId: string;
+  boardItemId: string;
+  widgetKey: string;
+  normalizedPayload: BoardWidgetPayload | null;
+  boardItem: AccountBoardPushItem | null;
 }
 
 export interface BoardWidgetDiscoveryItem {
-  id: string
-  slug: string
-  isEnabled: boolean
-  rendererType: string
-  key: string
-  name: string
-  description: string
-  fieldTypes: BoardWidgetFieldManifest[]
-  requiredFields: string[]
-  maxPayloadBytes: number
-  allowMultiple: boolean
+  id: string;
+  slug: string;
+  isEnabled: boolean;
+  rendererType: string;
+  key: string;
+  name: string;
+  description: string;
+  fieldTypes: BoardWidgetFieldManifest[];
+  requiredFields: string[];
+  maxPayloadBytes: number;
+  allowMultiple: boolean;
 }
 
 export interface BoardAppDiscoveryResponse {
-  id: string
-  slug: string
-  name: string
-  description: string | null
-  publisherName: string
-  boardWidgets: BoardWidgetDiscoveryItem[]
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  publisherName: string;
+  boardWidgets: BoardWidgetDiscoveryItem[];
 }
 
 export interface AccountBoardPushItem {
-  id: string
-  order: number
-  kind: string
-  widgetKey: string
-  customAppId: string
-  customAppWidgetKey: string
-  isEnabled: boolean
-  payload: BoardWidgetPayload
+  id: string;
+  order: number;
+  kind: string;
+  widgetKey: string;
+  customAppId: string;
+  customAppWidgetKey: string;
+  isEnabled: boolean;
+  payload: BoardWidgetPayload;
 }
 
 // ==================== Custom App Notifications ====================
 
 export interface CustomAppNotificationMeta {
   sent_by_app?: {
-    id: string
-    slug: string
-    name: string
-    publisher: string
-  }
-  [key: string]: unknown
+    id: string;
+    slug: string;
+    name: string;
+    publisher: string;
+  };
+  [key: string]: unknown;
 }
 
 export interface CustomAppNotification {
-  id: string
-  topic: string
-  title: string
-  subtitle?: string
-  body: string
-  actionUri?: string
-  meta: CustomAppNotificationMeta
-  viewedAt?: string
-  createdAt: string
+  id: string;
+  topic: string;
+  title: string;
+  subtitle?: string;
+  body: string;
+  actionUri?: string;
+  meta: CustomAppNotificationMeta;
+  viewedAt?: string;
+  createdAt: string;
 }
