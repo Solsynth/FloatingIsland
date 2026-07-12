@@ -150,21 +150,66 @@ const isBot = computed(() => {
   return !!props.account.automatedId
 })
 
-// Username color logic
+/**
+ * Stellar program tier gate for custom username colors (mirrors Island AccountName).
+ * - primary: plain colors from the predefined palette only
+ * - nova: any plain color (named or hex)
+ * - supernova: plain + gradient
+ * - no/unknown tier: denied unless ignorePermissions
+ */
+const canUseCustomUsernameColor = (usernameColor: {
+  type?: string
+  value?: string
+  colors?: string[]
+  direction?: string
+} | null | undefined, tier: string | undefined): boolean => {
+  if (props.ignorePermissions) return true
+  if (!usernameColor?.type) return false
+
+  switch (tier) {
+    case 'solian.stellar.primary':
+      return (
+        usernameColor.type === 'plain'
+        && !!usernameColor.value
+        && usernameColor.value in kUsernamePlainColors
+      )
+    case 'solian.stellar.nova':
+      return usernameColor.type === 'plain'
+    case 'solian.stellar.supernova':
+      return true
+    default:
+      return false
+  }
+}
+
+// Username color logic — custom color when allowed by tier, else default membership color
 const usernameColor = computed(() => {
   const profile = props.account.profile
-  if (!profile) return null
+  const subscription = props.account.perkSubscription as {
+    identifier?: string
+    isActive?: boolean
+  } | null | undefined
+  const tier = subscription?.identifier
 
-  // Check for custom username color from profile
-  const customColor = (profile as any).usernameColor
+  const customColor = (profile as { usernameColor?: {
+    type?: string
+    value?: string
+    colors?: string[]
+    direction?: string
+  } } | undefined)?.usernameColor
+
+  // Custom color only when Stellar tier permits it (or ignorePermissions)
   if (customColor) {
-    return customColor
+    if (canUseCustomUsernameColor(customColor, tier)) {
+      return { kind: 'custom' as const, data: customColor }
+    }
+    // Custom color present but not allowed — do not fall back to tier defaults
+    return null
   }
 
-  // Default membership colors
-  const subscription = (props.account as any).perkSubscription
-  if (subscription?.isActive) {
-    return kMembershipColors[subscription.identifier] || null
+  // Default membership colors when no custom color is set
+  if (subscription && tier && kMembershipColors[tier]) {
+    return { kind: 'membership' as const, color: kMembershipColors[tier] }
   }
 
   return null
@@ -175,18 +220,24 @@ const nameStyle = computed(() => {
   const colorData = usernameColor.value
   if (!colorData) return {}
 
+  if (colorData.kind === 'membership') {
+    return { color: colorData.color }
+  }
+
+  const custom = colorData.data
+
   // Plain color
-  if (colorData.type === 'plain' && colorData.value) {
-    const hex = kUsernamePlainColors[colorData.value] || colorData.value
+  if (custom.type === 'plain' && custom.value) {
+    const hex = kUsernamePlainColors[custom.value] || custom.value
     return { color: hex.startsWith('#') ? hex : `#${hex}` }
   }
 
   // Gradient
-  if (colorData.type === 'gradient' && colorData.colors?.length > 0) {
-    const colors = colorData.colors.map((c: string) => {
+  if (custom.type === 'gradient' && custom.colors && custom.colors.length > 0) {
+    const colors = custom.colors.map((c: string) => {
       return kUsernamePlainColors[c] || (c.startsWith('#') ? c : `#${c}`)
     })
-    const direction = colorData.direction || 'to right'
+    const direction = custom.direction || 'to right'
     return {
       background: `linear-gradient(${direction}, ${colors.join(', ')})`,
       '-webkit-background-clip': 'text',
@@ -212,14 +263,19 @@ const fontWeightClass = computed(() => {
   return props.bold ? 'font-semibold' : 'font-medium'
 })
 
-// Membership mark
-const membership = computed(() => (props.account as any).perkSubscription)
+// Membership mark (Stellar program)
+const membership = computed(() => {
+  return props.account.perkSubscription as {
+    identifier?: string
+    isActive?: boolean
+  } | null | undefined
+})
 const showMembershipMark = computed(() => {
-  return membership.value?.isActive
+  return !!membership.value?.isActive
 })
 
 const membershipColor = computed(() => {
-  if (!membership.value) return '#6b7280'
+  if (!membership.value?.identifier) return '#6b7280'
   return kMembershipColors[membership.value.identifier] || '#6b7280'
 })
 
@@ -230,7 +286,7 @@ const membershipTooltip = computed(() => {
     'solian.stellar.nova': 'Nova',
     'solian.stellar.supernova': 'Supernova',
   }
-  const tierName = tierNames[membership.value.identifier] || 'Unknown'
+  const tierName = tierNames[membership.value.identifier || ''] || 'Unknown'
   return `${t('account.membership')} · ${tierName}`
 })
 
