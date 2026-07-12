@@ -5,6 +5,7 @@ import type {
   CustomApp,
   CustomAppSecret,
   AppProduct,
+  AppProductWritePayload,
   Bot,
   BotKey,
   BotChatConfig,
@@ -334,14 +335,11 @@ export async function createAppProduct(
   publisherName: string,
   projectId: string,
   appId: string,
-  data: {
+  data: AppProductWritePayload & {
     identifier: string;
     displayName: string;
-    description?: string;
     currency: string;
     price: number;
-    pictureId?: string;
-    backgroundId?: string;
   },
 ): Promise<AppProduct> {
   const response = await apiFetch(
@@ -359,15 +357,7 @@ export async function updateAppProduct(
   projectId: string,
   appId: string,
   productId: string,
-  data: {
-    identifier?: string;
-    displayName?: string;
-    description?: string;
-    currency?: string;
-    price?: number;
-    pictureId?: string;
-    backgroundId?: string;
-  },
+  data: AppProductWritePayload,
 ): Promise<AppProduct> {
   const response = await apiFetch(
     `/develop/private/apps/${encodeURIComponent(appId)}/products/${encodeURIComponent(productId)}?dev=${encodeURIComponent(publisherName)}&proj=${encodeURIComponent(projectId)}`,

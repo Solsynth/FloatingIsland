@@ -169,6 +169,34 @@ export interface BotAccountProfile {
   background?: FileAttachment | null;
 }
 
+/** Product billing cadence. API may return enum number or string. */
+export type ProductRecurrence = "none" | "weekly" | "monthly" | "yearly" | number;
+
+/** Stock window mode. API may return enum number or string. */
+export type ProductStockMode =
+  | "unlimited"
+  | "daily"
+  | "weekly"
+  | "monthly"
+  | "yearly"
+  | "manual"
+  | number;
+
+export interface AppProductFulfillment {
+  isAddressRequired: boolean;
+  requiredScopes: string[];
+}
+
+export interface AppProductState {
+  id?: string;
+  isEnabled: boolean;
+  stockMode: ProductStockMode;
+  stockQuantity: number | null;
+  lastRestockedAt?: string | null;
+  lastRestockedQuantity?: number | null;
+  productId?: string;
+}
+
 export interface AppProduct {
   id: string;
   identifier: string;
@@ -179,6 +207,33 @@ export interface AppProduct {
   picture: FileAttachment | null;
   background: FileAttachment | null;
   appId: string;
+  /** none / weekly / monthly / yearly (enum number from API) */
+  recurrence?: ProductRecurrence;
+  /** Subscription tier group shared across related products */
+  groupIdentifier?: string | null;
+  fulfillment?: AppProductFulfillment | null;
+  state?: AppProductState | null;
+}
+
+export interface AppProductWritePayload {
+  identifier?: string;
+  displayName?: string;
+  description?: string;
+  currency?: string;
+  price?: number;
+  pictureId?: string;
+  backgroundId?: string;
+  recurrence?: "none" | "weekly" | "monthly" | "yearly";
+  groupIdentifier?: string | null;
+  fulfillment?: {
+    isAddressRequired?: boolean;
+    requiredScopes?: string[];
+  };
+  state?: {
+    isEnabled?: boolean;
+    stockMode?: "unlimited" | "daily" | "weekly" | "monthly" | "yearly" | "manual";
+    stockQuantity?: number | null;
+  };
 }
 
 export interface BotKey {

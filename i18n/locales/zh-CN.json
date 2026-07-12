@@ -978,6 +978,7 @@
       "background": "背景",
       "products": {
         "title": "产品",
+        "subtitle": "一次性购买与订阅商品，支持库存与履约配置",
         "create": "创建产品",
         "edit": "编辑产品",
         "sku": "SKU",
@@ -989,7 +990,42 @@
         "noProducts": "暂无产品。",
         "deleteConfirm": "确定要删除此产品吗？",
         "picture": "图片",
-        "background": "背景"
+        "background": "背景",
+        "sectionCatalog": "目录信息",
+        "sectionFulfillment": "履约配置",
+        "sectionState": "上架状态与库存",
+        "recurrenceLabel": "计费周期",
+        "recurrenceHint": "非一次性商品会同步到钱包订阅目录",
+        "recurrence": {
+          "none": "一次性",
+          "weekly": "每周",
+          "monthly": "每月",
+          "yearly": "每年"
+        },
+        "groupIdentifier": "分组标识",
+        "groupIdentifierHint": "可选，用于同一订阅档位下的相关商品分组",
+        "isAddressRequired": "需要收货/联系地址",
+        "isAddressRequiredHint": "买家付款前必须提供地址信息。不会单独授予通讯录访问权限。",
+        "requiredScopes": "所需权限范围",
+        "requiredScopesHint": "客户端期望的权限节点（如 contacts.read）。用户需另行授权。",
+        "isEnabled": "商品已启用",
+        "isEnabledHint": "禁用后无法购买",
+        "enabled": "已启用",
+        "disabled": "已禁用",
+        "addressRequired": "需地址",
+        "stockMode": "库存模式",
+        "stockModes": {
+          "unlimited": "不限",
+          "daily": "每日",
+          "weekly": "每周",
+          "monthly": "每月",
+          "yearly": "每年",
+          "manual": "手动"
+        },
+        "stockQuantity": "库存数量",
+        "stockQuantityWindowHint": "当前库存窗口的容量。创建订单时预占。",
+        "stockQuantityManualHint": "更新数量会触发补货，并记录最近补货时间。",
+        "lastRestocked": "最近补货"
       },
       "boardWidgets": {
         "title": "主页组件",

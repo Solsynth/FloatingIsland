@@ -998,6 +998,7 @@
       "background": "Background",
       "products": {
         "title": "Products",
+        "subtitle": "One-time purchases and subscriptions with stock and fulfillment settings",
         "create": "Create Product",
         "edit": "Edit Product",
         "sku": "SKU",
@@ -1009,7 +1010,42 @@
         "noProducts": "No products yet.",
         "deleteConfirm": "Are you sure you want to delete this product?",
         "picture": "Picture",
-        "background": "Background"
+        "background": "Background",
+        "sectionCatalog": "Catalog",
+        "sectionFulfillment": "Fulfillment",
+        "sectionState": "Selling state & stock",
+        "recurrenceLabel": "Recurrence",
+        "recurrenceHint": "Non-none products sync to the Wallet subscription catalog",
+        "recurrence": {
+          "none": "One-time",
+          "weekly": "Weekly",
+          "monthly": "Monthly",
+          "yearly": "Yearly"
+        },
+        "groupIdentifier": "Group identifier",
+        "groupIdentifierHint": "Optional subscription tier group shared across related products",
+        "isAddressRequired": "Require shipping/contact address",
+        "isAddressRequiredHint": "Buyer must provide address metadata before paying. Does not grant contact-list access by itself.",
+        "requiredScopes": "Required scopes",
+        "requiredScopesHint": "Client-expected permission nodes (e.g. contacts.read). User must authorize these separately.",
+        "isEnabled": "Product enabled",
+        "isEnabledHint": "Disabled products cannot be purchased",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "addressRequired": "Address",
+        "stockMode": "Stock mode",
+        "stockModes": {
+          "unlimited": "Unlimited",
+          "daily": "Daily",
+          "weekly": "Weekly",
+          "monthly": "Monthly",
+          "yearly": "Yearly",
+          "manual": "Manual"
+        },
+        "stockQuantity": "Stock quantity",
+        "stockQuantityWindowHint": "Capacity for the current stock window. Reserved on order creation.",
+        "stockQuantityManualHint": "Updating quantity restocks and records last restocked time.",
+        "lastRestocked": "Last restocked"
       },
       "boardWidgets": {
         "title": "Board Widgets",

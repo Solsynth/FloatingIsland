@@ -99,10 +99,13 @@
           </div>
 
           <!-- Products Section -->
-          <div class="card bg-base-100 shadow-sm">
+          <div class="card bg-base-100 shadow-sm lg:col-span-2">
             <div class="card-body p-4">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="card-title text-base">{{ t('developer.apps.products.title') }}</h3>
+                <div>
+                  <h3 class="card-title text-base">{{ t('developer.apps.products.title') }}</h3>
+                  <p class="text-xs text-base-content/50 mt-0.5">{{ t('developer.apps.products.subtitle') }}</p>
+                </div>
                 <button class="btn btn-primary btn-sm" @click="openCreateProductModal">
                   <IconPlus class="w-4 h-4" />
                   {{ t('developer.apps.products.create') }}
@@ -123,9 +126,33 @@
                     </div>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <div class="font-medium text-sm">{{ product.displayName }}</div>
-                    <div class="text-xs text-base-content/50">
-                      <code class="font-mono text-xs">{{ product.identifier }}</code> &middot; {{ product.currency }} {{ product.price }}
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <div class="font-medium text-sm">{{ product.displayName }}</div>
+                      <span
+                        class="badge badge-xs"
+                        :class="isProductEnabled(product) ? 'badge-success' : 'badge-ghost'"
+                      >
+                        {{ isProductEnabled(product) ? t('developer.apps.products.enabled') : t('developer.apps.products.disabled') }}
+                      </span>
+                      <span
+                        v-if="productRecurrenceLabel(product) !== 'none'"
+                        class="badge badge-xs badge-outline"
+                      >
+                        {{ t(`developer.apps.products.recurrence.${productRecurrenceLabel(product)}`) }}
+                      </span>
+                      <span
+                        v-if="product.fulfillment?.isAddressRequired"
+                        class="badge badge-xs badge-warning badge-outline"
+                      >
+                        {{ t('developer.apps.products.addressRequired') }}
+                      </span>
+                    </div>
+                    <div class="text-xs text-base-content/50 mt-0.5">
+                      <code class="font-mono text-xs">{{ product.identifier }}</code>
+                      &middot; {{ product.currency }} {{ product.price }}
+                      <template v-if="productStockLabel(product)">
+                        &middot; {{ productStockLabel(product) }}
+                      </template>
                     </div>
                   </div>
                   <div class="flex gap-1">
@@ -528,6 +555,7 @@
       content-class="max-w-2xl"
     >
       <form @submit.prevent="handleSaveProduct">
+        <!-- Media -->
         <div class="flex items-center gap-4 mb-4">
           <div class="relative group">
             <div class="avatar cursor-pointer" @click="pickProductPicture">
@@ -554,6 +582,9 @@
             </div>
           </div>
         </div>
+
+        <!-- Catalog -->
+        <div class="divider text-xs text-base-content/40 my-2">{{ t('developer.apps.products.sectionCatalog') }}</div>
 
         <fieldset class="fieldset mb-4">
           <legend class="fieldset-legend">{{ t('developer.apps.products.sku') }}</legend>
@@ -583,6 +614,120 @@
             <input v-model.number="productForm.price" type="number" class="input w-full" required min="0" step="0.01" />
           </fieldset>
         </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">{{ t('developer.apps.products.recurrenceLabel') }}</legend>
+            <select v-model="productForm.recurrence" class="select w-full">
+              <option value="none">{{ t('developer.apps.products.recurrence.none') }}</option>
+              <option value="weekly">{{ t('developer.apps.products.recurrence.weekly') }}</option>
+              <option value="monthly">{{ t('developer.apps.products.recurrence.monthly') }}</option>
+              <option value="yearly">{{ t('developer.apps.products.recurrence.yearly') }}</option>
+            </select>
+            <p class="text-xs text-base-content/50 mt-1">{{ t('developer.apps.products.recurrenceHint') }}</p>
+          </fieldset>
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">{{ t('developer.apps.products.groupIdentifier') }}</legend>
+            <input
+              v-model="productForm.groupIdentifier"
+              type="text"
+              class="input w-full"
+              :disabled="productForm.recurrence === 'none'"
+              placeholder="premium_tier"
+            />
+            <p class="text-xs text-base-content/50 mt-1">{{ t('developer.apps.products.groupIdentifierHint') }}</p>
+          </fieldset>
+        </div>
+
+        <!-- Fulfillment -->
+        <div class="divider text-xs text-base-content/40 my-2">{{ t('developer.apps.products.sectionFulfillment') }}</div>
+
+        <label class="flex items-center gap-2 cursor-pointer mb-4">
+          <input v-model="productForm.isAddressRequired" type="checkbox" class="checkbox checkbox-sm" />
+          <span class="text-sm">{{ t('developer.apps.products.isAddressRequired') }}</span>
+        </label>
+        <p class="text-xs text-base-content/50 -mt-3 mb-4">{{ t('developer.apps.products.isAddressRequiredHint') }}</p>
+
+        <fieldset class="fieldset mb-4">
+          <legend class="fieldset-legend">{{ t('developer.apps.products.requiredScopes') }}</legend>
+          <TagsInputRoot
+            v-model="productForm.requiredScopes"
+            :delimiter="/[ ,;\t\n\r]+/"
+            add-on-paste
+            add-on-blur
+            add-on-tab
+            class="input flex h-auto min-h-12 w-full flex-wrap items-center gap-2 py-2"
+          >
+            <TagsInputItem
+              v-for="scope in productForm.requiredScopes"
+              :key="scope"
+              :value="scope"
+              class="badge badge-primary gap-1"
+            >
+              <TagsInputItemText />
+              <TagsInputItemDelete class="btn btn-ghost btn-xs btn-circle">
+                <IconX class="h-3 w-3" />
+              </TagsInputItemDelete>
+            </TagsInputItem>
+            <TagsInputInput
+              class="min-w-32 flex-1 bg-transparent outline-none"
+              placeholder="contacts.read"
+            />
+          </TagsInputRoot>
+          <p class="text-xs text-base-content/50 mt-1">{{ t('developer.apps.products.requiredScopesHint') }}</p>
+        </fieldset>
+
+        <!-- State / Stock -->
+        <div class="divider text-xs text-base-content/40 my-2">{{ t('developer.apps.products.sectionState') }}</div>
+
+        <label class="flex items-center gap-2 cursor-pointer mb-4">
+          <input v-model="productForm.isEnabled" type="checkbox" class="checkbox checkbox-sm" />
+          <span class="text-sm">{{ t('developer.apps.products.isEnabled') }}</span>
+        </label>
+        <p class="text-xs text-base-content/50 -mt-3 mb-4">{{ t('developer.apps.products.isEnabledHint') }}</p>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">{{ t('developer.apps.products.stockMode') }}</legend>
+            <select v-model="productForm.stockMode" class="select w-full">
+              <option value="unlimited">{{ t('developer.apps.products.stockModes.unlimited') }}</option>
+              <option value="daily">{{ t('developer.apps.products.stockModes.daily') }}</option>
+              <option value="weekly">{{ t('developer.apps.products.stockModes.weekly') }}</option>
+              <option value="monthly">{{ t('developer.apps.products.stockModes.monthly') }}</option>
+              <option value="yearly">{{ t('developer.apps.products.stockModes.yearly') }}</option>
+              <option value="manual">{{ t('developer.apps.products.stockModes.manual') }}</option>
+            </select>
+          </fieldset>
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">{{ t('developer.apps.products.stockQuantity') }}</legend>
+            <input
+              v-model.number="productForm.stockQuantity"
+              type="number"
+              class="input w-full"
+              min="0"
+              step="1"
+              :disabled="productForm.stockMode === 'unlimited'"
+              :placeholder="productForm.stockMode === 'unlimited' ? '—' : '100'"
+            />
+            <p v-if="productForm.stockMode === 'manual'" class="text-xs text-base-content/50 mt-1">
+              {{ t('developer.apps.products.stockQuantityManualHint') }}
+            </p>
+            <p v-else-if="productForm.stockMode !== 'unlimited'" class="text-xs text-base-content/50 mt-1">
+              {{ t('developer.apps.products.stockQuantityWindowHint') }}
+            </p>
+          </fieldset>
+        </div>
+
+        <div
+          v-if="editingProduct?.state?.lastRestockedAt"
+          class="rounded-lg bg-base-200/60 p-3 mb-4 text-xs text-base-content/60"
+        >
+          {{ t('developer.apps.products.lastRestocked') }}:
+          {{ formatDate(String(editingProduct.state.lastRestockedAt)) }}
+          <template v-if="editingProduct.state.lastRestockedQuantity != null">
+            ({{ editingProduct.state.lastRestockedQuantity }})
+          </template>
+        </div>
+
         <div class="flex items-center justify-between gap-3">
           <button type="button" class="btn btn-ghost" @click="productModalOpen = false">{{ t('common.cancel') }}</button>
           <button type="submit" class="btn btn-primary" :disabled="isSavingProduct">
@@ -651,7 +796,7 @@ import {
 } from 'reka-ui'
 import { getFileUrl } from '~/utils/files'
 import type { SnCloudFile } from '~/types/drive'
-import type { CustomApp, CustomAppSecret, AppProduct } from '~/types/developer'
+import type { CustomApp, CustomAppSecret, AppProduct, AppProductWritePayload } from '~/types/developer'
 import {
   fetchCustomApp,
   updateCustomApp,
@@ -734,9 +879,68 @@ const productForm = reactive({
   description: '',
   currency: '',
   price: 0,
+  recurrence: 'none' as 'none' | 'weekly' | 'monthly' | 'yearly',
+  groupIdentifier: '',
+  isAddressRequired: false,
+  requiredScopes: [] as string[],
+  isEnabled: true,
+  stockMode: 'unlimited' as 'unlimited' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'manual',
+  stockQuantity: null as number | null,
 })
 
 // ponytail: full identifier is <project.slug>.<app.slug>.<sku>, stored as-is
+
+const RECURRENCE_BY_NUM: Record<number, 'none' | 'weekly' | 'monthly' | 'yearly'> = {
+  0: 'none',
+  1: 'weekly',
+  2: 'monthly',
+  3: 'yearly',
+}
+
+const STOCK_MODE_BY_NUM: Record<number, 'unlimited' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'manual'> = {
+  0: 'unlimited',
+  1: 'daily',
+  2: 'weekly',
+  3: 'monthly',
+  4: 'yearly',
+  5: 'manual',
+}
+
+function normalizeRecurrence(value: AppProduct['recurrence']): 'none' | 'weekly' | 'monthly' | 'yearly' {
+  if (typeof value === 'number') return RECURRENCE_BY_NUM[value] ?? 'none'
+  if (typeof value === 'string') {
+    const key = value.toLowerCase()
+    if (key === 'weekly' || key === 'monthly' || key === 'yearly' || key === 'none') return key
+  }
+  return 'none'
+}
+
+function normalizeStockMode(value: unknown): 'unlimited' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'manual' {
+  if (typeof value === 'number') return STOCK_MODE_BY_NUM[value] ?? 'unlimited'
+  if (typeof value === 'string') {
+    const key = value.toLowerCase()
+    if (key === 'daily' || key === 'weekly' || key === 'monthly' || key === 'yearly' || key === 'manual' || key === 'unlimited') {
+      return key
+    }
+  }
+  return 'unlimited'
+}
+
+function isProductEnabled(product: AppProduct) {
+  return product.state?.isEnabled !== false
+}
+
+function productRecurrenceLabel(product: AppProduct) {
+  return normalizeRecurrence(product.recurrence)
+}
+
+function productStockLabel(product: AppProduct): string | null {
+  const mode = normalizeStockMode(product.state?.stockMode)
+  if (mode === 'unlimited') return t('developer.apps.products.stockModes.unlimited')
+  const qty = product.state?.stockQuantity
+  const modeLabel = t(`developer.apps.products.stockModes.${mode}`)
+  return qty != null ? `${modeLabel}: ${qty}` : modeLabel
+}
 
 // Picture / background
 const pictureId = ref<string | null>(null)
@@ -953,15 +1157,26 @@ async function handleDeleteSecret(secretId: string) {
 
 // ── Product handlers ──
 
-function openCreateProductModal() {
-  editingProduct.value = null
+function resetProductForm() {
   productForm.sku = ''
   productForm.displayName = ''
   productForm.description = ''
   productForm.currency = 'points'
   productForm.price = 0
+  productForm.recurrence = 'none'
+  productForm.groupIdentifier = ''
+  productForm.isAddressRequired = false
+  productForm.requiredScopes = []
+  productForm.isEnabled = true
+  productForm.stockMode = 'unlimited'
+  productForm.stockQuantity = null
   productPictureId.value = null
   productBackgroundId.value = null
+}
+
+function openCreateProductModal() {
+  editingProduct.value = null
+  resetProductForm()
   productModalOpen.value = true
 }
 
@@ -972,6 +1187,13 @@ function openEditProductModal(product: AppProduct) {
   productForm.description = product.description ?? ''
   productForm.currency = product.currency
   productForm.price = product.price
+  productForm.recurrence = normalizeRecurrence(product.recurrence)
+  productForm.groupIdentifier = product.groupIdentifier ?? ''
+  productForm.isAddressRequired = product.fulfillment?.isAddressRequired ?? false
+  productForm.requiredScopes = [...(product.fulfillment?.requiredScopes ?? [])]
+  productForm.isEnabled = product.state?.isEnabled ?? true
+  productForm.stockMode = normalizeStockMode(product.state?.stockMode)
+  productForm.stockQuantity = product.state?.stockQuantity ?? null
   productPictureId.value = product.picture?.id ?? null
   productBackgroundId.value = product.background?.id ?? null
   productModalOpen.value = true
@@ -997,18 +1219,45 @@ function onProductBackgroundSelected(file: SnCloudFile | SnCloudFile[] | null) {
   }
 }
 
+function buildProductPayload(): AppProductWritePayload & {
+  identifier: string
+  displayName: string
+  currency: string
+  price: number
+} {
+  const scopes = productForm.requiredScopes.map(s => s.trim()).filter(Boolean)
+  const stockQuantity =
+    productForm.stockMode === 'unlimited'
+      ? null
+      : (productForm.stockQuantity ?? null)
+
+  return {
+    identifier: productForm.sku,
+    displayName: productForm.displayName,
+    description: productForm.description || undefined,
+    currency: productForm.currency,
+    price: productForm.price,
+    pictureId: productPictureId.value ?? undefined,
+    backgroundId: productBackgroundId.value ?? undefined,
+    recurrence: productForm.recurrence,
+    // empty string clears group on PATCH (backend only applies when value is non-null)
+    groupIdentifier: productForm.recurrence === 'none' ? '' : (productForm.groupIdentifier || ''),
+    fulfillment: {
+      isAddressRequired: productForm.isAddressRequired,
+      requiredScopes: scopes,
+    },
+    state: {
+      isEnabled: productForm.isEnabled,
+      stockMode: productForm.stockMode,
+      stockQuantity,
+    },
+  }
+}
+
 async function handleSaveProduct() {
   isSavingProduct.value = true
   try {
-    const data = {
-      identifier: productForm.sku,
-      displayName: productForm.displayName,
-      description: productForm.description || undefined,
-      currency: productForm.currency,
-      price: productForm.price,
-      pictureId: productPictureId.value ?? undefined,
-      backgroundId: productBackgroundId.value ?? undefined,
-    }
+    const data = buildProductPayload()
     if (editingProduct.value) {
       await updateAppProduct(pubName.value, projectId.value, appId.value, editingProduct.value.id, data)
     } else {
