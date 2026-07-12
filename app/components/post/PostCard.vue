@@ -876,7 +876,10 @@ function handleForward() {
 
 function handleEdit() {
   showMenu.value = false;
-  // TODO: Implement edit
+  const compose = useCompose();
+  compose.initializeFromPost(props.post);
+  const event = new CustomEvent("open-compose");
+  window.dispatchEvent(event);
 }
 
 function handleDelete() {
