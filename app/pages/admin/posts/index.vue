@@ -1,6 +1,19 @@
 <template>
   <NuxtLayout name="admin">
-    <AdminPageHeader title="Posts" description="Review and moderate posts across the platform" />
+    <AdminPageHeader title="Posts" description="Review and moderate posts across the platform">
+      <template #actions>
+        <div v-if="selectedIds.size" class="flex items-center gap-2">
+          <span class="text-xs text-base-content/50">{{ selectedIds.size }} selected</span>
+          <button class="btn btn-sm btn-ghost" :disabled="batchLoading" @click="batchLock">
+            <IconLock class="w-3.5 h-3.5" /> Lock
+          </button>
+          <button class="btn btn-sm btn-ghost" :disabled="batchLoading" @click="batchUnlock">
+            <IconLockOpen class="w-3.5 h-3.5" /> Unlock
+          </button>
+          <button class="btn btn-sm btn-ghost" @click="selectedIds.clear()">Clear</button>
+        </div>
+      </template>
+    </AdminPageHeader>
 
     <!-- Search & Filters -->
     <AdminCard class="mb-6">
@@ -10,7 +23,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search posts by title or content..."
+            placeholder="Search posts by title, description, or content..."
             class="input input-sm w-full pl-9 bg-base-200/60 border-0 rounded-xl"
             @keyup.enter="handleSearch"
           />
@@ -19,10 +32,11 @@
           <select v-model="filters.visibility" class="select select-sm bg-base-200/60 border-0 rounded-xl" @change="handleSearch">
             <option value="">All Visibility</option>
             <option value="public">Public</option>
-            <option value="private">Private</option>
+            <option value="friends">Friends</option>
             <option value="unlisted">Unlisted</option>
-            <option value="publisher">Publisher</option>
-            <option value="realm">Realm</option>
+            <option value="private">Private</option>
+            <option value="close_friends_only">Close Friends</option>
+            <option value="quiet_public">Quiet Public</option>
           </select>
           <select v-model="filters.shadowbanReason" class="select select-sm bg-base-200/60 border-0 rounded-xl" @change="handleSearch">
             <option value="">All Shadowban</option>
@@ -39,6 +53,29 @@
             <option value="true">Locked</option>
             <option value="false">Unlocked</option>
           </select>
+          <select v-model="filters.drafted" class="select select-sm bg-base-200/60 border-0 rounded-xl" @change="handleSearch">
+            <option value="">Any Draft</option>
+            <option value="true">Drafts</option>
+            <option value="false">Published only</option>
+          </select>
+          <input
+            v-model="filters.publisherId"
+            type="text"
+            placeholder="Publisher ID..."
+            class="input input-sm bg-base-200/60 border-0 rounded-xl w-40"
+            @keyup.enter="handleSearch"
+          />
+          <input
+            v-model="filters.realmId"
+            type="text"
+            placeholder="Realm ID..."
+            class="input input-sm bg-base-200/60 border-0 rounded-xl w-40"
+            @keyup.enter="handleSearch"
+          />
+          <button class="btn btn-sm btn-primary" @click="handleSearch">
+            <IconSearch class="w-4 h-4" />
+            Search
+          </button>
         </div>
       </div>
     </AdminCard>
@@ -54,7 +91,15 @@
         <table class="table table-sm table-zebra">
           <thead>
             <tr class="text-xs text-base-content/50 uppercase tracking-wider">
-              <th class="pl-5">Post</th>
+              <th class="pl-5 w-8">
+                <input
+                  type="checkbox"
+                  class="checkbox checkbox-xs"
+                  :checked="allSelected"
+                  @change="toggleSelectAll"
+                />
+              </th>
+              <th>Post</th>
               <th>Publisher</th>
               <th>Visibility</th>
               <th>Status</th>
@@ -65,12 +110,20 @@
           <tbody>
             <tr v-for="post in posts" :key="post.id" class="hover:bg-base-200/50 transition-colors">
               <td class="pl-5">
+                <input
+                  type="checkbox"
+                  class="checkbox checkbox-xs"
+                  :checked="selectedIds.has(post.id)"
+                  @change="toggleSelect(post.id)"
+                />
+              </td>
+              <td>
                 <NuxtLink :to="`/admin/posts/${post.id}`" class="block">
                   <div class="text-sm font-medium truncate max-w-[16rem]">
                     {{ post.title || '(Untitled)' }}
                   </div>
                   <div class="text-xs text-base-content/40 truncate max-w-[16rem]">
-                    {{ post.description || stripHtml(post.body || '').slice(0, 80) }}
+                    {{ post.description || stripHtml(post.content || '').slice(0, 80) }}
                   </div>
                 </NuxtLink>
               </td>
@@ -81,20 +134,25 @@
               </td>
               <td>
                 <span class="badge badge-xs" :class="visibilityClass(post.visibility)">
-                  {{ post.visibility }}
+                  {{ formatVisibility(post.visibility) }}
                 </span>
               </td>
               <td>
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <span v-if="post.locked" class="badge badge-warning badge-xs">Locked</span>
-                  <span v-if="post.shadowbanReason && post.shadowbanReason !== 'none'" class="badge badge-error badge-xs">
-                    {{ post.shadowbanReason }}
+                  <span v-if="post.lockedAt" class="badge badge-warning badge-xs">Locked</span>
+                  <span
+                    v-if="isShadowbanned(post.shadowbanReason)"
+                    class="badge badge-error badge-xs"
+                  >
+                    {{ formatShadowban(post.shadowbanReason) }}
                   </span>
-                  <span v-if="post.drafted" class="badge badge-ghost badge-xs">Draft</span>
+                  <span v-if="post.draftedAt" class="badge badge-ghost badge-xs">Draft</span>
                 </div>
               </td>
               <td>
-                <span class="text-xs text-base-content/60">{{ post.realm?.name || '—' }}</span>
+                <span class="text-xs text-base-content/60">
+                  {{ post.realm?.nick || post.realm?.name || post.realm?.slug || '—' }}
+                </span>
               </td>
               <td class="pr-5 text-right">
                 <NuxtLink :to="`/admin/posts/${post.id}`" class="btn btn-ghost btn-xs">
@@ -136,9 +194,11 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconFileText,
+  IconLock,
+  IconLockOpen,
 } from '#components'
 import type { PostVisibility, PostShadowbanReason, AdminPost } from '~/types/admin'
-import { fetchAdminPosts } from '~/utils/admin'
+import { fetchAdminPosts, batchLockPosts, batchUnlockPosts } from '~/utils/admin'
 
 definePageMeta({ middleware: 'auth' })
 
@@ -146,27 +206,82 @@ const posts = ref<AdminPost[]>([])
 const total = ref(0)
 const hasMore = ref(false)
 const isLoading = ref(false)
+const batchLoading = ref(false)
 const pageSize = 50
 const offset = ref(0)
 const searchQuery = ref('')
+const selectedIds = ref(new Set<string>())
 const filters = ref({
   visibility: '' as string,
   shadowbanReason: '' as string,
   locked: '' as string,
+  drafted: '' as string,
+  publisherId: '',
+  realmId: '',
 })
+
+const allSelected = computed(
+  () => posts.value.length > 0 && posts.value.every(p => selectedIds.value.has(p.id)),
+)
 
 function stripHtml(html: string | null | undefined): string {
   return (html || '').replace(/<[^>]*>/g, '').trim()
 }
 
-function visibilityClass(v: PostVisibility): string {
-  return {
+const VISIBILITY_LABELS = ['public', 'friends', 'unlisted', 'private', 'close_friends_only', 'quiet_public'] as const
+const SHADOWBAN_LABELS: Record<number, string> = {
+  0: 'none',
+  1: 'spam',
+  2: 'advertising',
+  3: 'harassment',
+  4: 'hate_speech',
+  5: 'misinformation',
+  6: 'illegal',
+  99: 'other',
+}
+
+function formatVisibility(v: PostVisibility | string | number | undefined): string {
+  if (v === undefined || v === null) return '—'
+  if (typeof v === 'number') return VISIBILITY_LABELS[v] ?? String(v)
+  return String(v)
+}
+
+function formatShadowban(v: PostShadowbanReason | string | number | null | undefined): string {
+  if (v === undefined || v === null) return ''
+  if (typeof v === 'number') return SHADOWBAN_LABELS[v] ?? String(v)
+  return String(v)
+}
+
+function isShadowbanned(v: PostShadowbanReason | string | number | null | undefined): boolean {
+  if (v === undefined || v === null || v === 'none' || v === 0) return false
+  return true
+}
+
+function visibilityClass(v: PostVisibility | string | number): string {
+  const key = formatVisibility(v)
+  return ({
     public: 'badge-success',
-    private: 'badge-error',
+    friends: 'badge-info',
     unlisted: 'badge-warning',
-    publisher: 'badge-info',
-    realm: 'badge-primary',
-  }[v] || 'badge-ghost'
+    private: 'badge-error',
+    close_friends_only: 'badge-primary',
+    quiet_public: 'badge-ghost',
+  } as Record<string, string>)[key] || 'badge-ghost'
+}
+
+function toggleSelect(id: string) {
+  const next = new Set(selectedIds.value)
+  if (next.has(id)) next.delete(id)
+  else next.add(id)
+  selectedIds.value = next
+}
+
+function toggleSelectAll() {
+  if (allSelected.value) {
+    selectedIds.value = new Set()
+  } else {
+    selectedIds.value = new Set(posts.value.map(p => p.id))
+  }
 }
 
 async function loadPosts() {
@@ -177,6 +292,9 @@ async function loadPosts() {
       visibility: (filters.value.visibility || undefined) as PostVisibility | undefined,
       shadowbanReason: (filters.value.shadowbanReason || undefined) as PostShadowbanReason | undefined,
       locked: filters.value.locked ? filters.value.locked === 'true' : undefined,
+      drafted: filters.value.drafted ? filters.value.drafted === 'true' : undefined,
+      publisherId: filters.value.publisherId || undefined,
+      realmId: filters.value.realmId || undefined,
       take: pageSize,
       offset: offset.value,
     })
@@ -192,8 +310,39 @@ async function loadPosts() {
   }
 }
 
+async function batchLock() {
+  const ids = [...selectedIds.value]
+  if (!ids.length) return
+  batchLoading.value = true
+  try {
+    await batchLockPosts(ids)
+    selectedIds.value = new Set()
+    await loadPosts()
+  } catch {
+    useNuxtApp().$toast.error('Failed to lock posts')
+  } finally {
+    batchLoading.value = false
+  }
+}
+
+async function batchUnlock() {
+  const ids = [...selectedIds.value]
+  if (!ids.length) return
+  batchLoading.value = true
+  try {
+    await batchUnlockPosts(ids)
+    selectedIds.value = new Set()
+    await loadPosts()
+  } catch {
+    useNuxtApp().$toast.error('Failed to unlock posts')
+  } finally {
+    batchLoading.value = false
+  }
+}
+
 function handleSearch() {
   offset.value = 0
+  selectedIds.value = new Set()
   loadPosts()
 }
 

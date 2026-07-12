@@ -8,6 +8,7 @@ import {
   IconWallet,
   IconTrendingUp,
   IconShield,
+  IconTicket,
 } from "#components";
 
 export interface NavItem {
@@ -40,6 +41,12 @@ export function useMainNav() {
         badge: chatUnreadCount.value > 0 ? chatUnreadCount.value : null,
       },
       { icon: IconWallet, labelKey: "nav.wallet", href: "/wallets" },
+      {
+        icon: IconTicket,
+        labelKey: "nav.tickets",
+        href: "/tickets",
+        requiresAuth: true,
+      },
       { icon: IconPalette, labelKey: "nav.creatorHub", href: "/creators" },
       { icon: IconCode, labelKey: "nav.developerHub", href: "/developers" },
       { icon: IconTrendingUp, labelKey: "nav.merchantHub", href: "/merchants" },

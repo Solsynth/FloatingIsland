@@ -171,177 +171,224 @@
       </TabsContent>
 
       <TabsContent value="observability">
-        <div v-if="isLoadingObs" class="flex justify-center py-12">
-          <span class="loading loading-spinner loading-lg" />
-        </div>
-
-        <div v-else-if="observability" class="space-y-6">
-          <!-- Summary Stats -->
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="card bg-base-100 shadow-sm">
-              <div class="card-body p-4">
-                <p class="text-xs text-base-content/60">Send Requests</p>
-                <p class="text-2xl font-bold mt-1">{{ formatNumber(observability.totalSendRequests) }}</p>
-              </div>
+        <div class="space-y-6">
+          <!-- Range controls -->
+          <div class="flex flex-wrap items-end gap-3">
+            <div class="flex gap-1 rounded-xl bg-base-200/70 p-1">
+              <button
+                v-for="preset in rangePresets"
+                :key="preset.days"
+                type="button"
+                class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+                :class="obsRangeDays === preset.days ? 'bg-base-100 text-primary shadow-sm' : 'text-base-content/50'"
+                @click="setObsRangeDays(preset.days)"
+              >
+                {{ preset.label }}
+              </button>
             </div>
-            <div class="card bg-base-100 shadow-sm">
-              <div class="card-body p-4">
-                <p class="text-xs text-base-content/60">Target Accounts</p>
-                <p class="text-2xl font-bold mt-1">{{ formatNumber(observability.totalTargetAccounts) }}</p>
-              </div>
-            </div>
-            <div class="card bg-base-100 shadow-sm">
-              <div class="card-body p-4">
-                <p class="text-xs text-base-content/60">Delivery Attempts</p>
-                <p class="text-2xl font-bold mt-1">{{ formatNumber(observability.totalDeliveryAttempts) }}</p>
-              </div>
-            </div>
-            <div class="card bg-base-100 shadow-sm">
-              <div class="card-body p-4">
-                <p class="text-xs text-base-content/60">Success Rate</p>
-                <p class="text-2xl font-bold mt-1" :class="getSuccessRateClass(observability.overallSuccessRate)">
-                  {{ (observability.overallSuccessRate * 100).toFixed(1) }}%
-                </p>
-              </div>
-            </div>
+            <button
+              type="button"
+              class="btn btn-sm btn-ghost"
+              :disabled="isLoadingObs"
+              @click="loadObservability(true)"
+            >
+              <span v-if="isLoadingObs" class="loading loading-spinner loading-xs" />
+              <IconRefreshCw v-else class="w-4 h-4" />
+              Refresh
+            </button>
+            <p class="text-xs text-base-content/40 ml-auto">
+              Built-in Ring records · last {{ obsRangeDays }} days · no OTLP required
+            </p>
           </div>
 
-          <!-- Provider Breakdown -->
-          <AdminCard title="Delivery by Provider">
-            <div class="space-y-4">
-              <div
-                v-for="provider in observability.providers"
-                :key="provider.provider"
-                class="space-y-2"
-              >
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <span class="font-medium text-sm capitalize">{{ provider.provider }}</span>
-                    <span class="badge badge-xs badge-ghost">{{ formatNumber(provider.attempts) }} attempts</span>
-                  </div>
-                  <span
-                    class="text-sm font-semibold"
-                    :class="getSuccessRateClass(provider.successRate)"
+          <div v-if="isLoadingObs && !observability" class="flex justify-center py-12">
+            <span class="loading loading-spinner loading-lg" />
+          </div>
+
+          <template v-else-if="observability">
+            <!-- Summary Stats -->
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+              <div class="card bg-base-100 shadow-sm">
+                <div class="card-body p-4">
+                  <p class="text-xs text-base-content/60">Send Requests</p>
+                  <p class="text-2xl font-bold mt-1">{{ formatNumber(observability.sendRequests) }}</p>
+                  <p class="text-[10px] text-base-content/40 mt-1">queued / batch targets</p>
+                </div>
+              </div>
+              <div class="card bg-base-100 shadow-sm">
+                <div class="card-body p-4">
+                  <p class="text-xs text-base-content/60">Deliveries</p>
+                  <p class="text-2xl font-bold mt-1">{{ formatNumber(observability.summary.total) }}</p>
+                  <p class="text-[10px] text-base-content/40 mt-1">channel attempts</p>
+                </div>
+              </div>
+              <div class="card bg-base-100 shadow-sm">
+                <div class="card-body p-4">
+                  <p class="text-xs text-base-content/60">Successful</p>
+                  <p class="text-2xl font-bold mt-1 text-success">{{ formatNumber(observability.summary.successful) }}</p>
+                </div>
+              </div>
+              <div class="card bg-base-100 shadow-sm">
+                <div class="card-body p-4">
+                  <p class="text-xs text-base-content/60">Failed / Invalid</p>
+                  <p class="text-2xl font-bold mt-1">
+                    <span class="text-error">{{ formatNumber(observability.summary.failed) }}</span>
+                    <span class="text-base-content/30 text-lg mx-0.5">/</span>
+                    <span class="text-warning">{{ formatNumber(observability.summary.invalidToken) }}</span>
+                  </p>
+                  <p class="text-[10px] text-base-content/40 mt-1">
+                    skipped {{ formatNumber(observability.summary.skipped) }}
+                  </p>
+                </div>
+              </div>
+              <div class="card bg-base-100 shadow-sm">
+                <div class="card-body p-4">
+                  <p class="text-xs text-base-content/60">Success Rate</p>
+                  <p
+                    class="text-2xl font-bold mt-1"
+                    :class="getSuccessRateClass(observability.summary.successRate)"
                   >
-                    {{ (provider.successRate * 100).toFixed(1) }}%
-                  </span>
-                </div>
-                <div class="flex gap-1 h-2 rounded-full overflow-hidden bg-base-200">
-                  <div
-                    class="bg-success rounded-full transition-all"
-                    :style="{ width: `${(provider.results.success || 0) / provider.attempts * 100}%` }"
-                  />
-                  <div
-                    class="bg-error rounded-full transition-all"
-                    :style="{ width: `${(provider.results.failure || 0) / provider.attempts * 100}%` }"
-                  />
-                  <div
-                    class="bg-warning rounded-full transition-all"
-                    :style="{ width: `${(provider.results.invalid_token || 0) / provider.attempts * 100}%` }"
-                  />
-                  <div
-                    class="bg-base-content/30 rounded-full transition-all"
-                    :style="{ width: `${((provider.results.skipped || 0) + (provider.results.no_subscription || 0)) / provider.attempts * 100}%` }"
-                  />
-                </div>
-                <div class="flex gap-3 text-[10px] text-base-content/50">
-                  <span class="flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-success" /> Success: {{ formatNumber(provider.results.success || 0) }}
-                  </span>
-                  <span class="flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-error" /> Failure: {{ formatNumber(provider.results.failure || 0) }}
-                  </span>
-                  <span v-if="provider.results.invalid_token" class="flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-warning" /> Invalid: {{ formatNumber(provider.results.invalid_token) }}
-                  </span>
+                    {{ formatSuccessRate(observability.summary.successRate) }}
+                  </p>
+                  <p class="text-[10px] text-base-content/40 mt-1">excludes skipped</p>
                 </div>
               </div>
             </div>
-          </AdminCard>
 
-          <!-- Latency & Top Topics Row -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Latency Card -->
-            <AdminCard title="Delivery Latency">
-              <div class="grid grid-cols-4 gap-3">
-                <div class="text-center">
-                  <p class="text-lg font-bold text-primary">{{ observability.latency.p50 }}<span class="text-xs font-normal text-base-content/40">ms</span></p>
-                  <p class="text-[10px] text-base-content/50 mt-0.5">p50</p>
-                </div>
-                <div class="text-center">
-                  <p class="text-lg font-bold">{{ observability.latency.p95 }}<span class="text-xs font-normal text-base-content/40">ms</span></p>
-                  <p class="text-[10px] text-base-content/50 mt-0.5">p95</p>
-                </div>
-                <div class="text-center">
-                  <p class="text-lg font-bold">{{ observability.latency.p99 }}<span class="text-xs font-normal text-base-content/40">ms</span></p>
-                  <p class="text-[10px] text-base-content/50 mt-0.5">p99</p>
-                </div>
-                <div class="text-center">
-                  <p class="text-lg font-bold text-base-content/70">{{ observability.latency.avg }}<span class="text-xs font-normal text-base-content/40">ms</span></p>
-                  <p class="text-[10px] text-base-content/50 mt-0.5">avg</p>
-                </div>
-              </div>
-              <div class="mt-4 pt-4 border-t border-base-200">
-                <div class="flex items-center justify-between text-sm">
-                  <span class="text-base-content/60">Avg Batch Size</span>
-                  <span class="font-medium">{{ observability.batchSizes.avg.toFixed(0) }}</span>
-                </div>
-                <div class="flex items-center justify-between text-sm mt-2">
-                  <span class="text-base-content/60">Max Batch Size</span>
-                  <span class="font-medium">{{ observability.batchSizes.max }}</span>
-                </div>
-              </div>
-            </AdminCard>
-
-            <!-- Top Topics Card -->
-            <AdminCard title="Top Topics by Volume">
-              <div v-if="observability.topics.length" class="space-y-3">
+            <!-- Provider Breakdown -->
+            <AdminCard title="Delivery by Provider">
+              <p class="text-xs text-base-content/50 mb-4">
+                websocket · google · apple · appk · unifiedpush · sop (skipped when no provider push)
+              </p>
+              <div v-if="observability.byProvider.length" class="space-y-4">
                 <div
-                  v-for="topic in observability.topics.slice(0, 5)"
-                  :key="topic.topic"
-                  class="flex items-center justify-between"
+                  v-for="row in observability.byProvider"
+                  :key="row.key"
+                  class="space-y-2"
                 >
-                  <div class="flex items-center gap-2 min-w-0">
-                    <IconBell class="w-3.5 h-3.5 text-base-content/40 shrink-0" />
-                    <span class="text-sm font-mono truncate">{{ topic.topic }}</span>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="font-medium text-sm capitalize">{{ row.key }}</span>
+                      <span class="badge badge-xs badge-ghost">{{ formatNumber(row.total) }} total</span>
+                    </div>
+                    <span
+                      class="text-sm font-semibold"
+                      :class="getSuccessRateClass(row.successRate)"
+                    >
+                      {{ formatSuccessRate(row.successRate) }}
+                    </span>
                   </div>
-                  <div class="flex items-center gap-2 shrink-0 ml-3">
-                    <span class="text-xs text-base-content/50">{{ formatNumber(topic.sendRequests) }} req</span>
-                    <span class="text-xs font-medium">{{ formatNumber(topic.deliveryAttempts) }} del</span>
+                  <div class="flex gap-1 h-2 rounded-full overflow-hidden bg-base-200">
+                    <div
+                      class="bg-success rounded-full transition-all"
+                      :style="{ width: barWidth(row.successful, row.total) }"
+                    />
+                    <div
+                      class="bg-error rounded-full transition-all"
+                      :style="{ width: barWidth(row.failed, row.total) }"
+                    />
+                    <div
+                      class="bg-warning rounded-full transition-all"
+                      :style="{ width: barWidth(row.invalidToken, row.total) }"
+                    />
+                    <div
+                      class="bg-base-content/30 rounded-full transition-all"
+                      :style="{ width: barWidth(row.skipped, row.total) }"
+                    />
+                  </div>
+                  <div class="flex flex-wrap gap-3 text-[10px] text-base-content/50">
+                    <span class="flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-success" /> Success: {{ formatNumber(row.successful) }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-error" /> Failure: {{ formatNumber(row.failed) }}
+                    </span>
+                    <span v-if="row.invalidToken" class="flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-warning" /> Invalid: {{ formatNumber(row.invalidToken) }}
+                    </span>
+                    <span v-if="row.skipped" class="flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-base-content/30" /> Skipped: {{ formatNumber(row.skipped) }}
+                    </span>
                   </div>
                 </div>
               </div>
               <div v-else class="py-6 text-center text-base-content/40 text-sm">
-                No topics recorded yet
+                No delivery records in this range
               </div>
             </AdminCard>
-          </div>
 
-          <!-- Preference Gate Results -->
-          <AdminCard title="Preference Gate Results">
-            <p class="text-xs text-base-content/50 mb-3">How user notification preferences affect delivery</p>
-            <div class="grid grid-cols-3 gap-4">
-              <div class="text-center p-3 rounded-xl bg-success/5">
-                <p class="text-lg font-bold text-success">{{ formatNumber(observability.preferenceResults.normal) }}</p>
-                <p class="text-xs text-base-content/50 mt-0.5">Normal</p>
-              </div>
-              <div class="text-center p-3 rounded-xl bg-warning/5">
-                <p class="text-lg font-bold text-warning">{{ formatNumber(observability.preferenceResults.silent) }}</p>
-                <p class="text-xs text-base-content/50 mt-0.5">Silent</p>
-              </div>
-              <div class="text-center p-3 rounded-xl bg-error/5">
-                <p class="text-lg font-bold text-error">{{ formatNumber(observability.preferenceResults.reject) }}</p>
-                <p class="text-xs text-base-content/50 mt-0.5">Reject</p>
-              </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- Send requests by topic -->
+              <AdminCard title="Send Requests by Topic">
+                <div v-if="observability.sendRequestsByTopic.length" class="space-y-3">
+                  <div
+                    v-for="topic in observability.sendRequestsByTopic.slice(0, 10)"
+                    :key="topic.key"
+                    class="flex items-center justify-between gap-3"
+                  >
+                    <div class="flex items-center gap-2 min-w-0">
+                      <IconBell class="w-3.5 h-3.5 text-base-content/40 shrink-0" />
+                      <span class="text-sm font-mono truncate">{{ topic.key }}</span>
+                    </div>
+                    <span class="text-xs font-medium shrink-0">{{ formatNumber(topic.total) }}</span>
+                  </div>
+                </div>
+                <div v-else class="py-6 text-center text-base-content/40 text-sm">
+                  No send requests recorded yet
+                </div>
+              </AdminCard>
+
+              <!-- Delivery by topic -->
+              <AdminCard title="Deliveries by Topic">
+                <div v-if="observability.byTopic.length" class="space-y-3">
+                  <div
+                    v-for="topic in observability.byTopic.slice(0, 10)"
+                    :key="topic.key"
+                    class="flex items-center justify-between gap-3"
+                  >
+                    <div class="flex items-center gap-2 min-w-0">
+                      <IconBell class="w-3.5 h-3.5 text-base-content/40 shrink-0" />
+                      <span class="text-sm font-mono truncate">{{ topic.key }}</span>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                      <span class="text-xs text-base-content/50">{{ formatNumber(topic.total) }}</span>
+                      <span
+                        class="text-xs font-semibold"
+                        :class="getSuccessRateClass(topic.successRate)"
+                      >
+                        {{ formatSuccessRate(topic.successRate) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="py-6 text-center text-base-content/40 text-sm">
+                  No topic deliveries recorded yet
+                </div>
+              </AdminCard>
             </div>
-          </AdminCard>
-        </div>
 
-        <div v-else class="card bg-base-100 shadow-sm">
-          <div class="card-body py-12 text-center">
-            <IconActivity class="w-12 h-12 mx-auto mb-3 opacity-20" />
-            <p class="text-sm text-base-content/40">No observability data available</p>
-            <p class="text-xs text-base-content/30 mt-1">Metrics will appear once notifications are sent</p>
+            <AdminCard title="How rates are calculated">
+              <div class="space-y-2 text-sm text-base-content/60">
+                <p>
+                  <code class="text-xs">success_rate = success / (success + failure + invalid_token)</code>
+                </p>
+                <p>
+                  <code class="text-xs">skipped</code> is excluded from the denominator (e.g. SOP-only subscriptions).
+                  Provider success means the channel accepted the attempt, not that a user saw the notification.
+                </p>
+                <p class="text-xs text-base-content/40">
+                  Records exclude account IDs, device IDs, tokens, titles, and contents.
+                </p>
+              </div>
+            </AdminCard>
+          </template>
+
+          <div v-else class="card bg-base-100 shadow-sm">
+            <div class="card-body py-12 text-center">
+              <IconActivity class="w-12 h-12 mx-auto mb-3 opacity-20" />
+              <p class="text-sm text-base-content/40">No observability data available</p>
+              <p class="text-xs text-base-content/30 mt-1">Metrics will appear once notifications are sent</p>
+            </div>
           </div>
         </div>
       </TabsContent>
@@ -361,11 +408,11 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { TabsRoot, TabsList, TabsTrigger, TabsContent } from 'reka-ui'
-import { IconActivity, IconBell, IconSend, IconUsers, IconX } from '#components'
-import { fetchNotificationObservability, sendAdminNotifications } from '~/utils/admin'
+import { IconActivity, IconBell, IconRefreshCw, IconSend, IconUsers, IconX } from '#components'
+import { fetchNotificationDeliveryObservability, sendAdminNotifications } from '~/utils/admin'
 import { useAccountPicker } from '~/composables/useAccountPicker'
 import AccountPickerDrawer from '~/components/shared/AccountPickerDrawer.vue'
-import type { BulkDeliveryResult, NotificationObservability, NotificationPayload } from '~/types/admin'
+import type { BulkDeliveryResult, NotificationDeliveryOverview, NotificationPayload } from '~/types/admin'
 import type { SnAccount } from '~/types/auth'
 
 definePageMeta({ middleware: 'auth' })
@@ -397,19 +444,46 @@ const form = ref({
 const metaJson = ref('')
 const metaError = ref('')
 
-// Observability
+// Observability (Ring built-in delivery records)
 const isLoadingObs = ref(false)
-const observability = ref<NotificationObservability | null>(null)
+const observability = ref<NotificationDeliveryOverview | null>(null)
+const obsRangeDays = ref(30)
+const rangePresets = [
+  { days: 7, label: '7d' },
+  { days: 30, label: '30d' },
+  { days: 90, label: '90d' },
+] as const
 
-async function loadObservability() {
-  if (observability.value) return
+function setObsRangeDays(days: number) {
+  if (obsRangeDays.value === days) return
+  obsRangeDays.value = days
+  loadObservability(true)
+}
+
+function obsFromInstant(): string {
+  const ms = Date.now() - obsRangeDays.value * 24 * 60 * 60 * 1000
+  return new Date(ms).toISOString()
+}
+
+let obsLoadSeq = 0
+
+async function loadObservability(force = false) {
+  if (!force && observability.value) return
+  const seq = ++obsLoadSeq
   isLoadingObs.value = true
   try {
-    observability.value = await fetchNotificationObservability()
+    const data = await fetchNotificationDeliveryObservability({
+      from: obsFromInstant(),
+    })
+    if (seq !== obsLoadSeq) return
+    observability.value = data
   } catch {
+    if (seq !== obsLoadSeq) return
     useNuxtApp().$toast.error('Failed to load observability data')
   } finally {
-    isLoadingObs.value = false
+    if (seq === obsLoadSeq) {
+      isLoadingObs.value = false
+    }
   }
 }
 
@@ -492,9 +566,20 @@ function formatNumber(n: number): string {
   return n.toString()
 }
 
-function getSuccessRateClass(rate: number): string {
+function formatSuccessRate(rate: number | null | undefined): string {
+  if (rate == null) return '—'
+  return `${(rate * 100).toFixed(1)}%`
+}
+
+function getSuccessRateClass(rate: number | null | undefined): string {
+  if (rate == null) return 'text-base-content/40'
   if (rate >= 0.95) return 'text-success'
   if (rate >= 0.8) return 'text-warning'
   return 'text-error'
+}
+
+function barWidth(part: number, total: number): string {
+  if (!total || part <= 0) return '0%'
+  return `${(part / total) * 100}%`
 }
 </script>

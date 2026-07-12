@@ -128,10 +128,72 @@
     "creatorHub": "Creator Hub",
     "developerHub": "Developer Hub",
     "merchantHub": "Merchant Hub",
+    "tickets": "Support",
     "overview": "Overview",
     "content": "Content",
     "community": "Community",
     "adminPanel": "Admin Panel"
+  },
+  "tickets": {
+    "title": "Support tickets",
+    "description": "Create and track support requests with the Solar Network team",
+    "newTicket": "New ticket",
+    "empty": "No tickets yet",
+    "emptyHint": "Open a ticket if you need help with your account, billing, or the product",
+    "allStatuses": "All statuses",
+    "backToList": "All tickets",
+    "notFound": "Ticket not found",
+    "conversation": "Conversation",
+    "noMessages": "No messages yet",
+    "you": "You",
+    "staff": "Staff",
+    "waitingNotice": "We're waiting for more information from you. A staff member will update this thread when they reply.",
+    "created": "Ticket created",
+    "messageCount": "{count} messages",
+    "form": {
+      "title": "Subject",
+      "titlePlaceholder": "Brief summary of the issue",
+      "type": "Type",
+      "priority": "Priority",
+      "content": "Description",
+      "contentPlaceholder": "Describe what happened, what you expected, and any steps to reproduce…",
+      "resources": "Related links (optional)",
+      "resourcesPlaceholder": "One URL or reference per line",
+      "resourcesHint": "Post IDs, order IDs, screenshots URLs, etc.",
+      "submit": "Submit ticket"
+    },
+    "fields": {
+      "created": "Created",
+      "updated": "Updated",
+      "assignee": "Assignee",
+      "resolved": "Resolved",
+      "resources": "Resources"
+    },
+    "type": {
+      "support": "Support",
+      "bug": "Bug report",
+      "feature": "Feature request",
+      "billing": "Billing",
+      "other": "Other"
+    },
+    "status": {
+      "open": "Open",
+      "inProgress": "In progress",
+      "resolved": "Resolved",
+      "closed": "Closed",
+      "waitingForCustomer": "Waiting for you",
+      "waitingForInfo": "Needs more info"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "critical": "Critical"
+    },
+    "errors": {
+      "loadFailed": "Failed to load tickets",
+      "createFailed": "Failed to create ticket"
+    }
   },
   "notifications": {
     "title": "Notifications",

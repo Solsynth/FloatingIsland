@@ -1,6 +1,41 @@
 <template>
   <NuxtLayout name="admin">
-    <AdminPageHeader title="Wallet" description="Manage wallets, transactions, orders, and subscriptions" />
+    <AdminPageHeader title="Wallet" description="Manage wallets, transactions, orders, and subscriptions">
+      <template #actions>
+        <button class="btn btn-sm btn-ghost" :disabled="statsLoading" @click="loadWalletStats">
+          <IconRefreshCw class="w-4 h-4" :class="{ 'animate-spin': statsLoading }" />
+          Stats
+        </button>
+      </template>
+    </AdminPageHeader>
+
+    <!-- Wallet stats strip -->
+    <div v-if="walletStats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+      <AdminCard class="!p-3">
+        <div class="text-lg font-bold">{{ formatNum(walletStats.totalWallets) }}</div>
+        <div class="text-[11px] text-base-content/40">Wallets</div>
+      </AdminCard>
+      <AdminCard class="!p-3">
+        <div class="text-lg font-bold">{{ formatNum(walletStats.totalTransactions) }}</div>
+        <div class="text-[11px] text-base-content/40">Transactions</div>
+      </AdminCard>
+      <AdminCard class="!p-3">
+        <div class="text-lg font-bold text-success">{{ formatNum(walletStats.confirmedTransactions) }}</div>
+        <div class="text-[11px] text-base-content/40">Confirmed</div>
+      </AdminCard>
+      <AdminCard class="!p-3">
+        <div class="text-lg font-bold text-warning">{{ formatNum(walletStats.pendingTransactions) }}</div>
+        <div class="text-[11px] text-base-content/40">Pending</div>
+      </AdminCard>
+      <AdminCard class="!p-3">
+        <div class="text-lg font-bold">{{ formatNum(walletStats.paidOrders) }}</div>
+        <div class="text-[11px] text-base-content/40">Paid orders</div>
+      </AdminCard>
+      <AdminCard class="!p-3">
+        <div class="text-lg font-bold">{{ formatNum(walletStats.totalSubscriptions) }}</div>
+        <div class="text-[11px] text-base-content/40">Subscriptions</div>
+      </AdminCard>
+    </div>
 
     <!-- Tabs -->
     <div class="flex gap-1 mb-6 p-1 rounded-xl bg-base-300/30 w-fit">
@@ -26,12 +61,30 @@
             class="input input-sm bg-base-200/60 border-0 rounded-xl w-44"
           />
           <input
+            v-model="txFilters.walletId"
+            type="text"
+            placeholder="Wallet ID..."
+            class="input input-sm bg-base-200/60 border-0 rounded-xl w-44"
+          />
+          <input
             v-model="txFilters.currency"
             type="text"
             placeholder="Currency..."
-            class="input input-sm bg-base-200/60 border-0 rounded-xl w-32"
+            class="input input-sm bg-base-200/60 border-0 rounded-xl w-28"
           />
-          <button class="btn btn-sm btn-primary" @click="loadTransactions">Filter</button>
+          <input
+            v-model="txFilters.status"
+            type="text"
+            placeholder="Status..."
+            class="input input-sm bg-base-200/60 border-0 rounded-xl w-28"
+          />
+          <input
+            v-model="txFilters.type"
+            type="text"
+            placeholder="Type..."
+            class="input input-sm bg-base-200/60 border-0 rounded-xl w-28"
+          />
+          <button class="btn btn-sm btn-primary" @click="txOffset = 0; loadTransactions()">Filter</button>
         </div>
       </AdminCard>
 
@@ -116,7 +169,11 @@
       <AdminCard class="mb-4">
         <div class="flex flex-wrap gap-2">
           <input v-model="orderFilters.accountId" type="text" placeholder="Account ID..." class="input input-sm bg-base-200/60 border-0 rounded-xl w-44" />
-          <input v-model="orderFilters.currency" type="text" placeholder="Currency..." class="input input-sm bg-base-200/60 border-0 rounded-xl w-32" />
+          <input v-model="orderFilters.walletId" type="text" placeholder="Wallet ID..." class="input input-sm bg-base-200/60 border-0 rounded-xl w-44" />
+          <input v-model="orderFilters.currency" type="text" placeholder="Currency..." class="input input-sm bg-base-200/60 border-0 rounded-xl w-28" />
+          <input v-model="orderFilters.status" type="text" placeholder="Status..." class="input input-sm bg-base-200/60 border-0 rounded-xl w-28" />
+          <input v-model="orderFilters.appIdentifier" type="text" placeholder="App ID..." class="input input-sm bg-base-200/60 border-0 rounded-xl w-32" />
+          <input v-model="orderFilters.productIdentifier" type="text" placeholder="Product ID..." class="input input-sm bg-base-200/60 border-0 rounded-xl w-32" />
           <button class="btn btn-sm btn-primary" @click="loadOrders">Filter</button>
         </div>
       </AdminCard>
@@ -176,6 +233,17 @@
         <div class="flex flex-wrap gap-2">
           <input v-model="subFilters.accountId" type="text" placeholder="Account ID..." class="input input-sm bg-base-200/60 border-0 rounded-xl w-44" />
           <input v-model="subFilters.identifier" type="text" placeholder="Identifier..." class="input input-sm bg-base-200/60 border-0 rounded-xl w-32" />
+          <input v-model="subFilters.status" type="text" placeholder="Status..." class="input input-sm bg-base-200/60 border-0 rounded-xl w-28" />
+          <select v-model="subFilters.isActive" class="select select-sm bg-base-200/60 border-0 rounded-xl">
+            <option value="">Any active</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+          <select v-model="subFilters.isTesting" class="select select-sm bg-base-200/60 border-0 rounded-xl">
+            <option value="">Any testing</option>
+            <option value="true">Testing</option>
+            <option value="false">Production</option>
+          </select>
           <button class="btn btn-sm btn-primary" @click="loadSubscriptions">Filter</button>
         </div>
       </AdminCard>
@@ -331,6 +399,7 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconPlus,
+  IconRefreshCw,
 } from '#components'
 import type {
   AdminTransaction,
@@ -339,6 +408,7 @@ import type {
   AdminSubscriptionCatalogItem,
   GoldsResupplyPack,
   MaintenanceResult,
+  WalletAdminStats,
 } from '~/types/admin'
 import {
   fetchAdminTransactions,
@@ -353,6 +423,7 @@ import {
   runMaintenanceCancelInAppWallet,
   fetchGoldsResupplyPack,
   applyWalletProductOrder,
+  fetchWalletAdminStats,
 } from '~/utils/admin'
 
 definePageMeta({ middleware: 'auth' })
@@ -365,9 +436,29 @@ const tabs = [
   { id: 'catalog', label: 'Catalog' },
 ]
 
+const walletStats = ref<WalletAdminStats | null>(null)
+const statsLoading = ref(false)
+
+async function loadWalletStats() {
+  statsLoading.value = true
+  try {
+    walletStats.value = await fetchWalletAdminStats()
+  } catch {
+    walletStats.value = null
+  } finally {
+    statsLoading.value = false
+  }
+}
+
 function formatDate(date?: string): string {
   if (!date) return '—'
   return new Date(date).toLocaleDateString()
+}
+
+function formatNum(n: number): string {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M'
+  if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K'
+  return n.toLocaleString()
 }
 
 // Transactions
@@ -376,14 +467,17 @@ const txTotal = ref(0)
 const txHasMore = ref(false)
 const txOffset = ref(0)
 const txLoading = ref(false)
-const txFilters = ref({ accountId: '', currency: '' })
+const txFilters = ref({ accountId: '', walletId: '', currency: '', status: '', type: '' })
 
 async function loadTransactions() {
   txLoading.value = true
   try {
     const result = await fetchAdminTransactions({
       accountId: txFilters.value.accountId || undefined,
+      walletId: txFilters.value.walletId || undefined,
       currency: txFilters.value.currency || undefined,
+      status: txFilters.value.status || undefined,
+      type: txFilters.value.type || undefined,
       take: 50,
       offset: txOffset.value,
     })
@@ -415,14 +509,25 @@ async function handleModifyBalance() {
 // Orders
 const orders = ref<AdminWalletOrder[]>([])
 const orderLoading = ref(false)
-const orderFilters = ref({ accountId: '', currency: '' })
+const orderFilters = ref({
+  accountId: '',
+  walletId: '',
+  currency: '',
+  status: '',
+  appIdentifier: '',
+  productIdentifier: '',
+})
 
 async function loadOrders() {
   orderLoading.value = true
   try {
     const result = await fetchAdminOrders({
       accountId: orderFilters.value.accountId || undefined,
+      walletId: orderFilters.value.walletId || undefined,
       currency: orderFilters.value.currency || undefined,
+      status: orderFilters.value.status || undefined,
+      appIdentifier: orderFilters.value.appIdentifier || undefined,
+      productIdentifier: orderFilters.value.productIdentifier || undefined,
     })
     orders.value = result.items
   } catch {
@@ -444,7 +549,13 @@ const goldsPack = ref<GoldsResupplyPack | null>(null)
 // Subscriptions
 const subscriptions = ref<AdminSubscription[]>([])
 const subLoading = ref(false)
-const subFilters = ref({ accountId: '', identifier: '' })
+const subFilters = ref({
+  accountId: '',
+  identifier: '',
+  status: '',
+  isActive: '' as string,
+  isTesting: '' as string,
+})
 
 async function loadSubscriptions() {
   subLoading.value = true
@@ -452,6 +563,9 @@ async function loadSubscriptions() {
     const result = await fetchSubscriptions({
       accountId: subFilters.value.accountId || undefined,
       identifier: subFilters.value.identifier || undefined,
+      status: subFilters.value.status || undefined,
+      isActive: subFilters.value.isActive ? subFilters.value.isActive === 'true' : undefined,
+      isTesting: subFilters.value.isTesting ? subFilters.value.isTesting === 'true' : undefined,
     })
     subscriptions.value = result.items
   } catch {
@@ -548,6 +662,7 @@ watch(activeTab, (tab) => {
 })
 
 onMounted(() => {
+  loadWalletStats()
   loadTransactions()
 })
 </script>

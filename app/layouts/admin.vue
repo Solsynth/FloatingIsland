@@ -98,6 +98,8 @@ import {
   IconFileText,
   IconWallet,
   IconDatabase,
+  IconKeyRound,
+  IconTicket,
 } from '#components'
 
 const route = useRoute()
@@ -121,6 +123,11 @@ const navGroups = [
         icon: IconUsers,
         label: 'Accounts',
         href: '/admin/accounts',
+      },
+      {
+        icon: IconKeyRound,
+        label: 'Permissions',
+        href: '/admin/permissions',
       },
       {
         icon: IconShieldAlert,
@@ -152,6 +159,11 @@ const navGroups = [
   {
     label: 'Messaging',
     items: [
+      {
+        icon: IconTicket,
+        label: 'Tickets',
+        href: '/admin/tickets',
+      },
       {
         icon: IconBell,
         label: 'Notifications',

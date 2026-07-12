@@ -109,10 +109,72 @@
     "creatorHub": "创作者中心",
     "developerHub": "开发者中心",
     "merchantHub": "商户中心",
+    "tickets": "支持工单",
     "overview": "概览",
     "content": "内容",
     "community": "社区",
     "adminPanel": "管理面板"
+  },
+  "tickets": {
+    "title": "支持工单",
+    "description": "向 Solar Network 团队创建并跟踪支持请求",
+    "newTicket": "新建工单",
+    "empty": "暂无工单",
+    "emptyHint": "如需账户、账单或产品方面的帮助，可创建工单",
+    "allStatuses": "全部状态",
+    "backToList": "全部工单",
+    "notFound": "未找到工单",
+    "conversation": "对话",
+    "noMessages": "暂无消息",
+    "you": "你",
+    "staff": "客服",
+    "waitingNotice": "我们正在等待你提供更多信息。工作人员回复后会更新此对话。",
+    "created": "工单已创建",
+    "messageCount": "{count} 条消息",
+    "form": {
+      "title": "主题",
+      "titlePlaceholder": "简要描述问题",
+      "type": "类型",
+      "priority": "优先级",
+      "content": "详细说明",
+      "contentPlaceholder": "描述发生了什么、你的预期，以及复现步骤…",
+      "resources": "相关链接（可选）",
+      "resourcesPlaceholder": "每行一个 URL 或引用",
+      "resourcesHint": "帖子 ID、订单 ID、截图链接等",
+      "submit": "提交工单"
+    },
+    "fields": {
+      "created": "创建时间",
+      "updated": "更新时间",
+      "assignee": "处理人",
+      "resolved": "解决时间",
+      "resources": "相关资源"
+    },
+    "type": {
+      "support": "支持",
+      "bug": "缺陷反馈",
+      "feature": "功能建议",
+      "billing": "账单",
+      "other": "其他"
+    },
+    "status": {
+      "open": "开放",
+      "inProgress": "处理中",
+      "resolved": "已解决",
+      "closed": "已关闭",
+      "waitingForCustomer": "等待你回复",
+      "waitingForInfo": "需要更多信息"
+    },
+    "priority": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "critical": "紧急"
+    },
+    "errors": {
+      "loadFailed": "加载工单失败",
+      "createFailed": "创建工单失败"
+    }
   },
   "notifications": {
     "title": "通知",

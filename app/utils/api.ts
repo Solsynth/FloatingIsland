@@ -19,6 +19,8 @@ import type {
   SpellInfo,
   SnAccountPunishment,
   SnAccountTimelineItem,
+  AccountBoardItem,
+  PublicAccountConnection,
 } from "~/types/auth";
 
 export type {
@@ -989,6 +991,106 @@ export async function fetchAccountBotDeveloper(
     return safeJsonParse(response);
   } catch {
     return null;
+  }
+}
+
+// Data API - Account board
+export function defaultAccountBoard(): AccountBoardItem[] {
+  const keys = [
+    "activity",
+    "badges",
+    "leveling",
+    "social_credits",
+    "contacts",
+    "connections",
+    "publishers",
+    "notable_days",
+    "verification",
+    "links",
+    "fortune",
+  ] as const;
+  return keys.map((widgetKey, order) => ({
+    order,
+    kind: "prebuilt" as const,
+    widgetKey,
+    isEnabled: true,
+    payload: {},
+  }));
+}
+
+export function parseAccountBoardItems(raw: unknown[]): AccountBoardItem[] {
+  const items: AccountBoardItem[] = raw.map((entry) => {
+    const map = (entry ?? {}) as Record<string, unknown>;
+    const payloadRaw = map.payload;
+    const kindRaw = map.kind;
+    let kind: AccountBoardItem["kind"] = "prebuilt";
+    if (kindRaw === 1 || kindRaw === "custom_app") kind = "custom_app";
+    else if (kindRaw === 0 || kindRaw === "prebuilt") kind = "prebuilt";
+    else if (typeof kindRaw === "number") kind = kindRaw === 1 ? "custom_app" : "prebuilt";
+
+    return {
+      id: typeof map.id === "string" ? map.id : undefined,
+      accountId: typeof map.accountId === "string" ? map.accountId : undefined,
+      order: typeof map.order === "number" ? map.order : 0,
+      kind,
+      widgetKey: (map.widgetKey as string | null | undefined) ?? null,
+      customAppId: (map.customAppId as string | null | undefined) ?? null,
+      customAppWidgetKey:
+        (map.customAppWidgetKey as string | null | undefined) ?? null,
+      isEnabled: map.isEnabled !== false,
+      payload:
+        payloadRaw && typeof payloadRaw === "object" && !Array.isArray(payloadRaw)
+          ? (payloadRaw as AccountBoardItem["payload"])
+          : {},
+      createdAt: typeof map.createdAt === "string" ? map.createdAt : undefined,
+      updatedAt: typeof map.updatedAt === "string" ? map.updatedAt : undefined,
+    };
+  });
+  items.sort((a, b) => a.order - b.order);
+  return items;
+}
+
+export async function fetchPublicAccountBoard(
+  name: string,
+): Promise<AccountBoardItem[]> {
+  try {
+    const response = await apiFetch(
+      `/passport/accounts/${encodeURIComponent(name)}/board`,
+      { skipAuth: true },
+    );
+    const list = await safeJsonParse<unknown[]>(response);
+    if (!Array.isArray(list) || list.length === 0) return defaultAccountBoard();
+    return parseAccountBoardItems(list);
+  } catch {
+    return defaultAccountBoard();
+  }
+}
+
+export async function fetchPublicAccountConnections(
+  name: string,
+): Promise<PublicAccountConnection[]> {
+  try {
+    const response = await apiFetch(
+      `/passport/accounts/${encodeURIComponent(name)}/connections`,
+      { skipAuth: true },
+    );
+    return safeJsonParse<PublicAccountConnection[]>(response);
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchAccountPublishers(
+  accountId: string,
+): Promise<Publisher[]> {
+  try {
+    const response = await apiFetch(
+      `/sphere/publishers/of/${encodeURIComponent(accountId)}`,
+      { skipAuth: true },
+    );
+    return safeJsonParse<Publisher[]>(response);
+  } catch {
+    return [];
   }
 }
 

@@ -255,7 +255,7 @@ export default defineNuxtConfig({
   },
   sitemap: {
     gzip: true,
-    exclude: ["/admin/**", "/auth/**", "/api/**", "/compose", "/drive/**"],
+    exclude: ["/admin/**", "/auth/**", "/api/**", "/compose", "/drive/**", "/tickets/**"],
     defaults: {
       changefreq: "daily",
       priority: 0.7,

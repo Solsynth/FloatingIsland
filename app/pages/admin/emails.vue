@@ -302,82 +302,153 @@ test2@abc.com,李四</pre>
         </div>
       </TabsContent>
 
-      <!-- Observability Tab (OTEL guidance) -->
+      <!-- Observability Tab (built-in delivery records) -->
       <TabsContent value="observability">
         <div class="space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="card bg-base-100 shadow-sm">
-              <div class="card-body p-4">
-                <p class="text-xs text-base-content/60">Enqueue</p>
-                <p class="text-sm font-mono font-semibold mt-1 break-all">ring.emails.enqueue_requests</p>
-                <p class="text-[10px] text-base-content/40 mt-1">Queued via gRPC / NATS</p>
-              </div>
+          <div class="flex flex-wrap items-end gap-3">
+            <div class="flex gap-1 rounded-xl bg-base-200/70 p-1">
+              <button
+                v-for="preset in rangePresets"
+                :key="preset.days"
+                type="button"
+                class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+                :class="obsRangeDays === preset.days ? 'bg-base-100 text-primary shadow-sm' : 'text-base-content/50'"
+                @click="setObsRangeDays(preset.days)"
+              >
+                {{ preset.label }}
+              </button>
             </div>
-            <div class="card bg-base-100 shadow-sm">
-              <div class="card-body p-4">
-                <p class="text-xs text-base-content/60">SMTP Attempts</p>
-                <p class="text-sm font-mono font-semibold mt-1 break-all">ring.emails.delivery_attempts</p>
-                <p class="text-[10px] text-base-content/40 mt-1">source=queue|sending_plan|direct</p>
-              </div>
-            </div>
-            <div class="card bg-base-100 shadow-sm">
-              <div class="card-body p-4">
-                <p class="text-xs text-base-content/60">SMTP Results</p>
-                <p class="text-sm font-mono font-semibold mt-1 break-all">ring.emails.delivery_results</p>
-                <p class="text-[10px] text-base-content/40 mt-1">outcome=success|failure</p>
-              </div>
-            </div>
-            <div class="card bg-base-100 shadow-sm">
-              <div class="card-body p-4">
-                <p class="text-xs text-base-content/60">Latency</p>
-                <p class="text-sm font-mono font-semibold mt-1 break-all">ring.emails.delivery_duration_ms</p>
-                <p class="text-[10px] text-base-content/40 mt-1">p50 / p95 / p99 via OTEL</p>
-              </div>
-            </div>
+            <button
+              type="button"
+              class="btn btn-sm btn-ghost"
+              :disabled="isLoadingObs"
+              @click="loadObservability(true)"
+            >
+              <span v-if="isLoadingObs" class="loading loading-spinner loading-xs" />
+              <IconRefreshCw v-else class="w-4 h-4" />
+              Refresh
+            </button>
+            <p class="text-xs text-base-content/40 ml-auto">
+              Built-in Ring records · last {{ obsRangeDays }} days · no OTLP required
+            </p>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <AdminCard title="Success Rate">
-              <p class="text-sm text-base-content/60 mb-3">
-                SMTP submission success rate (not mailbox delivery):
-              </p>
-              <pre class="text-xs bg-base-200/60 rounded-xl p-3 font-mono overflow-x-auto whitespace-pre-wrap">{{ emailSuccessRateFormula }}</pre>
-              <p class="text-xs text-base-content/40 mt-3">
-                Break down by <code class="text-xs">source</code> to separate queue transactional mail from sending plans.
-                Do not use gRPC 200 OK or enqueue volume as the success denominator.
-              </p>
-            </AdminCard>
-
-            <AdminCard title="Suggested Dashboards">
-              <ul class="space-y-2 text-sm text-base-content/60">
-                <li class="flex gap-2"><span class="text-primary font-semibold">1.</span> Queued email requests per minute</li>
-                <li class="flex gap-2"><span class="text-primary font-semibold">2.</span> SMTP attempts and outcomes per minute</li>
-                <li class="flex gap-2"><span class="text-primary font-semibold">3.</span> SMTP success rate by source</li>
-                <li class="flex gap-2"><span class="text-primary font-semibold">4.</span> p50 / p95 / p99 SMTP delivery duration</li>
-                <li class="flex gap-2"><span class="text-primary font-semibold">5.</span> Sending-plan failures vs skipped recipients</li>
-                <li class="flex gap-2"><span class="text-primary font-semibold">6.</span> Enqueue rate vs SMTP attempt rate (stalled consumers)</li>
-              </ul>
-            </AdminCard>
+          <div v-if="isLoadingObs && !observability" class="flex justify-center py-12">
+            <span class="loading loading-spinner loading-lg" />
           </div>
 
-          <AdminCard title="Operational Notes">
-            <div class="space-y-2 text-sm text-base-content/60">
-              <p>
-                Ring exports activity source <code class="text-xs">DysonNetwork.Ring.Email</code> and meter
-                <code class="text-xs">DysonNetwork.Ring.Email</code> through OTLP when
-                <code class="text-xs">OTEL_EXPORTER_OTLP_ENDPOINT</code> is set.
-              </p>
-              <p>
-                Spans use <code class="text-xs">emails.deliver.smtp</code> with tags
-                <code class="text-xs">email.source</code> and <code class="text-xs">email.provider=smtp</code>.
-                Addresses, subjects, bodies, account IDs, and credentials are excluded from telemetry.
-              </p>
-              <p class="text-warning/80">
-                SMTP success only means the configured SMTP server accepted the message. Provider bounces,
-                spam filtering, and mailbox delivery require provider webhooks and are not counted here.
-              </p>
+          <template v-else-if="observability">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="card bg-base-100 shadow-sm">
+                <div class="card-body p-4">
+                  <p class="text-xs text-base-content/60">SMTP Attempts</p>
+                  <p class="text-2xl font-bold mt-1">{{ formatNumber(observability.summary.total) }}</p>
+                  <p class="text-[10px] text-base-content/40 mt-1">submission attempts</p>
+                </div>
+              </div>
+              <div class="card bg-base-100 shadow-sm">
+                <div class="card-body p-4">
+                  <p class="text-xs text-base-content/60">Successful</p>
+                  <p class="text-2xl font-bold mt-1 text-success">
+                    {{ formatNumber(observability.summary.successful) }}
+                  </p>
+                  <p class="text-[10px] text-base-content/40 mt-1">SMTP accepted</p>
+                </div>
+              </div>
+              <div class="card bg-base-100 shadow-sm">
+                <div class="card-body p-4">
+                  <p class="text-xs text-base-content/60">Failed</p>
+                  <p class="text-2xl font-bold mt-1 text-error">
+                    {{ formatNumber(observability.summary.failed) }}
+                  </p>
+                </div>
+              </div>
+              <div class="card bg-base-100 shadow-sm">
+                <div class="card-body p-4">
+                  <p class="text-xs text-base-content/60">Success Rate</p>
+                  <p
+                    class="text-2xl font-bold mt-1"
+                    :class="getSuccessRateClass(observability.summary.successRate)"
+                  >
+                    {{ formatSuccessRate(observability.summary.successRate) }}
+                  </p>
+                  <p class="text-[10px] text-base-content/40 mt-1">success / (success + failure)</p>
+                </div>
+              </div>
             </div>
-          </AdminCard>
+
+            <AdminCard title="Delivery by Source">
+              <p class="text-xs text-base-content/50 mb-4">
+                queue (gRPC) · sending_plan · direct
+              </p>
+              <div v-if="observability.bySource.length" class="space-y-4">
+                <div
+                  v-for="row in observability.bySource"
+                  :key="row.key"
+                  class="space-y-2"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="font-medium text-sm font-mono">{{ row.key }}</span>
+                      <span class="badge badge-xs badge-ghost">{{ formatNumber(row.total) }} total</span>
+                    </div>
+                    <span
+                      class="text-sm font-semibold"
+                      :class="getSuccessRateClass(row.successRate)"
+                    >
+                      {{ formatSuccessRate(row.successRate) }}
+                    </span>
+                  </div>
+                  <div class="flex gap-1 h-2 rounded-full overflow-hidden bg-base-200">
+                    <div
+                      class="bg-success rounded-full transition-all"
+                      :style="{ width: barWidth(row.successful, row.total) }"
+                    />
+                    <div
+                      class="bg-error rounded-full transition-all"
+                      :style="{ width: barWidth(row.failed, row.total) }"
+                    />
+                  </div>
+                  <div class="flex flex-wrap gap-3 text-[10px] text-base-content/50">
+                    <span class="flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-success" />
+                      Success: {{ formatNumber(row.successful) }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-error" />
+                      Failure: {{ formatNumber(row.failed) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="py-6 text-center text-base-content/40 text-sm">
+                No email delivery records in this range
+              </div>
+            </AdminCard>
+
+            <AdminCard title="How rates are calculated">
+              <div class="space-y-2 text-sm text-base-content/60">
+                <p>
+                  <code class="text-xs">success_rate = success / (success + failure)</code>
+                </p>
+                <p>
+                  Measures SMTP acceptance only — not final mailbox delivery, bounces, spam filtering,
+                  or recipient engagement. Provider webhooks are out of scope for this view.
+                </p>
+                <p class="text-xs text-base-content/40">
+                  Records exclude recipient addresses, subjects, bodies, account IDs, and credentials.
+                </p>
+              </div>
+            </AdminCard>
+          </template>
+
+          <div v-else class="card bg-base-100 shadow-sm">
+            <div class="card-body py-12 text-center">
+              <IconActivity class="w-12 h-12 mx-auto mb-3 opacity-20" />
+              <p class="text-sm text-base-content/40">No observability data available</p>
+              <p class="text-xs text-base-content/30 mt-1">Metrics will appear once emails are sent</p>
+            </div>
+          </div>
         </div>
       </TabsContent>
 
@@ -749,7 +820,7 @@ test2@abc.com,李四</pre>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import {
   IconUsers,
   IconX,
@@ -766,6 +837,7 @@ import {
   IconSkipForward,
   IconDownload,
   IconActivity,
+  IconRefreshCw,
 } from '#components'
 import {
   TabsRoot,
@@ -781,18 +853,95 @@ import {
   pauseEmailPlan,
   resumeEmailPlan,
   advanceEmailPlan,
+  fetchEmailDeliveryObservability,
 } from '~/utils/admin'
 import { useAccountPicker } from '~/composables/useAccountPicker'
 import AccountPickerDrawer from '~/components/shared/AccountPickerDrawer.vue'
-import type { BulkDeliveryResult, EmailPayload, EmailPlan, EmailPlanCreatePayload } from '~/types/admin'
+import type {
+  BulkDeliveryResult,
+  EmailDeliveryOverview,
+  EmailPayload,
+  EmailPlan,
+  EmailPlanCreatePayload,
+} from '~/types/admin'
 import type { SnAccount } from '~/types/auth'
 
 definePageMeta({ middleware: 'auth' })
 
 // ============ Tab State ============
 const activeTab = ref('compose')
-const emailSuccessRateFormula = `delivery_results{outcome="success"} /
-(delivery_results{outcome="success"} + delivery_results{outcome="failure"})`
+
+// ============ Observability ============
+const isLoadingObs = ref(false)
+const observability = ref<EmailDeliveryOverview | null>(null)
+const obsRangeDays = ref(30)
+const rangePresets = [
+  { days: 7, label: '7d' },
+  { days: 30, label: '30d' },
+  { days: 90, label: '90d' },
+] as const
+
+function setObsRangeDays(days: number) {
+  if (obsRangeDays.value === days) return
+  obsRangeDays.value = days
+  loadObservability(true)
+}
+
+function obsFromInstant(): string {
+  const ms = Date.now() - obsRangeDays.value * 24 * 60 * 60 * 1000
+  return new Date(ms).toISOString()
+}
+
+let obsLoadSeq = 0
+
+async function loadObservability(force = false) {
+  if (!force && observability.value) return
+  const seq = ++obsLoadSeq
+  isLoadingObs.value = true
+  try {
+    const data = await fetchEmailDeliveryObservability({
+      from: obsFromInstant(),
+    })
+    if (seq !== obsLoadSeq) return
+    observability.value = data
+  } catch {
+    if (seq !== obsLoadSeq) return
+    useNuxtApp().$toast.error('Failed to load observability data')
+  } finally {
+    if (seq === obsLoadSeq) {
+      isLoadingObs.value = false
+    }
+  }
+}
+
+watch(activeTab, (tab) => {
+  if (tab === 'observability') {
+    loadObservability()
+  }
+})
+
+function formatNumber(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
+  return n.toString()
+}
+
+function formatSuccessRate(rate: number | null | undefined): string {
+  if (rate == null) return '—'
+  return `${(rate * 100).toFixed(1)}%`
+}
+
+function getSuccessRateClass(rate: number | null | undefined): string {
+  if (rate == null) return 'text-base-content/40'
+  if (rate >= 0.95) return 'text-success'
+  if (rate >= 0.8) return 'text-warning'
+  return 'text-error'
+}
+
+function barWidth(part: number, total: number): string {
+  if (!total || part <= 0) return '0%'
+  return `${(part / total) * 100}%`
+}
 
 // ============ Compose State ============
 const isSending = ref(false)

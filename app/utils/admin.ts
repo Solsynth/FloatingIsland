@@ -49,12 +49,30 @@ import type {
   AdminSession,
   AdminSessionQuery,
   DeviceLabelPayload,
-  NotificationObservability,
+  EmailDeliveryOverview,
+  NotificationDeliveryOverview,
+  DeliveryObservabilityQuery,
   AdminPublicConnection,
+  PassportAdminStats,
+  SphereAdminStats,
+  WalletAdminStats,
+  RingAdminStats,
+  AccountActivityMetrics,
+  PermissionGroupSummary,
+  PermissionGroupDetail,
+  PermissionNode,
+  PermissionGroupMember,
+  ActorPermissions,
+  UpsertGroupPermissionPayload,
+  UpsertGroupMemberPayload,
+  AdminBoardItem,
+  BoardPayloadPush,
 } from '~/types/admin'
 
 // Padlock service: auth, sessions, punishments, suspend, delete, notifications, emails
 const PADLOCK_BASE = '/padlock/admin/accounts'
+// Padlock permission groups
+const PADLOCK_PERMISSIONS = '/padlock/admin/permissions'
 // Passport service: profile-hydrated accounts, activities, status, badges
 const PASSPORT_BASE = '/passport/admin/accounts'
 // Sphere service: post moderation
@@ -65,10 +83,14 @@ const WALLET_SUBSCRIPTIONS = '/wallet/admin/subscriptions'
 const WALLET_PRODUCTS = '/wallet/admin/wallet-products'
 // Padlock service: cache management
 const PADLOCK_CACHE = '/padlock/admin/cache'
-// Ring service: notification observability
-const RING_ADMIN = '/ring/admin'
-// Ring service: email sending plans
+// Ring service: delivery observability + email plans
+const RING_DELIVERY_OBS = '/ring/admin/delivery-observability'
 const RING_EMAIL_PLANS = '/ring/admin/email-plans'
+// Per-service admin stats
+const PASSPORT_STATS = '/passport/admin/stats'
+const SPHERE_STATS = '/sphere/admin/stats'
+const WALLET_STATS = '/wallet/admin/stats'
+const RING_STATS = '/ring/admin/stats'
 
 async function fetchPaginated<T>(
   endpoint: string,
@@ -287,8 +309,22 @@ export async function exportAccountEmailsCsv(params: {
   return res.blob()
 }
 
-export async function fetchNotificationObservability(): Promise<NotificationObservability> {
-  return fetchJson<NotificationObservability>(`${RING_ADMIN}/notifications/observability`)
+export async function fetchEmailDeliveryObservability(
+  params: DeliveryObservabilityQuery = {},
+): Promise<EmailDeliveryOverview> {
+  const qs = buildQuery({ from: params.from, to: params.to })
+  return fetchJson<EmailDeliveryOverview>(
+    `${RING_DELIVERY_OBS}/emails${qs ? `?${qs}` : ''}`,
+  )
+}
+
+export async function fetchNotificationDeliveryObservability(
+  params: DeliveryObservabilityQuery = {},
+): Promise<NotificationDeliveryOverview> {
+  const qs = buildQuery({ from: params.from, to: params.to })
+  return fetchJson<NotificationDeliveryOverview>(
+    `${RING_DELIVERY_OBS}/notifications${qs ? `?${qs}` : ''}`,
+  )
 }
 
 /** Public connected platforms for an account (Passport). */
@@ -382,7 +418,10 @@ export async function unlockPost(id: string): Promise<void> {
 }
 
 export async function batchLockPosts(ids: string[]): Promise<PostBatchResult> {
-  return fetchJson<PostBatchResult>(`${SPHERE_POSTS}/lock/batch`, {
+  // Backend route is POST /posts/{id}/lock/batch (id is path-bound but unused for filtering).
+  const pathId = ids[0]
+  if (!pathId) return { locked: 0 }
+  return fetchJson<PostBatchResult>(`${SPHERE_POSTS}/${pathId}/lock/batch`, {
     method: 'POST',
     body: JSON.stringify(ids),
   })
@@ -765,6 +804,152 @@ export async function scanSteamPresenceByStage(stage: string): Promise<void> {
   await fetchJson(`${PASSPORT_BASE}/presences/steam/scan/stages/${stage}`, {
     method: 'POST',
   })
+}
+
+// ============ Admin Stats (Passport / Sphere / Wallet / Ring) ============
+
+export async function fetchPassportAdminStats(): Promise<PassportAdminStats> {
+  return fetchJson<PassportAdminStats>(PASSPORT_STATS)
+}
+
+export async function fetchSphereAdminStats(): Promise<SphereAdminStats> {
+  return fetchJson<SphereAdminStats>(SPHERE_STATS)
+}
+
+export async function fetchWalletAdminStats(): Promise<WalletAdminStats> {
+  return fetchJson<WalletAdminStats>(WALLET_STATS)
+}
+
+export async function fetchRingAdminStats(): Promise<RingAdminStats> {
+  return fetchJson<RingAdminStats>(RING_STATS)
+}
+
+export async function fetchAccountActivityMetrics(): Promise<AccountActivityMetrics> {
+  return fetchJson<AccountActivityMetrics>(`${PASSPORT_BASE}/metrics/activity`)
+}
+
+// ============ Permission Groups (Padlock) ============
+
+export async function fetchPermissionGroups(query?: string): Promise<PermissionGroupSummary[]> {
+  const qs = buildQuery({ query })
+  return fetchJson<PermissionGroupSummary[]>(
+    `${PADLOCK_PERMISSIONS}/groups${qs ? `?${qs}` : ''}`,
+  )
+}
+
+export async function fetchPermissionGroup(groupId: string): Promise<PermissionGroupDetail> {
+  return fetchJson<PermissionGroupDetail>(`${PADLOCK_PERMISSIONS}/groups/${groupId}`)
+}
+
+export async function createPermissionGroup(key: string): Promise<{ id: string; key: string }> {
+  return fetchJson(`${PADLOCK_PERMISSIONS}/groups`, {
+    method: 'POST',
+    body: JSON.stringify({ key }),
+  })
+}
+
+export async function updatePermissionGroup(
+  groupId: string,
+  key: string,
+): Promise<{ id: string; key: string }> {
+  return fetchJson(`${PADLOCK_PERMISSIONS}/groups/${groupId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ key }),
+  })
+}
+
+export async function deletePermissionGroup(groupId: string): Promise<void> {
+  await fetchJson(`${PADLOCK_PERMISSIONS}/groups/${groupId}`, { method: 'DELETE' })
+}
+
+export async function upsertGroupPermission(
+  groupId: string,
+  key: string,
+  payload: UpsertGroupPermissionPayload,
+): Promise<PermissionNode> {
+  return fetchJson<PermissionNode>(
+    `${PADLOCK_PERMISSIONS}/groups/${groupId}/permissions/${encodeURIComponent(key)}`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(camelToSnake(payload)),
+    },
+  )
+}
+
+export async function deleteGroupPermission(groupId: string, key: string): Promise<void> {
+  await fetchJson(
+    `${PADLOCK_PERMISSIONS}/groups/${groupId}/permissions/${encodeURIComponent(key)}`,
+    { method: 'DELETE' },
+  )
+}
+
+export async function upsertGroupMember(
+  groupId: string,
+  actor: string,
+  payload: UpsertGroupMemberPayload = {},
+): Promise<PermissionGroupMember> {
+  return fetchJson<PermissionGroupMember>(
+    `${PADLOCK_PERMISSIONS}/groups/${groupId}/members/${encodeURIComponent(actor)}`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(camelToSnake(payload)),
+    },
+  )
+}
+
+export async function deleteGroupMember(groupId: string, actor: string): Promise<void> {
+  await fetchJson(
+    `${PADLOCK_PERMISSIONS}/groups/${groupId}/members/${encodeURIComponent(actor)}`,
+    { method: 'DELETE' },
+  )
+}
+
+export async function fetchActorPermissions(actor: string): Promise<ActorPermissions> {
+  return fetchJson<ActorPermissions>(
+    `${PADLOCK_PERMISSIONS}/actors/${encodeURIComponent(actor)}`,
+  )
+}
+
+// ============ Account Board (Passport) ============
+
+export async function fetchAdminAccountBoard(identifier: string): Promise<AdminBoardItem[]> {
+  return fetchJson<AdminBoardItem[]>(
+    `${PASSPORT_BASE}/${encodeURIComponent(identifier)}/board`,
+  )
+}
+
+export async function replaceAccountBoard(
+  identifier: string,
+  items: Partial<AdminBoardItem>[],
+): Promise<AdminBoardItem[]> {
+  return fetchJson<AdminBoardItem[]>(
+    `${PASSPORT_BASE}/${encodeURIComponent(identifier)}/board`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(camelToSnake(items)),
+    },
+  )
+}
+
+export async function pushBoardItemPayload(
+  identifier: string,
+  itemId: string,
+  payload: BoardPayloadPush,
+): Promise<AdminBoardItem> {
+  return fetchJson<AdminBoardItem>(
+    `${PASSPORT_BASE}/${encodeURIComponent(identifier)}/board/items/${itemId}/payload`,
+    {
+      method: 'POST',
+      body: JSON.stringify(camelToSnake(payload)),
+    },
+  )
+}
+
+export async function deleteBoardItem(identifier: string, itemId: string): Promise<void> {
+  await fetchJson(
+    `${PASSPORT_BASE}/${encodeURIComponent(identifier)}/board/items/${itemId}`,
+    { method: 'DELETE' },
+  )
 }
 
 // ============ Email Sending Plans (Ring) ============

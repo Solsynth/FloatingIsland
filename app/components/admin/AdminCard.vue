@@ -9,8 +9,8 @@
   >
     <!-- Header -->
     <div
-      v-if="$slots.header || title"
-      class="flex items-center justify-between border-b border-base-300/40"
+      v-if="$slots.header || $slots.actions || title"
+      class="flex items-center justify-between gap-3 border-b border-base-300/40"
       :class="[compact ? 'px-4 py-3' : 'px-5 py-3.5']"
     >
       <div v-if="title" class="min-w-0">
@@ -25,6 +25,9 @@
         </p>
       </div>
       <slot name="header" />
+      <div v-if="$slots.actions" class="shrink-0 flex items-center gap-1">
+        <slot name="actions" />
+      </div>
     </div>
 
     <!-- Body -->

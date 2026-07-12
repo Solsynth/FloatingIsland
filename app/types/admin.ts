@@ -1,5 +1,7 @@
 import type { SnAccount, SnAccountBadge, SnAccountPunishment } from './auth'
 
+export type { SnAccountPunishment }
+
 export type PunishmentType = 'block_login' | 'disable_account'
 
 export type OrderByField = 'name' | 'name_desc' | 'created_at_desc'
@@ -177,50 +179,61 @@ export interface DeviceLabelPayload {
 
 // ============ Post Admin ============
 
-export type PostVisibility = 'public' | 'private' | 'unlisted' | 'publisher' | 'realm'
+export type PostVisibility =
+  | 'public'
+  | 'friends'
+  | 'unlisted'
+  | 'private'
+  | 'close_friends_only'
+  | 'quiet_public'
 
 export type PostShadowbanReason = 'none' | 'spam' | 'advertising' | 'harassment' | 'hate_speech' | 'misinformation' | 'illegal' | 'other'
 
 export interface AdminPost {
   id: string
-  title?: string
-  description?: string
-  body: string
-  visibility: PostVisibility
-  shadowbanReason?: PostShadowbanReason
-  shadowbannedAt?: string
-  locked: boolean
-  lockedAt?: string
-  drafted: boolean
+  title?: string | null
+  description?: string | null
+  /** Post body from Sphere (`content` field) */
+  content?: string | null
+  /** Enum may arrive as snake_case string or numeric ordinal */
+  visibility: PostVisibility | number | string
+  shadowbanReason?: PostShadowbanReason | number | string | null
+  shadowbannedAt?: string | null
+  lockedAt?: string | null
+  draftedAt?: string | null
   createdAt: string
   updatedAt: string
-  publishedAt?: string
-  publisher?: AdminPostPublisher
+  publishedAt?: string | null
+  publisher?: AdminPostPublisher | null
   tags?: AdminPostTag[]
   categories?: AdminPostCategory[]
-  realmId?: number
-  realm?: AdminPostRealm
+  realmId?: string | null
+  realm?: AdminPostRealm | null
 }
 
 export interface AdminPostPublisher {
   id: string
   name: string
-  nick?: string
+  nick?: string | null
 }
 
 export interface AdminPostTag {
   id: string
   name: string
+  slug?: string
 }
 
 export interface AdminPostCategory {
   id: string
   name: string
+  slug?: string
 }
 
 export interface AdminPostRealm {
-  id: number
-  name: string
+  id: string
+  name?: string
+  slug?: string
+  nick?: string
 }
 
 export interface PostLockState {
@@ -248,13 +261,156 @@ export interface PostBatchResult {
 export interface AdminPostQuery {
   query?: string
   publisherId?: string
-  realmId?: number
+  realmId?: string
   visibility?: PostVisibility
   shadowbanReason?: PostShadowbanReason
   locked?: boolean
   drafted?: boolean
   offset?: number
   take?: number
+}
+
+// ============ Admin Stats (per-service GET /admin/stats) ============
+
+export interface PassportAdminStats {
+  calculatedAt: string
+  totalProfiledAccounts: number
+  activeUsersLastDay: number
+  activeUsersLastWeek: number
+  activeUsersLastMonth: number
+  registeredUsersLastDay: number
+  registeredUsersLastWeek: number
+  registeredUsersLastMonth: number
+}
+
+export interface SphereAdminStats {
+  calculatedAt: string
+  totalPosts: number
+  publishedPosts: number
+  draftPosts: number
+  postsLastDay: number
+  postsLastWeek: number
+  postsLastMonth: number
+  totalPublishers: number
+  totalReactions: number
+  totalBookmarks: number
+}
+
+export interface WalletAdminStats {
+  calculatedAt: string
+  totalWallets: number
+  totalTransactions: number
+  confirmedTransactions: number
+  pendingTransactions: number
+  transactionsLastDay: number
+  transactionsLastWeek: number
+  transactionsLastMonth: number
+  totalOrders: number
+  paidOrders: number
+  totalSubscriptions: number
+}
+
+export interface RingAdminStats {
+  calculatedAt: string
+  totalNotifications: number
+  unreadNotifications: number
+  notificationsLastDay: number
+  notificationsLastWeek: number
+  notificationsLastMonth: number
+  totalPushSubscriptions: number
+  activePushSubscriptions: number
+  totalSendRequests: number
+  totalDeliveryAttempts: number
+}
+
+export interface AccountActivityMetrics {
+  calculatedAt: string
+  currentDayStartedAt: string
+  dailyActiveUsers: number
+  weeklyActiveUsers: number
+  monthlyActiveUsers: number
+  previousDailyActiveUsers: number
+  previousWeeklyActiveUsers: number
+  previousMonthlyActiveUsers: number
+  newAccountsToday: number
+  newAccountsThisWeek: number
+  newAccountsThisMonth: number
+  totalProfiledAccounts: number
+}
+
+// ============ Permission Groups (Padlock) ============
+
+export interface PermissionGroupSummary {
+  id: string
+  key: string
+  nodeCount: number
+  memberCount: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface PermissionNode {
+  id: string
+  type?: number
+  actor: string
+  key: string
+  value?: unknown
+  expiredAt?: string | null
+  affectedAt?: string | null
+  groupId?: string | null
+}
+
+export interface PermissionGroupMember {
+  groupId: string
+  actor: string
+  expiredAt?: string | null
+  affectedAt?: string | null
+}
+
+export interface PermissionGroupDetail {
+  group: { id: string; key: string; createdAt?: string; updatedAt?: string }
+  nodes: PermissionNode[]
+  members: PermissionGroupMember[]
+}
+
+export interface ActorPermissions {
+  actor: string
+  directPermissions: PermissionNode[]
+  effectivePermissions: PermissionNode[]
+  groups: PermissionGroupMember[]
+}
+
+export interface UpsertGroupPermissionPayload {
+  value?: unknown
+  affectedAt?: string | null
+  expiredAt?: string | null
+}
+
+export interface UpsertGroupMemberPayload {
+  affectedAt?: string | null
+  expiredAt?: string | null
+}
+
+// ============ Account Board (Passport) ============
+
+export type AdminBoardItemKind = 'prebuilt' | 'custom_app' | 0 | 1
+
+export interface AdminBoardItem {
+  id: string
+  accountId?: string
+  order: number
+  kind: AdminBoardItemKind
+  widgetKey?: string | null
+  customAppId?: string | null
+  customAppWidgetKey?: string | null
+  isEnabled: boolean
+  payload?: Record<string, { value?: unknown; label?: string; format?: string } | unknown>
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface BoardPayloadPush {
+  payload: Record<string, { value: unknown; label: string; format?: string }>
 }
 
 // ============ Wallet Admin ============
@@ -457,45 +613,40 @@ export interface BadgeGrantPayload {
   meta?: Record<string, unknown>
 }
 
-// ============ Notification Observability ============
+// ============ Delivery Observability (Ring built-in) ============
 
-export type NotificationProvider = 'websocket' | 'sop' | 'google' | 'apple' | 'appk' | 'unifiedpush'
-
-export type DeliveryOutcome = 'success' | 'failure' | 'invalid_token' | 'skipped' | 'no_subscription'
-
-export type PreferenceResult = 'normal' | 'silent' | 'reject'
-
-export interface ProviderDeliveryMetrics {
-  provider: NotificationProvider
-  attempts: number
-  results: Record<DeliveryOutcome, number>
-  successRate: number
+export interface DeliverySummary {
+  total: number
+  successful: number
+  failed: number
+  invalidToken: number
+  skipped: number
+  /** null when there were no attempts in the success-rate denominator */
+  successRate: number | null
 }
 
-export interface TopicMetric {
-  topic: string
+export interface DeliveryBreakdown extends DeliverySummary {
+  key: string
+}
+
+export interface EmailDeliveryOverview {
+  summary: DeliverySummary
+  bySource: DeliveryBreakdown[]
+}
+
+export interface NotificationDeliveryOverview {
   sendRequests: number
-  deliveryAttempts: number
+  sendRequestsByTopic: DeliveryBreakdown[]
+  summary: DeliverySummary
+  byProvider: DeliveryBreakdown[]
+  byTopic: DeliveryBreakdown[]
 }
 
-export interface DeliveryLatency {
-  p50: number
-  p95: number
-  p99: number
-  avg: number
-}
-
-export interface NotificationObservability {
-  totalSendRequests: number
-  totalTargetAccounts: number
-  totalDeliveryAttempts: number
-  totalDeliveryResults: Record<DeliveryOutcome, number>
-  overallSuccessRate: number
-  providers: ProviderDeliveryMetrics[]
-  topics: TopicMetric[]
-  latency: DeliveryLatency
-  batchSizes: { avg: number; max: number }
-  preferenceResults: Record<PreferenceResult, number>
+export interface DeliveryObservabilityQuery {
+  /** ISO-8601 UTC start (NodaTime Instant). Defaults to 30 days ago. */
+  from?: string
+  /** ISO-8601 UTC end (NodaTime Instant). Defaults to now. */
+  to?: string
 }
 
 // ============ Email Sending Plans ============

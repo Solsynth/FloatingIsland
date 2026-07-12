@@ -9,9 +9,9 @@
         <template #actions>
           <div class="flex gap-2">
             <button class="btn btn-sm btn-ghost" @click="toggleLock">
-              <IconLock v-if="post.locked" class="w-4 h-4" />
+              <IconLock v-if="post.lockedAt" class="w-4 h-4" />
               <IconLockOpen v-else class="w-4 h-4" />
-              {{ post.locked ? 'Unlock' : 'Lock' }}
+              {{ post.lockedAt ? 'Unlock' : 'Lock' }}
             </button>
             <button class="btn btn-sm btn-error" @click="deletePost">
               <IconTrash2 class="w-4 h-4" />
@@ -27,7 +27,7 @@
           <div>
             <span class="text-base-content/40 text-xs uppercase tracking-wider">Visibility</span>
             <div class="flex items-center gap-2 mt-1">
-              <span class="badge badge-xs" :class="visibilityClass(post.visibility)">{{ post.visibility }}</span>
+              <span class="badge badge-xs" :class="visibilityClass(post.visibility)">{{ formatVisibility(post.visibility) }}</span>
               <button class="btn btn-ghost btn-xs" @click="showVisibilityDialog = true">
                 <IconPencil class="w-3 h-3" />
               </button>
@@ -39,11 +39,27 @@
           </div>
           <div>
             <span class="text-base-content/40 text-xs uppercase tracking-wider">Realm</span>
-            <p class="mt-1">{{ post.realm?.name || '—' }}</p>
+            <p class="mt-1">{{ post.realm?.nick || post.realm?.name || post.realm?.slug || '—' }}</p>
           </div>
           <div>
             <span class="text-base-content/40 text-xs uppercase tracking-wider">Created</span>
             <p class="mt-1">{{ formatDate(post.createdAt) }}</p>
+          </div>
+          <div v-if="post.lockedAt">
+            <span class="text-base-content/40 text-xs uppercase tracking-wider">Locked At</span>
+            <p class="mt-1">{{ formatDate(post.lockedAt) }}</p>
+          </div>
+          <div v-if="post.draftedAt">
+            <span class="text-base-content/40 text-xs uppercase tracking-wider">Drafted At</span>
+            <p class="mt-1">{{ formatDate(post.draftedAt) }}</p>
+          </div>
+          <div v-if="post.publishedAt">
+            <span class="text-base-content/40 text-xs uppercase tracking-wider">Published At</span>
+            <p class="mt-1">{{ formatDate(post.publishedAt) }}</p>
+          </div>
+          <div v-if="post.shadowbannedAt">
+            <span class="text-base-content/40 text-xs uppercase tracking-wider">Shadowbanned At</span>
+            <p class="mt-1">{{ formatDate(post.shadowbannedAt) }}</p>
           </div>
         </div>
       </AdminCard>
@@ -51,7 +67,7 @@
       <!-- Content -->
       <AdminCard class="mb-4">
         <h3 class="text-sm font-semibold mb-3">Content</h3>
-        <div class="prose prose-sm max-w-none text-base-content/80" v-html="post.body" />
+        <div class="prose prose-sm max-w-none text-base-content/80 whitespace-pre-wrap">{{ post.content || '(empty)' }}</div>
       </AdminCard>
 
       <!-- Moderation Actions -->
@@ -64,8 +80,8 @@
           </h3>
           <div class="space-y-3">
             <p class="text-xs text-base-content/60">
-              {{ post.shadowbanReason && post.shadowbanReason !== 'none'
-                ? `Currently shadowbanned: ${post.shadowbanReason}`
+              {{ isShadowbanned(post.shadowbanReason)
+                ? `Currently shadowbanned: ${formatShadowban(post.shadowbanReason)}`
                 : 'Not shadowbanned' }}
             </p>
             <div class="flex flex-wrap gap-2">
@@ -73,7 +89,7 @@
                 v-for="reason in shadowbanReasons"
                 :key="reason"
                 class="btn btn-xs"
-                :class="post.shadowbanReason === reason ? 'btn-error' : 'btn-ghost'"
+                :class="formatShadowban(post.shadowbanReason) === reason ? 'btn-error' : 'btn-ghost'"
                 :disabled="reason === 'none'"
                 @click="applyShadowban(reason)"
               >
@@ -81,7 +97,7 @@
               </button>
             </div>
             <button
-              v-if="post.shadowbanReason && post.shadowbanReason !== 'none'"
+              v-if="isShadowbanned(post.shadowbanReason)"
               class="btn btn-ghost btn-xs text-success"
               @click="removeShadowban"
             >
@@ -98,7 +114,9 @@
           </h3>
           <div class="space-y-3">
             <p class="text-xs text-base-content/60">
-              {{ post.realm ? `In realm: ${post.realm.name}` : 'Not in a realm' }}
+              {{ post.realmId
+                ? `In realm: ${post.realm?.nick || post.realm?.name || post.realm?.slug || post.realmId}`
+                : 'Not in a realm' }}
             </p>
             <button
               v-if="post.realmId"
@@ -124,13 +142,14 @@
       <!-- Visibility Dialog -->
       <AdminDrawer :open="showVisibilityDialog" title="Change Visibility" @update:open="showVisibilityDialog = $event">
         <div class="space-y-4">
-          <p class="text-sm text-base-content/60">Current: {{ post.visibility }}</p>
+          <p class="text-sm text-base-content/60">Current: {{ formatVisibility(post.visibility) }}</p>
           <select v-model="newVisibility" class="select select-sm w-full bg-base-200/60 border-0 rounded-xl">
             <option value="public">Public</option>
-            <option value="private">Private</option>
+            <option value="friends">Friends</option>
             <option value="unlisted">Unlisted</option>
-            <option value="publisher">Publisher</option>
-            <option value="realm">Realm</option>
+            <option value="private">Private</option>
+            <option value="close_friends_only">Close Friends</option>
+            <option value="quiet_public">Quiet Public</option>
           </select>
           <button class="btn btn-sm btn-primary w-full" :disabled="actLoading" @click="changeVisibility">
             {{ actLoading ? 'Saving...' : 'Save Visibility' }}
@@ -142,7 +161,7 @@
       <AdminDrawer :open="showRealmRemoveDialog" title="Remove from Realm" @update:open="showRealmRemoveDialog = $event">
         <div class="space-y-4">
           <p class="text-sm text-base-content/60">
-            Remove this post from <strong>{{ post.realm?.name }}</strong>? This will make the post private.
+            Remove this post from <strong>{{ post.realm?.nick || post.realm?.name || post.realm?.slug || 'this realm' }}</strong>? This will make the post private.
           </p>
           <textarea
             v-model="realmRemoveReason"
@@ -204,14 +223,38 @@ const shadowbanReasons: PostShadowbanReason[] = [
   'misinformation', 'illegal', 'other', 'none',
 ]
 
-function visibilityClass(v: PostVisibility): string {
-  return {
+const VISIBILITY_LABELS = ['public', 'friends', 'unlisted', 'private', 'close_friends_only', 'quiet_public'] as const
+const SHADOWBAN_LABELS: Record<number, string> = {
+  0: 'none', 1: 'spam', 2: 'advertising', 3: 'harassment',
+  4: 'hate_speech', 5: 'misinformation', 6: 'illegal', 99: 'other',
+}
+
+function formatVisibility(v: PostVisibility | string | number | undefined): string {
+  if (v === undefined || v === null) return '—'
+  if (typeof v === 'number') return VISIBILITY_LABELS[v] ?? String(v)
+  return String(v)
+}
+
+function formatShadowban(v: PostShadowbanReason | string | number | null | undefined): string {
+  if (v === undefined || v === null) return ''
+  if (typeof v === 'number') return SHADOWBAN_LABELS[v] ?? String(v)
+  return String(v)
+}
+
+function isShadowbanned(v: PostShadowbanReason | string | number | null | undefined): boolean {
+  return !(v === undefined || v === null || v === 'none' || v === 0)
+}
+
+function visibilityClass(v: PostVisibility | string | number): string {
+  const key = formatVisibility(v)
+  return ({
     public: 'badge-success',
-    private: 'badge-error',
+    friends: 'badge-info',
     unlisted: 'badge-warning',
-    publisher: 'badge-info',
-    realm: 'badge-primary',
-  }[v] || 'badge-ghost'
+    private: 'badge-error',
+    close_friends_only: 'badge-primary',
+    quiet_public: 'badge-ghost',
+  } as Record<string, string>)[key] || 'badge-ghost'
 }
 
 function formatDate(date: string): string {
@@ -222,7 +265,7 @@ async function load() {
   isLoading.value = true
   try {
     post.value = await fetchAdminPost(route.params.id as string)
-    newVisibility.value = post.value.visibility
+    newVisibility.value = formatVisibility(post.value.visibility) as PostVisibility
   } catch {
     post.value = null
   } finally {
@@ -234,12 +277,13 @@ async function toggleLock() {
   if (!post.value || actLoading.value) return
   actLoading.value = true
   try {
-    if (post.value.locked) {
+    if (post.value.lockedAt) {
       await unlockPost(post.value.id)
+      post.value.lockedAt = null
     } else {
       await lockPost(post.value.id)
+      post.value.lockedAt = new Date().toISOString()
     }
-    post.value.locked = !post.value.locked
   } catch {
     // ignore
   } finally {
@@ -267,6 +311,7 @@ async function applyShadowban(reason: PostShadowbanReason) {
   try {
     await shadowbanPost(post.value.id, { reason })
     post.value.shadowbanReason = reason
+    post.value.shadowbannedAt = new Date().toISOString()
   } catch {
     // ignore
   } finally {
@@ -279,7 +324,8 @@ async function removeShadowban() {
   actLoading.value = true
   try {
     await unshadowbanPost(post.value.id)
-    post.value.shadowbanReason = undefined
+    post.value.shadowbanReason = 'none'
+    post.value.shadowbannedAt = null
   } catch {
     // ignore
   } finally {
@@ -292,8 +338,8 @@ async function removeRealm() {
   actLoading.value = true
   try {
     await removePostFromRealm(post.value.id, { reason: realmRemoveReason.value })
-    post.value.realmId = undefined
-    post.value.realm = undefined
+    post.value.realmId = null
+    post.value.realm = null
     post.value.visibility = 'private'
     showRealmRemoveDialog.value = false
     realmRemoveReason.value = ''

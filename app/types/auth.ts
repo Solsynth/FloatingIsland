@@ -118,6 +118,46 @@ export interface SnAccountConnection {
   createdAt: string;
 }
 
+/** Public connection shape from GET /passport/accounts/{name}/connections */
+export interface PublicAccountConnection {
+  provider: string;
+  providedIdentifier: string;
+  url?: string;
+}
+
+/** Board widget kind: 0/prebuilt or 1/custom_app */
+export type AccountBoardItemKind = "prebuilt" | "custom_app" | 0 | 1;
+
+/**
+ * Payload field envelope used by custom board widgets.
+ * Prebuilt widgets may also store plain scalars under payload keys.
+ */
+export interface BoardPayloadField {
+  value?: unknown;
+  label?: string;
+  format?: string;
+}
+
+export type AccountBoardPayload = Record<
+  string,
+  BoardPayloadField | string | number | boolean | unknown
+>;
+
+/** Account profile board item from GET /passport/accounts/{name}/board */
+export interface AccountBoardItem {
+  id?: string;
+  accountId?: string;
+  order: number;
+  kind: AccountBoardItemKind;
+  widgetKey?: string | null;
+  customAppId?: string | null;
+  customAppWidgetKey?: string | null;
+  isEnabled: boolean;
+  payload?: AccountBoardPayload;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface SnAuthSession {
   id: string;
   type: number;

@@ -416,6 +416,56 @@
             </div>
           </AdminCard>
 
+          <!-- Profile Board -->
+          <AdminCard title="Profile Board">
+            <template #actions>
+              <button class="btn btn-ghost btn-xs" @click="loadBoard">
+                <IconRefreshCw class="w-3.5 h-3.5" /> Refresh
+              </button>
+            </template>
+            <div v-if="boardLoading" class="flex justify-center py-4">
+              <span class="loading loading-spinner loading-sm" />
+            </div>
+            <div v-else-if="boardItems.length" class="space-y-2">
+              <div
+                v-for="item in boardItems"
+                :key="item.id"
+                class="p-3 rounded-lg bg-base-200/50 space-y-2"
+              >
+                <div class="flex items-center gap-2 flex-wrap">
+                  <IconLayoutGrid class="w-4 h-4 text-base-content/40 shrink-0" />
+                  <span class="text-sm font-medium flex-1">
+                    {{ item.widgetKey || item.customAppWidgetKey || 'Widget' }}
+                  </span>
+                  <span class="badge badge-ghost badge-xs">
+                    {{ boardKindLabel(item.kind) }}
+                  </span>
+                  <span class="badge badge-xs" :class="item.isEnabled ? 'badge-success' : 'badge-ghost'">
+                    {{ item.isEnabled ? 'Enabled' : 'Disabled' }}
+                  </span>
+                  <span class="text-[10px] text-base-content/35">#{{ item.order }}</span>
+                </div>
+                <div class="text-[10px] text-base-content/40 font-mono pl-6 truncate">
+                  {{ item.id }}
+                  <span v-if="item.customAppId"> · app {{ item.customAppId.slice(0, 8) }}…</span>
+                </div>
+                <pre
+                  v-if="item.payload && Object.keys(item.payload).length"
+                  class="text-[10px] font-mono bg-base-100/60 rounded-lg p-2 overflow-x-auto max-h-28 pl-2"
+                >{{ JSON.stringify(item.payload, null, 2) }}</pre>
+                <div class="flex items-center gap-1 pl-6">
+                  <button class="btn btn-ghost btn-xs" @click="openPushPayload(item)">
+                    <IconPencil class="w-3 h-3" /> Push Payload
+                  </button>
+                  <button class="btn btn-ghost btn-xs text-error" @click="doDeleteBoardItem(item.id)">
+                    <IconTrash2 class="w-3 h-3" /> Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p v-else class="text-sm text-base-content/40">No board widgets</p>
+          </AdminCard>
+
           <!-- Devices -->
           <AdminCard title="Devices">
             <template #actions>
@@ -764,6 +814,28 @@
         </form>
       </AdminDrawer>
 
+      <!-- Board Payload Drawer -->
+      <AdminDrawer :open="boardPayloadOpen" title="Push Board Payload" @update:open="boardPayloadOpen = $event">
+        <form class="space-y-3" @submit.prevent="doPushBoardPayload">
+          <p class="text-xs text-base-content/50">
+            Universal payload contract: each field is
+            <code class="text-[10px]">{ "value": ..., "label": "...", "format": "optional" }</code>
+          </p>
+          <div>
+            <label class="text-xs text-base-content/50">Payload JSON</label>
+            <textarea
+              v-model="boardPayloadText"
+              class="textarea textarea-sm w-full bg-base-200/60 border-0 rounded-xl font-mono text-xs"
+              rows="12"
+              required
+            />
+          </div>
+          <button class="btn btn-sm btn-primary w-full" :disabled="boardPayloadLoading">
+            {{ boardPayloadLoading ? 'Pushing...' : 'Push Payload' }}
+          </button>
+        </form>
+      </AdminDrawer>
+
       <!-- Delete Dialog -->
       <AdminDrawer :open="deleteOpen" title="Delete Account" @update:open="deleteOpen = $event">
         <div class="space-y-4">
@@ -814,6 +886,7 @@ import {
   IconGlobe,
   IconX,
   IconLink,
+  IconLayoutGrid,
 } from '#components'
 import { getFileUrl } from '~/utils/files'
 import {
@@ -850,8 +923,11 @@ import {
   adminFetchSessionChildren,
   adminRevokeSession,
   fetchAccountPublicConnections,
+  fetchAdminAccountBoard,
+  pushBoardItemPayload,
+  deleteBoardItem,
 } from '~/utils/admin'
-import type { AdminAuthFactor, AdminDevice, AdminPublicConnection, AdminSession, SnContact } from '~/types/admin'
+import type { AdminAuthFactor, AdminBoardItem, AdminDevice, AdminPublicConnection, AdminSession, SnContact } from '~/types/admin'
 import type { PunishmentType } from '~/types/admin'
 import type { SnAccountBadge } from '~/types/auth'
 
@@ -960,6 +1036,62 @@ async function loadConnections() {
     connections.value = []
   } finally {
     connectionsLoading.value = false
+  }
+}
+
+// Profile board
+const boardItems = ref<AdminBoardItem[]>([])
+const boardLoading = ref(false)
+const boardPayloadOpen = ref(false)
+const boardPayloadLoading = ref(false)
+const boardPayloadEdit = ref<AdminBoardItem | null>(null)
+const boardPayloadText = ref('')
+
+function boardKindLabel(kind: AdminBoardItem['kind']): string {
+  if (kind === 'custom_app' || kind === 1) return 'Custom App'
+  return 'Prebuilt'
+}
+
+async function loadBoard() {
+  boardLoading.value = true
+  try {
+    boardItems.value = await fetchAdminAccountBoard(identifier.value)
+  } catch {
+    boardItems.value = []
+  } finally {
+    boardLoading.value = false
+  }
+}
+
+function openPushPayload(item: AdminBoardItem) {
+  boardPayloadEdit.value = item
+  boardPayloadText.value = JSON.stringify(item.payload || {}, null, 2)
+  boardPayloadOpen.value = true
+}
+
+async function doPushBoardPayload() {
+  if (!boardPayloadEdit.value) return
+  boardPayloadLoading.value = true
+  try {
+    const parsed = JSON.parse(boardPayloadText.value) as Record<string, { value: unknown; label: string; format?: string }>
+    await pushBoardItemPayload(identifier.value, boardPayloadEdit.value.id, { payload: parsed })
+    boardPayloadOpen.value = false
+    await loadBoard()
+    useNuxtApp().$toast.success('Board payload updated')
+  } catch {
+    useNuxtApp().$toast.error('Failed to push board payload')
+  } finally {
+    boardPayloadLoading.value = false
+  }
+}
+
+async function doDeleteBoardItem(itemId: string) {
+  if (!confirm('Remove this board widget from the account?')) return
+  try {
+    await deleteBoardItem(identifier.value, itemId)
+    await loadBoard()
+  } catch {
+    useNuxtApp().$toast.error('Failed to remove board item')
   }
 }
 
@@ -1187,6 +1319,7 @@ onMounted(() => {
   loadConnections()
   loadFactors()
   loadBadges()
+  loadBoard()
   loadDevices()
   loadSessions()
 })
