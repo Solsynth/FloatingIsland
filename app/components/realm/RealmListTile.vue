@@ -1,67 +1,87 @@
 <template>
-    <NuxtLink
-        :to="`/realms/${realm.slug}`"
-        class="flex items-start sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-base-200/50 hover:bg-base-200 rounded-xl sm:rounded-2xl transition-colors group"
-    >
-        <!-- Realm Picture -->
-        <div class="shrink-0">
-            <div v-if="pictureUrl" class="avatar">
-                <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl">
-                    <img :src="pictureUrl" :alt="realm.name" class="object-cover w-full h-full" >
-                </div>
-            </div>
-            <div v-else class="avatar avatar-placeholder">
-                <div
-                    class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-primary text-primary-content flex items-center justify-center text-lg sm:text-xl font-bold"
-                >
-                    {{ realm.name.charAt(0).toUpperCase() }}
-                </div>
-            </div>
-        </div>
-
-        <!-- Realm Info -->
-        <div class="min-w-0 flex-1 overflow-hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                <h3 class="font-bold text-sm sm:text-base truncate">{{ realm.name }}</h3>
-                <span
-                    v-if="!realm.isPublic"
-                    class="badge badge-xs sm:badge-sm badge-ghost gap-1 self-start sm:self-auto"
-                >
-                    <IconLock class="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                    <span class="hidden sm:inline">Private</span>
-                </span>
-                <span
-                    v-if="realm.boostLevel > 0"
-                    class="badge badge-xs sm:badge-sm badge-primary gap-1 self-start sm:self-auto"
-                >
-                    <IconRocket class="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                    Lv {{ realm.boostLevel }}
-                </span>
-            </div>
-            <p
-                v-if="realm.description"
-                class="text-xs sm:text-sm text-base-content/60 line-clamp-1 sm:line-clamp-2 mt-0.5 sm:mt-1"
-            >
-                {{ realm.description }}
-            </p>
-        </div>
-
-        <!-- Arrow -->
-        <IconChevronRight
-            class="w-4 h-4 sm:w-5 sm:h-5 text-base-content/30 group-hover:text-base-content/60 transition-colors shrink-0 mt-1 sm:mt-0"
+  <NuxtLink
+    :to="`/realms/${realm.slug}`"
+    class="group block overflow-hidden rounded-xl border border-base-300/80 bg-base-100 transition-colors hover:border-base-300 hover:bg-base-200/30"
+  >
+    <!-- Banner + overlapping avatar (Flutter RealmListTile card) -->
+    <div class="relative aspect-[16/7] w-full bg-base-200">
+      <img
+        v-if="backgroundUrl"
+        :src="backgroundUrl"
+        :alt="`${realm.name} background`"
+        class="h-full w-full object-cover"
+        loading="lazy"
+      />
+      <div
+        class="absolute -bottom-6 left-4 h-12 w-12 overflow-hidden rounded-full ring-4 ring-base-100 sm:h-14 sm:w-14"
+      >
+        <img
+          v-if="pictureUrl"
+          :src="pictureUrl"
+          :alt="realm.name"
+          class="h-full w-full object-cover"
+          loading="lazy"
         />
-    </NuxtLink>
+        <div
+          v-else
+          class="flex h-full w-full items-center justify-center bg-primary text-sm font-bold text-primary-content sm:text-base"
+        >
+          {{ realm.name.charAt(0).toUpperCase() }}
+        </div>
+      </div>
+    </div>
+
+    <div class="px-4 pb-3.5 pt-9 sm:px-5">
+      <div class="flex items-start gap-2">
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <h3 class="truncate text-sm font-semibold sm:text-base">
+              {{ realm.name }}
+            </h3>
+            <span
+              v-if="!realm.isPublic"
+              class="badge badge-xs badge-ghost gap-0.5"
+            >
+              <IconLock class="h-2.5 w-2.5" />
+              {{ t("realms.realmPrivate") }}
+            </span>
+            <span
+              v-if="realm.boostLevel > 0"
+              class="badge badge-xs badge-primary gap-0.5"
+            >
+              <IconRocket class="h-2.5 w-2.5" />
+              {{ t("realms.lv", { level: realm.boostLevel }) }}
+            </span>
+          </div>
+          <p class="mt-0.5 truncate text-xs text-base-content/45">
+            @{{ realm.slug }}
+          </p>
+          <p
+            v-if="realm.description"
+            class="mt-1.5 line-clamp-2 text-xs leading-relaxed text-base-content/60 sm:text-sm"
+          >
+            {{ realm.description }}
+          </p>
+        </div>
+        <IconChevronRight
+          class="mt-0.5 h-4 w-4 shrink-0 text-base-content/25 transition-colors group-hover:text-base-content/50"
+        />
+      </div>
+    </div>
+  </NuxtLink>
 </template>
 
 <script setup lang="ts">
 import type { Realm } from "~/types/realm";
 import { getFileUrl } from "~/utils/files";
+import { IconLock, IconRocket, IconChevronRight } from "#components";
 
-interface Props {
-    realm: Realm;
-}
+const { t } = useI18n();
 
-const props = defineProps<Props>();
+const props = defineProps<{
+  realm: Realm;
+}>();
 
 const pictureUrl = computed(() => getFileUrl(props.realm.picture?.id));
+const backgroundUrl = computed(() => getFileUrl(props.realm.background?.id));
 </script>

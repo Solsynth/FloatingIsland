@@ -413,7 +413,30 @@
           </fieldset>
           <fieldset class="fieldset mb-4">
             <legend class="fieldset-legend">{{ t('developer.apps.oauth.allowedScopes') }}</legend>
-            <input v-model="oauthForm.allowedScopes" type="text" class="input w-full" placeholder="openid profile email" />
+            <TagsInputRoot
+              v-model="oauthForm.allowedScopes"
+              :delimiter="/[ ,;\t\n\r]+/"
+              add-on-paste
+              add-on-blur
+              add-on-tab
+              class="input flex h-auto min-h-12 w-full flex-wrap items-center gap-2 py-2"
+            >
+              <TagsInputItem
+                v-for="scope in oauthForm.allowedScopes"
+                :key="scope"
+                :value="scope"
+                class="badge badge-primary gap-1"
+              >
+                <TagsInputItemText />
+                <TagsInputItemDelete class="btn btn-ghost btn-xs btn-circle">
+                  <IconX class="h-3 w-3" />
+                </TagsInputItemDelete>
+              </TagsInputItem>
+              <TagsInputInput
+                class="min-w-32 flex-1 bg-transparent outline-none"
+                placeholder="openid"
+              />
+            </TagsInputRoot>
           </fieldset>
           <div class="flex flex-wrap gap-4 mb-4">
             <label class="flex items-center gap-2 cursor-pointer">
@@ -617,7 +640,15 @@ import {
   IconFlaskConical,
   IconLayoutDashboard,
   IconSettings,
+  IconX,
 } from '#components'
+import {
+  TagsInputRoot,
+  TagsInputItem,
+  TagsInputItemText,
+  TagsInputItemDelete,
+  TagsInputInput,
+} from 'reka-ui'
 import { getFileUrl } from '~/utils/files'
 import type { SnCloudFile } from '~/types/drive'
 import type { CustomApp, CustomAppSecret, AppProduct } from '~/types/developer'
@@ -679,7 +710,7 @@ const editForm = reactive({
 const oauthForm = reactive({
   clientUri: '',
   redirectUris: '',
-  allowedScopes: '',
+  allowedScopes: [] as string[],
   requirePkce: false,
   allowOfflineAccess: false,
   isPublicClient: false,
@@ -788,7 +819,7 @@ function openEditModal() {
   const oc = app.value.oauthConfig
   oauthForm.clientUri = oc?.clientUri ?? ''
   oauthForm.redirectUris = oc?.redirectUris?.join('\n') ?? ''
-  oauthForm.allowedScopes = oc?.allowedScopes?.join(' ') ?? ''
+  oauthForm.allowedScopes = [...(oc?.allowedScopes ?? [])]
   oauthForm.requirePkce = oc?.requirePkce ?? false
   oauthForm.allowOfflineAccess = oc?.allowOfflineAccess ?? false
   oauthForm.isPublicClient = oc?.isPublicClient ?? false
@@ -829,7 +860,6 @@ async function handleUpdateOAuth() {
       .map(s => s.trim())
       .filter(Boolean)
     const scopes = oauthForm.allowedScopes
-      .split(/[,\s]+/)
       .map(s => s.trim())
       .filter(Boolean)
     await updateCustomApp(pubName.value, projectId.value, appId.value, {

@@ -1,11 +1,8 @@
 <template>
   <article
-    class="card transition-shadow"
-    :class="[
-      embedded ? 'bg-base-200' : 'bg-base-100 shadow-sm hover:shadow-md',
-    ]"
+    :class="rootClass"
   >
-    <div class="card-body p-4">
+    <div :class="bodyClass">
       <!-- Reference Post (Reply/Forward) -->
       <div v-if="showReference && hasReference" class="mb-2">
         <button
@@ -280,9 +277,9 @@
         </NuxtLink>
       </div>
 
-      <!-- Attachments -->
+      <!-- Attachments (hidden for articles — thumbnail is shown in the article card) -->
       <AttachmentGrid
-        v-if="post.attachments.length > 0"
+        v-if="!isArticle && post.attachments.length > 0"
         :attachments="post.attachments"
       />
 
@@ -423,27 +420,31 @@
 
       <!-- Actions -->
       <div
-        class="mt-3 flex items-center justify-between pt-3 border-t border-base-200"
+        class="mt-3 flex items-center justify-between"
+        :class="isFeed ? 'pt-2' : 'pt-3 border-t border-base-200'"
       >
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-0.5">
           <button
-            class="btn gap-1.5 btn-ghost btn-sm hover:bg-primary/10 hover:text-primary"
+            class="btn gap-1.5 btn-ghost btn-sm text-base-content/60 hover:bg-primary/10 hover:text-primary"
             @click.stop="handleReply"
           >
             <IconMessageCircle class="h-4 w-4" />
-            <span class="text-xs">{{ formatNumber(post.repliesCount) }}</span>
+            <span class="text-xs tabular-nums">{{ formatNumber(post.repliesCount) }}</span>
           </button>
           <button
-            class="btn gap-1.5 btn-ghost btn-sm hover:bg-success/10 hover:text-success"
+            class="btn gap-1.5 btn-ghost btn-sm text-base-content/60 hover:bg-success/10 hover:text-success"
             :class="{ 'text-success': hasBoosted }"
             @click.stop="handleBoost"
           >
             <IconRepeat2 class="h-4 w-4" />
-            <span class="text-xs">{{ formatNumber(post.boostCount) }}</span>
+            <span class="text-xs tabular-nums">{{ formatNumber(post.boostCount) }}</span>
           </button>
         </div>
 
-        <div class="flex items-center gap-0.5 rounded-xl bg-base-200 p-0.5">
+        <div
+          class="flex items-center gap-0.5 p-0.5"
+          :class="isFeed ? 'rounded-lg bg-base-200/70' : 'rounded-xl bg-base-200'"
+        >
           <button
             class="btn px-2 btn-ghost btn-xs hover:bg-success/20 hover:text-success"
             :class="{ 'text-success': hasUpvoted }"
@@ -451,7 +452,7 @@
           >
             <IconArrowBigUp class="h-5 w-5" />
           </button>
-          <span class="min-w-[1.5ch] text-center text-sm font-medium">
+          <span class="min-w-[1.5ch] text-center text-sm font-medium tabular-nums">
             {{ formatNumber(netScore) }}
           </span>
           <button
@@ -509,14 +510,37 @@ interface Props {
   post: Post;
   isDetail?: boolean;
   showReference?: boolean;
+  /** Nested card chrome (e.g. featured carousel) */
   embedded?: boolean;
+  /**
+   * `card` — standalone elevated card (default)
+   * `feed` — flush row for continuous timelines (no outer chrome)
+   */
+  variant?: "card" | "feed";
 }
 
 const props = withDefaults(defineProps<Props>(), {
   isDetail: false,
   showReference: true,
   embedded: false,
+  variant: "card",
 });
+
+const isFeed = computed(() => props.variant === "feed");
+
+const rootClass = computed(() => {
+  if (isFeed.value) {
+    return "block transition-colors duration-150 hover:bg-base-200/40";
+  }
+  if (props.embedded) {
+    return "card bg-base-200 transition-shadow";
+  }
+  return "card bg-base-100 shadow-sm transition-shadow hover:shadow-md";
+});
+
+const bodyClass = computed(() =>
+  isFeed.value ? "px-4 py-3.5" : "card-body p-4",
+);
 
 const emit = defineEmits<{
   boost: [post: Post];

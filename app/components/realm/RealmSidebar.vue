@@ -1,322 +1,419 @@
 <template>
-    <div class="space-y-3 lg:space-y-4">
-        <!-- Mobile: Horizontal scrollable cards -->
-        <div class="lg:hidden flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-            <!-- Compact Boost Card -->
-            <div class="card bg-linear-to-br from-primary/10 to-secondary/10 border border-primary/20 shrink-0 w-40">
-                <div class="card-body p-3">
-                    <div class="flex items-center gap-1.5 mb-2">
-                        <IconRocket class="w-4 h-4 text-primary" />
-                        <h3 class="font-semibold text-sm">{{ t("realms.lv", { level: boostStatus?.boostLevel || 0 }) }}</h3>
-                    </div>
-                    <div v-if="boostStatus" class="text-lg font-bold">{{ boostStatus.boostPoints.toLocaleString() }} {{ t("realms.points") }}</div>
-                    <NuxtLink :to="`/realms/${realmSlug}/boost`" class="btn btn-primary btn-xs w-full mt-2">
-                        <IconZap class="w-3 h-3" />
-                        {{ t("realms.boostRealm") }}
-                    </NuxtLink>
-                </div>
-            </div>
-
-            <!-- Quick Links -->
-            <NuxtLink :to="`/realms/${realmSlug}/members`" class="card bg-base-200 shrink-0 w-32 flex flex-col items-center justify-center p-3">
-                <IconUsers class="w-6 h-6 text-base-content/60 mb-1" />
-                <span class="text-sm font-medium">{{ t("realms.membersLink") }}</span>
-            </NuxtLink>
-
-            <button v-if="isMember" class="card bg-base-200 shrink-0 w-32 flex flex-col items-center justify-center p-3" @click="copyInviteLink">
-                <IconLink class="w-6 h-6 text-base-content/60 mb-1" />
-                <span class="text-sm font-medium">{{ t("realms.inviteBtn") }}</span>
-            </button>
-        </div>
-
-        <!-- Desktop: Full sidebar -->
-        <div class="hidden lg:block space-y-4">
-            <!-- Boost Status Card -->
-            <div class="card bg-linear-to-br from-primary/10 to-secondary/10 border border-primary/20">
-                <div class="card-body p-4">
-                    <div class="flex items-center gap-2 mb-3">
-                        <IconRocket class="w-5 h-5 text-primary" />
-                        <h3 class="font-semibold">{{ t("realms.boostStatus") }}</h3>
-                    </div>
-
-                    <div v-if="boostStatus" class="space-y-3">
-                        <div class="flex items-end justify-between">
-                            <div>
-                                <div class="text-3xl font-black">{{ boostStatus.boostLevel }}</div>
-                                <div class="text-xs text-base-content/60">{{ t("realms.currentLevel") }}</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-xl font-bold">{{ boostStatus.boostPoints.toLocaleString() }}</div>
-                                <div class="text-xs text-base-content/60">{{ t("realms.points") }}</div>
-                            </div>
-                        </div>
-
-                        <!-- Progress Bar -->
-                        <div class="space-y-1">
-                            <div class="flex justify-between text-xs text-base-content/60">
-                                <span>{{ t("realms.progressToNextLevel") }}</span>
-                                <span>{{ progressPercent }}%</span>
-                            </div>
-                            <progress class="progress progress-primary w-full" :value="progressPercent" max="100" />
-                        </div>
-
-                        <!-- Boost Button -->
-                        <NuxtLink
-                            :to="`/realms/${realmSlug}/boost`"
-                            class="btn btn-primary btn-sm w-full"
-                        >
-                            <IconZap class="w-4 h-4" />
-                            {{ t("realms.boostRealm") }}
-                        </NuxtLink>
-                    </div>
-
-                    <div v-else-if="isLoadingBoost" class="py-4 text-center">
-                        <span class="loading loading-spinner loading-sm"/>
-                    </div>
-
-                    <div v-else class="text-center py-4 text-sm text-base-content/60">
-                        {{ t("realms.failedToLoadBoostStatus") }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Leaderboard Preview (Desktop) -->
-            <div v-if="leaderboard.length > 0" class="card">
-            <div class="card-body p-4">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-2">
-                        <IconTrophy class="w-5 h-5 text-warning" />
-                        <h3 class="font-semibold">{{ t("realms.topBoosters") }}</h3>
-                    </div>
-                    <NuxtLink
-                        :to="`/realms/${realmSlug}/boost`"
-                        class="btn btn-ghost btn-xs"
-                    >
-                        {{ t("realms.viewAll") }}
-                    </NuxtLink>
-                </div>
-
-                <div class="space-y-2">
-                    <div
-                        v-for="(entry, index) in leaderboard.slice(0, 5)"
-                        :key="entry.accountId"
-                        class="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200/50 transition-colors"
-                    >
-                        <div class="w-6 text-center font-bold text-base-content/40">
-                            {{ index + 1 }}
-                        </div>
-                        <div v-if="entry.account?.profile.picture?.id" class="avatar">
-                            <div class="w-8 h-8 rounded-lg">
-                                <img :src="getFileUrl(entry.account.profile.picture.id)!" :alt="entry.account.nick || entry.account.name" >
-                            </div>
-                        </div>
-                        <div v-else class="avatar avatar-placeholder">
-                            <div class="w-8 h-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-sm font-bold">
-                                {{ getInitials(entry.account?.nick || entry.account?.name || '?') }}
-                            </div>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <div class="font-medium text-sm truncate">
-                                {{ entry.account?.nick || entry.account?.name }}
-                            </div>
-                        </div>
-                        <div class="text-sm font-semibold text-primary">
-                            {{ entry.totalPoints.toLocaleString() }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="card">
-            <div class="card-body p-4">
-                <h3 class="font-semibold mb-3">{{ t("realms.quickLinks") }}</h3>
-                <div class="space-y-1">
-                    <NuxtLink
-                        :to="`/realms/${realmSlug}/members`"
-                        class="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 transition-colors"
-                    >
-                        <IconUsers class="w-5 h-5 text-base-content/60" />
-                        <span class="text-sm">{{ t("realms.membersLink") }}</span>
-                    </NuxtLink>
-                    <NuxtLink
-                        v-if="isMember"
-                        :to="`/realms/${realmSlug}/settings`"
-                        class="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 transition-colors"
-                    >
-                        <IconSettings class="w-5 h-5 text-base-content/60" />
-                        <span class="text-sm">{{ t("realms.settings") }}</span>
-                    </NuxtLink>
-                    <button
-                        v-if="isMember"
-                        class="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 transition-colors w-full text-left"
-                        @click="copyInviteLink"
-                    >
-                        <IconLink class="w-5 h-5 text-base-content/60" />
-                        <span class="text-sm">{{ t("realms.copyInviteLink") }}</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- My Identity Card -->
-        <div v-if="membership" class="card bg-base-200/50">
-            <div class="card-body p-4">
-                <h3 class="font-semibold mb-3">{{ t("realms.myIdentity") }}</h3>
-                <div class="flex items-start gap-3">
-                    <div v-if="auth.user.value?.profile?.picture?.id" class="avatar">
-                        <div class="w-10 h-10 rounded-xl">
-                            <img :src="getFileUrl(auth.user.value.profile.picture.id)!" :alt="membership.nick || auth.user.value.name" >
-                        </div>
-                    </div>
-                    <div v-else class="avatar avatar-placeholder">
-                        <div class="w-10 h-10 rounded-xl bg-primary text-primary-content flex items-center justify-center font-bold">
-                            {{ getInitials(membership.nick || auth.user.value?.name || '?') }}
-                        </div>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <div class="font-medium truncate">
-                            {{ membership.nick || auth.user.value?.nick || auth.user.value?.name }}
-                        </div>
-                        <div class="text-xs text-base-content/60 flex items-center gap-2 mt-1">
-                            <span class="badge badge-xs" :class="getRoleBadgeClass(membership.role)">
-                                {{ getRoleLabel(membership.role) }}
-                            </span>
-                            <span v-if="membership.label" class="badge badge-xs badge-ghost">
-                                {{ membership.label.name }}
-                            </span>
-                        </div>
-                        <div class="text-xs text-base-content/40 mt-2">
-                            {{ t("realms.lv", { level: membership.level }) }} &bull; {{ t("realms.xp", { xp: membership.experience }) }}
-                        </div>
-                    </div>
-                </div>
-                <NuxtLink
-                    v-if="isMember"
-                    :to="`/realms/${realmSlug}/identity`"
-                    class="btn btn-ghost btn-xs w-full mt-3"
-                >
-                    <IconPencil class="w-3 h-3" />
-                    {{ t("realms.editIdentity") }}
-                </NuxtLink>
-            </div>
-        </div>
-    </div>
-    </div>
-
-    <!-- Copied Notification -->
+  <div class="w-full space-y-3">
+    <!-- Mobile horizontal strip -->
     <div
-        v-if="showCopied"
-        class="fixed bottom-4 right-4 bg-success text-success-content px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in-up"
+      class="flex gap-2 overflow-x-auto pb-1 xl:hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
     >
-        {{ t("realms.inviteLinkCopied") }}
+      <div
+        class="w-40 shrink-0 rounded-xl border border-primary/20 bg-primary/5 p-3"
+      >
+        <div class="mb-1.5 flex items-center gap-1.5">
+          <IconRocket class="h-3.5 w-3.5 text-primary" />
+          <span class="text-xs font-semibold">
+            {{ t("realms.lv", { level: boostStatus?.boostLevel || 0 }) }}
+          </span>
+        </div>
+        <div v-if="boostStatus" class="text-sm font-bold tabular-nums">
+          {{ boostStatus.boostPoints.toLocaleString() }}
+          <span class="text-xs font-normal text-base-content/50">{{
+            t("realms.points")
+          }}</span>
+        </div>
+        <NuxtLink
+          :to="`/realms/${realmSlug}/boost`"
+          class="btn btn-primary btn-xs mt-2 w-full"
+        >
+          <IconZap class="h-3 w-3" />
+          {{ t("realms.boostRealm") }}
+        </NuxtLink>
+      </div>
+
+      <NuxtLink
+        :to="`/realms/${realmSlug}/members`"
+        class="flex w-28 shrink-0 flex-col items-center justify-center rounded-xl border border-base-300/80 bg-base-100 p-3 transition-colors hover:bg-base-200/40"
+      >
+        <IconUsers class="mb-1 h-5 w-5 text-base-content/55" />
+        <span class="text-xs font-medium">{{ t("realms.membersLink") }}</span>
+      </NuxtLink>
+
+      <button
+        v-if="isMember"
+        type="button"
+        class="flex w-28 shrink-0 flex-col items-center justify-center rounded-xl border border-base-300/80 bg-base-100 p-3 transition-colors hover:bg-base-200/40"
+        @click="copyInviteLink"
+      >
+        <IconLink class="mb-1 h-5 w-5 text-base-content/55" />
+        <span class="text-xs font-medium">{{ t("realms.inviteBtn") }}</span>
+      </button>
     </div>
+
+    <!-- Desktop rail cards -->
+    <div class="hidden space-y-3 xl:block">
+      <!-- Boost -->
+      <div
+        class="overflow-hidden rounded-xl border border-base-300/80 bg-base-100"
+      >
+        <div class="border-b border-base-300/80 px-3 py-2.5">
+          <div class="flex items-center gap-2">
+            <IconRocket class="h-4 w-4 text-primary" />
+            <h3 class="text-sm font-semibold">{{ t("realms.boostStatus") }}</h3>
+          </div>
+        </div>
+        <div class="p-3">
+          <div v-if="boostStatus" class="space-y-3">
+            <div class="flex items-end justify-between">
+              <div>
+                <div class="text-2xl font-bold tabular-nums">
+                  {{ boostStatus.boostLevel }}
+                </div>
+                <div class="text-[11px] text-base-content/50">
+                  {{ t("realms.currentLevel") }}
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-lg font-semibold tabular-nums">
+                  {{ boostStatus.boostPoints.toLocaleString() }}
+                </div>
+                <div class="text-[11px] text-base-content/50">
+                  {{ t("realms.points") }}
+                </div>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <div
+                class="flex justify-between text-[11px] text-base-content/50"
+              >
+                <span>{{ t("realms.progressToNextLevel") }}</span>
+                <span>{{ progressPercent }}%</span>
+              </div>
+              <progress
+                class="progress progress-primary h-1.5 w-full"
+                :value="progressPercent"
+                max="100"
+              />
+            </div>
+            <NuxtLink
+              :to="`/realms/${realmSlug}/boost`"
+              class="btn btn-primary btn-sm w-full"
+            >
+              <IconZap class="h-4 w-4" />
+              {{ t("realms.boostRealm") }}
+            </NuxtLink>
+          </div>
+          <div v-else-if="isLoadingBoost" class="py-6 text-center">
+            <span class="loading loading-spinner loading-sm" />
+          </div>
+          <div
+            v-else
+            class="py-4 text-center text-xs text-base-content/50"
+          >
+            {{ t("realms.failedToLoadBoost") }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div
+        v-if="leaderboard.length > 0"
+        class="overflow-hidden rounded-xl border border-base-300/80 bg-base-100"
+      >
+        <div
+          class="flex items-center justify-between border-b border-base-300/80 px-3 py-2.5"
+        >
+          <div class="flex items-center gap-2">
+            <IconTrophy class="h-4 w-4 text-warning" />
+            <h3 class="text-sm font-semibold">{{ t("realms.topBoosters") }}</h3>
+          </div>
+          <NuxtLink
+            :to="`/realms/${realmSlug}/boost`"
+            class="text-xs text-primary hover:underline"
+          >
+            {{ t("realms.viewAll") }}
+          </NuxtLink>
+        </div>
+        <div class="divide-y divide-base-300/60">
+          <div
+            v-for="(entry, index) in leaderboard.slice(0, 5)"
+            :key="entry.accountId"
+            class="flex items-center gap-2.5 px-3 py-2"
+          >
+            <span
+              class="w-5 text-center text-xs font-bold text-base-content/35"
+            >
+              {{ index + 1 }}
+            </span>
+            <div class="avatar shrink-0">
+              <div class="h-7 w-7 rounded-md">
+                <img
+                  v-if="entry.account?.profile?.picture?.id"
+                  :src="getFileUrl(entry.account.profile.picture.id)!"
+                  :alt="entry.account.nick || entry.account.name"
+                  class="h-full w-full object-cover"
+                />
+                <div
+                  v-else
+                  class="flex h-full w-full items-center justify-center bg-base-200 text-[10px] font-bold"
+                >
+                  {{
+                    getInitials(
+                      entry.account?.nick || entry.account?.name || "?",
+                    )
+                  }}
+                </div>
+              </div>
+            </div>
+            <div class="min-w-0 flex-1 truncate text-xs font-medium">
+              {{ entry.account?.nick || entry.account?.name }}
+            </div>
+            <div class="text-xs font-semibold tabular-nums text-primary">
+              {{ entry.totalPoints.toLocaleString() }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div
+        class="overflow-hidden rounded-xl border border-base-300/80 bg-base-100"
+      >
+        <div class="border-b border-base-300/80 px-3 py-2.5">
+          <h3 class="text-sm font-semibold">{{ t("realms.quickLinks") }}</h3>
+        </div>
+        <div class="p-1.5">
+          <NuxtLink
+            :to="`/realms/${realmSlug}/members`"
+            class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-colors hover:bg-base-200/50"
+          >
+            <IconUsers class="h-4 w-4 text-base-content/50" />
+            {{ t("realms.membersLink") }}
+          </NuxtLink>
+          <NuxtLink
+            v-if="isMember"
+            :to="`/realms/${realmSlug}/settings`"
+            class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-colors hover:bg-base-200/50"
+          >
+            <IconSettings class="h-4 w-4 text-base-content/50" />
+            {{ t("realms.settings") }}
+          </NuxtLink>
+          <button
+            v-if="isMember"
+            type="button"
+            class="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors hover:bg-base-200/50"
+            @click="copyInviteLink"
+          >
+            <IconLink class="h-4 w-4 text-base-content/50" />
+            {{ t("realms.copyInviteLink") }}
+          </button>
+        </div>
+      </div>
+
+      <!-- My identity -->
+      <div
+        v-if="membership"
+        class="overflow-hidden rounded-xl border border-base-300/80 bg-base-100"
+      >
+        <div class="border-b border-base-300/80 px-3 py-2.5">
+          <h3 class="text-sm font-semibold">{{ t("realms.myIdentity") }}</h3>
+        </div>
+        <div class="p-3">
+          <div class="flex items-start gap-2.5">
+            <div class="avatar shrink-0">
+              <div class="h-9 w-9 rounded-lg">
+                <img
+                  v-if="auth.user.value?.profile?.picture?.id"
+                  :src="getFileUrl(auth.user.value.profile.picture.id)!"
+                  :alt="membership.nick || auth.user.value.name"
+                  class="h-full w-full object-cover"
+                />
+                <div
+                  v-else
+                  class="flex h-full w-full items-center justify-center bg-primary text-xs font-bold text-primary-content"
+                >
+                  {{
+                    getInitials(
+                      membership.nick || auth.user.value?.name || "?",
+                    )
+                  }}
+                </div>
+              </div>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="truncate text-sm font-medium">
+                {{
+                  membership.nick ||
+                  auth.user.value?.nick ||
+                  auth.user.value?.name
+                }}
+              </div>
+              <div class="mt-1 flex flex-wrap items-center gap-1">
+                <span
+                  class="badge badge-xs"
+                  :class="getRoleBadgeClass(membership.role)"
+                >
+                  {{ getRoleLabel(membership.role) }}
+                </span>
+                <span
+                  v-if="membership.label"
+                  class="badge badge-xs badge-ghost"
+                >
+                  {{ membership.label.name }}
+                </span>
+              </div>
+              <div class="mt-1.5 text-[11px] text-base-content/45">
+                {{ t("realms.lv", { level: membership.level }) }}
+                ·
+                {{ t("realms.xp", { xp: membership.experience }) }}
+              </div>
+              <div
+                v-if="membership.levelingProgress != null"
+                class="mt-2"
+              >
+                <progress
+                  class="progress progress-primary h-1 w-full"
+                  :value="Math.round(membership.levelingProgress * 100)"
+                  max="100"
+                />
+              </div>
+            </div>
+          </div>
+          <NuxtLink
+            v-if="isMember"
+            :to="`/realms/${realmSlug}/identity`"
+            class="btn btn-ghost btn-xs mt-3 w-full border border-base-300/70"
+          >
+            <IconPencil class="h-3 w-3" />
+            {{ t("realms.editIdentity") }}
+          </NuxtLink>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="showCopied"
+      class="fixed bottom-4 right-4 z-50 rounded-lg bg-success px-3 py-2 text-sm text-success-content shadow-md"
+    >
+      {{ t("realms.inviteLinkCopied") }}
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import type { RealmBoostStatus, RealmBoostLeaderboardEntry, RealmMember, RealmLabel } from '~/types/realm'
-import { fetchRealmBoostStatus, fetchRealmBoostLeaderboard, fetchRealmLabels } from '~/utils/api'
-import { getFileUrl } from '~/utils/files'
+import type {
+  RealmBoostStatus,
+  RealmBoostLeaderboardEntry,
+  RealmMember,
+  RealmLabel,
+} from "~/types/realm";
+import {
+  fetchRealmBoostStatus,
+  fetchRealmBoostLeaderboard,
+  fetchRealmLabels,
+} from "~/utils/api";
+import { getFileUrl } from "~/utils/files";
+import {
+  IconRocket,
+  IconZap,
+  IconUsers,
+  IconLink,
+  IconTrophy,
+  IconSettings,
+  IconPencil,
+} from "#components";
 
 const { t } = useI18n();
 
 const props = defineProps<{
-    realmSlug: string
-    isMember: boolean
-    membership: RealmMember | null
-}>()
+  realmSlug: string;
+  isMember: boolean;
+  membership: RealmMember | null;
+}>();
 
+const auth = useAuth();
 
+const boostStatus = ref<RealmBoostStatus | null>(null);
+const leaderboard = ref<RealmBoostLeaderboardEntry[]>([]);
+const labels = ref<RealmLabel[]>([]);
+const isLoadingBoost = ref(false);
+const showCopied = ref(false);
 
-const auth = useAuth()
-
-// State
-const boostStatus = ref<RealmBoostStatus | null>(null)
-const leaderboard = ref<RealmBoostLeaderboardEntry[]>([])
-const labels = ref<RealmLabel[]>([])
-const isLoadingBoost = ref(false)
-const showCopied = ref(false)
-
-// Computed
 const progressPercent = computed(() => {
-    if (!boostStatus.value) return 0
-    // Estimate progress based on points (simple approximation)
-    const level = boostStatus.value.boostLevel
-    const points = boostStatus.value.boostPoints
-    const pointsForNextLevel = Math.pow(level + 1, 2) * 100
-    const pointsForCurrentLevel = Math.pow(level, 2) * 100
-    const progress = ((points - pointsForCurrentLevel) / (pointsForNextLevel - pointsForCurrentLevel)) * 100
-    return Math.min(Math.max(Math.round(progress), 0), 100)
-})
+  if (!boostStatus.value) return 0;
+  // Align with Flutter thresholds-ish estimate
+  const level = boostStatus.value.boostLevel;
+  const points = boostStatus.value.boostPoints;
+  const pointsForNextLevel = Math.pow(level + 1, 2) * 100;
+  const pointsForCurrentLevel = Math.pow(level, 2) * 100;
+  const denom = pointsForNextLevel - pointsForCurrentLevel;
+  if (denom <= 0) return 0;
+  const progress =
+    ((points - pointsForCurrentLevel) / denom) * 100;
+  return Math.min(Math.max(Math.round(progress), 0), 100);
+});
 
-// Methods
 function getInitials(name: string): string {
-    return name
-        .split(/\s+/)
-        .filter(Boolean)
-        .map((part) => part[0]?.toUpperCase())
-        .slice(0, 2)
-        .join('') || '?'
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => part[0]?.toUpperCase())
+      .slice(0, 2)
+      .join("") || "?"
+  );
 }
 
+/** Flutter role scale: >=100 owner, >=50 moderator, else member */
 function getRoleLabel(role: number): string {
-    const roles = [t("realms.roleMember"), t("realms.roleModerator"), t("realms.roleAdmin"), t("realms.roleOwner")]
-    return roles[role] || t("realms.roleMember")
+  if (role >= 100) return t("realms.roleOwner");
+  if (role >= 50) return t("realms.roleModerator");
+  return t("realms.roleMember");
 }
 
 function getRoleBadgeClass(role: number): string {
-    switch (role) {
-        case 3: return 'badge-primary'
-        case 2: return 'badge-secondary'
-        case 1: return 'badge-accent'
-        default: return 'badge-ghost'
-    }
+  if (role >= 100) return "badge-primary";
+  if (role >= 50) return "badge-secondary";
+  return "badge-ghost";
 }
 
 function copyInviteLink() {
-    const link = `${window.location.origin}/realms/${props.realmSlug}/invite`
-    navigator.clipboard.writeText(link)
-    showCopied.value = true
-    setTimeout(() => showCopied.value = false, 2000)
+  const link = `${window.location.origin}/realms/${props.realmSlug}/invite`;
+  navigator.clipboard.writeText(link);
+  showCopied.value = true;
+  setTimeout(() => (showCopied.value = false), 2000);
 }
 
 async function loadBoostData() {
-    isLoadingBoost.value = true
-    try {
-        const [status, board] = await Promise.all([
-            fetchRealmBoostStatus(props.realmSlug),
-            fetchRealmBoostLeaderboard(props.realmSlug, 10),
-        ])
-        boostStatus.value = status
-        leaderboard.value = board
-    } catch (err) {
-        console.error('Failed to load boost data:', err)
-    } finally {
-        isLoadingBoost.value = false
-    }
+  isLoadingBoost.value = true;
+  try {
+    const [status, board] = await Promise.all([
+      fetchRealmBoostStatus(props.realmSlug),
+      fetchRealmBoostLeaderboard(props.realmSlug, 10),
+    ]);
+    boostStatus.value = status;
+    leaderboard.value = board;
+  } catch (err) {
+    console.error("Failed to load boost data:", err);
+  } finally {
+    isLoadingBoost.value = false;
+  }
 }
 
 async function loadLabels() {
-    try {
-        labels.value = await fetchRealmLabels(props.realmSlug)
-    } catch (err) {
-        console.error('Failed to load labels:', err)
-    }
+  try {
+    labels.value = await fetchRealmLabels(props.realmSlug);
+  } catch (err) {
+    console.error("Failed to load labels:", err);
+  }
 }
 
-// Load data on mount
 onMounted(() => {
-    loadBoostData()
-    if (props.isMember) {
-        loadLabels()
-    }
-})
+  loadBoostData();
+  if (props.isMember) loadLabels();
+});
 
-// Watch for membership changes
-watch(() => props.isMember, (isMember) => {
-    if (isMember) {
-        loadLabels()
-    }
-})
+watch(
+  () => props.isMember,
+  (member) => {
+    if (member) loadLabels();
+  },
+);
 </script>

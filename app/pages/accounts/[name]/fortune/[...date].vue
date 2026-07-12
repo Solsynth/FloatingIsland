@@ -39,7 +39,7 @@
                 </NuxtLink>
             </div>
 
-            <div class="grid xl:grid-cols-[1fr_20rem] min-w-0">
+            <div class="grid min-w-0 xl:grid-cols-[minmax(0,1fr)_20rem] xl:gap-x-6">
                 <!-- Main Content: Fortune Details -->
                 <div class="space-y-4 min-w-0 px-4 py-4 lg:px-6">
                     <template v-if="selectedDay">
@@ -119,7 +119,7 @@
                 </div>
 
                 <!-- Right Sidebar (xl+) -->
-                <aside class="hidden xl:block sticky top-4 self-start ml-6 mr-4 space-y-4">
+                <aside class="hidden w-full space-y-4 self-start sticky top-4 xl:block">
                     <!-- User Profile Card -->
                     <div v-if="account" class="card bg-base-100 overflow-hidden">
                         <div class="h-16 w-full bg-base-200">

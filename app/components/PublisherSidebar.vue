@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="flex w-full flex-col gap-4">
     <!-- Publisher Card -->
-    <div v-if="publisher" class="card bg-base-100 overflow-hidden">
+    <div v-if="publisher" class="card w-full overflow-hidden bg-base-100">
       <!-- Background Banner -->
       <div class="h-20 w-full bg-base-200">
         <img

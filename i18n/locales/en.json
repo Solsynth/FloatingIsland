@@ -16,6 +16,7 @@
     "confirm": "Confirm",
     "viewAll": "View All",
     "refresh": "Refresh",
+    "retry": "Retry",
     "notifications": "Notifications",
     "active": "Active",
     "disabled": "Disabled",
@@ -241,7 +242,19 @@
     "loadFailed": "Failed to load posts: {error}",
     "sharePostFallbackTitle": "Post on FloatingIsland",
     "featuredPosts": "Featured Posts",
-    "featuredPostsFailed": "Could not load featured posts"
+    "featuredPostsFailed": "Could not load featured posts",
+    "emptyTitle": "Nothing here yet",
+    "emptyDesc": "Follow people and join realms to fill your personalized timeline.",
+    "discovery": {
+      "suggestedRealm": "Suggested realms",
+      "suggestedPublisher": "Suggested publishers",
+      "suggestedPeople": "Suggested people",
+      "webArticles": "Web articles",
+      "shuffledPosts": "Discover posts",
+      "explore": "Discover",
+      "viewProfile": "View profile",
+      "viewRealm": "View realm"
+    }
   },
   "presence": {
     "unknown": "Unknown Activity",

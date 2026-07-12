@@ -1,80 +1,87 @@
 <template>
-  <div class="card bg-base-100 shadow-sm">
-    <div class="card-body p-3">
-      <div class="flex gap-3 items-start">
-        <!-- Avatar with status indicator -->
-        <div class="relative shrink-0">
-          <div v-if="account" class="avatar">
-            <div class="w-9 h-9 rounded-full">
-              <img
-                v-if="accountAvatar"
-                :src="accountAvatar"
-                :alt="accountName"
-                class="w-full h-full rounded-full object-cover"
-              />
-              <div v-else class="w-full h-full rounded-full bg-primary flex items-center justify-center">
-                <span class="text-xs text-primary-content font-medium">{{ accountInitials }}</span>
-              </div>
+  <div :class="rootClass">
+    <div class="flex items-start gap-3" :class="bodyClass">
+      <div class="relative shrink-0">
+        <div v-if="account" class="avatar">
+          <div class="h-9 w-9 rounded-full">
+            <img
+              v-if="accountAvatar"
+              :src="accountAvatar"
+              :alt="accountName"
+              class="h-full w-full rounded-full object-cover"
+            />
+            <div
+              v-else
+              class="flex h-full w-full items-center justify-center rounded-full bg-primary"
+            >
+              <span class="text-xs font-medium text-primary-content">{{
+                accountInitials
+              }}</span>
             </div>
           </div>
-          <div
-            v-else
-            class="w-9 h-9 rounded-full flex items-center justify-center"
-            :class="statusBgClass"
-          >
-            <component :is="statusIcon" class="w-4.5 h-4.5" :class="statusIconClass" />
-          </div>
+        </div>
+        <div
+          v-else
+          class="flex h-9 w-9 items-center justify-center rounded-full"
+          :class="statusBgClass"
+        >
+          <component
+            :is="statusIcon"
+            class="h-4 w-4"
+            :class="statusIconClass"
+          />
+        </div>
 
-          <!-- Status indicator badge -->
-          <span
-            class="absolute -bottom-1 -right-1 w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-base-100"
-            :class="statusBadgeClass"
-          >
-            <component :is="statusIcon" class="w-2.5 h-2.5 text-white" />
+        <span
+          class="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-base-100"
+          :class="statusBadgeClass"
+        >
+          <component :is="statusIcon" class="h-2.5 w-2.5 text-white" />
+        </span>
+      </div>
+
+      <div class="min-w-0 flex-1">
+        <div v-if="account" class="mb-0.5 flex items-center gap-1.5 text-xs">
+          <span class="truncate font-medium text-base-content/80">
+            {{ accountDisplayName }}
+          </span>
+          <span class="text-base-content/30">·</span>
+          <span class="shrink-0 text-base-content/40">
+            {{ formatRelativeTime(createdAt) }}
           </span>
         </div>
 
-        <!-- Content -->
-        <div class="flex-1 min-w-0">
-          <!-- Account name and time -->
-          <div v-if="account" class="flex items-center gap-1 mb-0.5">
-            <span class="text-xs font-semibold text-base-content/70 truncate">
-              {{ accountDisplayName }}
-            </span>
-            <span class="text-xs text-base-content/30">·</span>
-            <span class="text-xs text-base-content/40 whitespace-nowrap">
-              {{ formatRelativeTime(createdAt) }}
-            </span>
-          </div>
+        <div class="flex items-center gap-1.5">
+          <span v-if="displaySymbol" class="text-base leading-none">{{
+            displaySymbol
+          }}</span>
+          <span class="truncate text-sm font-medium">{{ displayLabel }}</span>
+        </div>
 
-          <!-- Status label -->
-          <div class="flex items-center gap-1.5">
-            <span v-if="displaySymbol" class="text-base">{{ displaySymbol }}</span>
-            <span class="text-sm font-medium truncate">
-              {{ displayLabel }}
-            </span>
-          </div>
+        <p class="mt-0.5 truncate text-xs text-base-content/55">
+          {{ statusTypeLabel }}
+        </p>
 
-          <!-- Status type -->
-          <p class="text-xs text-base-content/60 truncate mt-0.5">
-            {{ statusTypeLabel }}
-          </p>
-
-          <!-- Badges -->
-          <div class="flex items-center gap-1.5 mt-2">
-            <span
-              class="badge badge-xs"
-              :class="status.isOnline ? 'badge-success' : 'badge-ghost'"
-            >
-              {{ status.isOnline ? t("status.online") : t("status.offline") }}
-            </span>
-            <span v-if="status.isAutomated" class="badge badge-xs badge-accent">
-              {{ t("status.bot") }}
-            </span>
-            <span v-if="!account" class="text-xs text-base-content/40">
-              {{ formatRelativeTime(createdAt) }}
-            </span>
-          </div>
+        <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <span
+            class="rounded-md px-1.5 py-0.5 text-[11px] font-medium"
+            :class="
+              status.isOnline
+                ? 'bg-success/15 text-success'
+                : 'bg-base-200 text-base-content/60'
+            "
+          >
+            {{ status.isOnline ? t("status.online") : t("status.offline") }}
+          </span>
+          <span
+            v-if="status.isAutomated"
+            class="rounded-md bg-accent/15 px-1.5 py-0.5 text-[11px] font-medium text-accent"
+          >
+            {{ t("status.bot") }}
+          </span>
+          <span v-if="!account" class="text-xs text-base-content/40">
+            {{ formatRelativeTime(createdAt) }}
+          </span>
         </div>
       </div>
     </div>
@@ -82,30 +89,34 @@
 </template>
 
 <script setup lang="ts">
-import type { SnAccountStatus, Account, SnAccountStatusType } from "~/types/post";
+import type { SnAccountStatus, Account } from "~/types/post";
 import { getFileUrl } from "~/utils/files";
-import {
-  IconCircle,
-  IconMoon,
-  IconEyeOff,
-  IconHeart,
-} from "#components";
+import { IconCircle, IconMoon, IconEyeOff } from "#components";
 
 const { t } = useI18n();
 
-const props = defineProps<{
-  status: SnAccountStatus;
-  createdAt: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    status: SnAccountStatus;
+    createdAt: string;
+    variant?: "card" | "feed";
+  }>(),
+  { variant: "card" },
+);
 
-// Account resolution
-const account = computed<Account | null>(() => {
-  return props.status.account ?? null;
-});
+const isFeed = computed(() => props.variant === "feed");
+const rootClass = computed(() =>
+  isFeed.value
+    ? "transition-colors duration-150 hover:bg-base-200/40"
+    : "card bg-base-100 shadow-sm",
+);
+const bodyClass = computed(() => (isFeed.value ? "px-4 py-3" : "card-body p-3"));
 
-const accountName = computed(() => {
-  return account.value?.nick || account.value?.name || "";
-});
+const account = computed<Account | null>(() => props.status.account ?? null);
+
+const accountName = computed(
+  () => account.value?.nick || account.value?.name || "",
+);
 
 const accountDisplayName = computed(() => {
   if (!account.value) return "";
@@ -141,62 +152,74 @@ const statusTypeLabel = computed(() => {
   }
 
   switch (props.status.type) {
-    case 1: return t("status.busy"); // SnAccountStatusType.busy
-    case 2: return t("status.doNotDisturb"); // SnAccountStatusType.doNotDisturb
-    case 3: return t("status.invisible"); // SnAccountStatusType.invisible
-    default: return props.status.isOnline ? t("status.online") : t("status.offline");
+    case 1:
+      return t("status.busy");
+    case 2:
+      return t("status.doNotDisturb");
+    case 3:
+      return t("status.invisible");
+    default:
+      return props.status.isOnline ? t("status.online") : t("status.offline");
   }
 });
 
 const statusIcon = computed(() => {
-  if (props.status.isIdleOrOnline) {
-    return IconMoon;
-  }
+  if (props.status.isIdleOrOnline) return IconMoon;
 
   switch (props.status.type) {
-    case 1: return IconMoon; // busy
-    case 2: return IconCircle; // doNotDisturb
-    case 3: return IconEyeOff; // invisible
-    default: return IconCircle;
+    case 1:
+      return IconMoon;
+    case 2:
+      return IconCircle;
+    case 3:
+      return IconEyeOff;
+    default:
+      return IconCircle;
   }
 });
 
 const statusBgClass = computed(() => {
-  if (props.status.isIdleOrOnline) {
-    return "bg-amber-500/15";
-  }
+  if (props.status.isIdleOrOnline) return "bg-amber-500/15";
 
   switch (props.status.type) {
-    case 1: return "bg-orange-500/15"; // busy
-    case 2: return "bg-deep-orange-500/15"; // doNotDisturb
-    case 3: return "bg-gray-500/15"; // invisible
-    default: return props.status.isOnline ? "bg-green-500/15" : "bg-gray-500/15";
+    case 1:
+      return "bg-orange-500/15";
+    case 2:
+      return "bg-error/15";
+    case 3:
+      return "bg-base-300/60";
+    default:
+      return props.status.isOnline ? "bg-success/15" : "bg-base-300/60";
   }
 });
 
 const statusIconClass = computed(() => {
-  if (props.status.isIdleOrOnline) {
-    return "text-amber-500";
-  }
+  if (props.status.isIdleOrOnline) return "text-amber-500";
 
   switch (props.status.type) {
-    case 1: return "text-orange-500"; // busy
-    case 2: return "text-deep-orange-500"; // doNotDisturb
-    case 3: return "text-gray-500"; // invisible
-    default: return props.status.isOnline ? "text-green-500" : "text-gray-500";
+    case 1:
+      return "text-orange-500";
+    case 2:
+      return "text-error";
+    case 3:
+      return "text-base-content/50";
+    default:
+      return props.status.isOnline ? "text-success" : "text-base-content/50";
   }
 });
 
 const statusBadgeClass = computed(() => {
-  if (props.status.isIdleOrOnline) {
-    return "bg-amber-500";
-  }
+  if (props.status.isIdleOrOnline) return "bg-amber-500";
 
   switch (props.status.type) {
-    case 1: return "bg-orange-500"; // busy
-    case 2: return "bg-deep-orange-500"; // doNotDisturb
-    case 3: return "bg-gray-500"; // invisible
-    default: return props.status.isOnline ? "bg-green-500" : "bg-gray-500";
+    case 1:
+      return "bg-orange-500";
+    case 2:
+      return "bg-error";
+    case 3:
+      return "bg-base-content/40";
+    default:
+      return props.status.isOnline ? "bg-success" : "bg-base-content/40";
   }
 });
 

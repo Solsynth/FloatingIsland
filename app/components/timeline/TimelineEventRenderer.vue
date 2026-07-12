@@ -1,8 +1,20 @@
 <template>
-  <div>
+  <div
+    v-if="hasRenderableContent"
+    class="timeline-event"
+  >
     <!-- Post events -->
     <TimelinePostItem
       v-if="isPostEvent"
+      :event="event"
+      @boost="$emit('boost', $event)"
+      @share="$emit('share', $event)"
+      @reply="$emit('reply', $event)"
+    />
+
+    <!-- Discovery carousels (personalized suggestions) -->
+    <DiscoveryActivityBlock
+      v-else-if="isDiscoveryEvent"
       :event="event"
       @boost="$emit('boost', $event)"
       @share="$emit('share', $event)"
@@ -14,6 +26,7 @@
       v-else-if="isPresenceEvent && presenceActivity"
       :activity="presenceActivity"
       :raw-data="presenceRawData"
+      variant="feed"
     />
 
     <!-- Friend status events -->
@@ -21,6 +34,7 @@
       v-else-if="isStatusEvent && statusData"
       :status="statusData"
       :created-at="event.createdAt"
+      variant="feed"
     />
   </div>
 </template>
@@ -42,17 +56,30 @@ defineEmits<{
   reply: [post: Post];
 }>();
 
-const isPostEvent = computed(() =>
-  props.event.type === "posts.new" || props.event.type === "posts.new.replies"
+const isPostEvent = computed(
+  () =>
+    props.event.type === "posts.new" ||
+    props.event.type === "posts.new.replies",
 );
 
-const isPresenceEvent = computed(() =>
-  props.event.type === "presence.friend"
+const isDiscoveryEvent = computed(
+  () =>
+    props.event.type === "discovery" || props.event.type === "discovery.v2",
 );
 
-const isStatusEvent = computed(() =>
-  props.event.type === "status.friend"
-);
+const isPresenceEvent = computed(() => props.event.type === "presence.friend");
+
+const isStatusEvent = computed(() => props.event.type === "status.friend");
+
+const hasRenderableContent = computed(() => {
+  if (props.event.data == null) return false;
+  return (
+    isPostEvent.value ||
+    isDiscoveryEvent.value ||
+    isPresenceEvent.value ||
+    isStatusEvent.value
+  );
+});
 
 const presenceActivity = computed<SnPresenceActivity | null>(() => {
   if (!isPresenceEvent.value) return null;
@@ -72,4 +99,9 @@ const statusData = computed(() => {
 });
 </script>
 
-
+<style scoped>
+.timeline-event {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 240px;
+}
+</style>

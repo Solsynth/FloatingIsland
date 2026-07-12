@@ -1,180 +1,253 @@
 <template>
-	<NuxtLayout name="app">
-		<div class="grid xl:grid-cols-[1fr_20rem]">
-			<div>
-				<div class="space-y-6">
-					<!-- Header -->
-					<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4">
-						<div>
-							<h1 class="text-2xl font-bold">{{ t("realms.title") }}</h1>
-							<p class="text-base-content/60 text-sm">{{ t("realms.subtitle") }}</p>
-						</div>
-						<button class="btn btn-primary" @click="showCreateModal = true">
-							<IconPlus class="w-4 h-4" />
-							{{ t("realms.createRealm") }}
-						</button>
-					</div>
+  <NuxtLayout name="app">
+    <div class="grid min-w-0 xl:grid-cols-[minmax(0,1fr)_20rem] xl:gap-x-6">
+      <div class="min-w-0">
+        <!-- Header -->
+        <div
+          class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div class="min-w-0">
+            <h1 class="text-xl font-bold sm:text-2xl">{{ t("realms.title") }}</h1>
+            <p class="text-sm text-base-content/50">{{ t("realms.subtitle") }}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <div
+              v-if="auth.isAuthenticated.value && realms.length > 0"
+              class="join border border-base-300/80"
+            >
+              <button
+                type="button"
+                class="btn btn-sm join-item btn-ghost"
+                :class="{ 'bg-base-200': displayMode === 'card' }"
+                :title="t('common.gridView')"
+                @click="setDisplayMode('card')"
+              >
+                <IconLayoutGrid class="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm join-item btn-ghost"
+                :class="{ 'bg-base-200': displayMode === 'list' }"
+                :title="t('common.listView')"
+                @click="setDisplayMode('list')"
+              >
+                <IconList class="h-4 w-4" />
+              </button>
+            </div>
+            <button
+              v-if="auth.isAuthenticated.value"
+              type="button"
+              class="btn btn-primary btn-sm"
+              @click="showCreateModal = true"
+            >
+              <IconPlus class="h-4 w-4" />
+              {{ t("realms.createRealm") }}
+            </button>
+          </div>
+        </div>
 
-					<!-- Auth Required State -->
-					<div v-if="requiresAuth || !auth.isAuthenticated.value" class="card bg-base-200/50">
-						<div class="card-body items-center text-center py-12">
-							<div class="w-16 h-16 rounded-2xl bg-base-300 flex items-center justify-center mb-4">
-								<IconLogIn class="w-8 h-8 text-base-content/40" />
-							</div>
-							<h2 class="text-lg font-bold">{{ t("realms.signInToView") }}</h2>
-							<p class="text-base-content/60 text-sm max-w-sm mb-4">
-								{{ t("realms.signInToViewDesc") }}
-							</p>
-							<NuxtLink to="/auth/login" class="btn btn-primary">
-								<IconLogIn class="w-4 h-4" />
-								{{ t("nav.signIn") }}
-							</NuxtLink>
-						</div>
-					</div>
+        <!-- Auth required -->
+        <div
+          v-if="requiresAuth || !auth.isAuthenticated.value"
+          class="overflow-hidden rounded-xl border border-base-300/80 bg-base-100"
+        >
+          <div class="flex flex-col items-center gap-3 px-4 py-14 text-center">
+            <div
+              class="flex h-12 w-12 items-center justify-center rounded-full bg-base-200"
+            >
+              <IconLogIn class="h-6 w-6 text-base-content/40" />
+            </div>
+            <p class="text-sm font-medium text-base-content/75">
+              {{ t("realms.signInToView") }}
+            </p>
+            <p class="max-w-sm text-xs leading-relaxed text-base-content/45">
+              {{ t("realms.signInToViewDesc") }}
+            </p>
+            <NuxtLink to="/auth/login" class="btn btn-primary btn-sm mt-1">
+              <IconLogIn class="h-4 w-4" />
+              {{ t("nav.signIn") }}
+            </NuxtLink>
+          </div>
+        </div>
 
-					<!-- Loading State -->
-					<ConfuseSpinner v-else-if="status === 'pending' && realms.length === 0" :message="t('realms.loading')" />
+        <!-- Loading -->
+        <div
+          v-else-if="status === 'pending' && realms.length === 0"
+          class="flex justify-center py-16"
+        >
+          <ConfuseSpinner :message="t('realms.loading')" />
+        </div>
 
-					<!-- Error State -->
-					<div v-else-if="error" class="alert alert-error">
-						<IconAlertCircle class="w-5 h-5" />
-						<span>{{ error }}</span>
-					</div>
+        <!-- Error -->
+        <div
+          v-else-if="error"
+          class="flex flex-col items-center gap-3 rounded-xl border border-error/20 bg-base-100 px-4 py-12 text-center"
+        >
+          <IconAlertCircle class="h-5 w-5 text-error" />
+          <p class="text-sm text-base-content/70">{{ error }}</p>
+        </div>
 
-					<!-- Realms List -->
-					<div v-else-if="realms.length > 0" class="grid gap-3">
-						<RealmListTile v-for="realm in realms" :key="realm.id" :realm="realm" />
-					</div>
+        <!-- Realms list shell -->
+        <div
+          v-else-if="realms.length > 0"
+          class="overflow-hidden border-y border-base-300/80 bg-base-100 sm:rounded-xl sm:border"
+        >
+          <!-- Card grid -->
+          <div
+            v-if="displayMode === 'card'"
+            class="grid gap-3 p-3 sm:grid-cols-2 sm:p-4"
+          >
+            <RealmListTile
+              v-for="realm in realms"
+              :key="realm.id"
+              :realm="realm"
+            />
+          </div>
 
-					<!-- Empty State -->
-					<div v-else class="card bg-base-200/50">
-						<div class="card-body items-center text-center py-12">
-							<div class="w-16 h-16 rounded-2xl bg-base-300 flex items-center justify-center mb-4">
-								<IconUsers class="w-8 h-8 text-base-content/40" />
-							</div>
-							<h2 class="text-lg font-bold">{{ t("realms.emptyTitle") }}</h2>
-							<p class="text-base-content/60 text-sm max-w-sm">
-								{{ t("realms.emptyDesc") }}
-							</p>
-							<button class="btn btn-primary mt-4" @click="showCreateModal = true">
-								<IconPlus class="w-4 h-4" />
-								{{ t("realms.createYourFirst") }}
-							</button>
-						</div>
-					</div>
+          <!-- Compact list (Flutter RealmTile) -->
+          <div v-else class="divide-y divide-base-300/80">
+            <RealmListRow
+              v-for="realm in realms"
+              :key="realm.id"
+              :realm="realm"
+            />
+          </div>
+        </div>
 
-					<!-- Load More -->
-					<div v-if="realms.length > 0" class="py-2 text-center">
-						<button
-							v-if="hasMore"
-							class="btn btn-outline"
-							:disabled="fetchingMore"
-							@click="loadMore"
-						>
-							<IconLoader v-if="fetchingMore" class="w-4 h-4 animate-spin" />
-							<span>{{ t("common.loadMore") }}</span>
-						</button>
-						<p v-else-if="realms.length > 5" class="text-sm text-base-content/50">
-							{{ t("realms.noMore") }}
-						</p>
-					</div>
-				</div>
-			</div>
+        <!-- Empty -->
+        <div
+          v-else
+          class="overflow-hidden rounded-xl border border-base-300/80 bg-base-100"
+        >
+          <div class="flex flex-col items-center gap-3 px-4 py-14 text-center">
+            <div
+              class="flex h-12 w-12 items-center justify-center rounded-full bg-base-200"
+            >
+              <IconUsers class="h-6 w-6 text-base-content/40" />
+            </div>
+            <p class="text-sm font-medium text-base-content/75">
+              {{ t("realms.emptyTitle") }}
+            </p>
+            <p class="max-w-sm text-xs leading-relaxed text-base-content/45">
+              {{ t("realms.emptyDesc") }}
+            </p>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm mt-1"
+              @click="showCreateModal = true"
+            >
+              <IconPlus class="h-4 w-4" />
+              {{ t("realms.createYourFirst") }}
+            </button>
+          </div>
+        </div>
+      </div>
 
+      <aside class="hidden w-full self-start sticky top-4 xl:block">
+        <RightSidebar />
+      </aside>
 
-			<aside class="hidden xl:block sticky top-0 self-start">
-				<!-- Just a placeholder to take place -->
-			</aside>
-
-			<!-- Create Realm Modal -->
-			<RealmCreateModal v-model:open="showCreateModal" @created="handleRealmCreated" />
-		</div>
-	</NuxtLayout>
+      <RealmCreateModal
+        v-model:open="showCreateModal"
+        @created="handleRealmCreated"
+      />
+    </div>
+  </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-import type { Realm } from '~/types/realm';
-import { fetchRealms } from '~/utils/api';
+import type { Realm } from "~/types/realm";
+import { fetchRealms } from "~/utils/api";
+import {
+  IconPlus,
+  IconLogIn,
+  IconAlertCircle,
+  IconUsers,
+  IconLayoutGrid,
+  IconList,
+} from "#components";
 
 const { t } = useI18n();
 
-defineOgImage('UniOgImage', { title: t("realms.title"), description: t("realms.seoDescription") })
+defineOgImage("UniOgImage", {
+  title: t("realms.title"),
+  description: t("realms.seoDescription"),
+});
 
 useSolarSeo({
-	title: t("realms.title"),
-	description: t("realms.seoDescription"),
-	breadcrumbs: [
-		{ name: 'Home', item: 'https://solian.app' },
-		{ name: t('realms.title'), item: 'https://solian.app/realms' }
-	]
+  title: t("realms.title"),
+  description: t("realms.seoDescription"),
+  breadcrumbs: [
+    { name: "Home", item: "https://solian.app" },
+    { name: t("realms.title"), item: "https://solian.app/realms" },
+  ],
 });
 
 const auth = useAuth();
-const realms = useState<Realm[]>('realms-list', () => []);
-const hasMore = ref(true);
-const fetchingMore = ref(false);
+const realms = useState<Realm[]>("realms-list", () => []);
 const showCreateModal = ref(false);
 const requiresAuth = ref(false);
 
-// Initial fetch - only if authenticated
+const DISPLAY_KEY = "realm_display_mode";
+const displayMode = ref<"card" | "list">("card");
+
+function loadDisplayMode() {
+  if (!import.meta.client) return;
+  try {
+    const stored = localStorage.getItem(DISPLAY_KEY);
+    if (stored === "list" || stored === "card") displayMode.value = stored;
+  } catch {
+    // ignore
+  }
+}
+
+function setDisplayMode(mode: "card" | "list") {
+  displayMode.value = mode;
+  try {
+    localStorage.setItem(DISPLAY_KEY, mode);
+  } catch {
+    // ignore
+  }
+}
+
+onMounted(loadDisplayMode);
+
 const { data: initialData, status, error } = await useAsyncData(
-	'realms-list-fetch',
-	async () => {
-		if (!auth.isAuthenticated.value) {
-			requiresAuth.value = true;
-			return [];
-		}
-		try {
-			return await fetchRealms();
-		} catch (err: unknown) {
-			if ((err as Error)?.message?.includes('401') || (err as Error)?.message?.includes('Unauthorized')) {
-				requiresAuth.value = true;
-				return [];
-			}
-			throw err;
-		}
-	},
-	{
-		default: () => [],
-		server: false // Only run on client to ensure auth state is available
-	}
+  "realms-list-fetch",
+  async () => {
+    if (!auth.isAuthenticated.value) {
+      requiresAuth.value = true;
+      return [] as Realm[];
+    }
+    try {
+      return await fetchRealms();
+    } catch (err: unknown) {
+      if (
+        (err as Error)?.message?.includes("401") ||
+        (err as Error)?.message?.includes("Unauthorized")
+      ) {
+        requiresAuth.value = true;
+        return [] as Realm[];
+      }
+      throw err;
+    }
+  },
+  {
+    default: () => [] as Realm[],
+    server: false,
+  },
 );
 
 watch(
-	initialData,
-	(data) => {
-		if (data) {
-			realms.value = data;
-			hasMore.value = data.length === 50; // API returns 50 per page
-		}
-	},
-	{ immediate: true }
+  initialData,
+  (data) => {
+    if (data) realms.value = data;
+  },
+  { immediate: true },
 );
 
-async function loadMore() {
-	if (!hasMore.value || fetchingMore.value) return;
-	fetchingMore.value = true;
-
-	try {
-		const more = await fetchRealms();
-		if (more.length > 0) {
-			// Filter out duplicates
-			const existingIds = new Set(realms.value.map(r => r.id));
-			const newRealms = more.filter(r => !existingIds.has(r.id));
-			realms.value = [...realms.value, ...newRealms];
-			hasMore.value = more.length === 50;
-		} else {
-			hasMore.value = false;
-		}
-	} catch (e) {
-		console.error('Failed to load more realms:', e);
-	} finally {
-		fetchingMore.value = false;
-	}
-}
-
 function handleRealmCreated(newRealm: Realm) {
-	realms.value.unshift(newRealm);
-	navigateTo(`/realms/${newRealm.slug}`);
+  realms.value.unshift(newRealm);
+  navigateTo(`/realms/${newRealm.slug}`);
 }
 </script>

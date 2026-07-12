@@ -615,7 +615,11 @@ export async function fetchTimeline(
 
   const payload = (await parseResponse(response)) as Record<string, unknown>;
   const rawItems = (payload.items as unknown[]) ?? [];
-  const nextCursor = (payload.next_cursor as string) ?? null;
+  // Support both snake_case and camelCase response shapes
+  const nextCursor =
+    (payload.next_cursor as string | null | undefined) ??
+    (payload.nextCursor as string | null | undefined) ??
+    null;
   const mode = (payload.mode as string) ?? "personalized";
 
   const items = rawItems
@@ -624,7 +628,11 @@ export async function fetchTimeline(
     )
     .map((e) => snakeToCamel(e) as SnTimelineEvent);
 
-  return { items, nextCursor, mode };
+  return {
+    items,
+    nextCursor: nextCursor && nextCursor.length > 0 ? nextCursor : null,
+    mode,
+  };
 }
 
 export async function fetchFeaturedPosts(): Promise<Post[]> {

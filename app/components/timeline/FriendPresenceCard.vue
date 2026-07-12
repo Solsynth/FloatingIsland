@@ -1,138 +1,132 @@
 <template>
-  <div class="card bg-base-100 shadow-sm overflow-hidden">
-    <!-- Steam Hero Image -->
-    <div v-if="isSteam && steamGameId" class="relative h-28 w-full">
+  <div :class="rootClass">
+    <!-- Steam hero -->
+    <div v-if="isSteam && steamGameId" class="relative h-24 w-full">
       <img
         :src="steamHeroUrl"
-        class="w-full h-full object-cover"
+        class="h-full w-full object-cover"
         alt=""
         loading="lazy"
         @error="handleSteamImageError"
       />
-      <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+      <div class="absolute inset-0 bg-gradient-to-t from-base-100 via-base-100/40 to-transparent" />
     </div>
 
-    <div class="card-body p-3">
-      <div class="flex gap-3" :class="{ 'items-start': !hasArtwork || isSteam, 'items-center': hasArtwork && !isSteam }">
-        <!-- Avatar with activity badge -->
-        <div class="relative shrink-0">
-          <div v-if="account" class="avatar">
-            <div class="w-9 h-9 rounded-full">
-              <img
-                v-if="accountAvatar"
-                :src="accountAvatar"
-                :alt="accountName"
-                class="w-full h-full rounded-full object-cover"
-              />
-              <div v-else class="w-full h-full rounded-full bg-primary flex items-center justify-center">
-                <span class="text-xs text-primary-content font-medium">{{ accountInitials }}</span>
-              </div>
+    <div class="flex gap-3" :class="bodyClass">
+      <!-- Avatar + activity badge -->
+      <div class="relative shrink-0">
+        <div v-if="account" class="avatar">
+          <div class="h-9 w-9 rounded-full">
+            <img
+              v-if="accountAvatar"
+              :src="accountAvatar"
+              :alt="accountName"
+              class="h-full w-full rounded-full object-cover"
+            />
+            <div
+              v-else
+              class="flex h-full w-full items-center justify-center rounded-full bg-primary"
+            >
+              <span class="text-xs font-medium text-primary-content">{{
+                accountInitials
+              }}</span>
             </div>
           </div>
-          <div
-            v-else
-            class="w-9 h-9 rounded-full flex items-center justify-center"
-            :class="activityBgClass"
-          >
-            <component :is="activityIcon" class="w-4.5 h-4.5" :class="activityIconClass" />
-          </div>
+        </div>
+        <div
+          v-else
+          class="flex h-9 w-9 items-center justify-center rounded-full"
+          :class="activityBgClass"
+        >
+          <component
+            :is="activityIcon"
+            class="h-4 w-4"
+            :class="activityIconClass"
+          />
+        </div>
 
-          <!-- Activity type badge -->
-          <span
-            class="absolute -bottom-1 -right-1 w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-base-100"
-            :class="activityBadgeClass"
-          >
-            <component :is="activityIcon" class="w-2.5 h-2.5 text-white" />
-          </span>
+        <span
+          class="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-base-100"
+          :class="activityBadgeClass"
+        >
+          <component :is="activityIcon" class="h-2.5 w-2.5 text-white" />
+        </span>
+      </div>
 
-          <!-- Provider badge (Spotify/Steam) -->
-          <span
-            v-if="isSpotify"
-            class="absolute -top-0.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-[#1DB954] flex items-center justify-center border-2 border-base-100"
-          >
-            <IconMusic class="w-2 h-2 text-white" />
+      <!-- Artwork -->
+      <img
+        v-if="hasArtwork && !isSteam"
+        :src="artworkUrl"
+        class="h-11 w-11 shrink-0 rounded-md object-cover"
+        alt=""
+        loading="lazy"
+      />
+
+      <div class="min-w-0 flex-1">
+        <div v-if="account" class="mb-0.5 flex items-center gap-1.5 text-xs">
+          <span class="truncate font-medium text-base-content/80">
+            {{ accountDisplayName }}
           </span>
-          <span
-            v-else-if="isSteam"
-            class="absolute -top-0.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-[#1B2838] flex items-center justify-center border-2 border-base-100"
-          >
-            <IconGamepad class="w-2 h-2 text-white" />
+          <span class="text-base-content/30">·</span>
+          <span class="shrink-0 text-base-content/40">
+            {{ formatRelativeTime(activity.createdAt) }}
           </span>
         </div>
 
-        <!-- Artwork image (non-Steam) -->
-        <img
-          v-if="hasArtwork && !isSteam"
-          :src="artworkUrl"
-          class="w-12 h-12 rounded-lg object-cover shrink-0"
-          alt=""
-          loading="lazy"
-        />
+        <div class="flex items-center gap-1.5">
+          <span class="truncate text-sm font-medium">
+            {{ activity.title || t("presence.unknown") }}
+          </span>
+          <a
+            v-if="activity.titleUrl"
+            :href="activity.titleUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="shrink-0 text-base-content/40 hover:text-base-content/70"
+            @click.stop
+          >
+            <IconExternalLink class="h-3 w-3" />
+          </a>
+        </div>
 
-        <!-- Content -->
-        <div class="flex-1 min-w-0">
-          <!-- Account name and time -->
-          <div v-if="account" class="flex items-center gap-1 mb-0.5">
-            <span class="text-xs font-semibold text-base-content/70 truncate">
-              {{ accountDisplayName }}
-            </span>
-            <span class="text-xs text-base-content/30">·</span>
-            <span class="text-xs text-base-content/40 whitespace-nowrap">
-              {{ formatRelativeTime(activity.createdAt) }}
-            </span>
-          </div>
+        <div v-if="activity.subtitle" class="mt-0.5 flex items-center gap-1">
+          <span class="truncate text-xs text-base-content/55">
+            {{ activity.subtitle }}
+          </span>
+          <a
+            v-if="activity.subtitleUrl"
+            :href="activity.subtitleUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="shrink-0 text-base-content/40 hover:text-base-content/70"
+            @click.stop
+          >
+            <IconExternalLink class="h-3 w-3" />
+          </a>
+        </div>
 
-          <!-- Title -->
-          <div class="flex items-center gap-1.5">
-            <span class="text-sm font-medium truncate">
-              {{ activity.title || t("presence.unknown") }}
-            </span>
-            <a
-              v-if="activity.titleUrl"
-              :href="activity.titleUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-base-content/40 hover:text-base-content/60 shrink-0"
-              @click.stop
-            >
-              <IconExternalLink class="h-3 w-3" />
-            </a>
-          </div>
+        <p
+          v-if="activity.caption"
+          class="mt-0.5 truncate text-xs italic text-base-content/45"
+        >
+          {{ activity.caption }}
+        </p>
 
-          <!-- Subtitle -->
-          <div v-if="activity.subtitle" class="flex items-center gap-1 mt-0.5">
-            <span class="text-xs text-base-content/60 truncate">
-              {{ activity.subtitle }}
-            </span>
-            <a
-              v-if="activity.subtitleUrl"
-              :href="activity.subtitleUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-base-content/40 hover:text-base-content/60 shrink-0"
-              @click.stop
-            >
-              <IconExternalLink class="h-3 w-3" />
-            </a>
-          </div>
-
-          <!-- Caption -->
-          <p v-if="activity.caption" class="text-xs text-base-content/50 italic truncate mt-0.5">
-            {{ activity.caption }}
-          </p>
-
-          <!-- Badges -->
-          <div class="flex items-center gap-1.5 mt-2">
-            <span class="badge badge-xs badge-accent">
-              {{ activityTypeLabel }}
-            </span>
-            <span v-if="isActive" class="badge badge-xs badge-primary">
-              {{ t("presence.ongoing") }}
-            </span>
-            <span v-if="!account" class="text-xs text-base-content/40">
-              {{ formatRelativeTime(activity.createdAt) }}
-            </span>
-          </div>
+        <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <span
+            class="rounded-md bg-base-200 px-1.5 py-0.5 text-[11px] font-medium text-base-content/70"
+          >
+            {{ activityTypeLabel }}
+          </span>
+          <span
+            v-if="isActive"
+            class="rounded-md bg-primary/12 px-1.5 py-0.5 text-[11px] font-medium text-primary"
+          >
+            {{ t("presence.ongoing") }}
+          </span>
+          <span v-if="!account" class="text-xs text-base-content/40">
+            {{ formatRelativeTime(activity.createdAt) }}
+          </span>
         </div>
       </div>
     </div>
@@ -153,15 +147,22 @@ import {
 
 const { t } = useI18n();
 
-const props = defineProps<{
-  activity: SnPresenceActivity;
-  rawData?: Record<string, unknown>;
-}>();
+const props = withDefaults(
+  defineProps<{
+    activity: SnPresenceActivity;
+    rawData?: Record<string, unknown>;
+    variant?: "card" | "feed";
+  }>(),
+  { variant: "card" },
+);
 
-const isSpotify = computed(() => {
-  const provider = props.rawData?.provider ?? props.activity.meta?.provider;
-  return provider === "spotify";
-});
+const isFeed = computed(() => props.variant === "feed");
+const rootClass = computed(() =>
+  isFeed.value
+    ? "overflow-hidden transition-colors duration-150 hover:bg-base-200/40"
+    : "card overflow-hidden bg-base-100 shadow-sm",
+);
+const bodyClass = computed(() => (isFeed.value ? "px-4 py-3" : "card-body p-3"));
 
 const isSteam = computed(() => {
   const provider = props.rawData?.provider ?? props.activity.meta?.provider;
@@ -189,9 +190,9 @@ const steamHeroUrl = computed(() => {
   return `https://cdn.cloudflare.steamstatic.com/steam/apps/${steamGameId.value}/library_hero.jpg`;
 });
 
-const hasArtwork = computed(() => {
-  return !!(props.activity.largeImage || props.activity.smallImage);
-});
+const hasArtwork = computed(
+  () => !!(props.activity.largeImage || props.activity.smallImage),
+);
 
 const artworkUrl = computed(() => {
   const url = props.activity.largeImage || props.activity.smallImage;
@@ -199,14 +200,11 @@ const artworkUrl = computed(() => {
   return resolveImageUrl(url);
 });
 
-// Account resolution
-const account = computed<Account | null>(() => {
-  return props.activity.account ?? null;
-});
+const account = computed<Account | null>(() => props.activity.account ?? null);
 
-const accountName = computed(() => {
-  return account.value?.nick || account.value?.name || "";
-});
+const accountName = computed(
+  () => account.value?.nick || account.value?.name || "",
+);
 
 const accountDisplayName = computed(() => {
   if (!account.value) return "";
@@ -227,46 +225,66 @@ const accountInitials = computed(() => {
 
 const activityIcon = computed(() => {
   switch (props.activity.type) {
-    case 1: return IconGamepad; // Gaming
-    case 2: return IconMusic; // Music
-    case 3: return IconActivity; // Workout
-    default: return IconHeart;
+    case 1:
+      return IconGamepad;
+    case 2:
+      return IconMusic;
+    case 3:
+      return IconActivity;
+    default:
+      return IconHeart;
   }
 });
 
 const activityBgClass = computed(() => {
   switch (props.activity.type) {
-    case 1: return "bg-purple-500/15"; // Gaming
-    case 2: return "bg-green-500/15"; // Music
-    case 3: return "bg-orange-500/15"; // Workout
-    default: return "bg-blue-500/15";
+    case 1:
+      return "bg-purple-500/15";
+    case 2:
+      return "bg-green-500/15";
+    case 3:
+      return "bg-orange-500/15";
+    default:
+      return "bg-primary/15";
   }
 });
 
 const activityIconClass = computed(() => {
   switch (props.activity.type) {
-    case 1: return "text-purple-500"; // Gaming
-    case 2: return "text-green-500"; // Music
-    case 3: return "text-orange-500"; // Workout
-    default: return "text-blue-500";
+    case 1:
+      return "text-purple-500";
+    case 2:
+      return "text-green-500";
+    case 3:
+      return "text-orange-500";
+    default:
+      return "text-primary";
   }
 });
 
 const activityBadgeClass = computed(() => {
   switch (props.activity.type) {
-    case 1: return "bg-purple-500"; // Gaming
-    case 2: return "bg-green-500"; // Music
-    case 3: return "bg-orange-500"; // Workout
-    default: return "bg-blue-500";
+    case 1:
+      return "bg-purple-500";
+    case 2:
+      return "bg-green-500";
+    case 3:
+      return "bg-orange-500";
+    default:
+      return "bg-primary";
   }
 });
 
 const activityTypeLabel = computed(() => {
   switch (props.activity.type) {
-    case 1: return t("presence.gaming");
-    case 2: return t("presence.music");
-    case 3: return t("presence.workout");
-    default: return t("presence.activity");
+    case 1:
+      return t("presence.gaming");
+    case 2:
+      return t("presence.music");
+    case 3:
+      return t("presence.workout");
+    default:
+      return t("presence.activity");
   }
 });
 
@@ -294,7 +312,6 @@ function formatRelativeTime(dateStr: string): string {
 }
 
 function handleSteamImageError(e: Event) {
-  // Hide the hero image on error
   const img = e.target as HTMLImageElement;
   img.style.display = "none";
 }

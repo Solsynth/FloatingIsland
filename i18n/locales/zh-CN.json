@@ -16,6 +16,7 @@
     "confirm": "确认",
     "viewAll": "查看全部",
     "refresh": "刷新",
+    "retry": "重试",
     "notifications": "通知",
     "active": "活跃",
     "disabled": "已禁用",
@@ -222,7 +223,19 @@
     "loadFailed": "加载帖子失败：{error}",
     "sharePostFallbackTitle": "FloatingIsland 上的帖子",
     "featuredPosts": "精选帖子",
-    "featuredPostsFailed": "无法加载精选帖子"
+    "featuredPostsFailed": "无法加载精选帖子",
+    "emptyTitle": "这里还空空如也",
+    "emptyDesc": "关注更多人或加入领域，个性化时间线就会丰富起来。",
+    "discovery": {
+      "suggestedRealm": "推荐领域",
+      "suggestedPublisher": "推荐发布者",
+      "suggestedPeople": "推荐用户",
+      "webArticles": "网页文章",
+      "shuffledPosts": "发现帖子",
+      "explore": "发现",
+      "viewProfile": "查看主页",
+      "viewRealm": "查看领域"
+    }
   },
   "presence": {
     "unknown": "未知活动",

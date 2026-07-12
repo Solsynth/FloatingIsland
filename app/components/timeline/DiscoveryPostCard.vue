@@ -1,20 +1,23 @@
 <template>
-  <div class="card bg-base-100 shadow-sm">
-    <div class="card-body p-4">
+  <div
+    class="flex h-full flex-col overflow-hidden rounded-xl border border-base-300/70 bg-base-100"
+  >
+    <div class="min-h-0 flex-1 overflow-hidden">
       <PostCard
         :post="post"
-        :embedded="true"
+        variant="feed"
+        :show-reference="false"
         @boost="$emit('boost', post)"
         @share="$emit('share', post)"
         @reply="$emit('reply', post)"
       />
-      <div
-        v-if="reasons.length > 0"
-        class="flex items-center gap-1.5 mt-2 text-xs text-base-content/50"
-      >
-        <IconSparkles class="h-3 w-3" />
-        <span>{{ reasons[0] }}</span>
-      </div>
+    </div>
+    <div
+      v-if="reasons.length > 0"
+      class="flex items-center gap-1 border-t border-base-200 px-3 py-1.5 text-[11px] text-base-content/45"
+    >
+      <IconSparkles class="h-3 w-3 shrink-0" />
+      <span class="line-clamp-1">{{ reasons[0] }}</span>
     </div>
   </div>
 </template>

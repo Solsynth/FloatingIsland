@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="app">
-    <div class="grid xl:grid-cols-[1fr_20rem] min-w-0">
+    <div class="grid min-w-0 xl:grid-cols-[minmax(0,1fr)_20rem] xl:gap-x-6">
       <!-- Main Content -->
       <div class="space-y-4 min-w-0">
         <div class="flex items-center justify-between">
@@ -44,7 +44,7 @@
       </div>
 
       <!-- Right Sidebar (Desktop only) -->
-      <aside class="hidden xl:block sticky top-4 self-start ml-6 mr-4">
+      <aside class="hidden w-full self-start sticky top-4 xl:block">
         <RightSidebar />
       </aside>
     </div>

@@ -1,38 +1,56 @@
 <template>
-  <div class="card bg-base-100 shadow-sm">
-    <div class="card-body p-4">
-      <div class="flex items-center gap-2 mb-3">
-        <IconNewspaper class="h-4 w-4 text-info" />
-        <span class="text-xs font-medium text-base-content/60">Web Article</span>
-      </div>
-      <div v-if="article.image" class="aspect-video w-full overflow-hidden rounded-lg mb-3">
-        <img :src="article.image" :alt="article.title || 'Article'" class="h-full w-full object-cover" loading="lazy" />
-      </div>
-      <div>
-        <h3 v-if="article.title" class="font-semibold text-sm line-clamp-2">{{ article.title }}</h3>
-        <p v-if="article.description" class="text-xs text-base-content/60 line-clamp-2 mt-1">{{ article.description }}</p>
-        <div class="flex items-center gap-2 mt-2 text-xs text-base-content/50">
-          <IconLink class="h-3 w-3" />
-          <span class="truncate">{{ article.siteName || getHost(article.url) }}</span>
-        </div>
-      </div>
-      <div class="flex items-center gap-2 mt-3">
-        <button class="btn btn-info btn-xs flex-1" @click="openArticle">
-          Read Article
-          <IconExternalLink class="h-3 w-3 ml-1" />
-        </button>
-      </div>
-      <div v-if="reasons.length > 0" class="flex items-center gap-1.5 mt-2 text-xs text-base-content/50">
-        <IconSparkles class="h-3 w-3" />
-        <span>{{ reasons[0] }}</span>
-      </div>
+  <button
+    type="button"
+    class="flex h-full w-full flex-col overflow-hidden rounded-xl border border-base-300/70 bg-base-100 text-left transition-colors hover:border-base-300"
+    @click="openArticle"
+  >
+    <div
+      v-if="article.image"
+      class="aspect-[16/9] w-full overflow-hidden bg-base-200"
+    >
+      <img
+        :src="article.image"
+        :alt="article.title || 'Article'"
+        class="h-full w-full object-cover"
+        loading="lazy"
+      />
     </div>
-  </div>
+    <div class="flex flex-1 flex-col p-3">
+      <p
+        v-if="article.title"
+        class="line-clamp-2 text-sm font-semibold leading-snug"
+      >
+        {{ article.title }}
+      </p>
+      <p
+        v-if="article.description"
+        class="mt-1 line-clamp-2 text-xs leading-relaxed text-base-content/55"
+      >
+        {{ article.description }}
+      </p>
+      <div
+        class="mt-auto flex items-center gap-1.5 pt-2 text-[11px] text-base-content/45"
+      >
+        <IconLink class="h-3 w-3 shrink-0" />
+        <span class="truncate">{{
+          article.siteName || getHost(article.url)
+        }}</span>
+        <IconExternalLink class="ml-auto h-3 w-3 shrink-0 opacity-60" />
+      </div>
+      <p
+        v-if="reasons.length > 0"
+        class="mt-1.5 flex items-start gap-1 text-[11px] text-base-content/45"
+      >
+        <IconSparkles class="mt-0.5 h-3 w-3 shrink-0" />
+        <span class="line-clamp-1">{{ reasons[0] }}</span>
+      </p>
+    </div>
+  </button>
 </template>
 
 <script setup lang="ts">
 import type { DiscoveryItem, SnWebArticle } from "~/types/post";
-import { IconNewspaper, IconLink, IconExternalLink, IconSparkles } from "#components";
+import { IconLink, IconExternalLink, IconSparkles } from "#components";
 
 const props = defineProps<{
   item: DiscoveryItem;

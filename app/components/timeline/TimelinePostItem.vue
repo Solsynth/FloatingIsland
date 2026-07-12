@@ -1,6 +1,7 @@
 <template>
   <PostCard
     :post="post"
+    variant="feed"
     @boost="$emit('boost', post)"
     @share="$emit('share', post)"
     @reply="$emit('reply', post)"

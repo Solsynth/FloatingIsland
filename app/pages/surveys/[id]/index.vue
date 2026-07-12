@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout name="app">
-    <div class="grid xl:grid-cols-[1fr_20rem] min-w-0 gap-4">
+    <div class="grid min-w-0 xl:grid-cols-[minmax(0,1fr)_20rem] xl:gap-x-6 gap-y-4">
     <!-- Main Content -->
     <div class="min-w-0">
     <!-- Mobile Header -->
@@ -251,8 +251,8 @@
     </div>
   </div>
 
-    <!-- Right Sidebar -->
-    <div v-if="survey" class="hidden xl:block space-y-4">
+    <!-- Right Sidebar (20rem rail) -->
+    <div v-if="survey" class="hidden w-full space-y-4 self-start sticky top-4 xl:block">
       <div class="card bg-base-100 shadow-sm">
         <div class="card-body p-4">
           <h3 class="font-bold text-sm">{{ survey.title || t('surveys.untitled') }}</h3>

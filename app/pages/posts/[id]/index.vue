@@ -18,7 +18,7 @@
 			</div>
 		</div>
 
-		<div class="grid xl:grid-cols-[1fr_20rem] min-w-0">
+		<div class="grid min-w-0 xl:grid-cols-[minmax(0,1fr)_20rem] xl:gap-x-6">
 			<!-- Main Content -->
 			<div class="min-w-0">
 				<ConfuseSpinner
@@ -280,8 +280,8 @@
 				</div>
 			</div>
 
-			<!-- Right Sidebar - Publisher Info -->
-			<aside class="hidden xl:block sticky top-0 self-start mx-4">
+			<!-- Right Sidebar - Publisher Info (20rem, matches RightSidebar rail) -->
+			<aside class="hidden w-full self-start sticky top-4 xl:block">
 				<PublisherSidebar
 					v-if="post?.publisher"
 					:publisher="post?.publisher"
