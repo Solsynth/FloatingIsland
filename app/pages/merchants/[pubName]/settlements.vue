@@ -1,6 +1,12 @@
 <template>
   <NuxtLayout name="merchant">
     <div class="mx-auto max-w-5xl">
+      <MerchantProfileMissing
+        v-if="profileMissing"
+        :pub-name="pubName"
+        class="mb-6"
+      />
+
       <!-- Overview Stats -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div class="stat bg-base-100 rounded-box shadow-sm">
@@ -128,7 +134,12 @@ import {
   IconRefreshCw as IconRefresh,
 } from '#components'
 import type { MerchantOverview, MerchantSettlementsResult } from '~/types/merchant'
-import { fetchMerchantOverview, fetchMerchantSettlements, settleMerchant } from '~/utils/merchant'
+import {
+  fetchMerchantOverview,
+  fetchMerchantSettlements,
+  settleMerchant,
+  isMerchantProfileNotFound,
+} from '~/utils/merchant'
 import { fetchManagedPublishers } from '~/utils/creator'
 import { useMerchant } from '~/composables/useMerchant'
 
@@ -144,6 +155,7 @@ const overview = ref<MerchantOverview | null>(null)
 const settlements = ref<MerchantSettlementsResult>({ items: [], total: 0, hasMore: false })
 const isLoading = ref(false)
 const isSettling = ref(false)
+const profileMissing = ref(false)
 const offset = ref(0)
 const pageSize = 20
 
@@ -185,7 +197,13 @@ function formatDate(dateStr: string): string {
 async function loadOverview() {
   try {
     overview.value = await fetchMerchantOverview(pubName.value)
+    profileMissing.value = false
   } catch (e) {
+    overview.value = null
+    if (isMerchantProfileNotFound(e)) {
+      profileMissing.value = true
+      return
+    }
     console.error(e)
   }
 }
@@ -196,7 +214,13 @@ async function loadSettlements() {
     offset.value = 0
     const result = await fetchMerchantSettlements(pubName.value, 0, pageSize)
     settlements.value = result
+    profileMissing.value = false
   } catch (e) {
+    settlements.value = { items: [], total: 0, hasMore: false }
+    if (isMerchantProfileNotFound(e)) {
+      profileMissing.value = true
+      return
+    }
     console.error(e)
     $toast.error(t('merchant.error.loadingSettlements'))
   } finally {
@@ -228,7 +252,12 @@ async function handleSettle() {
     await Promise.all([loadOverview(), loadSettlements()])
   } catch (e) {
     console.error(e)
-    $toast.error(t('merchant.error.settleFailed'))
+    if (isMerchantProfileNotFound(e)) {
+      profileMissing.value = true
+      $toast.error(t('merchant.profileMissing.title'))
+    } else {
+      $toast.error(t('merchant.error.settleFailed'))
+    }
   } finally {
     isSettling.value = false
   }

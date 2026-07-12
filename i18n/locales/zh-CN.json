@@ -1445,6 +1445,11 @@
     "ads": "赞助帖子",
     "noOrders": "未找到订单",
     "settings": "设置",
+    "profileMissing": {
+      "title": "尚未设置商户资料",
+      "description": "该发布者还没有商户资料。请先在设置中配置收款钱包，以便接收打赏和应用程序销售的结算。",
+      "configureCta": "配置收款钱包"
+    },
     "settingsPage": {
       "title": "商户设置",
       "accountType": "账户类型",
@@ -1452,9 +1457,9 @@
       "status": "状态",
       "active": "活跃",
       "notConfigured": "未配置",
-      "merchantNotFound": "尚未创建商户资料。请在下方设置收款钱包以开始接收结算。",
+      "merchantNotFound": "尚未创建商户资料。请在下方设置收款钱包以创建资料并开始接收结算。",
       "payoutWallet": "收款钱包",
-      "payoutWalletHint": "所有来自打赏和应用程序销售的收入将结算到此钱包。",
+      "payoutWalletHint": "所有来自打赏和应用程序销售的收入将结算到此钱包。保存钱包时，如尚无商户资料会自动创建。",
       "currentWallet": "当前",
       "noWallet": "无（未设置收款钱包）",
       "noWallets": "未找到钱包，请先创建一个。",

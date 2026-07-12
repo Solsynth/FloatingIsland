@@ -1465,6 +1465,11 @@
     "ads": "Sponsored Posts",
     "noOrders": "No orders found",
     "settings": "Settings",
+    "profileMissing": {
+      "title": "Merchant profile not set up",
+      "description": "This publisher does not have a merchant profile yet. Configure a payout wallet in settings to start receiving settlements from awards and app sales.",
+      "configureCta": "Configure payout wallet"
+    },
     "settingsPage": {
       "title": "Merchant Settings",
       "accountType": "Account Type",
@@ -1472,9 +1477,9 @@
       "status": "Status",
       "active": "Active",
       "notConfigured": "Not configured",
-      "merchantNotFound": "Merchant profile not found yet. Set a payout wallet below to start receiving settlements.",
+      "merchantNotFound": "Merchant profile not found yet. Set a payout wallet below to create one and start receiving settlements.",
       "payoutWallet": "Payout Wallet",
-      "payoutWalletHint": "All revenue from post awards and app sales will be settled to this wallet.",
+      "payoutWalletHint": "All revenue from post awards and app sales will be settled to this wallet. Saving a wallet also creates the merchant profile if it does not exist yet.",
       "currentWallet": "Current",
       "noWallet": "None (no payout wallet)",
       "noWallets": "No wallets found. Create one first.",

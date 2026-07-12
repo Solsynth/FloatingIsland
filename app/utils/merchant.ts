@@ -1,4 +1,4 @@
-import { apiFetch, safeJsonParse } from '~/utils/api'
+import { apiFetch, safeJsonParse, ApiError } from '~/utils/api'
 import type {
   Merchant,
   MerchantOverview,
@@ -11,6 +11,46 @@ import type {
   MerchantOrderResult,
 } from '~/types/merchant'
 import type { WalletOrderStatus } from '~/types/auth'
+
+/** Backend ApiError.code when no merchant profile exists for a publisher yet */
+export const MERCHANT_PROFILE_NOT_FOUND = 'MERCHANT_PROFILE_NOT_FOUND'
+
+/**
+ * True when the API reports that this publisher has no merchant profile.
+ *
+ * Handles both:
+ * - Structured payload: `{ code: "MERCHANT_PROFILE_NOT_FOUND", message: "..." }`
+ * - Plain 404 from `/wallet/merchants/*` (e.g. message-only "Merchant not found")
+ *
+ * Use only around merchant wallet API calls. Open Merchant Settings and set a
+ * payout wallet to provision the profile.
+ */
+export function isMerchantProfileNotFound(error: unknown): boolean {
+  if (!(error instanceof ApiError)) {
+    // Non-ApiError fallbacks (e.g. rethrown plain Error with message)
+    if (error instanceof Error) {
+      const msg = error.message.toLowerCase()
+      return (
+        msg.includes('merchant_profile_not_found')
+        || msg.includes('merchant profile') && msg.includes('not found')
+        || msg.includes('merchant not found')
+      )
+    }
+    return false
+  }
+
+  if (error.code === MERCHANT_PROFILE_NOT_FOUND) return true
+
+  // Plain 404 from merchant endpoints = profile missing
+  if (error.status === 404) return true
+
+  // Some gateways surface the code only in the message
+  const msg = error.message.toLowerCase()
+  return (
+    msg.includes('merchant_profile_not_found')
+    || (msg.includes('merchant') && msg.includes('not found'))
+  )
+}
 
 export async function fetchMerchant(merchantId: string): Promise<Merchant> {
   const response = await apiFetch(`/wallet/merchants/${encodeURIComponent(merchantId)}`)

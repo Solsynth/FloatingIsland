@@ -180,8 +180,12 @@ import type { PublisherManaged } from '~/types/creator'
 import type { Merchant } from '~/types/merchant'
 import type { Wallet } from '~/utils/api'
 import { fetchPublisherById, fetchManagedPublishers } from '~/utils/creator'
-import { fetchWallets, ApiError } from '~/utils/api'
-import { fetchMerchant, updateMerchantWallet } from '~/utils/merchant'
+import { fetchWallets } from '~/utils/api'
+import {
+  fetchMerchant,
+  updateMerchantWallet,
+  isMerchantProfileNotFound,
+} from '~/utils/merchant'
 import { useMerchant } from '~/composables/useMerchant'
 
 definePageMeta({ middleware: 'merchant' })
@@ -292,8 +296,8 @@ async function loadMerchant() {
     applyWalletId(merchantProfile.value.paymentWalletId)
   } catch (e) {
     merchantProfile.value = null
-    // Fall back to publisher payout wallet when merchant record is missing
-    if (e instanceof ApiError && e.status === 404) {
+    // Expected when publisher has never configured a merchant profile
+    if (isMerchantProfileNotFound(e)) {
       applyWalletId(publisher.value?.payoutWalletId)
       return
     }

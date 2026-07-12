@@ -1,5 +1,11 @@
 <template>
   <NuxtLayout name="merchant">
+    <MerchantProfileMissing
+      v-if="profileMissing"
+      :pub-name="pubName"
+      class="mb-6"
+    />
+
     <!-- Stats Overview -->
     <div class="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="stat bg-base-100 rounded-box shadow-sm">
@@ -122,7 +128,12 @@ import {
   IconChartBar,
 } from '#components'
 import type { MerchantOverview, AdPostStat, MerchantDailyIncoming } from '~/types/merchant'
-import { fetchMerchantOverview, fetchMerchantDaily, fetchAdPostStats } from '~/utils/merchant'
+import {
+  fetchMerchantOverview,
+  fetchMerchantDaily,
+  fetchAdPostStats,
+  isMerchantProfileNotFound,
+} from '~/utils/merchant'
 import { fetchManagedPublishers } from '~/utils/creator'
 
 definePageMeta({ middleware: 'merchant' })
@@ -136,6 +147,7 @@ const overview = ref<MerchantOverview | null>(null)
 const adStats = ref<AdPostStat[]>([])
 const dailyData = ref<MerchantDailyIncoming[]>([])
 const isLoadingDaily = ref(false)
+const profileMissing = ref(false)
 
 const hasPending = computed(() => {
   return overview.value && Object.keys(overview.value.pending).length > 0
@@ -152,17 +164,36 @@ async function loadData() {
   const from = days30.toISOString().split('T')[0]
   const to = new Date().toISOString().split('T')[0]
 
+  profileMissing.value = false
+  overview.value = null
+  dailyData.value = []
+
   try {
     const [overviewResult, dailyResult, adsResult] = await Promise.allSettled([
       fetchMerchantOverview(pubName.value),
       fetchMerchantDaily(pubName.value, { from, to }),
       fetchAdPostStats(pubName.value, 0, 20),
     ])
-    if (overviewResult.status === 'fulfilled') overview.value = overviewResult.value
-    if (dailyResult.status === 'fulfilled') dailyData.value = dailyResult.value.daily ?? []
+
+    if (overviewResult.status === 'fulfilled') {
+      overview.value = overviewResult.value
+    } else if (isMerchantProfileNotFound(overviewResult.reason)) {
+      profileMissing.value = true
+    }
+
+    if (dailyResult.status === 'fulfilled') {
+      dailyData.value = dailyResult.value.daily ?? []
+    } else if (isMerchantProfileNotFound(dailyResult.reason)) {
+      profileMissing.value = true
+    }
+
     if (adsResult.status === 'fulfilled') adStats.value = adsResult.value.items
   } catch (e) {
-    console.error(e)
+    if (isMerchantProfileNotFound(e)) {
+      profileMissing.value = true
+    } else {
+      console.error(e)
+    }
   }
 }
 

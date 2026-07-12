@@ -108,10 +108,68 @@ interface ApiFetchOptions extends RequestInit {
 
 export class ApiError extends Error {
   status: number;
-  constructor(message: string, status: number) {
+  /** Application-specific error code from the API (e.g. MERCHANT_PROFILE_NOT_FOUND) */
+  code?: string;
+  detail?: string;
+  traceId?: string;
+  errors?: Record<string, string[]>;
+  meta?: Record<string, unknown>;
+
+  constructor(
+    message: string,
+    status: number,
+    options?: {
+      code?: string;
+      detail?: string;
+      traceId?: string;
+      errors?: Record<string, string[]>;
+      meta?: Record<string, unknown>;
+    },
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
+    this.code = options?.code;
+    this.detail = options?.detail;
+    this.traceId = options?.traceId;
+    this.errors = options?.errors;
+    this.meta = options?.meta;
+  }
+
+  static fromBody(status: number, errorData: unknown): ApiError {
+    if (typeof errorData === "object" && errorData !== null) {
+      const body = errorData as Record<string, unknown>;
+      const message =
+        typeof body.message === "string" && body.message.trim()
+          ? body.message
+          : `HTTP ${status}`;
+      return new ApiError(message, status, {
+        code: typeof body.code === "string" ? body.code : undefined,
+        detail: typeof body.detail === "string" ? body.detail : undefined,
+        traceId:
+          typeof body.traceId === "string"
+            ? body.traceId
+            : typeof body.trace_id === "string"
+              ? body.trace_id
+              : undefined,
+        errors:
+          body.errors && typeof body.errors === "object"
+            ? (body.errors as Record<string, string[]>)
+            : undefined,
+        meta:
+          body.meta && typeof body.meta === "object"
+            ? (body.meta as Record<string, unknown>)
+            : undefined,
+      });
+    }
+    if (typeof errorData === "string" && errorData.trim()) {
+      return new ApiError(errorData, status);
+    }
+    return new ApiError(`HTTP ${status}`, status);
+  }
+
+  hasCode(code: string): boolean {
+    return this.code === code;
   }
 }
 
@@ -199,11 +257,7 @@ export async function apiFetch(
 
   if (!response.ok) {
     const errorData = await parseResponse(response);
-    const message =
-      typeof errorData === "object" && errorData && "message" in errorData
-        ? String(errorData.message)
-        : `HTTP ${response.status}`;
-    throw new ApiError(message, response.status);
+    throw ApiError.fromBody(response.status, errorData);
   }
 
   return response;
@@ -2601,11 +2655,7 @@ export async function uploadDriveFile(
 
   if (!response.ok) {
     const errorData = await parseResponse(response);
-    const message =
-      typeof errorData === "object" && errorData && "message" in errorData
-        ? String(errorData.message)
-        : `HTTP ${response.status}`;
-    throw new ApiError(message, response.status);
+    throw ApiError.fromBody(response.status, errorData);
   }
 
   return safeJsonParse<SnCloudFile>(response);

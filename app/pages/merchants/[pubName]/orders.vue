@@ -75,17 +75,16 @@
             </div>
           </div>
 
-          <!-- Empty / error -->
+          <!-- Profile missing -->
+          <MerchantProfileMissing
+            v-else-if="profileMissing"
+            :pub-name="pubName"
+          />
+
+          <!-- Empty -->
           <div v-else class="flex flex-col items-center py-8 text-base-content/30">
             <IconPackage class="w-10 h-10 mb-3" />
-            <p class="text-sm">{{ emptyMessage }}</p>
-            <NuxtLink
-              v-if="needsWallet"
-              :to="`/merchants/${pubName}/settings`"
-              class="btn btn-primary btn-sm mt-3"
-            >
-              {{ t('merchant.settingsPage.payoutWallet') }}
-            </NuxtLink>
+            <p class="text-sm">{{ t('merchant.noOrders') }}</p>
           </div>
         </div>
       </div>
@@ -100,7 +99,7 @@ import {
 } from '#components'
 import type { MerchantOrderResult } from '~/types/merchant'
 import { WalletOrderStatus } from '~/types/auth'
-import { fetchMerchantOrders } from '~/utils/merchant'
+import { fetchMerchantOrders, isMerchantProfileNotFound } from '~/utils/merchant'
 import { fetchManagedPublishers } from '~/utils/creator'
 
 definePageMeta({ middleware: 'merchant' })
@@ -116,12 +115,7 @@ const isLoading = ref(false)
 const offset = ref(0)
 const pageSize = 20
 const currentStatus = ref<WalletOrderStatus | undefined>(undefined)
-const needsWallet = ref(false)
-const emptyMessage = computed(() =>
-  needsWallet.value
-    ? t('merchant.settingsPage.merchantNotFound')
-    : t('merchant.noOrders'),
-)
+const profileMissing = ref(false)
 
 const statusTabs = [
   { value: undefined, label: t('merchant.status.all') },
@@ -176,7 +170,7 @@ function formatDate(dateStr: string | { seconds: number; nanos: number } | undef
 
 async function loadOrders() {
   isLoading.value = true
-  needsWallet.value = false
+  profileMissing.value = false
   try {
     offset.value = 0
     const result = await fetchMerchantOrders(pubName.value, {
@@ -186,15 +180,11 @@ async function loadOrders() {
     })
     orders.value = result
   } catch (e) {
-    console.error(e)
     orders.value = { items: [], total: 0, hasMore: false }
-    const message = e instanceof Error ? e.message : ''
-    if (
-      message.toLowerCase().includes('wallet')
-      || message.toLowerCase().includes('merchant')
-    ) {
-      needsWallet.value = true
+    if (isMerchantProfileNotFound(e)) {
+      profileMissing.value = true
     } else {
+      console.error(e)
       $toast.error(t('merchant.error.loadingOrders'))
     }
   } finally {
