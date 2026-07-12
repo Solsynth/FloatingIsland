@@ -97,13 +97,13 @@ const publisherName = computed(() => {
   return typeof name === "string" ? name : null;
 });
 
-const segmentLabels: Record<string, string> = {
-  settings: "Settings",
-  settlements: "Settlements",
-  orders: "Orders",
-  ads: "Ads",
-  stats: "Statistics",
-};
+const segmentLabels = computed<Record<string, string>>(() => ({
+  settings: t("merchant.settings"),
+  settlements: t("merchant.settlements"),
+  orders: t("merchant.orders"),
+  ads: t("merchant.ads"),
+  stats: t("merchant.dashboard"),
+}));
 
 const nickLabel = computed(
   () =>
@@ -122,7 +122,7 @@ const breadcrumbs = computed(() => {
   for (let i = 2; i < segments.length; i++) {
     const seg = segments[i] as string;
     const href = "/" + segments.slice(0, i + 1).join("/");
-    const label = segmentLabels[seg] || seg;
+    const label = segmentLabels.value[seg] || seg;
     parts.push({ label, href });
   }
   return parts;

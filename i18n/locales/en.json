@@ -20,7 +20,8 @@
     "notifications": "Notifications",
     "active": "Active",
     "disabled": "Disabled",
-    "required": "Required"
+    "required": "Required",
+    "default": "Default"
   },
   "drive": {
     "title": "Solar Network Drive",
@@ -1463,19 +1464,24 @@
     "orders": "Orders",
     "ads": "Sponsored Posts",
     "noOrders": "No orders found",
-    "settings": {
+    "settings": "Settings",
+    "settingsPage": {
       "title": "Merchant Settings",
       "accountType": "Account Type",
       "merchantAccount": "Merchant",
       "status": "Status",
       "active": "Active",
+      "notConfigured": "Not configured",
+      "merchantNotFound": "Merchant profile not found yet. Set a payout wallet below to start receiving settlements.",
       "payoutWallet": "Payout Wallet",
       "payoutWalletHint": "All revenue from post awards and app sales will be settled to this wallet.",
+      "currentWallet": "Current",
       "noWallet": "None (no payout wallet)",
       "noWallets": "No wallets found. Create one first.",
       "createWallet": "Create Wallet",
       "walletSaved": "Payout wallet updated successfully",
       "walletSaveFailed": "Failed to update payout wallet",
+      "loadingFailed": "Failed to load merchant settings",
       "dangerZone": "Danger Zone",
       "dangerZoneHint": "Irreversible actions for this publisher's merchant account."
     },

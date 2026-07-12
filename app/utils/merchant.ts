@@ -1,5 +1,6 @@
 import { apiFetch, safeJsonParse } from '~/utils/api'
 import type {
+  Merchant,
   MerchantOverview,
   MerchantSettlementSummary,
   MerchantDailyIncomingResult,
@@ -11,8 +12,13 @@ import type {
 } from '~/types/merchant'
 import type { WalletOrderStatus } from '~/types/auth'
 
+export async function fetchMerchant(merchantId: string): Promise<Merchant> {
+  const response = await apiFetch(`/wallet/merchants/${encodeURIComponent(merchantId)}`)
+  return safeJsonParse<Merchant>(response)
+}
+
 export async function fetchMerchantOverview(merchantId: string): Promise<MerchantOverview> {
-  const response = await apiFetch(`/wallet/merchants/${merchantId}/stats/overview`)
+  const response = await apiFetch(`/wallet/merchants/${encodeURIComponent(merchantId)}/stats/overview`)
   return safeJsonParse<MerchantOverview>(response)
 }
 
@@ -67,18 +73,37 @@ export async function fetchMerchantSettlements(
   return { items, total, hasMore: offset + take < total }
 }
 
-export async function settleMerchant(merchantId: string): Promise<{ id: string; amount: number; currency: string }[]> {
-  const response = await apiFetch(`/wallet/merchants/${merchantId}/settlements/settle`, {
-    method: 'POST',
-  })
-  return safeJsonParse<{ id: string; amount: number; currency: string }[]>(response)
+export interface SettleMerchantResult {
+  message: string
+  transactions: Array<{ id: string; currency: string; amount: number }>
 }
 
-export async function updateMerchantWallet(merchantId: string, walletId: string | null): Promise<void> {
-  await apiFetch(`/wallet/merchants/${merchantId}/wallet`, {
-    method: 'PATCH',
-    body: JSON.stringify({ wallet_id: walletId }),
-  })
+export async function settleMerchant(merchantId: string): Promise<SettleMerchantResult> {
+  const response = await apiFetch(
+    `/wallet/merchants/${encodeURIComponent(merchantId)}/settlements/settle`,
+    { method: 'POST' },
+  )
+  const data = await safeJsonParse<SettleMerchantResult & {
+    transactions?: Array<{ id: string; currency: string; amount: number }>
+  }>(response)
+  return {
+    message: data.message ?? '',
+    transactions: Array.isArray(data.transactions) ? data.transactions : [],
+  }
+}
+
+export async function updateMerchantWallet(
+  merchantId: string,
+  walletId: string | null,
+): Promise<Merchant> {
+  const response = await apiFetch(
+    `/wallet/merchants/${encodeURIComponent(merchantId)}/wallet`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify({ wallet_id: walletId }),
+    },
+  )
+  return safeJsonParse<Merchant>(response)
 }
 
 export async function fetchMerchantOrders(

@@ -22,11 +22,40 @@
 
         <div
           v-if="!referenceCollapsed && referencePost"
-          class="mt-2 grid grid-cols-[28px_1fr] gap-2"
+          class="mt-2 grid grid-cols-[40px_1fr] gap-3"
         >
-          <!-- Threading line -->
+          <!-- Publisher avatar + threading line -->
           <div class="flex flex-col items-center">
-            <div class="w-px flex-1 bg-base-300/80" />
+            <component
+              :is="referencePost.publisher ? 'NuxtLink' : 'div'"
+              class="shrink-0"
+              :to="
+                referencePost.publisher
+                  ? `/publishers/${referencePost.publisher.name}`
+                  : undefined
+              "
+              @click.stop
+            >
+              <div v-if="getAvatarUrl(referencePost)" class="avatar">
+                <div class="h-7 w-7 rounded-full">
+                  <img
+                    :src="getAvatarUrl(referencePost)"
+                    :alt="getDisplayName(referencePost.publisher)"
+                    class="h-full w-full rounded-full object-cover"
+                  />
+                </div>
+              </div>
+              <div v-else class="avatar avatar-placeholder">
+                <div
+                  class="h-7 w-7 rounded-full bg-primary text-primary-content"
+                >
+                  <span class="text-[10px] font-medium">
+                    {{ getInitials(getDisplayName(referencePost.publisher)) }}
+                  </span>
+                </div>
+              </div>
+            </component>
+            <div class="w-px flex-1 min-h-2 bg-base-300/80 mt-1" />
           </div>
 
           <!-- Referenced post content -->
@@ -35,7 +64,7 @@
             @click.stop="navigateToReference"
           >
             <!-- Author info -->
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex items-center gap-2 mb-1 min-h-7">
               <AccountName
                 :account="referencePost.publisher.account || referencePost.publisher"
                 :text-override="getDisplayName(referencePost.publisher)"

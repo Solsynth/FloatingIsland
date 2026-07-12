@@ -23,39 +23,48 @@
       <div class="flex rounded-lg bg-base-200 p-0.5 border border-base-300/40">
         <button
           type="button"
-          class="flex-1 inline-flex items-center justify-center gap-1 rounded-md px-1.5 py-1.5 text-xs font-semibold transition-colors duration-150"
+          class="inline-flex items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-semibold transition-all duration-150"
           :class="portalMode === 'creator'
-            ? 'bg-base-100 text-primary shadow-sm'
-            : 'text-base-content/45 hover:text-base-content/70'"
+            ? 'flex-[1.4] min-w-0 bg-base-100 px-2 text-primary shadow-sm'
+            : 'flex-none px-2 text-base-content/45 hover:text-base-content/70'"
+          :title="t('portal.creator')"
+          :aria-label="t('portal.creator')"
+          :aria-current="portalMode === 'creator' ? 'page' : undefined"
           :disabled="portalMode === 'creator' || !currentOrg"
           @click="portalMode !== 'creator' && handleTogglePortal('creator')"
         >
           <IconPalette class="w-3.5 h-3.5 shrink-0" />
-          <span class="truncate">{{ t('portal.creator') }}</span>
+          <span v-if="portalMode === 'creator'" class="truncate">{{ t('portal.creator') }}</span>
         </button>
         <button
           type="button"
-          class="flex-1 inline-flex items-center justify-center gap-1 rounded-md px-1.5 py-1.5 text-xs font-semibold transition-colors duration-150"
+          class="inline-flex items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-semibold transition-all duration-150"
           :class="portalMode === 'developer'
-            ? 'bg-base-100 text-primary shadow-sm'
-            : 'text-base-content/45 hover:text-base-content/70'"
+            ? 'flex-[1.4] min-w-0 bg-base-100 px-2 text-primary shadow-sm'
+            : 'flex-none px-2 text-base-content/45 hover:text-base-content/70'"
+          :title="t('portal.developer')"
+          :aria-label="t('portal.developer')"
+          :aria-current="portalMode === 'developer' ? 'page' : undefined"
           :disabled="portalMode === 'developer' || !currentOrg"
           @click="portalMode !== 'developer' && handleTogglePortal('developer')"
         >
           <IconCode class="w-3.5 h-3.5 shrink-0" />
-          <span class="truncate">{{ t('portal.developer') }}</span>
+          <span v-if="portalMode === 'developer'" class="truncate">{{ t('portal.developer') }}</span>
         </button>
         <button
           type="button"
-          class="flex-1 inline-flex items-center justify-center gap-1 rounded-md px-1.5 py-1.5 text-xs font-semibold transition-colors duration-150"
+          class="inline-flex items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-semibold transition-all duration-150"
           :class="portalMode === 'merchant'
-            ? 'bg-base-100 text-primary shadow-sm'
-            : 'text-base-content/45 hover:text-base-content/70'"
+            ? 'flex-[1.4] min-w-0 bg-base-100 px-2 text-primary shadow-sm'
+            : 'flex-none px-2 text-base-content/45 hover:text-base-content/70'"
+          :title="t('portal.merchant')"
+          :aria-label="t('portal.merchant')"
+          :aria-current="portalMode === 'merchant' ? 'page' : undefined"
           :disabled="portalMode === 'merchant' || !currentOrg"
           @click="portalMode !== 'merchant' && handleTogglePortal('merchant')"
         >
           <IconWallet class="w-3.5 h-3.5 shrink-0" />
-          <span class="truncate">{{ t('portal.merchant') }}</span>
+          <span v-if="portalMode === 'merchant'" class="truncate">{{ t('portal.merchant') }}</span>
         </button>
       </div>
 

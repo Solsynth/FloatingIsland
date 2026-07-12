@@ -33,6 +33,7 @@ export interface PublisherManaged {
   background: FileAttachment | null
   type: number
   realmId: string | null
+  payoutWalletId?: string | null
   createdAt: string
 }
 

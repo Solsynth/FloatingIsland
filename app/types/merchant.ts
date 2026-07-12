@@ -85,10 +85,10 @@ export interface AdPostStatResult {
 export interface Merchant {
   id: string
   publisherId: string
-  paymentWalletId?: string
-  name: string
-  createdAt: string
-  updatedAt: string
+  paymentWalletId?: string | null
+  name?: string | null
+  createdAt?: string
+  updatedAt?: string
 }
 
 import type { WalletOrder } from '~/types/auth'

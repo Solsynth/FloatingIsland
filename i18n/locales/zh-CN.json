@@ -20,7 +20,8 @@
     "notifications": "通知",
     "active": "活跃",
     "disabled": "已禁用",
-    "required": "必填"
+    "required": "必填",
+    "default": "默认"
   },
   "drive": {
     "title": "Solar Network 云盘",
@@ -1443,19 +1444,24 @@
     "orders": "订单",
     "ads": "赞助帖子",
     "noOrders": "未找到订单",
-    "settings": {
+    "settings": "设置",
+    "settingsPage": {
       "title": "商户设置",
       "accountType": "账户类型",
       "merchantAccount": "商户",
       "status": "状态",
       "active": "活跃",
+      "notConfigured": "未配置",
+      "merchantNotFound": "尚未创建商户资料。请在下方设置收款钱包以开始接收结算。",
       "payoutWallet": "收款钱包",
       "payoutWalletHint": "所有来自打赏和应用程序销售的收入将结算到此钱包。",
+      "currentWallet": "当前",
       "noWallet": "无（未设置收款钱包）",
       "noWallets": "未找到钱包，请先创建一个。",
       "createWallet": "创建钱包",
       "walletSaved": "收款钱包更新成功",
       "walletSaveFailed": "更新收款钱包失败",
+      "loadingFailed": "加载商户设置失败",
       "dangerZone": "危险区域",
       "dangerZoneHint": "此发布者商户账户的不可逆操作。"
     },

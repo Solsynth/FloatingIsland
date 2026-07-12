@@ -224,7 +224,7 @@ async function handleSettle() {
   isSettling.value = true
   try {
     const result = await settleMerchant(pubName.value)
-    $toast.success(t('merchant.settledSuccess', { count: result.length }))
+    $toast.success(t('merchant.settledSuccess', { count: result.transactions.length }))
     await Promise.all([loadOverview(), loadSettlements()])
   } catch (e) {
     console.error(e)

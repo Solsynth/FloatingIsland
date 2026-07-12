@@ -123,6 +123,7 @@ import {
 } from '#components'
 import type { MerchantOverview, AdPostStat, MerchantDailyIncoming } from '~/types/merchant'
 import { fetchMerchantOverview, fetchMerchantDaily, fetchAdPostStats } from '~/utils/merchant'
+import { fetchManagedPublishers } from '~/utils/creator'
 
 definePageMeta({ middleware: 'merchant' })
 
