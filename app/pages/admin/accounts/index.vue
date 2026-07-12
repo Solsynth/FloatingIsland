@@ -2,8 +2,8 @@
   <NuxtLayout name="admin">
     <AdminPageHeader title="Accounts" description="Manage platform accounts and permissions">
       <template #actions>
-        <button class="btn btn-sm btn-primary" @click="loadAccounts()">
-          <IconRefreshCw class="w-4 h-4" />
+        <button class="btn btn-sm btn-primary" :disabled="isLoading" @click="reloadAccounts">
+          <IconRefreshCw class="w-4 h-4" :class="{ 'animate-spin': isLoading }" />
           Refresh
         </button>
       </template>
@@ -31,7 +31,22 @@
           <option value="name">Name (A-Z)</option>
           <option value="name_desc">Name (Z-A)</option>
         </select>
+        <button class="btn btn-sm btn-primary" :disabled="isLoading" @click="handleSearch">
+          <IconSearch class="w-4 h-4" />
+          Search
+        </button>
+        <button
+          v-if="searchQuery"
+          class="btn btn-sm btn-ghost"
+          :disabled="isLoading"
+          @click="clearSearch"
+        >
+          Clear
+        </button>
       </div>
+      <p v-if="activeQuery" class="text-xs text-base-content/40 mt-2">
+        Filtering by “{{ activeQuery }}” · ordered by {{ orderLabel }}
+      </p>
     </AdminCard>
 
     <!-- Loading State -->
@@ -143,7 +158,9 @@
       <div v-if="accounts.length === 0" class="flex flex-col items-center py-16 text-center">
         <IconUsers class="w-12 h-12 text-base-content/20 mb-4" />
         <p class="text-base-content/50 mb-1">No accounts found</p>
-        <p class="text-xs text-base-content/30">Try adjusting your search query</p>
+        <p class="text-xs text-base-content/30">
+          {{ activeQuery ? 'Try adjusting your search query' : 'No accounts to show' }}
+        </p>
       </div>
 
       <!-- Pagination -->
@@ -154,14 +171,14 @@
         <div class="flex gap-1">
           <button
             class="btn btn-ghost btn-xs"
-            :disabled="offset === 0"
+            :disabled="offset === 0 || isLoading"
             @click="prevPage"
           >
             <IconChevronLeft class="w-3.5 h-3.5" />
           </button>
           <button
             class="btn btn-ghost btn-xs"
-            :disabled="!hasMore && offset + pageSize >= totalAccounts"
+            :disabled="(!hasMore && offset + pageSize >= totalAccounts) || isLoading"
             @click="nextPage"
           >
             <IconChevronRight class="w-3.5 h-3.5" />
@@ -182,48 +199,65 @@ import {
   IconUsers,
 } from '#components'
 import { getFileUrl } from '~/utils/files'
-import type { OrderByField } from '~/types/admin'
+import type { AdminAccountQuery, OrderByField } from '~/types/admin'
 
 definePageMeta({ middleware: 'auth' })
 
 const { accounts, totalAccounts, hasMore, isLoading, loadAccounts } = useAdmin()
 
 const searchQuery = ref('')
+/** Query last successfully applied to the list (survives typing without search). */
+const activeQuery = ref('')
 const orderBy = ref<OrderByField>('created_at_desc')
 const pageSize = 50
 const offset = ref(0)
 
-function handleSearch() {
-  offset.value = 0
-  loadAccounts({
-    query: searchQuery.value || undefined,
+const orderLabel = computed(() => {
+  switch (orderBy.value) {
+    case 'name': return 'name (A–Z)'
+    case 'name_desc': return 'name (Z–A)'
+    default: return 'newest first'
+  }
+})
+
+function listParams(overrides: Partial<AdminAccountQuery> = {}): AdminAccountQuery {
+  return {
+    query: activeQuery.value || undefined,
     take: pageSize,
-    offset: 0,
+    offset: offset.value,
     orderBy: orderBy.value,
-  })
+    ...overrides,
+  }
+}
+
+function handleSearch() {
+  activeQuery.value = searchQuery.value.trim()
+  offset.value = 0
+  loadAccounts(listParams({ offset: 0, query: activeQuery.value || undefined }))
+}
+
+function clearSearch() {
+  searchQuery.value = ''
+  activeQuery.value = ''
+  offset.value = 0
+  loadAccounts(listParams({ offset: 0, query: undefined }))
+}
+
+function reloadAccounts() {
+  loadAccounts(listParams())
 }
 
 function prevPage() {
   offset.value = Math.max(0, offset.value - pageSize)
-  loadAccounts({
-    query: searchQuery.value || undefined,
-    take: pageSize,
-    offset: offset.value,
-    orderBy: orderBy.value,
-  })
+  loadAccounts(listParams())
 }
 
 function nextPage() {
   offset.value = offset.value + pageSize
-  loadAccounts({
-    query: searchQuery.value || undefined,
-    take: pageSize,
-    offset: offset.value,
-    orderBy: orderBy.value,
-  })
+  loadAccounts(listParams())
 }
 
 onMounted(() => {
-  loadAccounts({ take: pageSize, offset: 0, orderBy: orderBy.value })
+  loadAccounts(listParams({ offset: 0 }))
 })
 </script>

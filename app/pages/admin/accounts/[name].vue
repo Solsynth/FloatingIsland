@@ -25,7 +25,23 @@
           </div>
         </div>
         <div class="min-w-0 flex-1">
-          <h1 class="text-xl font-bold tracking-tight">{{ detail.account.nick || detail.account.name }}</h1>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-xl font-bold tracking-tight">{{ detail.account.nick || detail.account.name }}</h1>
+            <span
+              v-if="detail.account.isSuperuser"
+              class="badge badge-warning badge-xs"
+            >Superuser</span>
+            <span
+              v-if="detail.account.automatedId"
+              class="badge badge-ghost badge-xs"
+            >Bot</span>
+            <span
+              class="badge badge-xs"
+              :class="detail.account.activatedAt ? 'badge-success' : 'badge-ghost'"
+            >
+              {{ detail.account.activatedAt ? 'Activated' : 'Not activated' }}
+            </span>
+          </div>
           <p class="text-sm text-base-content/50">@{{ detail.account.name }}</p>
         </div>
         <div v-if="detail.status" class="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-base-200/80">
@@ -57,13 +73,128 @@
                 <span class="text-xs text-base-content/40 uppercase tracking-wider">Username</span>
                 <p class="mt-1 text-base-content/70">@{{ detail.account.name }}</p>
               </div>
-              <div v-if="detail.account.profile?.socialCredits !== undefined">
-                <span class="text-xs text-base-content/40 uppercase tracking-wider">Social Credits</span>
-                <p class="mt-1 text-base-content/70">{{ detail.account.profile?.socialCredits }}</p>
+              <div v-if="detail.account.nick">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Nickname</span>
+                <p class="mt-1 text-base-content/70">{{ detail.account.nick }}</p>
+              </div>
+              <div>
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Activated At</span>
+                <p class="mt-1 text-base-content/70">
+                  {{ detail.account.activatedAt ? formatDateTime(detail.account.activatedAt) : '—' }}
+                </p>
               </div>
               <div v-if="detail.account.createdAt">
-                <span class="text-xs text-base-content/40 uppercase tracking-wider">Created</span>
-                <p class="mt-1 text-base-content/70">{{ formatDate(detail.account.createdAt) }}</p>
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Created At</span>
+                <p class="mt-1 text-base-content/70">{{ formatDateTime(detail.account.createdAt) }}</p>
+              </div>
+              <div v-if="detail.account.updatedAt">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Updated At</span>
+                <p class="mt-1 text-base-content/70">{{ formatDateTime(detail.account.updatedAt) }}</p>
+              </div>
+              <div v-if="detail.account.deletedAt">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Deleted At</span>
+                <p class="mt-1 text-error">{{ formatDateTime(detail.account.deletedAt) }}</p>
+              </div>
+              <div v-if="detail.account.language">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Language</span>
+                <p class="mt-1 text-base-content/70">{{ detail.account.language }}</p>
+              </div>
+              <div v-if="detail.account.region">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Region</span>
+                <p class="mt-1 text-base-content/70">{{ detail.account.region }}</p>
+              </div>
+              <div>
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Superuser</span>
+                <p class="mt-1 text-base-content/70">{{ detail.account.isSuperuser ? 'Yes' : 'No' }}</p>
+              </div>
+              <div v-if="detail.account.automatedId">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Automated / Bot ID</span>
+                <p class="font-mono text-xs mt-1 break-all text-base-content/70">{{ detail.account.automatedId }}</p>
+              </div>
+              <div v-if="detail.account.perkLevel !== undefined">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Perk Level</span>
+                <p class="mt-1 text-base-content/70">{{ detail.account.perkLevel }}</p>
+              </div>
+              <div v-if="detail.status">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Presence</span>
+                <p class="mt-1 text-base-content/70">
+                  {{ detail.status.label }}
+                  <span class="text-base-content/40">({{ detail.status.isOnline ? 'online' : 'offline' }})</span>
+                </p>
+              </div>
+            </div>
+          </AdminCard>
+
+          <!-- Profile -->
+          <AdminCard v-if="detail.account.profile" title="Profile">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div v-if="profileFullName" class="sm:col-span-2">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Legal / Display Name</span>
+                <p class="mt-1 text-base-content/70">{{ profileFullName }}</p>
+              </div>
+              <div v-if="detail.account.profile.bio" class="sm:col-span-2">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Bio</span>
+                <p class="mt-1 text-base-content/70 whitespace-pre-wrap">{{ detail.account.profile.bio }}</p>
+              </div>
+              <div v-if="detail.account.profile.gender">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Gender</span>
+                <p class="mt-1 text-base-content/70">{{ detail.account.profile.gender }}</p>
+              </div>
+              <div v-if="detail.account.profile.pronouns">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Pronouns</span>
+                <p class="mt-1 text-base-content/70">{{ detail.account.profile.pronouns }}</p>
+              </div>
+              <div v-if="detail.account.profile.location">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Location</span>
+                <p class="mt-1 text-base-content/70">{{ detail.account.profile.location }}</p>
+              </div>
+              <div v-if="detail.account.profile.timeZone">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Time Zone</span>
+                <p class="mt-1 text-base-content/70">{{ detail.account.profile.timeZone }}</p>
+              </div>
+              <div v-if="detail.account.profile.birthday">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Birthday</span>
+                <p class="mt-1 text-base-content/70">{{ formatDate(detail.account.profile.birthday) }}</p>
+              </div>
+              <div v-if="detail.account.profile.lastSeenAt">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Last Seen</span>
+                <p class="mt-1 text-base-content/70">
+                  {{ formatDateTime(detail.account.profile.lastSeenAt) }}
+                  <span class="text-base-content/40">({{ formatTimeAgo(detail.account.profile.lastSeenAt) }})</span>
+                </p>
+              </div>
+              <div v-if="detail.account.profile.level !== undefined">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Level</span>
+                <p class="mt-1 text-base-content/70">
+                  {{ detail.account.profile.level }}
+                  <span v-if="detail.account.profile.experience !== undefined" class="text-base-content/40">
+                    · {{ detail.account.profile.experience }} XP
+                  </span>
+                </p>
+              </div>
+              <div v-if="detail.account.profile.socialCredits !== undefined">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Social Credits</span>
+                <p class="mt-1 text-base-content/70">
+                  {{ detail.account.profile.socialCredits }}
+                  <span v-if="detail.account.profile.socialCreditsLevel !== undefined" class="text-base-content/40">
+                    (tier {{ detail.account.profile.socialCreditsLevel }})
+                  </span>
+                </p>
+              </div>
+              <div v-if="detail.account.profile.links?.length" class="sm:col-span-2">
+                <span class="text-xs text-base-content/40 uppercase tracking-wider">Links</span>
+                <div class="mt-1 flex flex-wrap gap-2">
+                  <a
+                    v-for="(link, li) in detail.account.profile.links"
+                    :key="li"
+                    :href="link.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="link link-primary text-xs"
+                  >
+                    {{ link.label || link.name || link.url }}
+                  </a>
+                </div>
               </div>
             </div>
           </AdminCard>
@@ -71,12 +202,15 @@
           <!-- Verification -->
           <AdminCard title="Verification">
             <div class="space-y-3">
-              <div v-if="detail.account.profile?.verified" class="flex items-center justify-between p-3 rounded-lg bg-success/5 border border-success/20">
+              <div v-if="profileVerification" class="flex items-center justify-between p-3 rounded-lg bg-success/5 border border-success/20">
                 <div class="flex items-center gap-2">
                   <IconBadgeCheck class="w-4 h-4 text-success" />
                   <div>
-                    <p class="text-sm font-medium">{{ detail.account.profile.verified.title || 'Verified' }}</p>
-                    <p v-if="detail.account.profile.verified.description" class="text-xs text-base-content/50">{{ detail.account.profile.verified.description }}</p>
+                    <p class="text-sm font-medium">{{ profileVerification.title || 'Verified' }}</p>
+                    <p v-if="profileVerification.description" class="text-xs text-base-content/50">{{ profileVerification.description }}</p>
+                    <p v-if="profileVerification.verifiedBy" class="text-xs text-base-content/40 mt-0.5">
+                      By {{ profileVerification.verifiedBy }} · type {{ profileVerification.type }}
+                    </p>
                   </div>
                 </div>
                 <button class="btn btn-ghost btn-xs text-error" @click="clearVerify">Clear</button>
@@ -94,20 +228,79 @@
               </button>
             </template>
             <div v-if="contacts.length" class="space-y-2">
-              <div v-for="c in contacts" :key="c.id" class="flex items-center gap-3 p-2 rounded-lg bg-base-200/50">
-                <span class="text-xs px-2 py-0.5 rounded-full bg-base-300/60 text-base-content/50 uppercase tracking-wider">
-                  {{ contactTypeLabel(c.type) }}
-                </span>
-                <span class="text-sm flex-1 truncate">{{ c.content }}</span>
-                <span v-if="c.isPrimary" class="badge badge-primary badge-xs">Primary</span>
-                <span v-if="c.verifiedAt" class="badge badge-success badge-xs">Verified</span>
-                <button v-if="!c.isPrimary" class="btn btn-ghost btn-xs" @click="doSetPrimaryContact(c.id)">Set Primary</button>
-                <button v-if="!c.verifiedAt" class="btn btn-ghost btn-xs text-success" @click="doVerifyContact(c.id)">Verify</button>
-                <button class="btn btn-ghost btn-xs" @click="editContact(c)">Edit</button>
-                <button class="btn btn-ghost btn-xs text-error" @click="doDeleteContact(c.id)">Delete</button>
+              <div v-for="c in contacts" :key="c.id" class="flex flex-col gap-2 p-3 rounded-lg bg-base-200/50">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-xs px-2 py-0.5 rounded-full bg-base-300/60 text-base-content/50 uppercase tracking-wider">
+                    {{ contactTypeLabel(c.type) }}
+                  </span>
+                  <span class="text-sm flex-1 min-w-0 truncate">{{ c.content }}</span>
+                  <span v-if="c.isPrimary" class="badge badge-primary badge-xs">Primary</span>
+                  <span v-if="c.verifiedAt" class="badge badge-success badge-xs">Verified</span>
+                  <span v-if="c.isPublic" class="badge badge-ghost badge-xs">Public</span>
+                </div>
+                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-base-content/40 pl-0.5">
+                  <span v-if="c.verifiedAt">Verified {{ formatDateTime(c.verifiedAt) }}</span>
+                  <span v-if="c.createdAt">Created {{ formatDateTime(c.createdAt) }}</span>
+                  <span v-if="c.updatedAt">Updated {{ formatDateTime(c.updatedAt) }}</span>
+                </div>
+                <div class="flex items-center gap-1 flex-wrap">
+                  <button v-if="!c.isPrimary" class="btn btn-ghost btn-xs" @click="doSetPrimaryContact(c.id)">Set Primary</button>
+                  <button
+                    v-if="!c.verifiedAt && c.type === 0"
+                    class="btn btn-ghost btn-xs"
+                    @click="doRequestContactVerification(c.id)"
+                  >
+                    Send Verify
+                  </button>
+                  <button v-if="!c.verifiedAt" class="btn btn-ghost btn-xs text-success" @click="doVerifyContact(c.id)">Force Verify</button>
+                  <button v-if="c.verifiedAt" class="btn btn-ghost btn-xs text-warning" @click="doUnverifyContact(c.id)">Unverify</button>
+                  <button class="btn btn-ghost btn-xs" @click="doToggleContactVisibility(c)">
+                    {{ c.isPublic ? 'Make Private' : 'Make Public' }}
+                  </button>
+                  <button class="btn btn-ghost btn-xs" @click="editContact(c)">Edit</button>
+                  <button class="btn btn-ghost btn-xs text-error" @click="doDeleteContact(c.id)">Delete</button>
+                </div>
               </div>
             </div>
             <p v-else class="text-sm text-base-content/40">No contact methods</p>
+          </AdminCard>
+
+          <!-- Connected Platforms (public) -->
+          <AdminCard title="Connected Platforms">
+            <template #actions>
+              <button class="btn btn-ghost btn-xs" @click="loadConnections">
+                <IconRefreshCw class="w-3.5 h-3.5" /> Refresh
+              </button>
+            </template>
+            <div v-if="connectionsLoading" class="flex justify-center py-4">
+              <span class="loading loading-spinner loading-sm" />
+            </div>
+            <div v-else-if="connections.length" class="space-y-2">
+              <div
+                v-for="(conn, ci) in connections"
+                :key="`${conn.provider}-${conn.providedIdentifier}-${ci}`"
+                class="flex items-center gap-3 p-2 rounded-lg bg-base-200/50"
+              >
+                <IconLink class="w-4 h-4 text-base-content/40 shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm font-medium capitalize">{{ conn.provider }}</p>
+                  <p class="text-xs text-base-content/40 font-mono truncate">{{ conn.providedIdentifier }}</p>
+                </div>
+                <a
+                  v-if="conn.url"
+                  :href="conn.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-ghost btn-xs"
+                >
+                  Open
+                </a>
+              </div>
+            </div>
+            <p v-else class="text-sm text-base-content/40">No public connections</p>
+            <p class="text-[10px] text-base-content/30 mt-2">
+              Shows only connections the account has marked public.
+            </p>
           </AdminCard>
 
           <!-- Auth Factors -->
@@ -118,15 +311,29 @@
               </button>
             </template>
             <div v-if="factors.length" class="space-y-2">
-              <div v-for="f in factors" :key="f.id" class="flex items-center gap-3 p-2 rounded-lg bg-base-200/50">
-                <IconKeyRound class="w-4 h-4 text-base-content/40" />
-                <span class="text-sm flex-1">{{ factorTypeLabel(f.type) }}</span>
-                <span class="text-xs px-2 py-0.5 rounded-full" :class="f.hasSecret ? 'bg-success/10 text-success' : 'bg-base-300/60 text-base-content/40'">
-                  {{ f.hasSecret ? 'Configured' : 'Pending' }}
-                </span>
-                <button v-if="!f.enabledAt" class="btn btn-ghost btn-xs text-success" @click="doEnableFactor(f.id)">Enable</button>
-                <button v-if="f.enabledAt" class="btn btn-ghost btn-xs text-warning" @click="doDisableFactor(f.id)">Disable</button>
-                <button class="btn btn-ghost btn-xs text-error" @click="doDeleteFactor(f.id)">Delete</button>
+              <div v-for="f in factors" :key="f.id" class="flex flex-col gap-1.5 p-3 rounded-lg bg-base-200/50">
+                <div class="flex items-center gap-3">
+                  <IconKeyRound class="w-4 h-4 text-base-content/40 shrink-0" />
+                  <span class="text-sm flex-1">{{ factorTypeLabel(f.type) }}</span>
+                  <span class="text-xs px-2 py-0.5 rounded-full" :class="f.enabledAt ? 'bg-success/10 text-success' : 'bg-base-300/60 text-base-content/40'">
+                    {{ f.enabledAt ? 'Enabled' : 'Disabled' }}
+                  </span>
+                  <span class="text-xs px-2 py-0.5 rounded-full" :class="f.hasSecret ? 'bg-success/10 text-success' : 'bg-base-300/60 text-base-content/40'">
+                    {{ f.hasSecret ? 'Configured' : 'Pending' }}
+                  </span>
+                </div>
+                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-base-content/40 pl-7">
+                  <span v-if="f.trustworthy !== undefined">Trust {{ f.trustworthy }}</span>
+                  <span v-if="f.enabledAt">Enabled {{ formatDateTime(f.enabledAt) }}</span>
+                  <span v-if="f.expiredAt">Expires {{ formatDateTime(f.expiredAt) }}</span>
+                  <span v-if="f.createdAt">Created {{ formatDateTime(f.createdAt) }}</span>
+                  <span class="font-mono">{{ f.id.slice(0, 8) }}…</span>
+                </div>
+                <div class="flex items-center gap-1 pl-7">
+                  <button v-if="!f.enabledAt" class="btn btn-ghost btn-xs text-success" @click="doEnableFactor(f.id)">Enable</button>
+                  <button v-if="f.enabledAt" class="btn btn-ghost btn-xs text-warning" @click="doDisableFactor(f.id)">Disable</button>
+                  <button class="btn btn-ghost btn-xs text-error" @click="doDeleteFactor(f.id)">Delete</button>
+                </div>
               </div>
             </div>
             <p v-else class="text-sm text-base-content/40">No auth factors</p>
@@ -143,11 +350,31 @@
               </button>
             </template>
             <div v-if="badges.length" class="space-y-2">
-              <div v-for="b in badges" :key="b.id" class="flex items-center gap-3 p-2 rounded-lg bg-base-200/50">
-                <span class="text-sm flex-1">{{ b.label || b.type }}</span>
-                <span v-if="b.caption" class="text-xs text-base-content/40">{{ b.caption }}</span>
-                <button class="btn btn-ghost btn-xs text-success" @click="doActivateBadge(b.id)">Activate</button>
-                <button class="btn btn-ghost btn-xs text-error" @click="doRevokeBadge(b.id)">Revoke</button>
+              <div v-for="b in badges" :key="b.id" class="flex flex-col gap-1.5 p-3 rounded-lg bg-base-200/50">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-sm font-medium flex-1">{{ b.label || b.type }}</span>
+                  <span class="text-xs px-2 py-0.5 rounded-full bg-base-300/60 text-base-content/50">{{ b.type }}</span>
+                  <span
+                    v-if="b.activatedAt"
+                    class="badge badge-success badge-xs"
+                  >Active</span>
+                  <span
+                    v-if="b.expiredAt"
+                    class="badge badge-ghost badge-xs"
+                  >Expires</span>
+                </div>
+                <p v-if="b.caption" class="text-xs text-base-content/50">{{ b.caption }}</p>
+                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-base-content/40">
+                  <span v-if="b.activatedAt">Activated {{ formatDateTime(b.activatedAt) }}</span>
+                  <span v-else>Not activated</span>
+                  <span v-if="b.expiredAt">Expires {{ formatDateTime(b.expiredAt) }}</span>
+                  <span v-if="b.createdAt">Granted {{ formatDateTime(b.createdAt) }}</span>
+                  <span v-if="b.updatedAt">Updated {{ formatDateTime(b.updatedAt) }}</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button class="btn btn-ghost btn-xs text-success" @click="doActivateBadge(b.id)">Activate</button>
+                  <button class="btn btn-ghost btn-xs text-error" @click="doRevokeBadge(b.id)">Revoke</button>
+                </div>
               </div>
             </div>
             <p v-else class="text-sm text-base-content/40">No badges</p>
@@ -166,6 +393,13 @@
                     </button>
                   </div>
                   <p class="text-xs text-base-content/50 mt-0.5">{{ punishment.reason || 'No reason' }}</p>
+                  <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-base-content/40 mt-1">
+                    <span v-if="punishment.createdAt">Created {{ formatDateTime(punishment.createdAt) }}</span>
+                    <span v-if="punishment.expiredAt || punishment.expiresAt">
+                      Expires {{ formatDateTime((punishment.expiredAt || punishment.expiresAt)!) }}
+                    </span>
+                    <span v-else>No expiry</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -203,8 +437,11 @@
                   <span class="text-sm font-medium flex-1 truncate">{{ device.label || 'Unnamed Device' }}</span>
                   <span v-if="device.lastActiveAt" class="text-xs text-base-content/40">{{ formatTimeAgo(device.lastActiveAt) }}</span>
                 </div>
-                <div class="flex items-center gap-2 text-xs text-base-content/50 pl-6">
-                  <span class="font-mono truncate">{{ device.clientId?.slice(0, 16) || device.id.slice(0, 16) }}...</span>
+                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-base-content/40 pl-6">
+                  <span class="font-mono truncate">{{ device.clientId?.slice(0, 16) || device.id.slice(0, 16) }}…</span>
+                  <span v-if="device.createdAt">Created {{ formatDateTime(device.createdAt) }}</span>
+                  <span v-if="device.lastActiveAt">Last active {{ formatDateTime(device.lastActiveAt) }}</span>
+                  <span v-if="device.deletedAt" class="text-error">Deleted {{ formatDateTime(device.deletedAt) }}</span>
                 </div>
                 <div class="flex items-center gap-1.5 pl-6">
                   <button class="btn btn-ghost btn-xs" @click="editDeviceLabel(device)">
@@ -267,8 +504,12 @@
                         <span v-if="session.location" class="text-base-content/30">- {{ session.location }}</span>
                       </div>
                       <div v-if="session.userAgent" class="truncate">{{ session.userAgent }}</div>
-                      <div v-if="session.lastGrantedAt" class="text-base-content/30">
-                        Last active: {{ formatTimeAgo(session.lastGrantedAt) }}
+                      <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-base-content/40">
+                        <span v-if="session.createdAt">Created {{ formatDateTime(session.createdAt) }}</span>
+                        <span v-if="session.lastGrantedAt">
+                          Last granted {{ formatDateTime(session.lastGrantedAt) }} ({{ formatTimeAgo(session.lastGrantedAt) }})
+                        </span>
+                        <span v-if="session.expiredAt">Expired {{ formatDateTime(session.expiredAt) }}</span>
                       </div>
                     </div>
                   </div>
@@ -307,20 +548,54 @@
           <AdminCard title="Security Overview">
             <div class="space-y-3">
               <div class="flex items-center justify-between">
+                <span class="text-sm text-base-content/60">Activation</span>
+                <span
+                  class="text-sm font-semibold"
+                  :class="detail.account.activatedAt ? 'text-success' : 'text-base-content/40'"
+                >
+                  {{ detail.account.activatedAt ? 'Active' : 'Pending' }}
+                </span>
+              </div>
+              <div v-if="detail.account.activatedAt" class="flex items-center justify-between gap-2">
+                <span class="text-sm text-base-content/60">Activated</span>
+                <span class="text-xs text-base-content/50 text-right">{{ formatDateTime(detail.account.activatedAt) }}</span>
+              </div>
+              <div class="flex items-center justify-between">
                 <span class="text-sm text-base-content/60">Active Sessions</span>
-                <span class="text-sm font-semibold">{{ detail.activeSessionCount ?? '—' }}</span>
+                <span class="text-sm font-semibold">{{ detail.activeSessionCount ?? sessions.filter(s => !s.expiredAt).length }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="text-sm text-base-content/60">Active Devices</span>
-                <span class="text-sm font-semibold">{{ detail.activeDeviceCount ?? '—' }}</span>
+                <span class="text-sm font-semibold">{{ detail.activeDeviceCount ?? devices.length }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="text-sm text-base-content/60">Auth Factors</span>
                 <span class="text-sm font-semibold">{{ factors.length }}</span>
               </div>
               <div class="flex items-center justify-between">
+                <span class="text-sm text-base-content/60">Enabled Factors</span>
+                <span class="text-sm font-semibold">{{ factors.filter(f => f.enabledAt).length }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-base-content/60">Contacts</span>
+                <span class="text-sm font-semibold">{{ contacts.length }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-base-content/60">Verified Contacts</span>
+                <span class="text-sm font-semibold">{{ contacts.filter(c => c.verifiedAt).length }}</span>
+              </div>
+              <div class="flex items-center justify-between">
                 <span class="text-sm text-base-content/60">Badges</span>
                 <span class="text-sm font-semibold">{{ badges.length }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-base-content/60">Active Punishment</span>
+                <span
+                  class="text-sm font-semibold"
+                  :class="detail.activePunishment ? 'text-error' : 'text-base-content/40'"
+                >
+                  {{ detail.activePunishment ? 'Yes' : 'None' }}
+                </span>
               </div>
             </div>
           </AdminCard>
@@ -349,6 +624,7 @@
             <select v-model="contactForm.type" class="select select-sm w-full bg-base-200/60 border-0 rounded-xl">
               <option :value="0">Email</option>
               <option :value="1">Phone</option>
+              <option :value="2">Address</option>
             </select>
           </div>
           <div>
@@ -537,6 +813,7 @@ import {
   IconPencil,
   IconGlobe,
   IconX,
+  IconLink,
 } from '#components'
 import { getFileUrl } from '~/utils/files'
 import {
@@ -548,8 +825,11 @@ import {
   createAccountContact,
   updateAccountContact,
   deleteAccountContact,
+  requestContactVerification,
   verifyContact,
+  unverifyContact,
   setPrimaryContact,
+  setContactVisibility,
   fetchAccountFactors,
   createAccountFactor,
   enableAccountFactor,
@@ -569,9 +849,11 @@ import {
   fetchAccountSessions,
   adminFetchSessionChildren,
   adminRevokeSession,
+  fetchAccountPublicConnections,
 } from '~/utils/admin'
-import type { AdminDevice, AdminSession } from '~/types/admin'
+import type { AdminAuthFactor, AdminDevice, AdminPublicConnection, AdminSession, SnContact } from '~/types/admin'
 import type { PunishmentType } from '~/types/admin'
+import type { SnAccountBadge } from '~/types/auth'
 
 definePageMeta({ middleware: 'auth' })
 
@@ -580,10 +862,21 @@ const { currentAccount: detail, isLoadingDetail, loadAccountDetail, clearCurrent
 
 const identifier = computed(() => route.params.name as string)
 
+const profileVerification = computed(() => {
+  const profile = detail.value?.account?.profile
+  return profile?.verification ?? profile?.verified ?? null
+})
+
+const profileFullName = computed(() => {
+  const p = detail.value?.account?.profile
+  if (!p) return ''
+  return [p.firstName, p.middleName, p.lastName].filter(Boolean).join(' ')
+})
+
 // Contacts
-const contacts = ref<any[]>([])
+const contacts = ref<SnContact[]>([])
 const contactDrawerOpen = ref(false)
-const contactEdit = ref<any>(null)
+const contactEdit = ref<SnContact | null>(null)
 const contactLoading = ref(false)
 const contactForm = ref({ type: 0, content: '' })
 
@@ -591,7 +884,7 @@ async function loadContacts() {
   try { contacts.value = await fetchAccountContacts(identifier.value) } catch { contacts.value = [] }
 }
 
-function editContact(c: any) {
+function editContact(c: SnContact) {
   contactEdit.value = c
   contactForm.value = { type: c.type, content: c.content }
   contactDrawerOpen.value = true
@@ -607,23 +900,71 @@ async function doSaveContact() {
     }
     contactDrawerOpen.value = false
     await loadContacts()
-  } catch { } finally { contactLoading.value = false }
+  } catch {
+    useNuxtApp().$toast.error('Failed to save contact')
+  } finally { contactLoading.value = false }
+}
+
+async function doRequestContactVerification(contactId: string) {
+  try {
+    await requestContactVerification(identifier.value, contactId)
+    useNuxtApp().$toast.success('Verification email sent')
+    await loadContacts()
+  } catch {
+    useNuxtApp().$toast.error('Failed to send verification')
+  }
 }
 
 async function doVerifyContact(contactId: string) {
-  try { await verifyContact(identifier.value, contactId); await loadContacts() } catch { }
+  try { await verifyContact(identifier.value, contactId); await loadContacts() } catch {
+    useNuxtApp().$toast.error('Failed to verify contact')
+  }
+}
+
+async function doUnverifyContact(contactId: string) {
+  try { await unverifyContact(identifier.value, contactId); await loadContacts() } catch {
+    useNuxtApp().$toast.error('Failed to unverify contact')
+  }
+}
+
+async function doToggleContactVisibility(contact: SnContact) {
+  try {
+    await setContactVisibility(identifier.value, contact.id, { isPublic: !contact.isPublic })
+    await loadContacts()
+  } catch {
+    useNuxtApp().$toast.error('Failed to update visibility')
+  }
 }
 
 async function doSetPrimaryContact(contactId: string) {
-  try { await setPrimaryContact(identifier.value, contactId); await loadContacts() } catch { }
+  try { await setPrimaryContact(identifier.value, contactId); await loadContacts() } catch {
+    useNuxtApp().$toast.error('Failed to set primary contact')
+  }
 }
 
 async function doDeleteContact(contactId: string) {
-  try { await deleteAccountContact(identifier.value, contactId); await loadContacts() } catch { }
+  try { await deleteAccountContact(identifier.value, contactId); await loadContacts() } catch {
+    useNuxtApp().$toast.error('Failed to delete contact')
+  }
+}
+
+// Public connections
+const connections = ref<AdminPublicConnection[]>([])
+const connectionsLoading = ref(false)
+
+async function loadConnections() {
+  connectionsLoading.value = true
+  try {
+    connections.value = await fetchAccountPublicConnections(identifier.value)
+  } catch {
+    connections.value = []
+  } finally {
+    connectionsLoading.value = false
+  }
 }
 
 // Auth Factors
-const factors = ref<any[]>([])
+const factors = ref<AdminAuthFactor[]>([])
 const factorCreateOpen = ref(false)
 const passwordResetOpen = ref(false)
 const factorLoading = ref(false)
@@ -671,13 +1012,17 @@ async function clearVerify() {
 }
 
 // Badges
-const badges = ref<any[]>([])
+const badges = ref<SnAccountBadge[]>([])
 const badgeGrantOpen = ref(false)
 const badgeLoading = ref(false)
 const badgeGrantForm = ref({ type: '', label: '', caption: '' })
 
 async function loadBadges() {
-  try { badges.value = await fetchAccountBadges(identifier.value) } catch { badges.value = [] }
+  try {
+    badges.value = (await fetchAccountBadges(identifier.value)) as SnAccountBadge[]
+  } catch {
+    badges.value = (detail.value?.badges as SnAccountBadge[] | undefined) ?? []
+  }
 }
 
 async function doGrantBadge() {
@@ -783,7 +1128,7 @@ const deleteOpen = ref(false)
 const isDeleting = ref(false)
 
 function contactTypeLabel(type: number): string {
-  const labels: Record<number, string> = { 0: 'Email', 1: 'Phone', 2: 'Other' }
+  const labels: Record<number, string> = { 0: 'Email', 1: 'Phone', 2: 'Address' }
   return labels[type] || 'Unknown'
 }
 
@@ -799,6 +1144,20 @@ function punishmentTypeLabel(type: number): string {
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
+function formatDateTime(dateStr: string): string {
+  try {
+    return new Date(dateStr).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  } catch {
+    return dateStr
+  }
 }
 
 async function handleRevokeSessions() {
@@ -825,6 +1184,7 @@ async function handleDeletePunishment(punishmentId: string) {
 onMounted(() => {
   loadAccountDetail(identifier.value)
   loadContacts()
+  loadConnections()
   loadFactors()
   loadBadges()
   loadDevices()

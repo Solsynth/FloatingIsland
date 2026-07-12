@@ -40,6 +40,7 @@ export interface SnAccountProfile {
   location?: string;
   timeZone?: string;
   birthday?: string | null;
+  lastSeenAt?: string | null;
   picture?: { id: string } | null;
   background?: { id: string } | null;
   links?: { url: string; name?: string; label?: string }[];
@@ -49,11 +50,21 @@ export interface SnAccountProfile {
     description?: string;
     verifiedBy?: string;
   } | null;
+  /** @deprecated API returns `verification`; kept for older payloads */
+  verified?: {
+    type: number;
+    title?: string;
+    description?: string;
+    verifiedBy?: string;
+  } | null;
+  activeBadge?: SnAccountBadge | null;
   level?: number;
   experience?: number;
   levelingProgress?: number;
   socialCredits?: number;
   socialCreditsLevel?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface SnAccountBadge {
@@ -62,7 +73,10 @@ export interface SnAccountBadge {
   label?: string | null;
   caption?: string | null;
   activatedAt?: string | null;
+  expiredAt?: string | null;
+  accountId?: string;
   createdAt?: string;
+  updatedAt?: string;
   meta?: Record<string, unknown>;
 }
 
@@ -72,13 +86,17 @@ export interface SnAccount {
   nick?: string
   language?: string
   region?: string
+  activatedAt?: string | null
   automatedId?: string | null
   isSuperuser?: boolean
+  perkLevel?: number
+  perkSubscription?: Record<string, unknown> | null
   profile?: SnAccountProfile
   badges?: SnAccountBadge[]
   contacts?: SnContactMethod[]
   createdAt?: string
   updatedAt?: string
+  deletedAt?: string | null
 }
 
 export interface SnContactMethod {
@@ -300,7 +318,13 @@ export interface SnAccountPunishment {
   type: number;
   reason?: string;
   createdAt: string;
+  updatedAt?: string;
+  expiredAt?: string | null;
+  /** @deprecated prefer expiredAt */
   expiresAt?: string | null;
+  accountId?: string;
+  creatorId?: string | null;
+  blockedPermissions?: string[] | null;
   issuedBy?: string;
 }
 

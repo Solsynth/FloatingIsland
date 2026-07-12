@@ -1,5 +1,6 @@
 import { apiFetch, fetchJson, safeJsonParse } from '~/utils/api'
 import { camelToSnake } from '~/utils/case'
+import type { SnAccountBadge } from '~/types/auth'
 import type {
   AdminAccountListEntry,
   AdminAccountDetail,
@@ -49,6 +50,7 @@ import type {
   AdminSessionQuery,
   DeviceLabelPayload,
   NotificationObservability,
+  AdminPublicConnection,
 } from '~/types/admin'
 
 // Padlock service: auth, sessions, punishments, suspend, delete, notifications, emails
@@ -78,12 +80,23 @@ async function fetchPaginated<T>(
   return { items, total }
 }
 
+/**
+ * Build query string for ASP.NET [FromQuery] params.
+ * Controllers bind by C# parameter/property names (camelCase), not JSON snake_case.
+ */
 function buildQuery(params: Record<string, unknown>): string {
   const query = new URLSearchParams()
   for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== null && value !== '') {
-      query.set(key.replace(/[A-Z]/g, (l) => `_${l.toLowerCase()}`), String(value))
+    if (value === undefined || value === null || value === '') continue
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        if (item !== undefined && item !== null && item !== '') {
+          query.append(key, String(item))
+        }
+      }
+      continue
     }
+    query.set(key, String(value))
   }
   return query.toString()
 }
@@ -91,21 +104,39 @@ function buildQuery(params: Record<string, unknown>): string {
 export async function fetchAdminAccounts(
   params: AdminAccountQuery = {},
 ): Promise<{ accounts: AdminAccountListEntry[]; total: number }> {
-  const query = new URLSearchParams()
-  if (params.query) query.set('query', params.query)
-  if (params.take) query.set('take', String(params.take))
-  if (params.offset) query.set('offset', String(params.offset))
-  if (params.orderBy) query.set('order_by', params.orderBy)
+  const qs = buildQuery({
+    query: params.query,
+    take: params.take,
+    offset: params.offset,
+    orderBy: params.orderBy,
+  })
+  const suffix = qs ? `?${qs}` : ''
 
-  const qs = query.toString()
-  const endpoint = `${PADLOCK_BASE}${qs ? `?${qs}` : ''}`
-
-  const res = await apiFetch(endpoint)
-
-  const totalHeader = res.headers.get('X-Total')
+  // Padlock owns auth-side list metadata (email, sessions, punishments).
+  const padlockRes = await apiFetch(`${PADLOCK_BASE}${suffix}`)
+  const totalHeader = padlockRes.headers.get('X-Total')
   const total = totalHeader ? parseInt(totalHeader, 10) : 0
+  const accounts = await safeJsonParse<AdminAccountListEntry[]>(padlockRes)
 
-  const accounts = await safeJsonParse<AdminAccountListEntry[]>(res)
+  // Enrich with Passport-side status / badge counts when available.
+  try {
+    const passportEntries = await fetchJson<AdminAccountListEntry[]>(`${PASSPORT_BASE}${suffix}`)
+    const byId = new Map<string, AdminAccountListEntry>()
+    for (const passportEntry of passportEntries ?? []) {
+      if (passportEntry?.account?.id) {
+        byId.set(passportEntry.account.id, passportEntry)
+      }
+    }
+    for (const entry of accounts) {
+      const passport = byId.get(entry.account.id)
+      if (!passport) continue
+      entry.status = passport.status
+      entry.badgeCount = passport.badgeCount
+      entry.activeActivityCount = passport.activeActivityCount
+    }
+  } catch {
+    // Passport enrichment is best-effort; Padlock data is enough to render the table.
+  }
 
   return { accounts, total }
 }
@@ -113,7 +144,30 @@ export async function fetchAdminAccounts(
 export async function fetchAdminAccountDetail(
   identifier: string,
 ): Promise<AdminAccountDetail> {
-  return fetchJson<AdminAccountDetail>(`${PASSPORT_BASE}/${identifier}`)
+  // Passport: profile, status, activities, badges.
+  // Padlock: sessions/devices counts and punishments.
+  const [passport, padlock] = await Promise.all([
+    fetchJson<AdminAccountDetail>(`${PASSPORT_BASE}/${encodeURIComponent(identifier)}`),
+    fetchJson<AdminAccountDetail>(`${PADLOCK_BASE}/${encodeURIComponent(identifier)}`).catch(() => null),
+  ])
+
+  if (!padlock) return passport
+
+  return {
+    ...passport,
+    account: {
+      ...padlock.account,
+      ...passport.account,
+      // Prefer non-null activation / timestamps from either side
+      activatedAt: passport.account?.activatedAt ?? padlock.account?.activatedAt,
+      createdAt: passport.account?.createdAt ?? padlock.account?.createdAt,
+      updatedAt: passport.account?.updatedAt ?? padlock.account?.updatedAt,
+    },
+    activeSessionCount: padlock.activeSessionCount,
+    activeDeviceCount: padlock.activeDeviceCount,
+    activePunishment: padlock.activePunishment,
+    activePunishments: padlock.activePunishments,
+  }
 }
 
 export async function revokeAccountSessions(name: string): Promise<void> {
@@ -219,8 +273,29 @@ export async function sendAdminEmails(
   })
 }
 
+export async function exportAccountEmailsCsv(params: {
+  accountId?: string
+  accountIds?: string[]
+  broadcastToAll?: boolean
+}): Promise<Blob> {
+  const qs = buildQuery({
+    accountId: params.accountId,
+    accountIds: params.accountIds,
+    broadcastToAll: params.broadcastToAll,
+  })
+  const res = await apiFetch(`${PADLOCK_BASE}/emails/export${qs ? `?${qs}` : ''}`)
+  return res.blob()
+}
+
 export async function fetchNotificationObservability(): Promise<NotificationObservability> {
   return fetchJson<NotificationObservability>(`${RING_ADMIN}/notifications/observability`)
+}
+
+/** Public connected platforms for an account (Passport). */
+export async function fetchAccountPublicConnections(
+  name: string,
+): Promise<AdminPublicConnection[]> {
+  return fetchJson<AdminPublicConnection[]>(`/passport/accounts/${encodeURIComponent(name)}/connections`)
 }
 
 export async function fetchPunishmentsCreated(): Promise<SnAccountPunishment[]> {
@@ -640,8 +715,10 @@ export async function clearVerification(identifier: string): Promise<void> {
 
 // ============ Badge Management (Passport) ============
 
-export async function fetchAccountBadges(identifier: string): Promise<Record<string, unknown>[]> {
-  return fetchJson<Record<string, unknown>[]>(`${PASSPORT_BASE}/${identifier}/badges`)
+export async function fetchAccountBadges(identifier: string): Promise<SnAccountBadge[]> {
+  return fetchJson<SnAccountBadge[]>(
+    `${PASSPORT_BASE}/${encodeURIComponent(identifier)}/badges`,
+  )
 }
 
 export async function grantBadge(

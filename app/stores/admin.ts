@@ -24,12 +24,21 @@ export const useAdminStore = defineStore('admin', () => {
       accounts.value = result.accounts
       totalAccounts.value = result.total
       const take = params.take ?? 50
-      hasMore.value = result.total > (params.offset ?? 0) + result.accounts.length
-        || result.accounts.length >= take
+      const offset = params.offset ?? 0
+      hasMore.value = result.total
+        ? offset + result.accounts.length < result.total
+        : result.accounts.length >= take
     } catch {
       accounts.value = []
       totalAccounts.value = 0
       hasMore.value = false
+      if (import.meta.client) {
+        try {
+          useNuxtApp().$toast.error('Failed to load accounts')
+        } catch {
+          // toast plugin may be unavailable during SSR/tests
+        }
+      }
     } finally {
       isLoading.value = false
     }

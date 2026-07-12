@@ -1,4 +1,4 @@
-import type { SnAccount, SnAccountPunishment } from './auth'
+import type { SnAccount, SnAccountBadge, SnAccountPunishment } from './auth'
 
 export type PunishmentType = 'block_login' | 'disable_account'
 
@@ -26,9 +26,22 @@ export interface SnAccountStatus {
 }
 
 export interface SnContact {
+  id: string
   type: number
   content: string
   isPrimary: boolean
+  isPublic?: boolean
+  verifiedAt?: string | null
+  accountId?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+/** Public connection shape from GET /passport/accounts/{name}/connections */
+export interface AdminPublicConnection {
+  provider: string
+  providedIdentifier: string
+  url?: string
 }
 
 export interface AdminAuthFactor {
@@ -39,6 +52,8 @@ export interface AdminAuthFactor {
   config?: Record<string, unknown> | null
   enabledAt?: string | null
   expiredAt?: string | null
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface AdminAccountDetail {
@@ -51,7 +66,9 @@ export interface AdminAccountDetail {
   activePunishments?: SnAccountPunishment[]
   status?: SnAccountStatus
   activities?: SnActivity[]
+  badges?: SnAccountBadge[]
   badgeCount?: number
+  board?: Record<string, unknown>[]
 }
 
 export interface SnActivity {

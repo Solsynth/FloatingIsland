@@ -100,6 +100,24 @@
                   <label class="label label-text text-sm font-medium">Action URI</label>
                   <input v-model="form.actionUri" type="text" class="input input-sm w-full bg-base-200/60 border-0 rounded-xl" placeholder="solian://path/to/content" />
                 </div>
+                <div>
+                  <label class="label label-text text-sm font-medium">Push Type</label>
+                  <input v-model="form.pushType" type="text" class="input input-sm w-full bg-base-200/60 border-0 rounded-xl" placeholder="alert" />
+                  <p class="text-xs text-base-content/40 mt-1">e.g. alert — forwarded on the Ring push path</p>
+                </div>
+                <div>
+                  <label class="label label-text text-sm font-medium">
+                    Meta (JSON)
+                    <span class="font-normal text-base-content/40">optional</span>
+                  </label>
+                  <textarea
+                    v-model="metaJson"
+                    class="textarea textarea-sm w-full text-sm font-mono bg-base-200/60 border-0 rounded-xl"
+                    rows="3"
+                    placeholder='{ "category": "maintenance" }'
+                  />
+                  <p v-if="metaError" class="text-xs text-error mt-1">{{ metaError }}</p>
+                </div>
 
                 <!-- Options -->
                 <div class="flex gap-4">
@@ -136,10 +154,17 @@
           <!-- Info -->
           <div>
             <AdminCard title="About Push Notifications">
-              <p class="text-sm text-base-content/60">
-                Use this panel to send targeted push notifications to specific accounts or broadcast to all users.
-                Notifications use the Ring push delivery path and support customizable title, body, and action URIs.
-              </p>
+              <div class="space-y-2 text-sm text-base-content/60">
+                <p>
+                  Send targeted push notifications or broadcast to all non-deleted accounts.
+                  Delivery reuses the Ring push path.
+                </p>
+                <ul class="list-disc list-inside text-xs space-y-1 ml-2">
+                  <li>Requires <code class="text-xs">notifications.send</code></li>
+                  <li>Target with <code class="text-xs">account_ids</code> or <code class="text-xs">broadcast_to_all</code></li>
+                  <li>Optional <code class="text-xs">push_type</code>, <code class="text-xs">meta</code>, silent / savable flags</li>
+                </ul>
+              </div>
             </AdminCard>
           </div>
         </div>
@@ -364,9 +389,13 @@ const form = ref({
   subtitle: '',
   body: '',
   actionUri: '',
+  pushType: 'alert',
   isSilent: false,
   isSavable: true,
 })
+
+const metaJson = ref('')
+const metaError = ref('')
 
 // Observability
 const isLoadingObs = ref(false)
@@ -408,10 +437,28 @@ function removeSelectedAccount(id: string) {
 async function handleSendNotification() {
   isSending.value = true
   result.value = null
+  metaError.value = ''
+
+  let meta: Record<string, unknown> | undefined
+  if (metaJson.value.trim()) {
+    try {
+      meta = JSON.parse(metaJson.value)
+    } catch {
+      metaError.value = 'Invalid JSON in meta field'
+      isSending.value = false
+      return
+    }
+  }
 
   const accountIds = targetMode.value === 'accounts'
     ? selectedAccounts.value.map(a => a.id)
     : undefined
+
+  if (targetMode.value === 'accounts' && (!accountIds || accountIds.length === 0)) {
+    useNuxtApp().$toast.error('Select at least one account')
+    isSending.value = false
+    return
+  }
 
   const payload: NotificationPayload = {
     topic: form.value.topic,
@@ -419,8 +466,10 @@ async function handleSendNotification() {
     subtitle: form.value.subtitle || undefined,
     body: form.value.body,
     actionUri: form.value.actionUri || undefined,
+    pushType: form.value.pushType || undefined,
     isSilent: form.value.isSilent,
     isSavable: form.value.isSavable,
+    meta,
     broadcastToAll: targetMode.value === 'broadcast',
     accountIds: targetMode.value === 'accounts' ? accountIds : undefined,
   }

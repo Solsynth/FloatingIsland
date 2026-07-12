@@ -3,21 +3,35 @@
     <AdminPageHeader title="Emails" description="Send and schedule HTML emails to accounts" />
 
     <TabsRoot v-model="activeTab" default-value="compose">
-      <TabsList class="flex border-b border-base-200 mb-6">
+      <TabsList class="flex border-b border-base-200 mb-6 overflow-x-auto">
         <TabsTrigger
           value="compose"
-          class="flex items-center gap-2 px-4 py-3 text-sm font-medium text-base-content/60 border-b-2 border-transparent transition-colors hover:text-base-content data-[state=active]:text-primary data-[state=active]:border-primary"
+          class="flex items-center gap-2 px-4 py-3 text-sm font-medium text-base-content/60 border-b-2 border-transparent transition-colors hover:text-base-content data-[state=active]:text-primary data-[state=active]:border-primary shrink-0"
         >
           <IconSend class="w-4 h-4" />
           Compose
         </TabsTrigger>
         <TabsTrigger
           value="plans"
-          class="flex items-center gap-2 px-4 py-3 text-sm font-medium text-base-content/60 border-b-2 border-transparent transition-colors hover:text-base-content data-[state=active]:text-primary data-[state=active]:border-primary"
+          class="flex items-center gap-2 px-4 py-3 text-sm font-medium text-base-content/60 border-b-2 border-transparent transition-colors hover:text-base-content data-[state=active]:text-primary data-[state=active]:border-primary shrink-0"
           @click="loadPlans"
         >
           <IconCalendarClock class="w-4 h-4" />
           Sending Plans
+        </TabsTrigger>
+        <TabsTrigger
+          value="export"
+          class="flex items-center gap-2 px-4 py-3 text-sm font-medium text-base-content/60 border-b-2 border-transparent transition-colors hover:text-base-content data-[state=active]:text-primary data-[state=active]:border-primary shrink-0"
+        >
+          <IconDownload class="w-4 h-4" />
+          Export
+        </TabsTrigger>
+        <TabsTrigger
+          value="observability"
+          class="flex items-center gap-2 px-4 py-3 text-sm font-medium text-base-content/60 border-b-2 border-transparent transition-colors hover:text-base-content data-[state=active]:text-primary data-[state=active]:border-primary shrink-0"
+        >
+          <IconActivity class="w-4 h-4" />
+          Observability
         </TabsTrigger>
       </TabsList>
 
@@ -197,10 +211,173 @@
                   <li>Emails are delivered to verified email contacts</li>
                   <li>Accounts without verified contacts are skipped</li>
                   <li>Use templates for consistent branding or write custom HTML</li>
+                  <li>For rate-limited batches, use Sending Plans instead of immediate send</li>
                 </ul>
               </div>
             </AdminCard>
           </div>
+        </div>
+      </TabsContent>
+
+      <!-- Export Tab -->
+      <TabsContent value="export">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2">
+            <AdminCard title="Export Email Contacts">
+              <form class="space-y-4" @submit.prevent="handleExportEmails">
+                <div>
+                  <label class="label label-text text-sm font-medium">Target Mode</label>
+                  <div class="flex gap-2 rounded-xl bg-base-200/70 p-1">
+                    <button
+                      type="button"
+                      class="flex-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+                      :class="exportTargetMode === 'accounts' ? 'bg-base-100 text-primary shadow-sm' : 'text-base-content/50'"
+                      @click="exportTargetMode = 'accounts'"
+                    >
+                      Specific Accounts
+                    </button>
+                    <button
+                      type="button"
+                      class="flex-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+                      :class="exportTargetMode === 'broadcast' ? 'bg-base-100 text-primary shadow-sm' : 'text-base-content/50'"
+                      @click="exportTargetMode = 'broadcast'"
+                    >
+                      All Accounts
+                    </button>
+                  </div>
+                </div>
+
+                <div v-if="exportTargetMode === 'accounts'">
+                  <label class="label label-text text-sm font-medium">Accounts</label>
+                  <div v-if="exportSelectedAccounts.length" class="flex flex-wrap gap-1.5 mb-2">
+                    <span
+                      v-for="acc in exportSelectedAccounts"
+                      :key="acc.id"
+                      class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-lg bg-primary/10 text-primary"
+                    >
+                      {{ acc.nick || acc.name }}
+                      <button type="button" class="hover:text-error" @click="removeExportAccount(acc.id)">
+                        <IconX class="w-3 h-3" />
+                      </button>
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline w-full"
+                    @click="openExportAccountPicker"
+                  >
+                    <IconUsers class="w-4 h-4" />
+                    {{ exportSelectedAccounts.length ? 'Add More Accounts' : 'Select Accounts' }}
+                  </button>
+                </div>
+
+                <button
+                  type="submit"
+                  class="btn btn-primary w-full"
+                  :disabled="isExporting || (exportTargetMode === 'accounts' && !exportSelectedAccounts.length)"
+                >
+                  <span v-if="isExporting" class="loading loading-spinner loading-xs" />
+                  <template v-else>
+                    <IconDownload class="w-4 h-4" />
+                    Download CSV
+                  </template>
+                </button>
+              </form>
+            </AdminCard>
+          </div>
+          <div>
+            <AdminCard title="CSV Format">
+              <div class="space-y-2 text-sm text-base-content/60">
+                <p>Exports primary (or first) email contact per account as UTF-8 CSV with BOM.</p>
+                <pre class="text-xs bg-base-200/60 rounded-xl p-3 font-mono overflow-x-auto">EmailAddr,UserName
+test1@abc.com,张三
+test2@abc.com,李四</pre>
+                <ul class="list-disc list-inside text-xs space-y-1 ml-2">
+                  <li><code class="text-xs">UserName</code> uses nick, then name</li>
+                  <li>Requires <code class="text-xs">emails.send</code> permission</li>
+                </ul>
+              </div>
+            </AdminCard>
+          </div>
+        </div>
+      </TabsContent>
+
+      <!-- Observability Tab (OTEL guidance) -->
+      <TabsContent value="observability">
+        <div class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="card bg-base-100 shadow-sm">
+              <div class="card-body p-4">
+                <p class="text-xs text-base-content/60">Enqueue</p>
+                <p class="text-sm font-mono font-semibold mt-1 break-all">ring.emails.enqueue_requests</p>
+                <p class="text-[10px] text-base-content/40 mt-1">Queued via gRPC / NATS</p>
+              </div>
+            </div>
+            <div class="card bg-base-100 shadow-sm">
+              <div class="card-body p-4">
+                <p class="text-xs text-base-content/60">SMTP Attempts</p>
+                <p class="text-sm font-mono font-semibold mt-1 break-all">ring.emails.delivery_attempts</p>
+                <p class="text-[10px] text-base-content/40 mt-1">source=queue|sending_plan|direct</p>
+              </div>
+            </div>
+            <div class="card bg-base-100 shadow-sm">
+              <div class="card-body p-4">
+                <p class="text-xs text-base-content/60">SMTP Results</p>
+                <p class="text-sm font-mono font-semibold mt-1 break-all">ring.emails.delivery_results</p>
+                <p class="text-[10px] text-base-content/40 mt-1">outcome=success|failure</p>
+              </div>
+            </div>
+            <div class="card bg-base-100 shadow-sm">
+              <div class="card-body p-4">
+                <p class="text-xs text-base-content/60">Latency</p>
+                <p class="text-sm font-mono font-semibold mt-1 break-all">ring.emails.delivery_duration_ms</p>
+                <p class="text-[10px] text-base-content/40 mt-1">p50 / p95 / p99 via OTEL</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <AdminCard title="Success Rate">
+              <p class="text-sm text-base-content/60 mb-3">
+                SMTP submission success rate (not mailbox delivery):
+              </p>
+              <pre class="text-xs bg-base-200/60 rounded-xl p-3 font-mono overflow-x-auto whitespace-pre-wrap">{{ emailSuccessRateFormula }}</pre>
+              <p class="text-xs text-base-content/40 mt-3">
+                Break down by <code class="text-xs">source</code> to separate queue transactional mail from sending plans.
+                Do not use gRPC 200 OK or enqueue volume as the success denominator.
+              </p>
+            </AdminCard>
+
+            <AdminCard title="Suggested Dashboards">
+              <ul class="space-y-2 text-sm text-base-content/60">
+                <li class="flex gap-2"><span class="text-primary font-semibold">1.</span> Queued email requests per minute</li>
+                <li class="flex gap-2"><span class="text-primary font-semibold">2.</span> SMTP attempts and outcomes per minute</li>
+                <li class="flex gap-2"><span class="text-primary font-semibold">3.</span> SMTP success rate by source</li>
+                <li class="flex gap-2"><span class="text-primary font-semibold">4.</span> p50 / p95 / p99 SMTP delivery duration</li>
+                <li class="flex gap-2"><span class="text-primary font-semibold">5.</span> Sending-plan failures vs skipped recipients</li>
+                <li class="flex gap-2"><span class="text-primary font-semibold">6.</span> Enqueue rate vs SMTP attempt rate (stalled consumers)</li>
+              </ul>
+            </AdminCard>
+          </div>
+
+          <AdminCard title="Operational Notes">
+            <div class="space-y-2 text-sm text-base-content/60">
+              <p>
+                Ring exports activity source <code class="text-xs">DysonNetwork.Ring.Email</code> and meter
+                <code class="text-xs">DysonNetwork.Ring.Email</code> through OTLP when
+                <code class="text-xs">OTEL_EXPORTER_OTLP_ENDPOINT</code> is set.
+              </p>
+              <p>
+                Spans use <code class="text-xs">emails.deliver.smtp</code> with tags
+                <code class="text-xs">email.source</code> and <code class="text-xs">email.provider=smtp</code>.
+                Addresses, subjects, bodies, account IDs, and credentials are excluded from telemetry.
+              </p>
+              <p class="text-warning/80">
+                SMTP success only means the configured SMTP server accepted the message. Provider bounces,
+                spam filtering, and mailbox delivery require provider webhooks and are not counted here.
+              </p>
+            </div>
+          </AdminCard>
         </div>
       </TabsContent>
 
@@ -587,6 +764,8 @@ import {
   IconPause,
   IconPlay,
   IconSkipForward,
+  IconDownload,
+  IconActivity,
 } from '#components'
 import {
   TabsRoot,
@@ -596,6 +775,7 @@ import {
 } from 'reka-ui'
 import {
   sendAdminEmails,
+  exportAccountEmailsCsv,
   createEmailPlan,
   fetchEmailPlans,
   pauseEmailPlan,
@@ -611,6 +791,8 @@ definePageMeta({ middleware: 'auth' })
 
 // ============ Tab State ============
 const activeTab = ref('compose')
+const emailSuccessRateFormula = `delivery_results{outcome="success"} /
+(delivery_results{outcome="success"} + delivery_results{outcome="failure"})`
 
 // ============ Compose State ============
 const isSending = ref(false)
@@ -620,6 +802,11 @@ const result = ref<BulkDeliveryResult | null>(null)
 const selectedAccounts = ref<SnAccount[]>([])
 const availableTemplates = ref<{ name: string; path: string }[]>([])
 const templatePropsError = ref('')
+
+// Export
+const isExporting = ref(false)
+const exportTargetMode = ref<'accounts' | 'broadcast'>('accounts')
+const exportSelectedAccounts = ref<SnAccount[]>([])
 
 const picker = useAccountPicker()
 const pickerOpen = computed({
@@ -735,6 +922,44 @@ async function openAccountPicker() {
 
 function removeSelectedAccount(id: string) {
   selectedAccounts.value = selectedAccounts.value.filter(a => a.id !== id)
+}
+
+async function openExportAccountPicker() {
+  const accounts = await picker.open({ allowMultiple: true, title: 'Select Accounts to Export' })
+  if (accounts && Array.isArray(accounts)) {
+    for (const acc of accounts) {
+      if (!exportSelectedAccounts.value.find(a => a.id === acc.id)) {
+        exportSelectedAccounts.value.push(acc)
+      }
+    }
+  }
+}
+
+function removeExportAccount(id: string) {
+  exportSelectedAccounts.value = exportSelectedAccounts.value.filter(a => a.id !== id)
+}
+
+async function handleExportEmails() {
+  isExporting.value = true
+  try {
+    const blob = await exportAccountEmailsCsv({
+      broadcastToAll: exportTargetMode.value === 'broadcast',
+      accountIds: exportTargetMode.value === 'accounts'
+        ? exportSelectedAccounts.value.map(a => a.id)
+        : undefined,
+    })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `account-email-contacts-${new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '')}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+    useNuxtApp().$toast.success('Email contacts exported')
+  } catch {
+    useNuxtApp().$toast.error('Failed to export email contacts')
+  } finally {
+    isExporting.value = false
+  }
 }
 
 function handlePreview() {
