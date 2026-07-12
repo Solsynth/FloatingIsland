@@ -93,10 +93,11 @@
         </div>
       </div>
 
-      <!-- Add Subscriber Drawer -->
+      <!-- Add Subscriber sheet -->
       <AdminDrawer
         :open="addModalOpen"
         :title="t('creator.subscribers.add')"
+        direction="bottom"
         @update:open="addModalOpen = $event"
       >
         <AccountPicker @select="handleAddSubscriber" />

@@ -83,10 +83,11 @@
         </template>
       </AdminDrawer>
 
-      <!-- Invite Drawer -->
+      <!-- Invite sheet -->
       <AdminDrawer
         :open="inviteModalOpen"
         :title="t('creator.members.invite')"
+        direction="bottom"
         @update:open="inviteModalOpen = $event"
       >
         <AccountPicker @select="handleInviteSelect" />

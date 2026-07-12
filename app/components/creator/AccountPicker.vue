@@ -31,11 +31,11 @@
       <p class="text-sm">No accounts found</p>
     </div>
 
-    <div v-else class="space-y-1 max-h-72 overflow-y-auto rounded-xl">
+    <div v-else class="space-y-1 rounded-xl">
       <button
         v-for="account in results"
         :key="account.id"
-        class="flex items-center gap-3 w-full rounded-lg p-3 transition-all hover:bg-base-200/80 hover:pl-4"
+        class="flex items-center gap-3 w-full rounded-lg p-3 transition-all hover:bg-base-200/80"
         :class="{ 'bg-primary/5 hover:bg-primary/10': isSelected(account.id) }"
         @click="toggleAccount(account)"
       >

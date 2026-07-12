@@ -39,8 +39,10 @@ export function useAccountPicker(): UseAccountPickerReturn {
       resolvePromise(accounts)
       resolvePromise = null
     }
+    isOpen.value = false
   }
 
+  // Resolve with null if sheet is closed without selection
   watch(isOpen, (val) => {
     if (!val && resolvePromise) {
       resolvePromise(null)
