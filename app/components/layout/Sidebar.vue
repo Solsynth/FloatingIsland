@@ -41,6 +41,51 @@
                     </span>
                 </div>
             </NuxtLink>
+
+            <!-- Backstage dropdown (creator / developer / merchant / admin) -->
+            <div
+                class="dropdown w-full"
+                :class="collapsed ? 'dropdown-right dropdown-end' : 'dropdown-end'"
+            >
+                <button
+                    tabindex="0"
+                    type="button"
+                    class="group relative flex w-full items-center gap-4 rounded-xl py-3 transition-all duration-300 hover:bg-base-200"
+                    :class="[
+                        collapsed ? 'justify-center px-3' : 'justify-end px-4',
+                        isBackstageActive ? 'bg-base-200 text-primary' : '',
+                    ]"
+                    aria-haspopup="menu"
+                    :aria-label="backstageLabel"
+                >
+                    <span
+                        v-if="!collapsed"
+                        class="text-lg font-medium transition-all duration-300 group-hover:text-primary"
+                    >
+                        {{ backstageLabel }}
+                    </span>
+                    <component
+                        :is="backstageEntry.icon"
+                        class="h-6 w-6 shrink-0 transition-colors group-hover:text-primary"
+                        :class="isBackstageActive ? 'text-primary' : ''"
+                    />
+                </button>
+                <ul
+                    tabindex="0"
+                    class="dropdown-content menu z-50 w-52 rounded-box border border-base-300 bg-base-100 p-2 shadow"
+                    :class="collapsed ? 'ms-2' : 'mt-1'"
+                >
+                    <li v-for="item in backstageNavItems" :key="item.href">
+                        <NuxtLink
+                            :to="item.href"
+                            class="flex items-center gap-3"
+                        >
+                            <component :is="item.icon" class="h-4.5 w-4.5" />
+                            {{ item.label }}
+                        </NuxtLink>
+                    </li>
+                </ul>
+            </div>
         </nav>
 
         <!-- Bottom Section: User Profile -->
@@ -186,6 +231,7 @@ import {
 import { getFileUrl } from "~/utils/files";
 
 const { t } = useI18n();
+const route = useRoute();
 const { collapsed, toggleSidebar } = useSidebar();
 
 const {
@@ -195,7 +241,11 @@ const {
     displayName: authDisplayName,
 } = useAuth();
 
-const { navItems: mainNavItems } = useMainNav();
+const {
+    navItems: mainNavItems,
+    backstageItems,
+    backstageEntry,
+} = useMainNav();
 
 const navItems = computed(() =>
     mainNavItems.value.map((item) => ({
@@ -204,6 +254,23 @@ const navItems = computed(() =>
         href: item.href,
         badge: item.badge,
     })),
+);
+
+const backstageNavItems = computed(() =>
+    backstageItems.value.map((item) => ({
+        icon: item.icon,
+        label: t(item.labelKey),
+        href: item.href,
+    })),
+);
+
+const backstageLabel = computed(() => t(backstageEntry.labelKey));
+
+const isBackstageActive = computed(() =>
+    backstageItems.value.some(
+        (item) =>
+            route.path === item.href || route.path.startsWith(`${item.href}/`),
+    ),
 );
 
 const displayName = computed(() => authDisplayName.value);

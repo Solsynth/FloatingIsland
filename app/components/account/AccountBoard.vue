@@ -1,32 +1,15 @@
 <template>
-  <div class="space-y-3">
+  <div class="space-y-3 w-full min-w-0">
     <template v-for="item in enabledItems" :key="itemKey(item)">
-      <!-- Custom app widget -->
+      <!-- Custom app widget: image/background handled inside layout (hero/grid/etc.), not as an outer banner -->
       <div
         v-if="isCustomApp(item)"
-        class="card overflow-hidden relative"
+        class="card w-full overflow-hidden"
       >
-        <img
-          v-if="payloadString(item.payload, 'background')"
-          :src="resolveImageSrc(payloadString(item.payload, 'background')!)"
-          alt=""
-          class="absolute inset-0 h-full w-full object-cover"
-        />
         <div
-          v-if="payloadString(item.payload, 'background')"
-          class="absolute inset-0 bg-base-100/85"
-        />
-        <div
-          v-if="payloadImage(item.payload)"
-          class="relative aspect-[16/5] w-full overflow-hidden"
+          class="relative w-full min-w-0"
+          :class="customAppNeedsPadding(item) ? 'p-4' : ''"
         >
-          <img
-            :src="resolveImageSrc(payloadImage(item.payload)!)"
-            alt=""
-            class="h-full w-full object-cover"
-          />
-        </div>
-        <div class="card-body p-4 relative">
           <AccountBoardCustomWidget
             :app-id="item.customAppId || ''"
             :widget-key="item.customAppWidgetKey || ''"
@@ -41,7 +24,7 @@
       <!-- Prebuilt: image (no padding) -->
       <div
         v-else-if="widgetKey(item) === 'image'"
-        class="card overflow-hidden"
+        class="card w-full overflow-hidden"
       >
         <BoardImageWidget :file-ids="payloadFileIds(item.payload)" />
       </div>
@@ -53,7 +36,7 @@
       />
 
       <!-- Prebuilt widgets with card chrome -->
-      <div v-else class="card overflow-hidden relative">
+      <div v-else class="card w-full overflow-hidden relative">
         <img
           v-if="payloadString(item.payload, 'background')"
           :src="resolveImageSrc(payloadString(item.payload, 'background')!)"
@@ -510,6 +493,13 @@ function isCustomApp(item: AccountBoardItem) {
 
 function widgetKey(item: AccountBoardItem) {
   return item.widgetKey || "";
+}
+
+function customAppNeedsPadding(item: AccountBoardItem) {
+  // Legacy standalone text/attachment keep padded card chrome.
+  // Configured custom apps match Flutter: no outer padding — each
+  // renderer (hero/grid/list/inline/data) owns image/background spacing.
+  return !item.customAppId;
 }
 
 function payloadString(

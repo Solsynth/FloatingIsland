@@ -5,7 +5,7 @@
       :key="`${url}-${i}`"
       :src="url"
       alt=""
-      class="w-full max-h-96 object-cover rounded-xl"
+      class="block w-full h-auto rounded-xl"
     />
   </div>
 </template>

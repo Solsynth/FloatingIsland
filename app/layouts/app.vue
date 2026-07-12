@@ -49,7 +49,7 @@
                 <!-- Dropdown Menu -->
                 <div
                   v-if="menuOpen"
-                  class="absolute top-full right-0 z-50 mt-2 w-48 rounded-xl border border-base-300 bg-base-100 py-2 shadow-lg"
+                  class="absolute top-full right-0 z-50 mt-2 w-56 rounded-xl border border-base-300 bg-base-100 py-2 shadow-lg"
                 >
                   <template v-if="isAuthenticated && user">
                     <NuxtLink
@@ -65,6 +65,39 @@
                       />
                       <span class="font-medium">{{ item.label }}</span>
                     </NuxtLink>
+
+                    <!-- Backstage section -->
+                    <button
+                      type="button"
+                      class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-base-200"
+                      @click="backstageOpen = !backstageOpen"
+                    >
+                      <component
+                        :is="backstageEntry.icon"
+                        class="w-5 h-5 text-base-content/70"
+                      />
+                      <span class="font-medium">{{
+                        t(backstageEntry.labelKey)
+                      }}</span>
+                    </button>
+                    <div v-if="backstageOpen" class="pb-1">
+                      <NuxtLink
+                        v-for="item in backstageNavItems"
+                        :key="item.to"
+                        :to="item.to"
+                        class="flex items-center gap-3 py-2.5 pe-4 ps-11 transition-colors hover:bg-base-200"
+                        @click="closeMenu"
+                      >
+                        <component
+                          :is="item.icon"
+                          class="w-4 h-4 text-base-content/60"
+                        />
+                        <span class="text-sm font-medium">{{
+                          item.label
+                        }}</span>
+                      </NuxtLink>
+                    </div>
+
                     <div class="divider my-1" />
                     <div class="mb-1 border-b border-base-200 px-4 py-3">
                       <div class="flex items-center gap-3">
@@ -128,6 +161,39 @@
                       />
                       <span class="font-medium">{{ item.label }}</span>
                     </NuxtLink>
+
+                    <!-- Backstage section -->
+                    <button
+                      type="button"
+                      class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-base-200"
+                      @click="backstageOpen = !backstageOpen"
+                    >
+                      <component
+                        :is="backstageEntry.icon"
+                        class="w-5 h-5 text-base-content/70"
+                      />
+                      <span class="font-medium">{{
+                        t(backstageEntry.labelKey)
+                      }}</span>
+                    </button>
+                    <div v-if="backstageOpen" class="pb-1">
+                      <NuxtLink
+                        v-for="item in backstageNavItems"
+                        :key="item.to"
+                        :to="item.to"
+                        class="flex items-center gap-3 py-2.5 pe-4 ps-11 transition-colors hover:bg-base-200"
+                        @click="closeMenu"
+                      >
+                        <component
+                          :is="item.icon"
+                          class="w-4 h-4 text-base-content/60"
+                        />
+                        <span class="text-sm font-medium">{{
+                          item.label
+                        }}</span>
+                      </NuxtLink>
+                    </div>
+
                     <div class="divider my-1" />
                     <NuxtLink
                       to="/auth/login"
@@ -196,17 +262,30 @@ const auth = useAuth();
 const { isAuthenticated, user } = auth;
 
 const menuOpen = ref(false);
+const backstageOpen = ref(false);
 const menuContainer = ref<HTMLElement | null>(null);
 const composeOpen = ref(false);
 
-const { navItems: mainNavItems } = useMainNav();
+const {
+  navItems: mainNavItems,
+  backstageItems,
+  backstageEntry,
+} = useMainNav();
 
 const navItems = computed(() =>
   mainNavItems.value.map((item) => ({
     to: item.href,
     label: t(item.labelKey),
     icon: item.icon,
-  }))
+  })),
+);
+
+const backstageNavItems = computed(() =>
+  backstageItems.value.map((item) => ({
+    to: item.href,
+    label: t(item.labelKey),
+    icon: item.icon,
+  })),
 );
 
 const displayName = computed(() => user.value?.nick || user.value?.name || "");
@@ -214,10 +293,14 @@ const avatarUrl = computed(() => getFileUrl(user.value?.profile?.picture?.id));
 
 function toggleMenu() {
   menuOpen.value = !menuOpen.value;
+  if (!menuOpen.value) {
+    backstageOpen.value = false;
+  }
 }
 
 function closeMenu() {
   menuOpen.value = false;
+  backstageOpen.value = false;
 }
 
 function handleLogout() {

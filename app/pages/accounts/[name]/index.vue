@@ -26,7 +26,7 @@
     </div>
 
     <!-- Account Profile -->
-    <div v-else-if="account" class="mx-auto max-w-5xl min-w-0">
+    <div v-else-if="account" class="mx-auto max-w-6xl min-w-0">
       <!-- Header Section -->
       <section class="relative overflow-hidden px-4 pt-4 lg:px-6">
         <div
@@ -40,19 +40,19 @@
           />
         </div>
         <div
-          class="mx-auto -mt-20 flex max-w-5xl flex-col gap-4 px-4 pb-4 sm:-mt-20 sm:flex-row sm:items-end"
+          class="mx-auto -mt-12 flex max-w-5xl flex-col gap-3 px-4 pb-4 sm:-mt-20 sm:flex-row sm:items-end sm:gap-4"
         >
           <div class="shrink-0">
             <div v-if="avatarUrl" class="avatar">
               <div
-                class="h-24 w-24 rounded-full ring ring-base-300 ring-offset-2 ring-offset-base-100 sm:h-28 sm:w-28 mb-8"
+                class="h-24 w-24 rounded-full ring ring-base-300 ring-offset-2 ring-offset-base-100 sm:h-28 sm:w-28 sm:mb-8"
               >
                 <img :src="avatarUrl" :alt="displayName" />
               </div>
             </div>
             <div v-else class="avatar avatar-placeholder">
               <div
-                class="h-24 w-24 rounded-3xl bg-primary text-primary-content ring ring-base-300 ring-offset-2 ring-offset-base-100 sm:h-28 sm:w-28"
+                class="h-24 w-24 rounded-3xl bg-primary text-primary-content ring ring-base-300 ring-offset-2 ring-offset-base-100 sm:h-28 sm:w-28 sm:mb-8"
               >
                 <span class="text-2xl font-semibold">
                   {{ getInitials(displayName) }}
@@ -60,7 +60,7 @@
               </div>
             </div>
           </div>
-          <div class="min-w-0 flex-1 pt-24">
+          <div class="min-w-0 flex-1 sm:pt-24">
             <div class="flex flex-wrap items-center gap-2 min-w-0">
               <h1 class="truncate text-2xl font-black sm:text-3xl">
                 {{ displayName }}
@@ -156,102 +156,153 @@
         </div>
       </section>
 
-      <!-- Collapsible bio (header summary, mirrors Island profile card) -->
-      <div v-if="account.profile?.bio" class="px-4 lg:px-6 pb-2">
-        <div class="card">
-          <div class="card-body p-4">
-            <div class="flex items-start justify-between gap-2">
-              <template v-if="isBioExpanded">
-                <div
-                  class="prose prose-sm max-w-none break-words flex-1 prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
-                  v-html="bioHtml"
-                  @click="handleMarkdownClick"
-                />
-              </template>
-              <p v-else class="text-sm text-base-content/80 flex-1">
-                {{ bioFirstLine }}
-              </p>
+      <!-- Two-column body: board/activity (main) + bio sidebar on desktop -->
+      <div
+        class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_18rem] xl:grid-cols-[minmax(0,1fr)_22rem] gap-4 lg:gap-6 px-4 lg:px-6 pb-8 items-start"
+      >
+        <!-- Main column: tabs + board / activity -->
+        <div class="min-w-0 order-2 lg:order-1 space-y-3">
+          <div role="tablist" class="tabs tabs-box w-fit">
+            <button
+              role="tab"
+              class="tab"
+              :class="{ 'tab-active': activeTab === 'board' }"
+              @click="activeTab = 'board'"
+            >
+              Board
+            </button>
+            <button
+              role="tab"
+              class="tab"
+              :class="{ 'tab-active': activeTab === 'activity' }"
+              @click="activeTab = 'activity'"
+            >
+              Activity
+            </button>
+          </div>
+
+          <!-- Board tab -->
+          <div v-show="activeTab === 'board'" class="space-y-3 w-full min-w-0">
+            <div
+              v-if="boardLoading"
+              class="flex items-center gap-2 text-sm text-base-content/60 py-4"
+            >
+              <IconLoader class="w-3.5 h-3.5 animate-spin" />
+              <span>Loading board...</span>
+            </div>
+            <AccountBoard
+              v-else
+              :account="account"
+              :items="boardItems"
+              :uname="accountName"
+              :publishers="publishers"
+              :badge-manifest="badgeManifestStore.manifest"
+            />
+          </div>
+
+          <!-- Activity timeline tab -->
+          <section v-show="activeTab === 'activity'" class="space-y-3 w-full min-w-0">
+            <div
+              v-if="isLoadingTimeline && timelineItems.length === 0"
+              class="flex items-center gap-2 text-sm text-base-content/60"
+            >
+              <IconLoader class="w-3.5 h-3.5 animate-spin" />
+              <span>Loading activity...</span>
+            </div>
+
+            <div
+              v-if="timelineItems.length > 0"
+              class="space-y-2"
+              :class="isLoadingTimeline ? 'opacity-60' : 'opacity-100'"
+            >
+              <AccountTimelineItem
+                v-for="item in groupedTimelineItems"
+                :key="item.id"
+                :item="item.item"
+                :duplicate-count="item.count"
+              />
+            </div>
+
+            <div v-if="timelineItems.length > 0" class="py-2 text-center">
               <button
-                class="btn btn-ghost btn-xs text-primary shrink-0"
-                @click="isBioExpanded = !isBioExpanded"
+                v-if="hasMoreTimeline"
+                class="btn btn-outline btn-sm"
+                :disabled="isLoadingTimeline"
+                @click="loadMoreTimeline"
               >
-                {{ isBioExpanded ? "Collapse" : "Expand" }}
+                <IconLoader
+                  v-if="isLoadingTimeline"
+                  class="w-4 h-4 animate-spin"
+                />
+                <span>Load more</span>
               </button>
+              <p v-else class="text-xs text-base-content/50">No more activity</p>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Bot Developer Info -->
-      <div v-if="botDeveloper?.publisher" class="px-4 lg:px-6 pb-2">
-        <div class="card bg-secondary/5">
-          <div class="card-body p-4">
-            <div class="flex items-center gap-2">
-              <IconBot class="w-4 h-4 text-secondary" />
-              <span class="text-sm">
-                Automated by
-                <NuxtLink
-                  :to="`/publishers/${botDeveloper.publisher.name}`"
-                  class="font-semibold link link-hover"
+            <div
+              v-else-if="!isLoadingTimeline"
+              class="py-8 text-center text-sm text-base-content/50"
+            >
+              No activity yet.
+            </div>
+          </section>
+        </div>
+
+        <!-- Sidebar: bio + meta (right on desktop, above content on mobile) -->
+        <aside
+          class="order-1 lg:order-2 space-y-3 w-full min-w-0 lg:sticky lg:top-4 lg:self-start"
+        >
+          <div v-if="account.profile?.bio" class="card">
+            <div class="card-body p-4">
+              <div class="flex items-start justify-between gap-2">
+                <template v-if="isBioExpanded">
+                  <div
+                    class="prose prose-sm max-w-none break-words flex-1 prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
+                    v-html="bioHtml"
+                    @click="handleMarkdownClick"
+                  />
+                </template>
+                <p v-else class="text-sm text-base-content/80 flex-1">
+                  {{ bioFirstLine }}
+                </p>
+                <button
+                  class="btn btn-ghost btn-xs text-primary shrink-0"
+                  @click="isBioExpanded = !isBioExpanded"
                 >
-                  {{
-                    botDeveloper.publisher.nick || botDeveloper.publisher.name
-                  }}
-                </NuxtLink>
-              </span>
+                  {{ isBioExpanded ? "Collapse" : "Expand" }}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Tabs: Board | Activity (matches Island profile) -->
-      <div class="px-4 lg:px-6 pb-2">
-        <div role="tablist" class="tabs tabs-box w-fit">
-          <button
-            role="tab"
-            class="tab"
-            :class="{ 'tab-active': activeTab === 'board' }"
-            @click="activeTab = 'board'"
-          >
-            Board
-          </button>
-          <button
-            role="tab"
-            class="tab"
-            :class="{ 'tab-active': activeTab === 'activity' }"
-            @click="activeTab = 'activity'"
-          >
-            Activity
-          </button>
-        </div>
-      </div>
-
-      <div class="px-4 py-2 lg:px-6 pb-8 min-w-0">
-        <!-- Board tab -->
-        <div v-show="activeTab === 'board'" class="space-y-3 max-w-2xl">
-          <div v-if="boardLoading" class="flex items-center gap-2 text-sm text-base-content/60 py-4">
-            <IconLoader class="w-3.5 h-3.5 animate-spin" />
-            <span>Loading board...</span>
+          <div v-if="botDeveloper?.publisher" class="card bg-secondary/5">
+            <div class="card-body p-4">
+              <div class="flex items-center gap-2">
+                <IconBot class="w-4 h-4 text-secondary shrink-0" />
+                <span class="text-sm">
+                  Automated by
+                  <NuxtLink
+                    :to="`/publishers/${botDeveloper.publisher.name}`"
+                    class="font-semibold link link-hover"
+                  >
+                    {{
+                      botDeveloper.publisher.nick || botDeveloper.publisher.name
+                    }}
+                  </NuxtLink>
+                </span>
+              </div>
+            </div>
           </div>
-          <AccountBoard
-            v-else
-            :account="account"
-            :items="boardItems"
-            :uname="accountName"
-            :publishers="publishers"
-            :badge-manifest="badgeManifestStore.manifest"
-          />
 
-          <!-- Punishment -->
           <div v-if="punishment" class="card bg-error/5 shadow-sm">
             <div class="card-body p-4">
               <div class="flex items-center gap-3">
                 <div
-                  class="w-10 h-10 rounded-lg bg-error/10 flex items-center justify-center"
+                  class="w-10 h-10 rounded-lg bg-error/10 flex items-center justify-center shrink-0"
                 >
                   <IconAlertTriangle class="w-5 h-5 text-error" />
                 </div>
-                <div class="flex-1">
+                <div class="min-w-0 flex-1">
                   <h3 class="text-sm font-semibold">Account Restrictions</h3>
                   <p class="text-xs text-base-content/50">
                     This account has active restrictions
@@ -260,54 +311,7 @@
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Activity timeline tab -->
-        <section v-show="activeTab === 'activity'" class="space-y-3 max-w-2xl">
-          <div
-            v-if="isLoadingTimeline && timelineItems.length === 0"
-            class="flex items-center gap-2 text-sm text-base-content/60"
-          >
-            <IconLoader class="w-3.5 h-3.5 animate-spin" />
-            <span>Loading activity...</span>
-          </div>
-
-          <div
-            v-if="timelineItems.length > 0"
-            class="space-y-2"
-            :class="isLoadingTimeline ? 'opacity-60' : 'opacity-100'"
-          >
-            <AccountTimelineItem
-              v-for="item in groupedTimelineItems"
-              :key="item.id"
-              :item="item.item"
-              :duplicate-count="item.count"
-            />
-          </div>
-
-          <div v-if="timelineItems.length > 0" class="py-2 text-center">
-            <button
-              v-if="hasMoreTimeline"
-              class="btn btn-outline btn-sm"
-              :disabled="isLoadingTimeline"
-              @click="loadMoreTimeline"
-            >
-              <IconLoader
-                v-if="isLoadingTimeline"
-                class="w-4 h-4 animate-spin"
-              />
-              <span>Load more</span>
-            </button>
-            <p v-else class="text-xs text-base-content/50">No more activity</p>
-          </div>
-
-          <div
-            v-else-if="!isLoadingTimeline"
-            class="py-8 text-center text-sm text-base-content/50"
-          >
-            No activity yet.
-          </div>
-        </section>
+        </aside>
       </div>
     </div>
   </NuxtLayout>

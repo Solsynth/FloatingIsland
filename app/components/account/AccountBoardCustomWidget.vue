@@ -6,13 +6,13 @@
       v-html="renderMarkdown(payloadString('content') || '')"
     />
   </div>
-  <div v-else-if="!appId && widgetKey === 'attachment'" class="space-y-2">
+  <div v-else-if="!appId && widgetKey === 'attachment'" class="space-y-2 w-full">
     <img
       v-for="(src, i) in attachmentSrcs"
       :key="i"
       :src="src"
       alt=""
-      class="w-full rounded-xl object-cover"
+      class="block w-full h-auto rounded-xl"
     />
   </div>
 
@@ -28,25 +28,36 @@
     Widget not configured
   </div>
 
-  <!-- Layouts -->
-  <div v-else-if="rendererType === 'hero'" class="relative min-h-[8rem]">
+  <!-- Layouts: image/background only here (not as an outer card banner) -->
+  <div
+    v-else-if="rendererType === 'hero'"
+    class="relative w-full min-h-[8rem]"
+  >
     <div
       v-if="backgroundSrc"
-      class="absolute inset-0 rounded-lg overflow-hidden"
+      class="absolute inset-0 w-full overflow-hidden"
     >
       <img :src="backgroundSrc" alt="" class="h-full w-full object-cover" />
       <div
         class="absolute inset-0 bg-linear-to-b from-black/10 to-base-100/80"
       />
     </div>
-    <div class="relative p-3 space-y-1">
+    <div
+      class="relative w-full space-y-1"
+      :class="backgroundSrc ? 'p-3' : 'p-4'"
+    >
       <img
         v-if="imageSrc"
         :src="imageSrc"
         alt=""
         class="w-14 h-14 rounded-full object-cover mb-2"
       />
-      <p class="text-xs font-semibold text-primary">{{ fields[0]?.label }}</p>
+      <p
+        class="text-xs font-semibold"
+        :class="backgroundSrc ? 'text-base-content' : 'text-primary'"
+      >
+        {{ fields[0]?.label }}
+      </p>
       <p class="text-base font-bold leading-tight">
         {{ stringifyValue(fields[0]?.value) }}
       </p>
@@ -59,14 +70,14 @@
     </div>
   </div>
 
-  <div v-else-if="rendererType === 'inline'" class="flex items-center gap-3">
+  <div v-else-if="rendererType === 'inline'" class="flex items-center gap-3 w-full min-w-0">
     <img
       v-if="imageSrc"
       :src="imageSrc"
       alt=""
-      class="w-20 h-20 rounded-lg object-cover shrink-0"
+      class="w-20 h-20 object-cover shrink-0 rounded-l-xl"
     />
-    <div class="min-w-0 flex-1 py-2">
+    <div class="min-w-0 flex-1 py-3 pr-4" :class="imageSrc ? '' : 'pl-4'">
       <p class="text-xs font-semibold text-primary">{{ fields[0]?.label }}</p>
       <div class="flex items-center gap-2">
         <p class="text-base font-bold truncate">
@@ -85,8 +96,8 @@
     </div>
   </div>
 
-  <div v-else-if="rendererType === 'data'" class="space-y-2">
-    <div class="flex flex-wrap gap-3">
+  <div v-else-if="rendererType === 'data'" class="p-4 space-y-2 w-full min-w-0">
+    <div class="flex flex-wrap gap-3 w-full">
       <img
         v-if="imageSrc"
         :src="imageSrc"
@@ -109,10 +120,10 @@
     </p>
   </div>
 
-  <div v-else-if="rendererType === 'grid'" class="space-y-3">
+  <div v-else-if="rendererType === 'grid'" class="space-y-3 w-full min-w-0">
     <div
       v-if="backgroundSrc || imageSrc"
-      class="relative h-32 rounded-t-lg overflow-hidden"
+      class="relative w-full h-32 overflow-hidden"
     >
       <img
         v-if="backgroundSrc"
@@ -132,7 +143,7 @@
         class="absolute bottom-3 left-3 w-14 h-14 rounded-full object-cover"
       />
     </div>
-    <div class="grid grid-cols-3 gap-2.5 px-2">
+    <div class="grid grid-cols-3 gap-2.5 px-2 w-full">
       <div
         v-for="field in gridFields.slice(0, 6)"
         :key="field.name"
@@ -150,28 +161,30 @@
   </div>
 
   <!-- Default list layout -->
-  <div v-else class="space-y-2.5">
+  <div v-else class="space-y-2.5 w-full min-w-0">
     <img
       v-if="imageSrc"
       :src="imageSrc"
       alt=""
-      class="w-full aspect-[16/7] object-cover rounded-xl mb-3"
+      class="block w-full aspect-[16/7] object-cover"
     />
-    <div
-      v-for="field in fields"
-      :key="field.name"
-      class="flex items-start gap-3"
-    >
-      <p class="text-sm text-base-content/50 min-w-0 w-2/5 shrink-0">
-        {{ field.label }}
-      </p>
-      <div class="min-w-0 flex-1 text-right text-sm font-medium">
-        <CustomPayloadValue :value="field.value" align="right" />
+    <div class="space-y-2.5 px-4 w-full" :class="imageSrc ? 'pb-4' : 'py-4'">
+      <div
+        v-for="field in fields"
+        :key="field.name"
+        class="flex items-start gap-3"
+      >
+        <p class="text-sm text-base-content/50 min-w-0 w-2/5 shrink-0">
+          {{ field.label }}
+        </p>
+        <div class="min-w-0 flex-1 text-right text-sm font-medium">
+          <CustomPayloadValue :value="field.value" align="right" />
+        </div>
       </div>
+      <p class="text-xs text-base-content/50" :title="footerTitle">
+        {{ footerText }}
+      </p>
     </div>
-    <p class="text-xs text-base-content/50" :title="footerTitle">
-      {{ footerText }}
-    </p>
   </div>
 </template>
 
