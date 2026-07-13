@@ -67,6 +67,9 @@ import type {
   UpsertGroupMemberPayload,
   AdminBoardItem,
   BoardPayloadPush,
+  AdminMagicSpell,
+  CreateAdminMagicSpellPayload,
+  ResendAdminMagicSpellPayload,
 } from '~/types/admin'
 
 // Padlock service: auth, sessions, punishments, suspend, delete, notifications, emails
@@ -198,6 +201,13 @@ export async function revokeAccountSessions(name: string): Promise<void> {
   })
 }
 
+/** Force-activate account and grant default permission group membership. */
+export async function activateAdminAccount(name: string): Promise<void> {
+  await fetchJson(`${PADLOCK_BASE}/${encodeURIComponent(name)}/activate`, {
+    method: 'POST',
+  })
+}
+
 export async function fetchAccountDevices(
   name: string,
   params: AdminDeviceQuery = {},
@@ -212,28 +222,37 @@ export async function adminUpdateDeviceLabel(
   deviceId: string,
   payload: DeviceLabelPayload,
 ): Promise<void> {
-  await fetchJson(`${PADLOCK_BASE}/${name}/devices/${deviceId}/label`, {
-    method: 'PATCH',
-    body: JSON.stringify(camelToSnake(payload)),
-  })
+  await fetchJson(
+    `${PADLOCK_BASE}/${encodeURIComponent(name)}/devices/${encodeURIComponent(deviceId)}/label`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(camelToSnake(payload)),
+    },
+  )
 }
 
 export async function revokeDeviceSessions(
   name: string,
   deviceId: string,
 ): Promise<void> {
-  await fetchJson(`${PADLOCK_BASE}/${name}/devices/${deviceId}/sessions/revoke`, {
-    method: 'POST',
-  })
+  await fetchJson(
+    `${PADLOCK_BASE}/${encodeURIComponent(name)}/devices/${encodeURIComponent(deviceId)}/sessions/revoke`,
+    {
+      method: 'POST',
+    },
+  )
 }
 
 export async function deleteAccountDevice(
   name: string,
   deviceId: string,
 ): Promise<void> {
-  await fetchJson(`${PADLOCK_BASE}/${name}/devices/${deviceId}`, {
-    method: 'DELETE',
-  })
+  await fetchJson(
+    `${PADLOCK_BASE}/${encodeURIComponent(name)}/devices/${encodeURIComponent(deviceId)}`,
+    {
+      method: 'DELETE',
+    },
+  )
 }
 
 export async function fetchAccountSessions(
@@ -907,6 +926,48 @@ export async function deleteGroupMember(groupId: string, actor: string): Promise
 export async function fetchActorPermissions(actor: string): Promise<ActorPermissions> {
   return fetchJson<ActorPermissions>(
     `${PADLOCK_PERMISSIONS}/actors/${encodeURIComponent(actor)}`,
+  )
+}
+
+// ============ Magic Spells (Passport) ============
+
+export async function fetchAccountSpells(identifier: string): Promise<AdminMagicSpell[]> {
+  return fetchJson<AdminMagicSpell[]>(
+    `${PASSPORT_BASE}/${encodeURIComponent(identifier)}/spells`,
+  )
+}
+
+export async function createAccountSpell(
+  identifier: string,
+  payload: CreateAdminMagicSpellPayload,
+): Promise<AdminMagicSpell> {
+  return fetchJson<AdminMagicSpell>(
+    `${PASSPORT_BASE}/${encodeURIComponent(identifier)}/spells`,
+    {
+      method: 'POST',
+      body: JSON.stringify(camelToSnake(payload)),
+    },
+  )
+}
+
+export async function resendAccountSpell(
+  identifier: string,
+  spellId: string,
+  payload: ResendAdminMagicSpellPayload = { bypassVerify: true },
+): Promise<void> {
+  await fetchJson(
+    `${PASSPORT_BASE}/${encodeURIComponent(identifier)}/spells/${spellId}/resend`,
+    {
+      method: 'POST',
+      body: JSON.stringify(camelToSnake(payload)),
+    },
+  )
+}
+
+export async function deleteAccountSpell(identifier: string, spellId: string): Promise<void> {
+  await fetchJson(
+    `${PASSPORT_BASE}/${encodeURIComponent(identifier)}/spells/${spellId}`,
+    { method: 'DELETE' },
   )
 }
 

@@ -129,8 +129,14 @@ export interface AdminAccountQuery {
 // ============ Device & Session Management ============
 
 export interface AdminDevice {
+  /** Auth client row GUID */
   id: string
+  /** Stable device identifier used in admin device routes */
+  deviceId?: string
   label?: string | null
+  deviceLabel?: string | null
+  deviceName?: string | null
+  platform?: string | null
   clientId?: string
   lastActiveAt?: string | null
   createdAt?: string
@@ -611,6 +617,43 @@ export interface BadgeGrantPayload {
   label: string
   caption?: string
   meta?: Record<string, unknown>
+}
+
+// ============ Magic Spells (Passport) ============
+
+/** Matches MagicSpellType enum ordinals from DysonNetwork.Shared */
+export type MagicSpellType =
+  | 0 // account_activation
+  | 1 // account_deactivation (not emailable via admin)
+  | 2 // account_removal
+  | 3 // auth_password_reset
+  | 4 // contact_verification
+
+export interface AdminMagicSpell {
+  id: string
+  type: MagicSpellType | number
+  expiresAt?: string | null
+  affectedAt?: string | null
+  meta?: Record<string, unknown>
+  accountId?: string | null
+  createdAt?: string
+  updatedAt?: string
+  deletedAt?: string | null
+}
+
+export interface CreateAdminMagicSpellPayload {
+  type: MagicSpellType | number
+  meta?: Record<string, unknown>
+  expiresAt?: string | null
+  affectedAt?: string | null
+  code?: string
+  preventRepeat?: boolean
+  sendEmail?: boolean
+  bypassVerify?: boolean
+}
+
+export interface ResendAdminMagicSpellPayload {
+  bypassVerify?: boolean
 }
 
 // ============ Delivery Observability (Ring built-in) ============

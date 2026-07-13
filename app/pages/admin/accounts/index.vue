@@ -62,7 +62,9 @@
             <tr class="text-xs text-base-content/50 uppercase tracking-wider">
               <th class="pl-5">Account</th>
               <th>Email</th>
+              <th>Auth</th>
               <th>Sessions</th>
+              <th>Devices</th>
               <th>Status</th>
               <th>Punishment</th>
               <th class="pr-5 text-right">Actions</th>
@@ -95,19 +97,46 @@
                     </div>
                   </div>
                   <div class="min-w-0">
-                    <div class="text-sm font-medium truncate max-w-[12rem]">
-                      {{ entry.account.nick || entry.account.name }}
+                    <div class="flex items-center gap-1.5">
+                      <div class="text-sm font-medium truncate max-w-[12rem]">
+                        {{ entry.account.nick || entry.account.name }}
+                      </div>
+                      <span
+                        v-if="!entry.account.activatedAt"
+                        class="badge badge-ghost badge-xs shrink-0"
+                      >Pending</span>
                     </div>
                     <div class="text-xs text-base-content/40 truncate">
                       @{{ entry.account.name }}
+                      <span v-if="entry.badgeCount" class="text-base-content/30">
+                        · {{ entry.badgeCount }} badge{{ entry.badgeCount === 1 ? '' : 's' }}
+                      </span>
                     </div>
                   </div>
                 </NuxtLink>
               </td>
               <td>
-                <span class="text-sm text-base-content/60">
-                  {{ entry.primaryEmail || '—' }}
-                </span>
+                <div class="min-w-0">
+                  <span class="text-sm text-base-content/60 block truncate max-w-[14rem]">
+                    {{ entry.primaryEmail || '—' }}
+                  </span>
+                  <span v-if="entry.contactCount" class="text-[10px] text-base-content/35">
+                    {{ entry.contactCount }} contact{{ entry.contactCount === 1 ? '' : 's' }}
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span
+                    class="badge badge-xs"
+                    :class="entry.hasPassword ? 'badge-success' : 'badge-ghost'"
+                  >
+                    {{ entry.hasPassword ? 'Password' : 'No pw' }}
+                  </span>
+                  <span class="text-xs text-base-content/50">
+                    {{ entry.authFactorCount ?? 0 }} factor{{ (entry.authFactorCount ?? 0) === 1 ? '' : 's' }}
+                  </span>
+                </div>
               </td>
               <td>
                 <div class="flex items-center gap-1.5">
@@ -121,6 +150,11 @@
                 </div>
               </td>
               <td>
+                <span class="text-sm text-base-content/60">
+                  {{ entry.activeDeviceCount ?? '—' }}
+                </span>
+              </td>
+              <td>
                 <div v-if="entry.status" class="flex items-center gap-1.5">
                   <span
                     class="inline-block w-2 h-2 rounded-full"
@@ -128,6 +162,12 @@
                   />
                   <span class="text-xs text-base-content/60">
                     {{ entry.status.label }}
+                  </span>
+                  <span
+                    v-if="entry.activeActivityCount"
+                    class="text-[10px] text-base-content/35"
+                  >
+                    · {{ entry.activeActivityCount }} live
                   </span>
                 </div>
                 <span v-else class="text-xs text-base-content/30">—</span>

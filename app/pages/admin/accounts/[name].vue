@@ -303,6 +303,63 @@
             </p>
           </AdminCard>
 
+          <!-- Magic Spells -->
+          <AdminCard title="Magic Spells">
+            <template #actions>
+              <button class="btn btn-ghost btn-xs" @click="loadSpells">
+                <IconRefreshCw class="w-3.5 h-3.5" /> Refresh
+              </button>
+              <button class="btn btn-ghost btn-xs" @click="spellCreateOpen = true">
+                <IconPlus class="w-3.5 h-3.5" /> Create
+              </button>
+            </template>
+            <div v-if="spellsLoading" class="flex justify-center py-4">
+              <span class="loading loading-spinner loading-sm" />
+            </div>
+            <div v-else-if="spells.length" class="space-y-2">
+              <div
+                v-for="spell in spells"
+                :key="spell.id"
+                class="p-3 rounded-lg bg-base-200/50 space-y-2"
+              >
+                <div class="flex items-center gap-2 flex-wrap">
+                  <IconSparkles class="w-4 h-4 text-base-content/40 shrink-0" />
+                  <span class="text-sm font-medium flex-1">{{ spellTypeLabel(spell.type) }}</span>
+                  <span class="text-xs px-2 py-0.5 rounded-full bg-base-300/60 text-base-content/50">
+                    type {{ spell.type }}
+                  </span>
+                </div>
+                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-base-content/40 pl-6">
+                  <span v-if="spell.createdAt">Created {{ formatDateTime(spell.createdAt) }}</span>
+                  <span v-if="spell.expiresAt">Expires {{ formatDateTime(spell.expiresAt) }}</span>
+                  <span v-else>No expiry</span>
+                  <span v-if="spell.affectedAt">Affected {{ formatDateTime(spell.affectedAt) }}</span>
+                  <span class="font-mono">{{ spell.id.slice(0, 8) }}…</span>
+                </div>
+                <pre
+                  v-if="spell.meta && Object.keys(spell.meta).length"
+                  class="text-[10px] font-mono bg-base-100/60 rounded-lg p-2 overflow-x-auto max-h-20 ml-6"
+                >{{ JSON.stringify(spell.meta, null, 2) }}</pre>
+                <div class="flex items-center gap-1 pl-6">
+                  <button
+                    v-if="spell.type !== 1"
+                    class="btn btn-ghost btn-xs"
+                    @click="doResendSpell(spell.id)"
+                  >
+                    Resend Email
+                  </button>
+                  <button class="btn btn-ghost btn-xs text-error" @click="doDeleteSpell(spell.id)">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p v-else class="text-sm text-base-content/40">No outstanding magic spells</p>
+            <p class="text-[10px] text-base-content/30 mt-2">
+              Spell secrets are never returned by the API. Resend clears the delivery throttle.
+            </p>
+          </AdminCard>
+
           <!-- Auth Factors -->
           <AdminCard title="Authentication Factors">
             <template #actions>
@@ -484,11 +541,16 @@
               >
                 <div class="flex items-center gap-2">
                   <IconMonitor class="w-4 h-4 text-base-content/40" />
-                  <span class="text-sm font-medium flex-1 truncate">{{ device.label || 'Unnamed Device' }}</span>
+                  <span class="text-sm font-medium flex-1 truncate">
+                    {{ device.label || device.deviceLabel || device.deviceName || 'Unnamed Device' }}
+                  </span>
+                  <span v-if="device.platform" class="badge badge-ghost badge-xs">{{ device.platform }}</span>
                   <span v-if="device.lastActiveAt" class="text-xs text-base-content/40">{{ formatTimeAgo(device.lastActiveAt) }}</span>
                 </div>
                 <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-base-content/40 pl-6">
-                  <span class="font-mono truncate">{{ device.clientId?.slice(0, 16) || device.id.slice(0, 16) }}…</span>
+                  <span class="font-mono truncate" :title="deviceRouteId(device)">
+                    {{ deviceRouteId(device).slice(0, 20) }}{{ deviceRouteId(device).length > 20 ? '…' : '' }}
+                  </span>
                   <span v-if="device.createdAt">Created {{ formatDateTime(device.createdAt) }}</span>
                   <span v-if="device.lastActiveAt">Last active {{ formatDateTime(device.lastActiveAt) }}</span>
                   <span v-if="device.deletedAt" class="text-error">Deleted {{ formatDateTime(device.deletedAt) }}</span>
@@ -652,8 +714,20 @@
 
           <AdminCard title="Quick Actions" compact>
             <div class="space-y-2">
+              <button
+                class="btn btn-success btn-sm w-full justify-start"
+                :disabled="isActivating"
+                @click="handleActivate"
+              >
+                <span v-if="isActivating" class="loading loading-spinner loading-xs" />
+                <IconBadgeCheck v-else class="w-4 h-4" />
+                {{ detail.account.activatedAt ? 'Re-activate / Restore Defaults' : 'Activate Account' }}
+              </button>
               <button class="btn btn-outline btn-sm w-full justify-start" @click="handleRevokeSessions">
                 <IconLogOut class="w-4 h-4" /> Revoke All Sessions
+              </button>
+              <button class="btn btn-outline btn-sm w-full justify-start" @click="handleInvalidateCredits">
+                <IconRefreshCw class="w-4 h-4" /> Invalidate Social Credits Cache
               </button>
               <button class="btn btn-warning btn-sm w-full justify-start" @click="suspendOpen = true">
                 <IconShieldAlert class="w-4 h-4" /> Suspend Account
@@ -814,6 +888,66 @@
         </form>
       </AdminDrawer>
 
+      <!-- Magic Spell Create Drawer -->
+      <AdminDrawer :open="spellCreateOpen" title="Create Magic Spell" @update:open="spellCreateOpen = $event">
+        <form class="space-y-3" @submit.prevent="doCreateSpell">
+          <div>
+            <label class="text-xs text-base-content/50">Type</label>
+            <select v-model.number="spellCreateForm.type" class="select select-sm w-full bg-base-200/60 border-0 rounded-xl">
+              <option :value="0">Account Activation</option>
+              <option :value="2">Account Removal</option>
+              <option :value="3">Password Reset</option>
+              <option :value="4">Contact Verification</option>
+            </select>
+          </div>
+          <div v-if="spellCreateForm.type === 4" class="space-y-2">
+            <div>
+              <label class="text-xs text-base-content/50">Contact ID</label>
+              <input
+                v-model="spellContactId"
+                type="text"
+                class="input input-sm w-full bg-base-200/60 border-0 rounded-xl font-mono"
+                list="spell-contact-options"
+                placeholder="Contact GUID"
+              />
+              <datalist id="spell-contact-options">
+                <option v-for="c in contacts" :key="c.id" :value="c.id">
+                  {{ contactTypeLabel(c.type) }}: {{ c.content }}
+                </option>
+              </datalist>
+            </div>
+            <div>
+              <label class="text-xs text-base-content/50">Contact Method</label>
+              <input
+                v-model="spellContactMethod"
+                type="text"
+                class="input input-sm w-full bg-base-200/60 border-0 rounded-xl"
+                placeholder="email / phone"
+              />
+            </div>
+          </div>
+          <div>
+            <label class="text-xs text-base-content/50">Expires At</label>
+            <input v-model="spellCreateForm.expiresAt" type="datetime-local" class="input input-sm w-full bg-base-200/60 border-0 rounded-xl" />
+          </div>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input v-model="spellCreateForm.preventRepeat" type="checkbox" class="checkbox checkbox-xs" />
+            <span class="text-xs">Prevent repeat (one outstanding per type)</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input v-model="spellCreateForm.sendEmail" type="checkbox" class="checkbox checkbox-xs" />
+            <span class="text-xs">Send email immediately</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input v-model="spellCreateForm.bypassVerify" type="checkbox" class="checkbox checkbox-xs" />
+            <span class="text-xs">Bypass email verification requirement</span>
+          </label>
+          <button class="btn btn-sm btn-primary w-full" :disabled="spellLoading">
+            {{ spellLoading ? 'Creating...' : 'Create Spell' }}
+          </button>
+        </form>
+      </AdminDrawer>
+
       <!-- Board Payload Drawer -->
       <AdminDrawer :open="boardPayloadOpen" title="Push Board Payload" @update:open="boardPayloadOpen = $event">
         <form class="space-y-3" @submit.prevent="doPushBoardPayload">
@@ -887,10 +1021,13 @@ import {
   IconX,
   IconLink,
   IconLayoutGrid,
+  IconSparkles,
 } from '#components'
 import { getFileUrl } from '~/utils/files'
 import {
   revokeAccountSessions,
+  activateAdminAccount,
+  invalidateSocialCredits,
   suspendAccount,
   deleteAdminAccount,
   deletePunishment,
@@ -926,9 +1063,22 @@ import {
   fetchAdminAccountBoard,
   pushBoardItemPayload,
   deleteBoardItem,
+  fetchAccountSpells,
+  createAccountSpell,
+  resendAccountSpell,
+  deleteAccountSpell,
 } from '~/utils/admin'
-import type { AdminAuthFactor, AdminBoardItem, AdminDevice, AdminPublicConnection, AdminSession, SnContact } from '~/types/admin'
-import type { PunishmentType } from '~/types/admin'
+import type {
+  AdminAuthFactor,
+  AdminBoardItem,
+  AdminDevice,
+  AdminMagicSpell,
+  AdminPublicConnection,
+  AdminSession,
+  MagicSpellType,
+  SnContact,
+  PunishmentType,
+} from '~/types/admin'
 import type { SnAccountBadge } from '~/types/auth'
 
 definePageMeta({ middleware: 'auth' })
@@ -1170,6 +1320,80 @@ async function doRevokeBadge(badgeId: string) {
   try { await revokeBadge(identifier.value, badgeId); await loadBadges() } catch { }
 }
 
+// Magic Spells
+const spells = ref<AdminMagicSpell[]>([])
+const spellsLoading = ref(false)
+const spellCreateOpen = ref(false)
+const spellLoading = ref(false)
+const spellCreateForm = ref({
+  type: 0 as MagicSpellType | number,
+  expiresAt: '',
+  preventRepeat: true,
+  sendEmail: true,
+  bypassVerify: true,
+})
+const spellContactId = ref('')
+const spellContactMethod = ref('email')
+
+async function loadSpells() {
+  spellsLoading.value = true
+  try {
+    spells.value = await fetchAccountSpells(identifier.value)
+  } catch {
+    spells.value = []
+  } finally {
+    spellsLoading.value = false
+  }
+}
+
+async function doCreateSpell() {
+  spellLoading.value = true
+  try {
+    const meta: Record<string, unknown> = {}
+    if (spellCreateForm.value.type === 4) {
+      if (spellContactId.value) meta.contact_id = spellContactId.value
+      if (spellContactMethod.value) meta.contact_method = spellContactMethod.value
+    }
+    await createAccountSpell(identifier.value, {
+      type: spellCreateForm.value.type,
+      preventRepeat: spellCreateForm.value.preventRepeat,
+      sendEmail: spellCreateForm.value.sendEmail,
+      bypassVerify: spellCreateForm.value.bypassVerify,
+      expiresAt: spellCreateForm.value.expiresAt
+        ? new Date(spellCreateForm.value.expiresAt).toISOString()
+        : undefined,
+      meta: Object.keys(meta).length ? meta : undefined,
+    })
+    spellCreateOpen.value = false
+    spellContactId.value = ''
+    await loadSpells()
+    useNuxtApp().$toast.success('Magic spell created')
+  } catch {
+    useNuxtApp().$toast.error('Failed to create magic spell')
+  } finally {
+    spellLoading.value = false
+  }
+}
+
+async function doResendSpell(spellId: string) {
+  try {
+    await resendAccountSpell(identifier.value, spellId, { bypassVerify: true })
+    useNuxtApp().$toast.success('Spell email resent')
+  } catch {
+    useNuxtApp().$toast.error('Failed to resend spell email')
+  }
+}
+
+async function doDeleteSpell(spellId: string) {
+  if (!confirm('Cancel this magic spell? This cannot be undone.')) return
+  try {
+    await deleteAccountSpell(identifier.value, spellId)
+    await loadSpells()
+  } catch {
+    useNuxtApp().$toast.error('Failed to cancel spell')
+  }
+}
+
 // Devices
 const devices = ref<AdminDevice[]>([])
 const devicesLoading = ref(false)
@@ -1177,6 +1401,11 @@ const deviceLabelOpen = ref(false)
 const deviceLabelLoading = ref(false)
 const deviceLabelEdit = ref<AdminDevice | null>(null)
 const deviceLabelForm = ref({ label: '' })
+
+/** Admin device routes use the stable device_id string, not the auth client GUID. */
+function deviceRouteId(device: AdminDevice): string {
+  return device.deviceId || device.id
+}
 
 async function loadDevices() {
   devicesLoading.value = true
@@ -1188,7 +1417,7 @@ async function loadDevices() {
 
 function editDeviceLabel(device: AdminDevice) {
   deviceLabelEdit.value = device
-  deviceLabelForm.value = { label: device.label || '' }
+  deviceLabelForm.value = { label: device.label || device.deviceLabel || '' }
   deviceLabelOpen.value = true
 }
 
@@ -1196,18 +1425,18 @@ async function doUpdateDeviceLabel() {
   if (!deviceLabelEdit.value) return
   deviceLabelLoading.value = true
   try {
-    await adminUpdateDeviceLabel(identifier.value, deviceLabelEdit.value.id, deviceLabelForm.value)
+    await adminUpdateDeviceLabel(identifier.value, deviceRouteId(deviceLabelEdit.value), deviceLabelForm.value)
     deviceLabelOpen.value = false
     await loadDevices()
   } catch { } finally { deviceLabelLoading.value = false }
 }
 
 async function revokeDevice(device: AdminDevice) {
-  try { await revokeDeviceSessions(identifier.value, device.id); await loadDevices() } catch { }
+  try { await revokeDeviceSessions(identifier.value, deviceRouteId(device)); await loadDevices() } catch { }
 }
 
 async function deleteDevice(device: AdminDevice) {
-  try { await deleteAccountDevice(identifier.value, device.id); await loadDevices() } catch { }
+  try { await deleteAccountDevice(identifier.value, deviceRouteId(device)); await loadDevices() } catch { }
 }
 
 // Sessions
@@ -1259,6 +1488,9 @@ const suspendForm = ref({ type: 'block_login' as PunishmentType, reason: '', exp
 const deleteOpen = ref(false)
 const isDeleting = ref(false)
 
+// Activate
+const isActivating = ref(false)
+
 function contactTypeLabel(type: number): string {
   const labels: Record<number, string> = { 0: 'Email', 1: 'Phone', 2: 'Address' }
   return labels[type] || 'Unknown'
@@ -1267,6 +1499,17 @@ function contactTypeLabel(type: number): string {
 function factorTypeLabel(type: number): string {
   const labels: Record<number, string> = { 0: 'Password', 1: 'Email', 2: 'In-App', 3: 'TOTP', 4: 'PIN', 5: 'Recovery Code', 6: 'Physical Passport', 7: 'Passkey' }
   return labels[type] || 'Unknown'
+}
+
+function spellTypeLabel(type: number): string {
+  const labels: Record<number, string> = {
+    0: 'Account Activation',
+    1: 'Account Deactivation',
+    2: 'Account Removal',
+    3: 'Password Reset',
+    4: 'Contact Verification',
+  }
+  return labels[type] || `Unknown (${type})`
 }
 
 function punishmentTypeLabel(type: number): string {
@@ -1293,14 +1536,50 @@ function formatDateTime(dateStr: string): string {
 }
 
 async function handleRevokeSessions() {
-  try { await revokeAccountSessions(identifier.value); await loadAccountDetail(identifier.value) } catch { }
+  try {
+    await revokeAccountSessions(identifier.value)
+    await Promise.all([loadAccountDetail(identifier.value), loadSessions(), loadDevices()])
+    useNuxtApp().$toast.success('All sessions revoked')
+  } catch {
+    useNuxtApp().$toast.error('Failed to revoke sessions')
+  }
+}
+
+async function handleActivate() {
+  isActivating.value = true
+  try {
+    await activateAdminAccount(identifier.value)
+    await loadAccountDetail(identifier.value)
+    useNuxtApp().$toast.success('Account activated and default permissions restored')
+  } catch {
+    useNuxtApp().$toast.error('Failed to activate account')
+  } finally {
+    isActivating.value = false
+  }
+}
+
+async function handleInvalidateCredits() {
+  try {
+    await invalidateSocialCredits(identifier.value)
+    useNuxtApp().$toast.success('Social credits cache invalidated')
+  } catch {
+    useNuxtApp().$toast.error('Failed to invalidate social credits cache')
+  }
 }
 
 async function handleSuspend() {
   isSuspending.value = true
   try {
-    await suspendAccount(identifier.value, { reason: suspendForm.value.reason, type: suspendForm.value.type, expiredAt: suspendForm.value.expiredAt || undefined, revokeSessions: suspendForm.value.revokeSessions })
-    suspendOpen.value = false; await loadAccountDetail(identifier.value)
+    await suspendAccount(identifier.value, {
+      reason: suspendForm.value.reason,
+      type: suspendForm.value.type,
+      expiredAt: suspendForm.value.expiredAt
+        ? new Date(suspendForm.value.expiredAt).toISOString()
+        : undefined,
+      revokeSessions: suspendForm.value.revokeSessions,
+    })
+    suspendOpen.value = false
+    await loadAccountDetail(identifier.value)
   } catch { } finally { isSuspending.value = false }
 }
 
@@ -1319,6 +1598,7 @@ onMounted(() => {
   loadConnections()
   loadFactors()
   loadBadges()
+  loadSpells()
   loadBoard()
   loadDevices()
   loadSessions()
