@@ -77,6 +77,9 @@
       </div>
     </AdminCard>
 
+    <!-- Geography overview (Padlock GeoIP aggregates) -->
+    <AdminGeographyMap class="mb-6" />
+
     <!-- Service breakdowns -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <AdminCard v-for="panel in servicePanels" :key="panel.title" no-padding>

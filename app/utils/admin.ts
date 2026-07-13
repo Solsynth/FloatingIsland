@@ -58,6 +58,8 @@ import type {
   WalletAdminStats,
   RingAdminStats,
   AccountActivityMetrics,
+  AccountGeographyStats,
+  AccountGeographyQuery,
   PermissionGroupSummary,
   PermissionGroupDetail,
   PermissionNode,
@@ -94,6 +96,7 @@ const PASSPORT_STATS = '/passport/admin/stats'
 const SPHERE_STATS = '/sphere/admin/stats'
 const WALLET_STATS = '/wallet/admin/stats'
 const RING_STATS = '/ring/admin/stats'
+const PADLOCK_GEOGRAPHY = '/padlock/admin/stats/users/geography'
 
 async function fetchPaginated<T>(
   endpoint: string,
@@ -845,6 +848,19 @@ export async function fetchRingAdminStats(): Promise<RingAdminStats> {
 
 export async function fetchAccountActivityMetrics(): Promise<AccountActivityMetrics> {
   return fetchJson<AccountActivityMetrics>(`${PASSPORT_BASE}/metrics/activity`)
+}
+
+/** Aggregate GeoIP map buckets from latest auth sessions (Padlock). Privacy-safe; min bucket size 10. */
+export async function fetchAccountGeographyStats(
+  params: AccountGeographyQuery = {},
+): Promise<AccountGeographyStats> {
+  const qs = buildQuery({
+    since: params.since,
+    precision: params.precision,
+  })
+  return fetchJson<AccountGeographyStats>(
+    `${PADLOCK_GEOGRAPHY}${qs ? `?${qs}` : ''}`,
+  )
 }
 
 // ============ Permission Groups (Padlock) ============

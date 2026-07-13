@@ -344,6 +344,37 @@ export interface AccountActivityMetrics {
   totalProfiledAccounts: number
 }
 
+// ============ Account Geography Stats (Padlock) ============
+
+export type GeographyPrecision = 'country' | 'city'
+
+export interface AccountGeographyBucket {
+  countryCode: string
+  country?: string | null
+  city?: string | null
+  latitude: number
+  longitude: number
+  userCount: number
+}
+
+export interface AccountGeographyStats {
+  calculatedAt: string
+  since: string
+  precision: GeographyPrecision | string
+  accountsWithLocation: number
+  /** @deprecated removed server-side; kept optional for older responses */
+  minimumBucketSize?: number
+  visibleAccountCount?: number
+  suppressedAccountCount?: number
+  buckets: AccountGeographyBucket[]
+}
+
+export interface AccountGeographyQuery {
+  /** ISO-8601 UTC; defaults to 30 days ago on the server */
+  since?: string
+  precision?: GeographyPrecision
+}
+
 // ============ Permission Groups (Padlock) ============
 
 export interface PermissionGroupSummary {
