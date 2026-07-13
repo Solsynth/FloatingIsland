@@ -276,6 +276,291 @@ export interface AdminPostQuery {
   take?: number
 }
 
+// ============ Tag / Category / Collection / Publisher Admin (Sphere) ============
+
+export type PublisherType = 'individual' | 'organizational' | 0 | 1
+
+export type PublisherShadowbanReason =
+  | 'none'
+  | 'spam'
+  | 'advertising'
+  | 'harassment'
+  | 'hate_speech'
+  | 'misinformation'
+  | 'illegal'
+  | 'other'
+
+export type VerificationMarkType =
+  | 'official'
+  | 'individual'
+  | 'organization'
+  | 'government'
+  | 'creator'
+  | 'developer'
+  | 'parody'
+  | 0
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+
+export interface AdminTag {
+  id: string
+  slug: string
+  name?: string | null
+  description?: string | null
+  ownerPublisherId?: string | null
+  ownerPublisher?: AdminPublisherSummary | null
+  isProtected?: boolean
+  isEvent?: boolean
+  eventEndsAt?: string | null
+  usage?: number | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface AdminTagQuery {
+  query?: string
+  ownerPublisherId?: string
+  unowned?: boolean
+  isProtected?: boolean
+  isEvent?: boolean
+  order?: 'usage' | 'name' | 'created' | string
+  offset?: number
+  take?: number
+}
+
+export interface AdminTagCreatePayload {
+  slug: string
+  name?: string
+  description?: string
+  ownerPublisherId?: string | null
+}
+
+export interface AdminTagUpdatePayload {
+  name?: string
+  description?: string
+}
+
+export interface AdminTagAssignPayload {
+  publisherId: string
+}
+
+export interface AdminTagProtectPayload {
+  isProtected: boolean
+}
+
+export interface AdminTagEventPayload {
+  isEvent: boolean
+  endsAt?: string | null
+}
+
+export interface AdminCategory {
+  id: string
+  slug: string
+  name?: string | null
+  usage?: number | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface AdminCategoryQuery {
+  query?: string
+  order?: 'usage' | 'name' | 'created' | string
+  offset?: number
+  take?: number
+}
+
+export interface AdminCategoryCreatePayload {
+  slug: string
+  name?: string
+}
+
+export interface AdminCategoryUpdatePayload {
+  slug?: string
+  name?: string
+}
+
+export interface AdminCollection {
+  id: string
+  slug: string
+  name?: string | null
+  description?: string | null
+  publisherId: string
+  publisher?: AdminPublisherSummary | null
+  itemCount?: number | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface AdminCollectionQuery {
+  query?: string
+  publisherId?: string
+  offset?: number
+  take?: number
+}
+
+export interface AdminCollectionUpdatePayload {
+  name?: string
+  description?: string
+}
+
+export interface AdminPublisherSummary {
+  id: string
+  name: string
+  nick?: string | null
+  bio?: string | null
+  type?: PublisherType
+  picture?: { id?: string } | null
+  accountId?: string | null
+  realmId?: string | null
+  rating?: number
+  shadowbanReason?: PublisherShadowbanReason | number | string | null
+  shadowbannedAt?: string | null
+  gatekeptFollows?: boolean | null
+  moderateSubscription?: boolean | null
+  verification?: {
+    type?: VerificationMarkType
+    title?: string | null
+    description?: string | null
+    verifiedBy?: string | null
+  } | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface AdminPublisherDetail {
+  publisher: AdminPublisherSummary
+  memberCount: number
+  postCount: number
+  collectionCount: number
+  subscriberCount: number
+}
+
+export interface AdminPublisherQuery {
+  query?: string
+  type?: PublisherType | string
+  shadowbanReason?: PublisherShadowbanReason
+  shadowbanned?: boolean
+  gatekept?: boolean
+  accountId?: string
+  offset?: number
+  take?: number
+}
+
+export interface AdminPublisherUpdatePayload {
+  name?: string
+  nick?: string
+  bio?: string
+  gatekeptFollows?: boolean
+  moderateSubscription?: boolean
+}
+
+export interface AdminPublisherShadowbanPayload {
+  reason: PublisherShadowbanReason
+}
+
+export interface AdminPublisherVerificationPayload {
+  type: VerificationMarkType | string
+  title?: string
+  description?: string
+  verifiedBy?: string
+}
+
+// ============ Realm Admin (Passport) ============
+
+export interface AdminRealm {
+  id: string
+  slug: string
+  name: string
+  description?: string | null
+  isCommunity?: boolean
+  isPublic?: boolean
+  accountId?: string
+  boostPoints?: number
+  boostLevel?: number
+  picture?: { id?: string } | null
+  background?: { id?: string } | null
+  verification?: {
+    type?: VerificationMarkType
+    title?: string | null
+    description?: string | null
+    verifiedBy?: string | null
+  } | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface AdminRealmDetail {
+  realm: AdminRealm
+  memberCount: number
+  pendingInviteCount: number
+  labelCount: number
+  activeBoostContributionCount: number
+}
+
+export interface AdminRealmQuery {
+  query?: string
+  isPublic?: boolean
+  isCommunity?: boolean
+  verified?: boolean
+  accountId?: string
+  offset?: number
+  take?: number
+}
+
+export interface AdminRealmUpdatePayload {
+  slug?: string
+  name?: string
+  description?: string
+  isCommunity?: boolean
+  isPublic?: boolean
+  accountId?: string
+}
+
+export interface AdminRealmVerificationPayload {
+  type: VerificationMarkType | string
+  title?: string
+  description?: string
+  verifiedBy?: string
+}
+
+export interface AdminRealmMember {
+  accountId: string
+  realmId: string
+  role: number
+  nick?: string | null
+  bio?: string | null
+  experience?: number
+  level?: number
+  joinedAt?: string | null
+  leaveAt?: string | null
+  account?: {
+    id?: string
+    name?: string
+    nick?: string | null
+    profile?: { picture?: { id?: string } | null } | null
+  } | null
+  label?: {
+    id?: string
+    name?: string
+    color?: string | null
+  } | null
+}
+
+export interface AdminRealmMemberQuery {
+  role?: number
+  pendingOnly?: boolean
+  offset?: number
+  take?: number
+}
+
+export interface AdminRealmMemberRolePayload {
+  role: number
+}
+
 // ============ Admin Stats (per-service GET /admin/stats) ============
 
 export interface PassportAdminStats {

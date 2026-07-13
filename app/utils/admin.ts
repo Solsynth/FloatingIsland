@@ -72,6 +72,34 @@ import type {
   AdminMagicSpell,
   CreateAdminMagicSpellPayload,
   ResendAdminMagicSpellPayload,
+  AdminTag,
+  AdminTagQuery,
+  AdminTagCreatePayload,
+  AdminTagUpdatePayload,
+  AdminTagAssignPayload,
+  AdminTagProtectPayload,
+  AdminTagEventPayload,
+  AdminCategory,
+  AdminCategoryQuery,
+  AdminCategoryCreatePayload,
+  AdminCategoryUpdatePayload,
+  AdminCollection,
+  AdminCollectionQuery,
+  AdminCollectionUpdatePayload,
+  AdminPublisherSummary,
+  AdminPublisherDetail,
+  AdminPublisherQuery,
+  AdminPublisherUpdatePayload,
+  AdminPublisherShadowbanPayload,
+  AdminPublisherVerificationPayload,
+  AdminRealm,
+  AdminRealmDetail,
+  AdminRealmQuery,
+  AdminRealmUpdatePayload,
+  AdminRealmVerificationPayload,
+  AdminRealmMember,
+  AdminRealmMemberQuery,
+  AdminRealmMemberRolePayload,
 } from '~/types/admin'
 
 // Padlock service: auth, sessions, punishments, suspend, delete, notifications, emails
@@ -80,8 +108,14 @@ const PADLOCK_BASE = '/padlock/admin/accounts'
 const PADLOCK_PERMISSIONS = '/padlock/admin/permissions'
 // Passport service: profile-hydrated accounts, activities, status, badges
 const PASSPORT_BASE = '/passport/admin/accounts'
-// Sphere service: post moderation
+// Passport service: realm moderation
+const PASSPORT_REALMS = '/passport/admin/realms'
+// Sphere service: content moderation
 const SPHERE_POSTS = '/sphere/admin/posts'
+const SPHERE_TAGS = '/sphere/admin/tags'
+const SPHERE_CATEGORIES = '/sphere/admin/categories'
+const SPHERE_COLLECTIONS = '/sphere/admin/collections'
+const SPHERE_PUBLISHERS = '/sphere/admin/publishers'
 // Wallet service: payments, subscriptions, products
 const WALLET_PAYMENTS = '/wallet/admin/payments'
 const WALLET_SUBSCRIPTIONS = '/wallet/admin/subscriptions'
@@ -492,6 +526,274 @@ export async function removePostFromRealm(
 
 export async function deleteAdminPost(id: string): Promise<void> {
   await fetchJson(`${SPHERE_POSTS}/${id}`, { method: 'DELETE' })
+}
+
+// ============ Tag Admin (Sphere) ============
+
+export async function fetchAdminTags(
+  params: AdminTagQuery = {},
+): Promise<{ items: AdminTag[]; total: number }> {
+  const qs = buildQuery(params as unknown as Record<string, unknown>)
+  return fetchPaginated<AdminTag>(`${SPHERE_TAGS}${qs ? `?${qs}` : ''}`)
+}
+
+export async function fetchAdminTag(slug: string): Promise<AdminTag> {
+  return fetchJson<AdminTag>(`${SPHERE_TAGS}/${encodeURIComponent(slug)}`)
+}
+
+export async function createAdminTag(payload: AdminTagCreatePayload): Promise<AdminTag> {
+  return fetchJson<AdminTag>(SPHERE_TAGS, {
+    method: 'POST',
+    body: JSON.stringify(camelToSnake(payload)),
+  })
+}
+
+export async function updateAdminTag(slug: string, payload: AdminTagUpdatePayload): Promise<AdminTag> {
+  return fetchJson<AdminTag>(`${SPHERE_TAGS}/${encodeURIComponent(slug)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(camelToSnake(payload)),
+  })
+}
+
+export async function assignAdminTag(slug: string, payload: AdminTagAssignPayload): Promise<AdminTag> {
+  return fetchJson<AdminTag>(`${SPHERE_TAGS}/${encodeURIComponent(slug)}/assign`, {
+    method: 'POST',
+    body: JSON.stringify(camelToSnake(payload)),
+  })
+}
+
+export async function unassignAdminTag(slug: string): Promise<AdminTag> {
+  return fetchJson<AdminTag>(`${SPHERE_TAGS}/${encodeURIComponent(slug)}/assign`, {
+    method: 'DELETE',
+  })
+}
+
+export async function setAdminTagProtected(
+  slug: string,
+  payload: AdminTagProtectPayload,
+): Promise<AdminTag> {
+  return fetchJson<AdminTag>(`${SPHERE_TAGS}/${encodeURIComponent(slug)}/protect`, {
+    method: 'PATCH',
+    body: JSON.stringify(camelToSnake(payload)),
+  })
+}
+
+export async function setAdminTagEvent(
+  slug: string,
+  payload: AdminTagEventPayload,
+): Promise<AdminTag> {
+  return fetchJson<AdminTag>(`${SPHERE_TAGS}/${encodeURIComponent(slug)}/event`, {
+    method: 'PATCH',
+    body: JSON.stringify(camelToSnake(payload)),
+  })
+}
+
+export async function deleteAdminTag(slug: string): Promise<void> {
+  await fetchJson(`${SPHERE_TAGS}/${encodeURIComponent(slug)}`, { method: 'DELETE' })
+}
+
+// ============ Category Admin (Sphere) ============
+
+export async function fetchAdminCategories(
+  params: AdminCategoryQuery = {},
+): Promise<{ items: AdminCategory[]; total: number }> {
+  const qs = buildQuery(params as unknown as Record<string, unknown>)
+  return fetchPaginated<AdminCategory>(`${SPHERE_CATEGORIES}${qs ? `?${qs}` : ''}`)
+}
+
+export async function fetchAdminCategory(slug: string): Promise<AdminCategory> {
+  return fetchJson<AdminCategory>(`${SPHERE_CATEGORIES}/${encodeURIComponent(slug)}`)
+}
+
+export async function createAdminCategory(
+  payload: AdminCategoryCreatePayload,
+): Promise<AdminCategory> {
+  return fetchJson<AdminCategory>(SPHERE_CATEGORIES, {
+    method: 'POST',
+    body: JSON.stringify(camelToSnake(payload)),
+  })
+}
+
+export async function updateAdminCategory(
+  slug: string,
+  payload: AdminCategoryUpdatePayload,
+): Promise<AdminCategory> {
+  return fetchJson<AdminCategory>(`${SPHERE_CATEGORIES}/${encodeURIComponent(slug)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(camelToSnake(payload)),
+  })
+}
+
+export async function deleteAdminCategory(slug: string): Promise<void> {
+  await fetchJson(`${SPHERE_CATEGORIES}/${encodeURIComponent(slug)}`, { method: 'DELETE' })
+}
+
+// ============ Collection Admin (Sphere) ============
+
+export async function fetchAdminCollections(
+  params: AdminCollectionQuery = {},
+): Promise<{ items: AdminCollection[]; total: number }> {
+  const qs = buildQuery(params as unknown as Record<string, unknown>)
+  return fetchPaginated<AdminCollection>(`${SPHERE_COLLECTIONS}${qs ? `?${qs}` : ''}`)
+}
+
+export async function fetchAdminCollection(id: string): Promise<AdminCollection> {
+  return fetchJson<AdminCollection>(`${SPHERE_COLLECTIONS}/${id}`)
+}
+
+export async function updateAdminCollection(
+  id: string,
+  payload: AdminCollectionUpdatePayload,
+): Promise<AdminCollection> {
+  return fetchJson<AdminCollection>(`${SPHERE_COLLECTIONS}/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(camelToSnake(payload)),
+  })
+}
+
+export async function deleteAdminCollection(id: string): Promise<void> {
+  await fetchJson(`${SPHERE_COLLECTIONS}/${id}`, { method: 'DELETE' })
+}
+
+// ============ Publisher Admin (Sphere) ============
+
+export async function fetchAdminPublishers(
+  params: AdminPublisherQuery = {},
+): Promise<{ items: AdminPublisherSummary[]; total: number }> {
+  const qs = buildQuery(params as unknown as Record<string, unknown>)
+  return fetchPaginated<AdminPublisherSummary>(`${SPHERE_PUBLISHERS}${qs ? `?${qs}` : ''}`)
+}
+
+export async function fetchAdminPublisher(name: string): Promise<AdminPublisherDetail> {
+  return fetchJson<AdminPublisherDetail>(`${SPHERE_PUBLISHERS}/${encodeURIComponent(name)}`)
+}
+
+export async function updateAdminPublisher(
+  name: string,
+  payload: AdminPublisherUpdatePayload,
+): Promise<AdminPublisherSummary> {
+  return fetchJson<AdminPublisherSummary>(`${SPHERE_PUBLISHERS}/${encodeURIComponent(name)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(camelToSnake(payload)),
+  })
+}
+
+export async function shadowbanAdminPublisher(
+  name: string,
+  payload: AdminPublisherShadowbanPayload,
+): Promise<AdminPublisherSummary> {
+  return fetchJson<AdminPublisherSummary>(
+    `${SPHERE_PUBLISHERS}/${encodeURIComponent(name)}/shadowban`,
+    {
+      method: 'POST',
+      body: JSON.stringify(camelToSnake(payload)),
+    },
+  )
+}
+
+export async function unshadowbanAdminPublisher(name: string): Promise<AdminPublisherSummary> {
+  return fetchJson<AdminPublisherSummary>(
+    `${SPHERE_PUBLISHERS}/${encodeURIComponent(name)}/shadowban`,
+    { method: 'DELETE' },
+  )
+}
+
+export async function setAdminPublisherVerification(
+  name: string,
+  payload: AdminPublisherVerificationPayload,
+): Promise<AdminPublisherSummary> {
+  return fetchJson<AdminPublisherSummary>(
+    `${SPHERE_PUBLISHERS}/${encodeURIComponent(name)}/verification`,
+    {
+      method: 'POST',
+      body: JSON.stringify(camelToSnake(payload)),
+    },
+  )
+}
+
+export async function clearAdminPublisherVerification(name: string): Promise<AdminPublisherSummary> {
+  return fetchJson<AdminPublisherSummary>(
+    `${SPHERE_PUBLISHERS}/${encodeURIComponent(name)}/verification`,
+    { method: 'DELETE' },
+  )
+}
+
+export async function deleteAdminPublisher(name: string): Promise<void> {
+  await fetchJson(`${SPHERE_PUBLISHERS}/${encodeURIComponent(name)}`, { method: 'DELETE' })
+}
+
+// ============ Realm Admin (Passport) ============
+
+export async function fetchAdminRealms(
+  params: AdminRealmQuery = {},
+): Promise<{ items: AdminRealm[]; total: number }> {
+  const qs = buildQuery(params as unknown as Record<string, unknown>)
+  return fetchPaginated<AdminRealm>(`${PASSPORT_REALMS}${qs ? `?${qs}` : ''}`)
+}
+
+export async function fetchAdminRealm(slug: string): Promise<AdminRealmDetail> {
+  return fetchJson<AdminRealmDetail>(`${PASSPORT_REALMS}/${encodeURIComponent(slug)}`)
+}
+
+export async function updateAdminRealm(
+  slug: string,
+  payload: AdminRealmUpdatePayload,
+): Promise<AdminRealm> {
+  return fetchJson<AdminRealm>(`${PASSPORT_REALMS}/${encodeURIComponent(slug)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(camelToSnake(payload)),
+  })
+}
+
+export async function setAdminRealmVerification(
+  slug: string,
+  payload: AdminRealmVerificationPayload,
+): Promise<AdminRealm> {
+  return fetchJson<AdminRealm>(`${PASSPORT_REALMS}/${encodeURIComponent(slug)}/verification`, {
+    method: 'POST',
+    body: JSON.stringify(camelToSnake(payload)),
+  })
+}
+
+export async function clearAdminRealmVerification(slug: string): Promise<AdminRealm> {
+  return fetchJson<AdminRealm>(`${PASSPORT_REALMS}/${encodeURIComponent(slug)}/verification`, {
+    method: 'DELETE',
+  })
+}
+
+export async function fetchAdminRealmMembers(
+  slug: string,
+  params: AdminRealmMemberQuery = {},
+): Promise<{ items: AdminRealmMember[]; total: number }> {
+  const qs = buildQuery(params as unknown as Record<string, unknown>)
+  return fetchPaginated<AdminRealmMember>(
+    `${PASSPORT_REALMS}/${encodeURIComponent(slug)}/members${qs ? `?${qs}` : ''}`,
+  )
+}
+
+export async function updateAdminRealmMemberRole(
+  slug: string,
+  memberId: string,
+  payload: AdminRealmMemberRolePayload,
+): Promise<AdminRealmMember> {
+  return fetchJson<AdminRealmMember>(
+    `${PASSPORT_REALMS}/${encodeURIComponent(slug)}/members/${memberId}/role`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(camelToSnake(payload)),
+    },
+  )
+}
+
+export async function removeAdminRealmMember(slug: string, memberId: string): Promise<void> {
+  await fetchJson(
+    `${PASSPORT_REALMS}/${encodeURIComponent(slug)}/members/${memberId}`,
+    { method: 'DELETE' },
+  )
+}
+
+export async function deleteAdminRealm(slug: string): Promise<void> {
+  await fetchJson(`${PASSPORT_REALMS}/${encodeURIComponent(slug)}`, { method: 'DELETE' })
 }
 
 // ============ Wallet Admin ============

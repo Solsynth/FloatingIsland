@@ -172,6 +172,11 @@ import {
   IconRefreshCw,
   IconKeyRound,
   IconTicket,
+  IconHash,
+  IconFolder,
+  IconLayers,
+  IconBuilding2,
+  IconGlobe,
 } from '#components'
 import type {
   CacheStats,
@@ -313,6 +318,36 @@ const sections = [
     label: 'Posts',
     href: '/admin/posts',
     description: 'Review and moderate posts across the platform',
+  },
+  {
+    icon: IconBuilding2,
+    label: 'Publishers',
+    href: '/admin/publishers',
+    description: 'Shadowban, verify, and manage publishers',
+  },
+  {
+    icon: IconGlobe,
+    label: 'Realms',
+    href: '/admin/realms',
+    description: 'Moderate realms, members, and verification',
+  },
+  {
+    icon: IconHash,
+    label: 'Tags',
+    href: '/admin/tags',
+    description: 'Ownership, protection, and event tags',
+  },
+  {
+    icon: IconFolder,
+    label: 'Categories',
+    href: '/admin/categories',
+    description: 'Create and maintain global categories',
+  },
+  {
+    icon: IconLayers,
+    label: 'Collections',
+    href: '/admin/collections',
+    description: 'Review publisher collections platform-wide',
   },
   {
     icon: IconWallet,

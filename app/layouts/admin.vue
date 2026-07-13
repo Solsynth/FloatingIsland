@@ -100,6 +100,11 @@ import {
   IconDatabase,
   IconKeyRound,
   IconTicket,
+  IconHash,
+  IconFolder,
+  IconLayers,
+  IconBuilding2,
+  IconGlobe,
 } from '#components'
 
 const route = useRoute()
@@ -143,6 +148,31 @@ const navGroups = [
         icon: IconFileText,
         label: 'Posts',
         href: '/admin/posts',
+      },
+      {
+        icon: IconBuilding2,
+        label: 'Publishers',
+        href: '/admin/publishers',
+      },
+      {
+        icon: IconGlobe,
+        label: 'Realms',
+        href: '/admin/realms',
+      },
+      {
+        icon: IconHash,
+        label: 'Tags',
+        href: '/admin/tags',
+      },
+      {
+        icon: IconFolder,
+        label: 'Categories',
+        href: '/admin/categories',
+      },
+      {
+        icon: IconLayers,
+        label: 'Collections',
+        href: '/admin/collections',
       },
     ],
   },
