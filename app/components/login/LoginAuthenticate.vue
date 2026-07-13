@@ -13,13 +13,17 @@
         <!-- Passkey: show button instead of input -->
         <div v-if="isPasskey" class="space-y-4">
             <button
-                class="btn btn-outline w-full gap-2"
+                class="btn btn-primary w-full gap-2"
                 :disabled="submitting"
                 @click="$emit('passkey')"
             >
                 <IconLoader v-if="submitting" class="w-4 h-4 animate-spin" />
                 <IconFingerprint v-else class="w-4 h-4" />
                 {{ t("login.authenticateWithPasskey") }}
+            </button>
+            <button class="btn btn-ghost w-full" :disabled="submitting" @click="$emit('back')">
+                <IconArrowLeft class="w-4 h-4" />
+                {{ t("auth.back") }}
             </button>
         </div>
 

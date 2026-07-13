@@ -66,9 +66,9 @@ export function useAuth() {
         clearFactor: () => {
             store.selectedFactor = null;
         },
-        // Legacy helpers (primarily for dev mode with bearer tokens)
-        getDeviceId: async () => "",
-        getDeviceInfo: () => ({ device_id: "", device_name: "Web", platform: 1 }),
+        // Device helpers used by login / passkey flows
+        getDeviceId: store.getDeviceId,
+        getDeviceInfo: store.getDeviceInfo,
         getValidAuthToken: async () => store.token?.token || null,
     };
 }

@@ -7,6 +7,15 @@ export interface SnAuthFactor {
   createdResponse?: Record<string, unknown>;
 }
 
+/** Padlock-local passkey credential (not the Passkey auth factor). */
+export interface SnPasskey {
+  id: string;
+  label: string;
+  accountId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface SnAuthChallenge {
   id: string;
   stepRemain?: number;

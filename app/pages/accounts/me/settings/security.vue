@@ -53,6 +53,134 @@
             </div>
         </div>
 
+        <!-- Passkeys -->
+        <div class="card bg-base-100 shadow-sm">
+            <div class="card-body">
+                <div class="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                    <h2 class="card-title text-lg">{{ t('settings.passkeysTitle') }}</h2>
+                    <button
+                        class="btn btn-sm btn-primary"
+                        :disabled="isRegisteringPasskey || !hasRecoveryCode || !passkeySupported"
+                        @click="registerPasskey"
+                    >
+                        <IconLoader v-if="isRegisteringPasskey" class="w-4 h-4 animate-spin" />
+                        <IconFingerprint v-else class="w-4 h-4" />
+                        {{ t('settings.addPasskey') }}
+                    </button>
+                </div>
+                <p class="text-sm text-base-content/70 mb-4">
+                    {{ t('settings.passkeysDescription') }}
+                </p>
+
+                <div v-if="!hasRecoveryCode" class="alert alert-warning mb-4">
+                    <IconAlertTriangle class="w-5 h-5" />
+                    <span>{{ t('settings.recoveryCodeRequired') }}</span>
+                </div>
+
+                <div v-else-if="!passkeySupported" class="alert alert-warning mb-4">
+                    <IconAlertTriangle class="w-5 h-5" />
+                    <span>{{ t('settings.passkeyNotSupported') }}</span>
+                </div>
+
+                <div
+                    v-if="passkeyFactor"
+                    class="flex items-center justify-between p-3 bg-base-200 rounded-xl mb-4"
+                >
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-lg flex items-center justify-center"
+                            :class="passkeyFactor.enabledAt ? 'bg-primary text-primary-content' : 'bg-base-300 text-base-content/50'"
+                        >
+                            <IconFingerprint class="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p class="font-medium">{{ t('settings.passkeyFactor') }}</p>
+                            <p class="text-sm text-base-content/60">
+                                {{ passkeyFactor.enabledAt ? t('settings.enabled') : t('settings.disabled') }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button
+                            v-if="passkeyFactor.enabledAt"
+                            class="btn btn-sm btn-ghost"
+                            :disabled="isProcessing === passkeyFactor.id"
+                            @click="disableFactor(passkeyFactor)"
+                        >
+                            <IconLoader v-if="isProcessing === passkeyFactor.id" class="w-4 h-4 animate-spin" />
+                            {{ t('settings.disable') }}
+                        </button>
+                        <button
+                            v-else
+                            class="btn btn-sm btn-primary"
+                            :disabled="isProcessing === passkeyFactor.id"
+                            @click="enableFactor(passkeyFactor)"
+                        >
+                            <IconLoader v-if="isProcessing === passkeyFactor.id" class="w-4 h-4 animate-spin" />
+                            {{ t('settings.enable') }}
+                        </button>
+                    </div>
+                </div>
+
+                <div v-if="passkeysPending" class="flex justify-center py-6">
+                    <span class="loading loading-spinner loading-lg" />
+                </div>
+
+                <div v-else-if="passkeysError" class="alert alert-error">
+                    <IconAlertCircle class="w-5 h-5" />
+                    <span>{{ t('settings.loadPasskeysFail') }}</span>
+                    <button class="btn btn-sm" @click="() => refreshPasskeys()">
+                        {{ t('settings.retry') }}
+                    </button>
+                </div>
+
+                <div v-else-if="!passkeys?.length" class="text-center py-6 text-base-content/60">
+                    <IconFingerprint class="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>{{ t('settings.noPasskeys') }}</p>
+                    <p class="text-sm">{{ t('settings.noPasskeysHint') }}</p>
+                </div>
+
+                <div v-else class="space-y-3">
+                    <div
+                        v-for="passkey in passkeys"
+                        :key="passkey.id"
+                        class="flex items-center justify-between p-4 bg-base-200 rounded-xl gap-3"
+                    >
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-10 h-10 rounded-lg bg-primary text-primary-content flex items-center justify-center shrink-0">
+                                <IconKey class="w-5 h-5" />
+                            </div>
+                            <div class="min-w-0">
+                                <p class="font-medium truncate">{{ passkey.label }}</p>
+                                <p class="text-sm text-base-content/60">
+                                    {{ passkey.createdAt ? formatDate(passkey.createdAt) : '' }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <button
+                                class="btn btn-sm btn-ghost"
+                                :disabled="isProcessing === passkey.id"
+                                :title="t('settings.renamePasskey')"
+                                @click="startRenamePasskey(passkey)"
+                            >
+                                <IconEdit class="w-4 h-4" />
+                            </button>
+                            <button
+                                class="btn btn-sm btn-ghost text-error"
+                                :disabled="isProcessing === passkey.id"
+                                :title="t('settings.deletePasskey')"
+                                @click="removePasskey(passkey)"
+                            >
+                                <IconLoader v-if="isProcessing === passkey.id" class="w-4 h-4 animate-spin" />
+                                <IconTrash v-else class="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Auth Factors -->
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
@@ -76,7 +204,7 @@
                     </button>
                 </div>
 
-                <div v-else-if="factors.length === 0" class="text-center py-8 text-base-content/60">
+                <div v-else-if="nonPasskeyFactors.length === 0" class="text-center py-8 text-base-content/60">
                     <IconShield class="w-12 h-12 mx-auto mb-3 opacity-50" />
                     <p>{{ t('settings.noFactors') }}</p>
                     <p class="text-sm">{{ t('settings.noFactorsHint') }}</p>
@@ -84,7 +212,7 @@
 
                 <div v-else class="space-y-3">
                     <div
-                        v-for="factor in factors"
+                        v-for="factor in nonPasskeyFactors"
                         :key="factor.id"
                         class="flex items-center justify-between p-4 bg-base-200 rounded-xl"
                     >
@@ -391,6 +519,17 @@
                 >
             </fieldset>
 
+            <fieldset v-if="newFactorType === '7'" class="fieldset mb-4">
+                <legend class="fieldset-legend">{{ t('settings.passkeyLabel') }}</legend>
+                <input
+                    v-model="newPasskeyLabel"
+                    type="text"
+                    class="input input-bordered w-full"
+                    :placeholder="t('settings.passkeyLabelPlaceholder')"
+                >
+                <p class="label text-xs text-base-content/60">{{ t('settings.passkeyLabelHint') }}</p>
+            </fieldset>
+
             <div v-if="newFactorType" class="text-sm text-base-content/70 mb-4">
                 {{ availableFactorTypes[Number(newFactorType)]?.description }}
             </div>
@@ -552,149 +691,33 @@
         <div class="modal-backdrop" @click="selectedDevice = null" />
     </dialog>
 
-    <!-- Enable Factor Modal -->
-    <dialog class="modal" :class="{ 'modal-open': showEnableFactor }">
+    <!-- Rename Passkey Modal -->
+    <dialog class="modal" :class="{ 'modal-open': renamingPasskey !== null }">
         <div class="modal-box max-w-md">
-            <h3 class="font-bold text-lg mb-4">Enable Factor</h3>
-            <p class="text-base-content/70 mb-4">
-                Enter the verification code to enable this authentication factor.
-            </p>
-
+            <h3 class="font-bold text-lg mb-4">{{ t('settings.renamePasskey') }}</h3>
             <fieldset class="fieldset mb-4">
-                <legend class="fieldset-legend">Verification Code</legend>
+                <legend class="fieldset-legend">{{ t('settings.passkeyLabel') }}</legend>
                 <input
-                    v-model="verificationCode"
+                    v-model="renamePasskeyLabel"
                     type="text"
-                    class="input input-bordered w-full text-center text-2xl tracking-widest"
-                    placeholder="000000"
-                    maxlength="6"
+                    class="input input-bordered w-full"
+                    :placeholder="t('settings.passkeyLabelPlaceholder')"
+                    @keydown.enter="confirmRenamePasskey"
                 >
             </fieldset>
-
             <div class="modal-action">
-                <button class="btn btn-ghost" @click="showEnableFactor = false">Cancel</button>
+                <button class="btn btn-ghost" @click="renamingPasskey = null">{{ t('settings.cancel') }}</button>
                 <button
                     class="btn btn-primary"
-                    :disabled="verificationCode.length < 6 || isEnabling"
-                    @click="confirmEnableFactor"
+                    :disabled="!renamePasskeyLabel.trim() || isRenamingPasskey"
+                    @click="confirmRenamePasskey"
                 >
-                    <IconLoader v-if="isEnabling" class="w-4 h-4 animate-spin" />
-                    Enable
+                    <IconLoader v-if="isRenamingPasskey" class="w-4 h-4 animate-spin" />
+                    {{ t('settings.save') }}
                 </button>
             </div>
         </div>
-        <div class="modal-backdrop" @click="showEnableFactor = false" />
-    </dialog>
-
-    <!-- Recovery Code Display Modal -->
-    <dialog class="modal" :class="{ 'modal-open': showRecoveryCode }">
-        <div class="modal-box max-w-md">
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-primary text-primary-content rounded-full flex items-center justify-center mx-auto mb-4">
-                    <IconKeyRound class="w-8 h-8" />
-                </div>
-                <h3 class="font-bold text-lg">Recovery Code Created</h3>
-            </div>
-
-            <p class="text-base-content/70 mb-4 text-center">
-                Save this recovery code in a safe place. It will only be shown once.
-            </p>
-
-            <div
-                v-if="recoveryCode"
-                class="bg-base-200 p-4 rounded-lg mb-6"
-            >
-                <code class="text-lg font-mono block text-center break-all">{{ recoveryCode }}</code>
-            </div>
-
-            <div class="modal-action">
-                <button class="btn btn-primary w-full" @click="showRecoveryCode = false">
-                    <IconCheck class="w-4 h-4 mr-2" />
-                    I Have Saved It
-                </button>
-            </div>
-        </div>
-    </dialog>
-
-    <!-- Device Detail Modal -->
-    <dialog class="modal" :class="{ 'modal-open': selectedDevice !== null }">
-        <div v-if="selectedDevice" class="modal-box max-w-lg">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="font-bold text-lg">Device Details</h3>
-                <button class="btn btn-sm btn-ghost" @click="selectedDevice = null">
-                    <IconX class="w-4 h-4" />
-                </button>
-            </div>
-
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-12 h-12 rounded-xl bg-primary text-primary-content flex items-center justify-center">
-                    <component :is="getPlatformIcon(selectedDevice.platform)" class="w-6 h-6" />
-                </div>
-                <div>
-                    <p class="font-semibold">{{ selectedDevice.deviceLabel || selectedDevice.deviceName }}</p>
-                    <p class="text-sm text-base-content/60">{{ getPlatformLabel(selectedDevice.platform) }}</p>
-                </div>
-                <span v-if="selectedDevice.isCurrent" class="badge badge-primary ml-auto">Current</span>
-            </div>
-
-            <!-- Device Info -->
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="bg-base-200 p-3 rounded-lg">
-                    <p class="text-xs text-base-content/60">Device ID</p>
-                    <p class="font-mono text-sm truncate">{{ selectedDevice.deviceId.slice(0, 12) }}</p>
-                </div>
-                <div class="bg-base-200 p-3 rounded-lg">
-                    <p class="text-xs text-base-content/60">Active Sessions</p>
-                    <p class="font-semibold">{{ selectedDevice.sessions?.length ?? 0 }}</p>
-                </div>
-                <div class="bg-base-200 p-3 rounded-lg">
-                    <p class="text-xs text-base-content/60">First Seen</p>
-                    <p class="text-sm">{{ selectedDevice.sessions?.length ? formatDate(selectedDevice.sessions[0]!.createdAt) : '-' }}</p>
-                </div>
-                <div class="bg-base-200 p-3 rounded-lg">
-                    <p class="text-xs text-base-content/60">Last Active</p>
-                    <p class="text-sm">{{ selectedDevice.sessions?.length ? formatDate(selectedDevice.sessions[0]!.lastGrantedAt) : '-' }}</p>
-                </div>
-            </div>
-
-            <!-- Sessions List -->
-            <h4 class="font-semibold mb-3">Sessions</h4>
-            <div v-if="selectedDevice.sessions?.length" class="space-y-2 max-h-60 overflow-y-auto">
-                <div
-                    v-for="session in selectedDevice.sessions"
-                    :key="session.id"
-                    class="p-3 bg-base-200 rounded-lg"
-                >
-                    <div class="flex items-center gap-2">
-                        <component :is="getSessionTypeIcon(session.type)" class="w-4 h-4" />
-                        <span class="font-medium text-sm">{{ session.label || session.userAgent || 'Unknown' }}</span>
-                        <span v-if="session.isCurrent" class="badge badge-primary badge-sm">Current</span>
-                    </div>
-                    <div class="text-xs text-base-content/60 mt-1">
-                        <p>Created: {{ formatDate(session.createdAt) }}</p>
-                        <p v-if="session.location?.city">Location: {{ session.location.city }}</p>
-                    </div>
-                </div>
-            </div>
-            <div v-else class="text-center py-4 text-base-content/60">
-                <p>No active sessions</p>
-            </div>
-
-            <!-- Actions -->
-            <div class="modal-action">
-                <button
-                    v-if="!selectedDevice.isCurrent"
-                    class="btn btn-error w-full"
-                    :disabled="isProcessing === selectedDevice.deviceId"
-                    @click="logoutDevice(selectedDevice)"
-                >
-                    <IconLoader v-if="isProcessing === selectedDevice.deviceId" class="w-4 h-4 animate-spin" />
-                    <IconLogOut v-else class="w-4 h-4 mr-2" />
-                    Logout Device
-                </button>
-            </div>
-        </div>
-        <div class="modal-backdrop" @click="selectedDevice = null" />
+        <div class="modal-backdrop" @click="renamingPasskey = null" />
     </dialog>
     </div>
 </template>
@@ -724,6 +747,7 @@ import {
     IconHelpCircle,
     IconChevronRight,
     IconMapPin,
+    IconEdit,
 } from "#components";
 import {
     fetchAuthFactors,
@@ -736,10 +760,32 @@ import {
     revokeDevice,
     revokeSession,
     revokeAllOtherSessions,
+    fetchPasskeys,
+    startPasskeyRegistration,
+    completePasskeyRegistration,
+    updatePasskey,
+    deletePasskey as apiDeletePasskey,
 } from "~/utils/api";
-import { FACTOR_TYPES, SESSION_TYPES, PLATFORM_TYPES, type SnAuthFactor, type SnAuthDevice, type SnAuthSession } from "~/types/auth";
+import {
+    FACTOR_TYPES,
+    SESSION_TYPES,
+    PLATFORM_TYPES,
+    type SnAuthFactor,
+    type SnAuthDevice,
+    type SnAuthSession,
+    type SnPasskey,
+} from "~/types/auth";
+import {
+    arrayBufferToBase64Url,
+    base64UrlToArrayBuffer,
+    getPasskeyDeviceName,
+    getPasskeyRpId,
+    isWebAuthnAvailable,
+    stringToArrayBuffer,
+} from "~/utils/webauthn";
 
 const { t } = useI18n();
+const auth = useAuth();
 
 const passwordForm = reactive({
     current: "",
@@ -753,24 +799,39 @@ const isCreatingRecovery = ref(false);
 const isAddingFactor = ref(false);
 const isEnabling = ref(false);
 const isLoggingOutAll = ref(false);
+const isRegisteringPasskey = ref(false);
+const isRenamingPasskey = ref(false);
 const showAddFactor = ref(false);
 const showEnableFactor = ref(false);
 const showRecoveryCode = ref(false);
 const newFactorType = ref("");
 const newFactorSecret = ref("");
 const newFactorPin = ref("");
+const newPasskeyLabel = ref("");
 const verificationCode = ref("");
 const selectedFactor = ref<SnAuthFactor | null>(null);
 const recoveryCode = ref<string | null>(null);
 const activeTab = ref<'devices' | 'sessions'>('devices');
 const sessionTypeFilter = ref<number | null>(null);
 const selectedDevice = ref<SnAuthDevice | null>(null);
+const renamingPasskey = ref<SnPasskey | null>(null);
+const renamePasskeyLabel = ref("");
+const passkeySupported = ref(false);
 
 // Fetch auth factors
 const { data: factors, pending: factorsPending, error: factorsError, refresh: refreshFactors } = await useAsyncData(
     "auth-factors",
     () => fetchAuthFactors(),
     { 
+        default: () => [],
+        server: false,
+    },
+);
+
+const { data: passkeys, pending: passkeysPending, error: passkeysError, refresh: refreshPasskeys } = await useAsyncData(
+    "auth-passkeys",
+    () => fetchPasskeys(),
+    {
         default: () => [],
         server: false,
     },
@@ -801,6 +862,15 @@ const hasRecoveryCode = computed(() =>
     factors.value?.some(f => f.type === 5),
 );
 
+const passkeyFactor = computed(() =>
+    factors.value?.find(f => f.type === 7) ?? null,
+);
+
+/** Passkey factor is managed in its own card; hide it from the generic list. */
+const nonPasskeyFactors = computed(() =>
+    (factors.value ?? []).filter(f => f.type !== 7),
+);
+
 const canChangePassword = computed(() =>
     passwordForm.current && passwordForm.new && passwordForm.confirm && passwordForm.new === passwordForm.confirm,
 );
@@ -810,7 +880,10 @@ const availableFactorTypes = computed(() => {
     const result: Record<number, { label: string; description: string; icon: string }> = {};
     for (const [type, info] of Object.entries(FACTOR_TYPES)) {
         const typeNum = Number(type);
-        if (existingTypes.has(typeNum) && typeNum !== 5) continue;
+        // Recovery codes and passkeys can be re-added (passkey registers another credential)
+        if (existingTypes.has(typeNum) && typeNum !== 5 && typeNum !== 7) continue;
+        // Physical passport is unavailable on web
+        if ((info as { webUnavailable?: boolean }).webUnavailable) continue;
         result[typeNum] = info;
     }
     return result;
@@ -821,7 +894,12 @@ const canAddFactor = computed(() => {
     const type = Number(newFactorType.value);
     if (type === 0 && !newFactorSecret.value) return false;
     if (type === 4 && newFactorPin.value.length !== 6) return false;
+    if (type === 7 && !passkeySupported.value) return false;
     return true;
+});
+
+onMounted(() => {
+    passkeySupported.value = isWebAuthnAvailable();
 });
 
 const filteredSessions = computed(() => {
@@ -917,19 +995,162 @@ async function changePassword() {
     }
 }
 
+async function ensurePasskeyFactorEnabled(): Promise<void> {
+    let factor = passkeyFactor.value;
+    if (!factor) {
+        factor = await createAuthFactor({ type: 7, secret: null });
+        await refreshFactors();
+        factor = passkeyFactor.value ?? factor;
+    }
+    if (factor && !factor.enabledAt) {
+        await enableAuthFactor(factor.id);
+        await refreshFactors();
+    }
+}
+
+async function performPasskeyRegistration(label?: string): Promise<void> {
+    if (!isWebAuthnAvailable()) {
+        throw new Error(t("settings.passkeyNotSupported"));
+    }
+    if (!hasRecoveryCode.value) {
+        throw new Error(t("settings.recoveryCodeRequired"));
+    }
+
+    await ensurePasskeyFactorEnabled();
+
+    const deviceId = await auth.getDeviceId();
+    const deviceName = getPasskeyDeviceName();
+    const rpId = getPasskeyRpId();
+    const options = await startPasskeyRegistration({
+        deviceId,
+        deviceName,
+        rpId,
+        rpName: "Solar Network",
+    });
+
+    const authSelection = options.authenticatorSelection;
+    const credential = await navigator.credentials.create({
+        publicKey: {
+            challenge: base64UrlToArrayBuffer(options.challenge),
+            rp: {
+                id: options.rpId,
+                name: options.rpName,
+            },
+            user: {
+                // Padlock returns user_id as the account GUID string
+                id: stringToArrayBuffer(options.userId),
+                name: options.userName,
+                displayName: options.displayName || options.userName,
+            },
+            pubKeyCredParams: (options.pubKeyCredParams ?? [{ type: "public-key", alg: -7 }]).map(
+                (p) => ({
+                    type: (p.type || "public-key") as PublicKeyCredentialType,
+                    alg: p.alg,
+                }),
+            ),
+            timeout: options.timeout ?? 60000,
+            authenticatorSelection: authSelection
+                ? {
+                      authenticatorAttachment: authSelection.authenticatorAttachment as
+                          | AuthenticatorAttachment
+                          | undefined,
+                      residentKey: (authSelection.residentKey || "preferred") as ResidentKeyRequirement,
+                      userVerification: (authSelection.userVerification ||
+                          "preferred") as UserVerificationRequirement,
+                      requireResidentKey: false,
+                  }
+                : {
+                      residentKey: "preferred",
+                      userVerification: "preferred",
+                  },
+            attestation: "none",
+        },
+    }) as PublicKeyCredential | null;
+
+    if (!credential) {
+        throw new Error(t("settings.passkeyRegistrationCancelled"));
+    }
+
+    const attestation = credential.response as AuthenticatorAttestationResponse;
+    await completePasskeyRegistration({
+        deviceId,
+        label: (label?.trim() || deviceName),
+        clientDataJson: arrayBufferToBase64Url(attestation.clientDataJSON),
+        attestationObject: arrayBufferToBase64Url(attestation.attestationObject),
+    });
+
+    await refreshPasskeys();
+    await refreshFactors();
+}
+
+async function registerPasskey() {
+    isRegisteringPasskey.value = true;
+    try {
+        await performPasskeyRegistration();
+        alert(t("settings.passkeyRegistered"));
+    } catch (err) {
+        alert(err instanceof Error ? err.message : t("settings.passkeyRegisterFailed"));
+    } finally {
+        isRegisteringPasskey.value = false;
+    }
+}
+
+function startRenamePasskey(passkey: SnPasskey) {
+    renamingPasskey.value = passkey;
+    renamePasskeyLabel.value = passkey.label;
+}
+
+async function confirmRenamePasskey() {
+    if (!renamingPasskey.value || !renamePasskeyLabel.value.trim()) return;
+    isRenamingPasskey.value = true;
+    try {
+        await updatePasskey(renamingPasskey.value.id, renamePasskeyLabel.value.trim());
+        renamingPasskey.value = null;
+        await refreshPasskeys();
+    } catch (err) {
+        alert(err instanceof Error ? err.message : t("settings.passkeyRenameFailed"));
+    } finally {
+        isRenamingPasskey.value = false;
+    }
+}
+
+async function removePasskey(passkey: SnPasskey) {
+    if (!confirm(t("settings.deletePasskeyConfirm", { label: passkey.label }))) return;
+    isProcessing.value = passkey.id;
+    try {
+        await apiDeletePasskey(passkey.id);
+        await refreshPasskeys();
+    } catch (err) {
+        alert(err instanceof Error ? err.message : t("settings.passkeyDeleteFailed"));
+    } finally {
+        isProcessing.value = null;
+    }
+}
+
 async function addFactor() {
     isAddingFactor.value = true;
     try {
-        const data: Record<string, string> = {};
-        if (newFactorType.value === "0") {
-            data.secret = newFactorSecret.value;
-        } else if (newFactorType.value === "4") {
-            data.secret = newFactorPin.value;
+        const type = Number(newFactorType.value);
+
+        if (type === 7) {
+            await performPasskeyRegistration(newPasskeyLabel.value);
+            alert(t("settings.passkeyRegistered"));
+            showAddFactor.value = false;
+            newFactorType.value = "";
+            newPasskeyLabel.value = "";
+            return;
+        }
+
+        let secret: string | null = null;
+        if (type === 0) {
+            secret = newFactorSecret.value;
+        } else if (type === 4) {
+            secret = newFactorPin.value;
         }
 
         const factor = await createAuthFactor({
-            type: Number(newFactorType.value),
-            data,
+            type,
+            secret,
         });
 
         if (factor.type === 5 && factor.createdResponse?.recovery_code) {
@@ -937,28 +1158,30 @@ async function addFactor() {
             showRecoveryCode.value = true;
         }
 
-        alert("Factor created successfully");
+        alert(t("settings.factorCreated"));
         showAddFactor.value = false;
         newFactorType.value = "";
         newFactorSecret.value = "";
         newFactorPin.value = "";
+        newPasskeyLabel.value = "";
         await refreshFactors();
     } catch (err) {
-        alert(err instanceof Error ? err.message : "Failed to create factor");
+        alert(err instanceof Error ? err.message : t("settings.factorCreateFailed"));
     } finally {
         isAddingFactor.value = false;
     }
 }
 
 async function enableFactor(factor: SnAuthFactor) {
-    if (factor.type === 5) {
+    // Recovery code and passkey enable without a verification code
+    if (factor.type === 5 || factor.type === 7) {
         isProcessing.value = factor.id;
         try {
             await enableAuthFactor(factor.id);
-            alert("Factor enabled successfully");
+            alert(t("settings.factorEnabled"));
             await refreshFactors();
         } catch (err) {
-            alert(err instanceof Error ? err.message : "Failed to enable factor");
+            alert(err instanceof Error ? err.message : t("settings.factorEnableFailed"));
         } finally {
             isProcessing.value = null;
         }

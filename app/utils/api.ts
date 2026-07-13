@@ -8,6 +8,7 @@ import type {
   SnAccountConnection,
   SnAuthDevice,
   SnAuthSession,
+  SnPasskey,
   CaptchaConfig,
   WalletOrder,
   WalletOrderStatus,
@@ -322,8 +323,28 @@ export interface PasskeyAuthenticationOptions {
   rpId: string;
   allowCredentials: { type: string; id: string; transports?: string[] }[];
   userVerification: string;
+  timeout?: number;
+  /** Present for discoverable (username-less) passkey login. */
+  authChallengeId?: string;
 }
 
+export interface PasskeyRegistrationOptions {
+  challenge: string;
+  rpId: string;
+  rpName: string;
+  userId: string;
+  userName: string;
+  displayName: string;
+  pubKeyCredParams: { type: string; alg: number }[];
+  timeout?: number;
+  authenticatorSelection?: {
+    authenticatorAttachment?: string;
+    residentKey?: string;
+    userVerification?: string;
+  };
+}
+
+/** Account-known challenge: start WebAuthn assertion for a username login. */
 export async function startPasskeyAuthentication(
   challengeId: string,
 ): Promise<PasskeyAuthenticationOptions> {
@@ -334,23 +355,23 @@ export async function startPasskeyAuthentication(
       skipAuth: true,
     },
   );
-  const data = await safeJsonParse<{
-    challenge: string;
-    rp_id: string;
-    allow_credentials: { type: string; id: string; transports?: string[] }[];
-    user_verification: string;
-  }>(response);
+  // safeJsonParse already converts snake_case → camelCase
+  const data = await safeJsonParse<PasskeyAuthenticationOptions>(response);
   return {
     challenge: data.challenge,
-    rpId: data.rp_id,
-    allowCredentials: data.allow_credentials ?? [],
-    userVerification: data.user_verification ?? "preferred",
+    rpId: data.rpId,
+    allowCredentials: data.allowCredentials ?? [],
+    userVerification: data.userVerification ?? "preferred",
+    timeout: data.timeout,
   };
 }
 
+/**
+ * Complete passkey assertion for an account-known challenge.
+ * No factor_id — Padlock resolves the Passkey factor itself.
+ */
 export async function completePasskeyAuthentication(
   challengeId: string,
-  factorId: string,
   credentialId: string,
   clientDataJson: string,
   authenticatorData: string,
@@ -363,7 +384,6 @@ export async function completePasskeyAuthentication(
       method: "POST",
       body: JSON.stringify(
         camelToSnake({
-          factorId,
           credentialId,
           clientDataJson,
           authenticatorData,
@@ -375,6 +395,114 @@ export async function completePasskeyAuthentication(
     },
   );
   return safeJsonParse<SnAuthChallenge>(response);
+}
+
+/** Discoverable (resident) passkey login without a username. */
+export async function startDiscoverablePasskeyAuthentication(payload: {
+  deviceId: string;
+  deviceName: string;
+  platform?: number;
+  audiences?: string[];
+  scopes?: string[];
+}): Promise<PasskeyAuthenticationOptions> {
+  const response = await apiFetch("/padlock/auth/passkey/start", {
+    method: "POST",
+    body: JSON.stringify(
+      camelToSnake({
+        deviceId: payload.deviceId,
+        deviceName: payload.deviceName,
+        platform: payload.platform ?? 1,
+        audiences: payload.audiences ?? [],
+        scopes: payload.scopes ?? [],
+      }),
+    ),
+    skipAuth: true,
+  });
+  const data = await safeJsonParse<PasskeyAuthenticationOptions>(response);
+  return {
+    challenge: data.challenge,
+    rpId: data.rpId,
+    allowCredentials: data.allowCredentials ?? [],
+    userVerification: data.userVerification ?? "preferred",
+    timeout: data.timeout,
+    authChallengeId: data.authChallengeId,
+  };
+}
+
+export async function completeDiscoverablePasskeyAuthentication(
+  challengeId: string,
+  credentialId: string,
+  clientDataJson: string,
+  authenticatorData: string,
+  signature: string,
+  userHandle?: string | null,
+): Promise<SnAuthChallenge> {
+  const response = await apiFetch(
+    `/padlock/auth/passkey/${challengeId}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        camelToSnake({
+          credentialId,
+          clientDataJson,
+          authenticatorData,
+          signature,
+          userHandle,
+        }),
+      ),
+      skipAuth: true,
+    },
+  );
+  return safeJsonParse<SnAuthChallenge>(response);
+}
+
+/** Start WebAuthn registration (requires enabled Passkey factor). */
+export async function startPasskeyRegistration(payload: {
+  deviceId: string;
+  deviceName?: string;
+  rpId: string;
+  rpName: string;
+}): Promise<PasskeyRegistrationOptions> {
+  const response = await apiFetch("/padlock/factors/passkey/start", {
+    method: "POST",
+    body: JSON.stringify(camelToSnake(payload)),
+  });
+  return safeJsonParse<PasskeyRegistrationOptions>(response);
+}
+
+export async function completePasskeyRegistration(payload: {
+  deviceId: string;
+  label: string;
+  clientDataJson: string;
+  attestationObject: string;
+}): Promise<SnPasskey> {
+  const response = await apiFetch("/padlock/factors/passkey/complete", {
+    method: "POST",
+    body: JSON.stringify(camelToSnake(payload)),
+  });
+  return safeJsonParse<SnPasskey>(response);
+}
+
+export async function fetchPasskeys(): Promise<SnPasskey[]> {
+  const response = await apiFetch("/padlock/factors/passkey");
+  return safeJsonParse<SnPasskey[]>(response);
+}
+
+export async function updatePasskey(
+  passkeyId: string,
+  label: string,
+): Promise<SnPasskey> {
+  const response = await apiFetch(`/padlock/factors/passkey/${passkeyId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ label }),
+  });
+  return safeJsonParse<SnPasskey>(response);
+}
+
+export async function deletePasskey(passkeyId: string): Promise<void> {
+  await apiFetch(`/padlock/factors/passkey/${passkeyId}`, {
+    method: "DELETE",
+  });
 }
 
 export async function verifyChallenge(
@@ -2079,11 +2207,17 @@ export async function fetchAuthFactors(): Promise<SnAuthFactor[]> {
 
 export async function createAuthFactor(payload: {
   type: number;
+  secret?: string | null;
+  /** @deprecated Prefer top-level `secret`. Kept for older callers. */
   data?: Record<string, string>;
 }): Promise<SnAuthFactor> {
+  const secret =
+    payload.secret !== undefined
+      ? payload.secret
+      : (payload.data?.secret ?? null);
   const response = await apiFetch("/padlock/factors", {
     method: "POST",
-    body: JSON.stringify(camelToSnake(payload)),
+    body: JSON.stringify({ type: payload.type, secret }),
   });
   return safeJsonParse<SnAuthFactor>(response);
 }

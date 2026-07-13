@@ -207,6 +207,10 @@ export const useAuthStore = defineStore("auth", () => {
         return result;
     }
 
+    async function getDeviceId(): Promise<string> {
+        return getFingerprint();
+    }
+
     return {
         // State
         isAuthenticated,
@@ -232,5 +236,7 @@ export const useAuthStore = defineStore("auth", () => {
         requestCode,
         submitVerification,
         exchangeToken,
+        getDeviceId,
+        getDeviceInfo,
     };
 });
