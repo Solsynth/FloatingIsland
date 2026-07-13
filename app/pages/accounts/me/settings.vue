@@ -58,27 +58,30 @@
 import {
 	IconUser,
 	IconShield,
-	IconLock,
 	IconBell,
 	IconPalette,
-	IconArrowLeft
+	IconArrowLeft,
+	IconSend,
+	IconAlertTriangle,
 } from '#components';
 
 const { t } = useI18n();
 const route = useRoute();
 const { user } = useAuth();
 
+/** Mirrors Island account_settings.dart sections (web-relevant). */
 const menuItems = [
 	{ to: '/accounts/me/settings', label: t('settings.profile'), icon: IconUser },
-	{ to: '/accounts/me/settings/security', label: t('settings.security'), icon: IconShield },
-	{ to: '/accounts/me/settings/privacy', label: t('settings.privacy'), icon: IconLock },
+	{ to: '/accounts/me/settings/publishing', label: t('settings.publishing'), icon: IconSend },
 	{ to: '/accounts/me/settings/notifications', label: t('settings.notifications'), icon: IconBell },
-	{ to: '/accounts/me/settings/appearance', label: t('settings.appearance'), icon: IconPalette }
+	{ to: '/accounts/me/settings/security', label: t('settings.security'), icon: IconShield },
+	{ to: '/accounts/me/settings/appearance', label: t('settings.appearance'), icon: IconPalette },
+	{ to: '/accounts/me/settings/account', label: t('settings.account'), icon: IconAlertTriangle },
 ];
 
 function isActiveRoute(path: string): boolean {
 	if (path === '/accounts/me/settings') {
-		return route.path === path || route.path === `${path}/index`;
+		return route.path === path || route.path === `${path}/` || route.path === `${path}/index`;
 	}
 	return route.path === path || route.path.startsWith(`${path}/`);
 }

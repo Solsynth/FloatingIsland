@@ -274,9 +274,45 @@ export const FACTOR_TYPES: Record<
     description: "Platform authenticator",
     icon: "key-square",
   },
+  8: {
+    label: "QR Login",
+    description: "Approve sign-in by scanning a QR code from another device",
+    icon: "qr-code",
+  },
 };
 
-export type LoginStep = "lookup" | "picker" | "check";
+/** Web client QR login challenge (POST /padlock/auth/qr/generate). */
+export interface QrLoginGenerateResponse {
+  qrChallengeId: string;
+  authChallengeId: string;
+  qrData: string;
+  expiresAt: string;
+  expiresInSeconds: number;
+}
+
+/**
+ * Poll response from GET /padlock/auth/qr/{id}.
+ * Backend serializes QrLoginStatus as a number by default (0–4).
+ */
+export interface QrLoginStatusResponse {
+  qrChallengeId: string;
+  authChallengeId: string;
+  status: number | string;
+  expiresAt: string;
+  approvedAt?: string | null;
+  approvedDeviceId?: string | null;
+  deviceName?: string | null;
+  platform?: number;
+}
+
+export type QrLoginStatus =
+  | "pending"
+  | "scanned"
+  | "approved"
+  | "declined"
+  | "expired";
+
+export type LoginStep = "lookup" | "picker" | "check" | "qr";
 
 export interface CaptchaConfig {
   provider: string;

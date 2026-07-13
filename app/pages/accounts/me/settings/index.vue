@@ -492,6 +492,7 @@ async function saveProfile() {
       location: profileForm.location,
       timeZone: profileForm.timeZone,
       birthday: profileForm.birthday || null,
+      links: validLinks,
     });
     await auth.refreshUser();
     alert("Profile saved successfully");

@@ -9,6 +9,9 @@ import type {
   SnAuthDevice,
   SnAuthSession,
   SnPasskey,
+  QrLoginGenerateResponse,
+  QrLoginStatusResponse,
+  QrLoginStatus,
   CaptchaConfig,
   WalletOrder,
   WalletOrderStatus,
@@ -454,6 +457,69 @@ export async function completeDiscoverablePasskeyAuthentication(
     },
   );
   return safeJsonParse<SnAuthChallenge>(response);
+}
+
+// ── QR Login (web polls; mobile scans/approves) ─────────────────────────────
+
+/** Normalize backend enum (number) or string status to a stable client value. */
+export function normalizeQrLoginStatus(
+  status: number | string | undefined | null,
+): QrLoginStatus {
+  if (typeof status === "string") {
+    const s = status.toLowerCase();
+    if (
+      s === "pending" ||
+      s === "scanned" ||
+      s === "approved" ||
+      s === "declined" ||
+      s === "expired"
+    ) {
+      return s;
+    }
+  }
+  const map: QrLoginStatus[] = [
+    "pending",
+    "scanned",
+    "approved",
+    "declined",
+    "expired",
+  ];
+  const idx = Number(status);
+  return map[idx] ?? "pending";
+}
+
+/** Create a QR challenge for unauthenticated web/desktop clients. */
+export async function generateQrLogin(payload: {
+  deviceId: string;
+  deviceName?: string;
+  platform?: number;
+  audiences?: string[];
+  scopes?: string[];
+}): Promise<QrLoginGenerateResponse> {
+  const response = await apiFetch("/padlock/auth/qr/generate", {
+    method: "POST",
+    body: JSON.stringify(
+      camelToSnake({
+        deviceId: payload.deviceId,
+        deviceName: payload.deviceName,
+        platform: payload.platform ?? 1, // ClientPlatform.Web
+        audiences: payload.audiences ?? [],
+        scopes: payload.scopes ?? [],
+      }),
+    ),
+    skipAuth: true,
+  });
+  return safeJsonParse<QrLoginGenerateResponse>(response);
+}
+
+/** Poll QR challenge status (web cannot use WebSocket while unauthenticated). */
+export async function getQrLoginStatus(
+  qrChallengeId: string,
+): Promise<QrLoginStatusResponse> {
+  const response = await apiFetch(`/padlock/auth/qr/${qrChallengeId}`, {
+    skipAuth: true,
+  });
+  return safeJsonParse<QrLoginStatusResponse>(response);
 }
 
 /** Start WebAuthn registration (requires enabled Passkey factor). */
@@ -2185,6 +2251,7 @@ export async function updateProfile(payload: {
   birthday?: string | null;
   pictureId?: string;
   backgroundId?: string;
+  links?: { name: string; url: string }[];
 }): Promise<SnAccount> {
   const response = await apiFetch("/passport/accounts/me/profile", {
     method: "PATCH",
@@ -2379,6 +2446,108 @@ export async function updateDeviceLabel(
   await apiFetch(`/padlock/devices/${deviceId}/label`, {
     method: "PATCH",
     body: JSON.stringify({ label }),
+  });
+}
+
+// Settings API - Publishing (matches Island sphere.getPublishingSettings)
+export interface SnPublishingSettings {
+  id: string;
+  accountId: string;
+  defaultPostingPublisherId?: string | null;
+  defaultReplyPublisherId?: string | null;
+  defaultFediversePublisherId?: string | null;
+  createdAt?: string;
+  updatedAt?: string | null;
+}
+
+export async function fetchPublishingSettings(): Promise<SnPublishingSettings> {
+  const response = await apiFetch("/sphere/account/publishing");
+  return safeJsonParse<SnPublishingSettings>(response);
+}
+
+export async function updatePublishingSettings(payload: {
+  defaultPostingPublisherId?: string | null;
+  defaultReplyPublisherId?: string | null;
+  defaultFediversePublisherId?: string | null;
+}): Promise<SnPublishingSettings> {
+  const response = await apiFetch("/sphere/account/publishing", {
+    method: "PATCH",
+    body: JSON.stringify(camelToSnake(payload)),
+  });
+  return safeJsonParse<SnPublishingSettings>(response);
+}
+
+// Settings API - Notification preferences (matches Island notifications API)
+/** 0 = normal, 1 = silent, 2 = reject */
+export type SnNotificationPreferenceLevel = 0 | 1 | 2;
+
+export interface SnNotificationTopic {
+  topic: string;
+  description: string;
+}
+
+export interface SnNotificationPreference {
+  id: string;
+  accountId: string;
+  topic: string;
+  preference: SnNotificationPreferenceLevel;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/** Default topics from Island NotificationsApi._defaultTopics */
+export const DEFAULT_NOTIFICATION_TOPICS: SnNotificationTopic[] = [
+  { topic: "posts.mentions.new", description: "Post mentions" },
+  { topic: "post.replies", description: "Post replies" },
+  { topic: "posts.reactions.new", description: "New reactions" },
+  { topic: "posts.awards.new", description: "Post awards" },
+  {
+    topic: "subscriptions.discontinued_in_app",
+    description: "Subscription discontinued",
+  },
+  { topic: "subscriptions.begun", description: "Subscription started" },
+  { topic: "gifts.claimed", description: "Gift claimed" },
+  { topic: "wallets.transactions", description: "Wallet transactions" },
+  { topic: "auth.verification", description: "Auth verification" },
+  { topic: "invites.realms", description: "Realm invites" },
+];
+
+export async function fetchNotificationPreferences(): Promise<
+  SnNotificationPreference[]
+> {
+  const response = await apiFetch("/ring/notifications/preferences");
+  return safeJsonParse<SnNotificationPreference[]>(response);
+}
+
+export async function setNotificationPreference(
+  topic: string,
+  preference: SnNotificationPreferenceLevel,
+): Promise<void> {
+  await apiFetch(
+    `/ring/notifications/preferences/${encodeURIComponent(topic)}`,
+    {
+      method: "PUT",
+      body: JSON.stringify({ preference }),
+    },
+  );
+}
+
+export async function deleteNotificationPreference(
+  topic: string,
+): Promise<void> {
+  await apiFetch(
+    `/ring/notifications/preferences/${encodeURIComponent(topic)}`,
+    { method: "DELETE" },
+  );
+}
+
+export async function addCustomNotificationTopic(
+  topic: string,
+  description: string,
+): Promise<void> {
+  await apiFetch("/ring/notifications/topics", {
+    method: "POST",
+    body: JSON.stringify({ topic, description }),
   });
 }
 

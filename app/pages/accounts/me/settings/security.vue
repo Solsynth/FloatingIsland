@@ -2,51 +2,172 @@
     <div class="max-w-3xl mx-auto space-y-6 min-w-0">
         <h1 class="text-2xl font-bold mb-6 max-lg:px-4">{{ t('settings.securityTitle') }}</h1>
 
-        <!-- Password -->
+        <!-- Password reset (Island: captcha + recovery email, not in-place change) -->
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
-                <h2 class="card-title text-lg mb-4">{{ t('settings.changePassword') }}</h2>
+                <h2 class="card-title text-lg mb-2">{{ t('settings.changePassword') }}</h2>
+                <p class="text-sm text-base-content/60 mb-4">
+                    {{ t('settings.passwordChangeDescription') }}
+                </p>
 
-                <div class="space-y-4">
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">{{ t('settings.currentPassword') }}</legend>
-                        <input
-                            v-model="passwordForm.current"
-                            type="password"
-                            class="input input-bordered w-full"
-                            :placeholder="t('settings.currentPasswordPlaceholder')"
-                        >
-                    </fieldset>
+                <div v-if="showPasswordCaptcha" class="space-y-3 mb-4">
+                    <CaptchaWidget @verified="onPasswordCaptchaVerified" />
+                    <button class="btn btn-ghost btn-sm" @click="showPasswordCaptcha = false">
+                        {{ t('settings.cancel') }}
+                    </button>
+                </div>
 
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">{{ t('settings.newPassword') }}</legend>
-                        <input
-                            v-model="passwordForm.new"
-                            type="password"
-                            class="input input-bordered w-full"
-                            :placeholder="t('settings.newPasswordPlaceholder')"
-                        >
-                    </fieldset>
+                <div v-else class="flex flex-wrap gap-2">
+                    <button
+                        class="btn btn-primary"
+                        :disabled="isRequestingPasswordReset"
+                        @click="showPasswordCaptcha = true"
+                    >
+                        <IconLoader v-if="isRequestingPasswordReset" class="w-4 h-4 animate-spin" />
+                        <IconKey v-else class="w-4 h-4" />
+                        {{ t('settings.requestPasswordChange') }}
+                    </button>
+                    <p v-if="passwordResetSent" class="text-sm text-success self-center">
+                        {{ t('settings.passwordChangeSent') }}
+                    </p>
+                </div>
+            </div>
+        </div>
 
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">{{ t('settings.confirmNewPassword') }}</legend>
-                        <input
-                            v-model="passwordForm.confirm"
-                            type="password"
-                            class="input input-bordered w-full"
-                            :placeholder="t('settings.confirmNewPasswordPlaceholder')"
-                        >
-                    </fieldset>
+        <!-- Contact methods -->
+        <div class="card bg-base-100 shadow-sm">
+            <div class="card-body">
+                <div class="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                    <h2 class="card-title text-lg">{{ t('settings.contactMethods') }}</h2>
+                    <button class="btn btn-sm btn-primary" @click="showAddContact = true">
+                        <IconPlus class="w-4 h-4" />
+                        {{ t('settings.addContact') }}
+                    </button>
+                </div>
+                <p class="text-sm text-base-content/60 mb-4">
+                    {{ t('settings.contactMethodsDescription') }}
+                </p>
 
-                    <div class="flex justify-end">
+                <div v-if="contactsPending" class="flex justify-center py-6">
+                    <span class="loading loading-spinner" />
+                </div>
+                <div v-else-if="contactsError" class="alert alert-error">
+                    <span>{{ t('settings.loadContactsFail') }}</span>
+                    <button class="btn btn-sm btn-ghost" @click="refreshContacts">{{ t('settings.retry') }}</button>
+                </div>
+                <div v-else-if="!contacts?.length" class="text-center py-6 text-base-content/60">
+                    <p>{{ t('settings.noContacts') }}</p>
+                </div>
+                <div v-else class="space-y-3">
+                    <div
+                        v-for="contact in contacts"
+                        :key="contact.id"
+                        class="flex items-center justify-between gap-3 p-4 bg-base-200 rounded-xl"
+                    >
+                        <div class="min-w-0">
+                            <p class="font-medium truncate" :class="{ 'line-through opacity-60': !contact.verifiedAt }">
+                                {{ contact.content }}
+                            </p>
+                            <p class="text-xs text-base-content/60">
+                                {{ contact.type === 0 ? t('settings.contactEmail') : t('settings.contactPhone') }}
+                                <span v-if="contact.isPrimary" class="badge badge-primary badge-xs ml-1">{{ t('settings.primary') }}</span>
+                                <span v-if="contact.isPublic" class="badge badge-ghost badge-xs ml-1">{{ t('settings.public') }}</span>
+                                <span v-if="!contact.verifiedAt" class="badge badge-warning badge-xs ml-1">{{ t('settings.unverified') }}</span>
+                            </p>
+                        </div>
+                        <div class="flex gap-1 shrink-0">
+                            <button
+                                v-if="!contact.verifiedAt"
+                                class="btn btn-ghost btn-xs"
+                                :disabled="isProcessing === contact.id"
+                                :title="t('settings.verifyContact')"
+                                @click="requestContactVerify(contact.id)"
+                            >
+                                <IconMail class="w-4 h-4" />
+                            </button>
+                            <button
+                                v-if="contact.verifiedAt && !contact.isPrimary"
+                                class="btn btn-ghost btn-xs"
+                                :disabled="isProcessing === contact.id"
+                                :title="t('settings.setPrimary')"
+                                @click="makePrimaryContact(contact.id)"
+                            >
+                                <IconCheck class="w-4 h-4" />
+                            </button>
+                            <button
+                                class="btn btn-ghost btn-xs"
+                                :disabled="isProcessing === contact.id"
+                                :title="contact.isPublic ? t('settings.makePrivate') : t('settings.makePublic')"
+                                @click="toggleContactPublic(contact)"
+                            >
+                                <IconGlobe class="w-4 h-4" />
+                            </button>
+                            <button
+                                class="btn btn-ghost btn-xs text-error"
+                                :disabled="isProcessing === contact.id"
+                                :title="t('settings.deleteContact')"
+                                @click="removeContact(contact.id)"
+                            >
+                                <IconTrash class="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account connections (OAuth providers) -->
+        <div class="card bg-base-100 shadow-sm">
+            <div class="card-body">
+                <div class="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                    <h2 class="card-title text-lg">{{ t('settings.accountConnections') }}</h2>
+                    <div class="dropdown dropdown-end">
+                        <button tabindex="0" class="btn btn-sm btn-primary">
+                            <IconPlus class="w-4 h-4" />
+                            {{ t('settings.addConnection') }}
+                        </button>
+                        <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-10 w-52 p-2 shadow">
+                            <li v-for="provider in connectionProviders" :key="provider">
+                                <a :href="getConnectionAuthUrl(provider)" target="_blank" rel="noopener">
+                                    {{ provider }}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <p class="text-sm text-base-content/60 mb-4">
+                    {{ t('settings.accountConnectionsDescription') }}
+                </p>
+
+                <div v-if="connectionsPending" class="flex justify-center py-6">
+                    <span class="loading loading-spinner" />
+                </div>
+                <div v-else-if="connectionsError" class="alert alert-error">
+                    <span>{{ t('settings.loadConnectionsFail') }}</span>
+                    <button class="btn btn-sm btn-ghost" @click="refreshConnections">{{ t('settings.retry') }}</button>
+                </div>
+                <div v-else-if="!connections?.length" class="text-center py-6 text-base-content/60">
+                    <p>{{ t('settings.noConnections') }}</p>
+                </div>
+                <div v-else class="space-y-3">
+                    <div
+                        v-for="conn in connections"
+                        :key="conn.id"
+                        class="flex items-center justify-between gap-3 p-4 bg-base-200 rounded-xl"
+                    >
+                        <div class="min-w-0">
+                            <p class="font-medium">{{ conn.provider }}</p>
+                            <p class="text-sm text-base-content/60 truncate">
+                                {{ conn.meta?.email || conn.providedIdentifier }}
+                            </p>
+                        </div>
                         <button
-                            class="btn btn-primary"
-                            :disabled="isChangingPassword || !canChangePassword"
-                            @click="changePassword"
+                            class="btn btn-ghost btn-sm text-error shrink-0"
+                            :disabled="isProcessing === conn.id"
+                            @click="removeConnection(conn.id)"
                         >
-                            <IconLoader v-if="isChangingPassword" class="w-4 h-4 animate-spin" />
-                            <IconKey v-else class="w-4 h-4" />
-                            {{ t('settings.updatePassword') }}
+                            <IconTrash class="w-4 h-4" />
+                            {{ t('settings.disconnect') }}
                         </button>
                     </div>
                 </div>
@@ -719,6 +840,41 @@
         </div>
         <div class="modal-backdrop" @click="renamingPasskey = null" />
     </dialog>
+
+    <!-- Add contact method modal -->
+    <dialog class="modal" :class="{ 'modal-open': showAddContact }">
+        <div class="modal-box max-w-md">
+            <h3 class="font-bold text-lg mb-4">{{ t('settings.addContact') }}</h3>
+            <fieldset class="fieldset mb-4">
+                <legend class="fieldset-legend">{{ t('settings.contactType') }}</legend>
+                <select v-model="newContact.type" class="select select-bordered w-full">
+                    <option :value="0">{{ t('settings.contactEmail') }}</option>
+                    <option :value="1">{{ t('settings.contactPhone') }}</option>
+                </select>
+            </fieldset>
+            <fieldset class="fieldset mb-4">
+                <legend class="fieldset-legend">{{ t('settings.contactContent') }}</legend>
+                <input
+                    v-model="newContact.content"
+                    type="text"
+                    class="input input-bordered w-full"
+                    :placeholder="newContact.type === 0 ? 'you@example.com' : '+1...'"
+                >
+            </fieldset>
+            <div class="modal-action">
+                <button class="btn btn-ghost" @click="showAddContact = false">{{ t('settings.cancel') }}</button>
+                <button
+                    class="btn btn-primary"
+                    :disabled="!newContact.content.trim() || isAddingContact"
+                    @click="addContact"
+                >
+                    <IconLoader v-if="isAddingContact" class="w-4 h-4 animate-spin" />
+                    {{ t('settings.addContact') }}
+                </button>
+            </div>
+        </div>
+        <div class="modal-backdrop" @click="showAddContact = false" />
+    </dialog>
     </div>
 </template>
 
@@ -739,6 +895,7 @@ import {
     IconBell,
     IconFingerprint,
     IconKeyRound,
+    IconQrCode,
     IconSmartphone,
     IconGlobe,
     IconLaptop,
@@ -765,6 +922,17 @@ import {
     completePasskeyRegistration,
     updatePasskey,
     deletePasskey as apiDeletePasskey,
+    requestPasswordReset,
+    fetchContactMethods,
+    createContactMethod,
+    deleteContactMethod,
+    verifyContactMethod,
+    setPrimaryContactMethod,
+    makeContactPublic,
+    makeContactPrivate,
+    fetchAccountConnections,
+    deleteAccountConnection,
+    getConnectionAuthUrl,
 } from "~/utils/api";
 import {
     FACTOR_TYPES,
@@ -774,6 +942,7 @@ import {
     type SnAuthDevice,
     type SnAuthSession,
     type SnPasskey,
+    type SnContactMethod,
 } from "~/types/auth";
 import {
     arrayBufferToBase64Url,
@@ -787,14 +956,14 @@ import {
 const { t } = useI18n();
 const auth = useAuth();
 
-const passwordForm = reactive({
-    current: "",
-    new: "",
-    confirm: "",
-});
-
-const isChangingPassword = ref(false);
+const isRequestingPasswordReset = ref(false);
+const showPasswordCaptcha = ref(false);
+const passwordResetSent = ref(false);
 const isProcessing = ref<string | null>(null);
+const showAddContact = ref(false);
+const isAddingContact = ref(false);
+const newContact = reactive({ type: 0, content: "" });
+const connectionProviders = ["Google", "GitHub", "Discord", "Apple", "Microsoft"];
 const isCreatingRecovery = ref(false);
 const isAddingFactor = ref(false);
 const isEnabling = ref(false);
@@ -871,8 +1040,16 @@ const nonPasskeyFactors = computed(() =>
     (factors.value ?? []).filter(f => f.type !== 7),
 );
 
-const canChangePassword = computed(() =>
-    passwordForm.current && passwordForm.new && passwordForm.confirm && passwordForm.new === passwordForm.confirm,
+const { data: contacts, pending: contactsPending, error: contactsError, refresh: refreshContacts } = await useAsyncData(
+    "auth-contacts",
+    () => fetchContactMethods(),
+    { default: () => [] as SnContactMethod[], server: false },
+);
+
+const { data: connections, pending: connectionsPending, error: connectionsError, refresh: refreshConnections } = await useAsyncData(
+    "auth-connections",
+    () => fetchAccountConnections(),
+    { default: () => [], server: false },
 );
 
 const availableFactorTypes = computed(() => {
@@ -927,6 +1104,7 @@ function getFactorIcon(type: number) {
         case 5: return IconKeyRound;
         case 6: return IconFingerprint;
         case 7: return IconFingerprint;
+        case 8: return IconQrCode;
         default: return IconKey;
     }
 }
@@ -976,22 +1154,104 @@ function showDeviceDetail(device: SnAuthDevice) {
     selectedDevice.value = device;
 }
 
-async function changePassword() {
-    if (passwordForm.new !== passwordForm.confirm) {
-        alert("Passwords do not match");
-        return;
-    }
-    isChangingPassword.value = true;
+async function onPasswordCaptchaVerified(token: string) {
+    const accountName = auth.user.value?.name;
+    if (!accountName) return;
+    isRequestingPasswordReset.value = true;
+    showPasswordCaptcha.value = false;
     try {
-        await new Promise(r => setTimeout(r, 1000));
-        alert("Password updated successfully");
-        passwordForm.current = "";
-        passwordForm.new = "";
-        passwordForm.confirm = "";
+        await requestPasswordReset(accountName, token);
+        passwordResetSent.value = true;
+        alert(t("settings.passwordChangeSent"));
     } catch (err) {
-        alert(err instanceof Error ? err.message : "Failed to change password");
+        alert(err instanceof Error ? err.message : t("settings.passwordChangeFail"));
     } finally {
-        isChangingPassword.value = false;
+        isRequestingPasswordReset.value = false;
+    }
+}
+
+async function addContact() {
+    isAddingContact.value = true;
+    try {
+        await createContactMethod({
+            type: newContact.type,
+            content: newContact.content.trim(),
+        });
+        newContact.content = "";
+        newContact.type = 0;
+        showAddContact.value = false;
+        await refreshContacts();
+    } catch (err) {
+        alert(err instanceof Error ? err.message : t("settings.addContactFail"));
+    } finally {
+        isAddingContact.value = false;
+    }
+}
+
+async function removeContact(id: string) {
+    if (!confirm(t("settings.deleteContactConfirm"))) return;
+    isProcessing.value = id;
+    try {
+        await deleteContactMethod(id);
+        await refreshContacts();
+    } catch (err) {
+        alert(err instanceof Error ? err.message : t("settings.deleteContactFail"));
+    } finally {
+        isProcessing.value = null;
+    }
+}
+
+async function requestContactVerify(id: string) {
+    isProcessing.value = id;
+    try {
+        await verifyContactMethod(id);
+        alert(t("settings.verifyContactSent"));
+        await refreshContacts();
+    } catch (err) {
+        alert(err instanceof Error ? err.message : t("settings.verifyContactFail"));
+    } finally {
+        isProcessing.value = null;
+    }
+}
+
+async function makePrimaryContact(id: string) {
+    isProcessing.value = id;
+    try {
+        await setPrimaryContactMethod(id);
+        await refreshContacts();
+    } catch (err) {
+        alert(err instanceof Error ? err.message : t("settings.setPrimaryFail"));
+    } finally {
+        isProcessing.value = null;
+    }
+}
+
+async function toggleContactPublic(contact: SnContactMethod) {
+    isProcessing.value = contact.id;
+    try {
+        if (contact.isPublic) {
+            await makeContactPrivate(contact.id);
+        } else {
+            await makeContactPublic(contact.id);
+        }
+        await refreshContacts();
+    } catch (err) {
+        alert(err instanceof Error ? err.message : t("settings.togglePublicFail"));
+    } finally {
+        isProcessing.value = null;
+    }
+}
+
+async function removeConnection(id: string) {
+    if (!confirm(t("settings.disconnectConfirm"))) return;
+    isProcessing.value = id;
+    try {
+        await deleteAccountConnection(id);
+        await refreshConnections();
+    } catch (err) {
+        alert(err instanceof Error ? err.message : t("settings.disconnectFail"));
+    } finally {
+        isProcessing.value = null;
     }
 }
 

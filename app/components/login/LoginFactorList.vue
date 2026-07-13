@@ -1,50 +1,50 @@
 <template>
-    <div class="space-y-3">
+    <div class="space-y-2">
         <label
             v-for="factor in availableFactors"
             :key="factor.id"
-            class="flex items-center gap-3 p-3 rounded-xl border border-base-300 transition-colors"
+            class="flex items-center gap-3 rounded-lg border border-base-300 p-3 transition-colors"
             :class="{
                 'border-primary bg-primary/5': selectedFactor?.id === factor.id,
-                'cursor-pointer hover:bg-base-200': !isBlacklisted(factor.id),
+                'cursor-pointer hover:border-base-content/20 hover:bg-base-200/60': !isBlacklisted(factor.id) && selectedFactor?.id !== factor.id,
                 'opacity-50 cursor-not-allowed': isBlacklisted(factor.id),
             }"
         >
             <input
                 type="radio"
                 name="factor"
-                class="radio radio-primary"
+                class="radio radio-primary radio-sm"
                 :checked="selectedFactor?.id === factor.id"
                 :disabled="isBlacklisted(factor.id)"
                 @change="!isBlacklisted(factor.id) && $emit('select', factor)"
             >
             <IconKey
                 v-if="getFactorIconType(factor.type) === 'key'"
-                class="w-5 h-5"
+                class="h-4 w-4 shrink-0 text-base-content/60"
             />
             <IconMail
                 v-else-if="getFactorIconType(factor.type) === 'mail'"
-                class="w-5 h-5"
+                class="h-4 w-4 shrink-0 text-base-content/60"
             />
             <IconBell
                 v-else-if="getFactorIconType(factor.type) === 'bell'"
-                class="w-5 h-5"
+                class="h-4 w-4 shrink-0 text-base-content/60"
             />
             <IconTimer
                 v-else-if="getFactorIconType(factor.type) === 'timer'"
-                class="w-5 h-5"
+                class="h-4 w-4 shrink-0 text-base-content/60"
             />
             <IconNfc
                 v-else-if="getFactorIconType(factor.type) === 'nfc'"
-                class="w-5 h-5"
+                class="h-4 w-4 shrink-0 text-base-content/60"
             />
             <IconKeySquare
                 v-else-if="getFactorIconType(factor.type) === 'key-square'"
-                class="w-5 h-5"
+                class="h-4 w-4 shrink-0 text-base-content/60"
             />
-            <IconShield v-else class="w-5 h-5" />
-            <div>
-                <div class="font-medium">
+            <IconShield v-else class="h-4 w-4 shrink-0 text-base-content/60" />
+            <div class="min-w-0">
+                <div class="text-sm font-medium">
                     {{ factor.name || getFactorLabel(factor.type) }}
                 </div>
                 <div class="text-xs text-base-content/50">
@@ -84,8 +84,12 @@ defineEmits<{
 }>();
 
 const availableFactors = computed(() => {
-    // Filter out factors that are unavailable on web (e.g., NFC)
-    return props.factors.filter(f => !FACTOR_TYPES[f.type]?.webUnavailable);
+    // Filter out factors unavailable on web (NFC) and QR Login (separate web flow)
+    return props.factors.filter((f) => {
+        if (FACTOR_TYPES[f.type]?.webUnavailable) return false;
+        if (f.type === 8) return false; // QrLogin — use /auth/login QR panel instead
+        return true;
+    });
 });
 
 function isBlacklisted(factorId: string): boolean {
