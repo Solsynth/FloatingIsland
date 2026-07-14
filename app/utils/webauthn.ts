@@ -47,9 +47,8 @@ export function isWebAuthnAvailable(): boolean {
 
 /**
  * Relying party ID for registration.
- * Matches Island (API host) so credentials align with assertion options,
- * where Padlock returns `Request.Host` (api.solian.app).
- * On localhost/dev, use the page host so WebAuthn accepts the origin.
+ * `solian.app` is a valid parent domain for both the public app and API hosts.
+ * Other deployments use their page host so WebAuthn accepts the origin.
  */
 export function getPasskeyRpId(): string {
   if (typeof window === "undefined") return "localhost";
@@ -57,7 +56,9 @@ export function getPasskeyRpId(): string {
   if (host === "localhost" || host === "127.0.0.1") {
     return host;
   }
-  return "api.solian.app";
+  return host === "solian.app" || host.endsWith(".solian.app")
+    ? "solian.app"
+    : host;
 }
 
 export function getPasskeyDeviceName(): string {
