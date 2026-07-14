@@ -1,54 +1,74 @@
 <template>
-	<div class="min-h-screen bg-base-200 flex items-center justify-center px-4 py-8">
-		<div class="w-full max-w-4xl rounded-3xl shadow-2xl backdrop-blur-xl overflow-hidden">
-			<div class="grid md:grid-cols-[0.95fr_1.05fr]">
-				<!-- Left Column: Branding -->
-				<section
-					class="flex flex-col justify-between gap-4 rounded-t-3xl bg-base-100/50 p-6 backdrop-blur-2xl md:rounded-l-3xl md:rounded-tr-none md:p-8"
-				>
-					<div class="flex flex-col gap-4">
-						<img src="/favicon.png" alt="Solar Network" class="h-12 w-12 rounded-full">
-						<div>
-							<p class="text-xs font-semibold tracking-[0.2em] text-base-content/70 uppercase">
-								{{ t("auth.createAccount.step", { step: stepIndex }) }}
-							</p>
-						</div>
-						<div>
-							<h1 class="text-3xl leading-tight font-black">{{ t("auth.createAccount.title") }}</h1>
-							<p class="text-sm text-base-content/70 mt-2">
-								{{ t("auth.createAccount.subtitle") }}
-							</p>
-						</div>
+	<div class="min-h-screen bg-base-200 flex items-center justify-center px-4 py-10">
+		<div class="w-full max-w-3xl overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm">
+			<div class="grid md:grid-cols-2">
+				<!-- Brand rail -->
+				<aside class="flex flex-col justify-between gap-6 border-b border-base-300 bg-base-200/50 p-6 md:border-b-0 md:border-r">
+					<div>
+						<img
+							src="/favicon.png"
+							alt="Solar Network"
+							class="h-9 w-9 rounded-lg"
+						>
+						<p class="mt-5 text-xs text-base-content/50">
+							{{ t("auth.createAccount.step", { step: stepIndex }) }}
+						</p>
+						<h1 class="mt-1.5 text-xl font-semibold tracking-tight">
+							{{ t("auth.createAccount.title") }}
+						</h1>
+						<p class="mt-1.5 text-sm leading-relaxed text-base-content/60">
+							{{ t("auth.createAccount.subtitle") }}
+						</p>
 					</div>
 
+					<div>
+						<!-- Step progress -->
+						<div class="mb-1.5 flex items-center justify-between text-xs text-base-content/50">
+							<span>{{ stepIndex }} / 5</span>
+						</div>
+						<div class="flex items-center gap-1">
+							<div
+								v-for="i in 5"
+								:key="i"
+								class="h-1 flex-1 rounded-full transition-all duration-300"
+								:class="i <= stepIndex ? 'bg-primary' : 'bg-base-300'"
+							/>
+						</div>
 
-					<!-- Step Progress Bar -->
-					<div class="flex items-center gap-1">
-						<div
-							v-for="i in 5"
-							:key="i"
-							class="flex-1 h-1.5 rounded-full transition-all duration-300"
-							:class="i <= stepIndex ? 'bg-primary' : 'bg-base-300'"
-						/>
+						<p class="mt-6 text-sm text-base-content/70">
+							<NuxtLink
+								:to="loginHref"
+								class="link link-primary font-medium"
+							>
+								{{ t("auth.signIn") }}
+							</NuxtLink>
+						</p>
 					</div>
-				</section>
+				</aside>
 
-				<!-- Right Column: Form -->
-				<section class="rounded-b-2xl bg-base-100/90 p-6 md:rounded-r-2xl md:rounded-bl-none md:p-8 min-h-96 flex-col flex justify-between">
-					<div v-if="error" class="alert alert-error text-sm mb-4">
-						<IconAlertCircle class="w-4 h-4" />
+				<!-- Form panel -->
+				<section class="flex min-h-80 flex-col p-6 md:p-8">
+					<div
+						v-if="error"
+						class="alert alert-error mb-4 text-sm"
+					>
+						<IconAlertCircle class="h-4 w-4 shrink-0" />
 						<span>{{ error }}</span>
 					</div>
 
 					<!-- Step 1: Username & Nickname -->
-					<div v-if="stage === 'username-nick'" class="space-y-4">
+					<div v-if="stage === 'username-nick'" class="flex flex-1 flex-col space-y-4">
 						<fieldset class="fieldset">
 							<legend class="fieldset-legend">{{ t("auth.createAccount.username") }}</legend>
 							<input
 								v-model="form.name"
 								type="text"
+								name="username"
+								autocomplete="username"
 								class="input input-bordered w-full"
 								:placeholder="t('auth.createAccount.usernamePlaceholder')"
+								:disabled="submitting"
+								@keydown.enter="next"
 							>
 							<p class="fieldset-label text-xs text-base-content/50">
 								{{ t("auth.createAccount.usernameHint") }}
@@ -59,21 +79,29 @@
 							<input
 								v-model="form.nick"
 								type="text"
+								name="nickname"
+								autocomplete="nickname"
 								class="input input-bordered w-full"
 								:placeholder="t('auth.createAccount.nicknamePlaceholder')"
+								:disabled="submitting"
+								@keydown.enter="next"
 							>
 						</fieldset>
 					</div>
 
 					<!-- Step 2: Email -->
-					<div v-if="stage === 'email'" class="space-y-4">
+					<div v-if="stage === 'email'" class="flex flex-1 flex-col space-y-4">
 						<fieldset class="fieldset">
 							<legend class="fieldset-legend">{{ t("auth.createAccount.email") }}</legend>
 							<input
 								v-model="form.email"
 								type="email"
+								name="email"
+								autocomplete="email"
 								class="input input-bordered w-full"
 								:placeholder="t('auth.createAccount.emailPlaceholder')"
+								:disabled="submitting"
+								@keydown.enter="next"
 							>
 							<p class="fieldset-label text-xs text-base-content/50">
 								{{ t("auth.createAccount.emailHint") }}
@@ -82,14 +110,18 @@
 					</div>
 
 					<!-- Step 3: Password -->
-					<div v-if="stage === 'password'" class="space-y-4">
+					<div v-if="stage === 'password'" class="flex flex-1 flex-col space-y-4">
 						<fieldset class="fieldset">
 							<legend class="fieldset-legend">{{ t("auth.createAccount.password") }}</legend>
 							<input
 								v-model="form.password"
 								type="password"
+								name="password"
+								autocomplete="new-password"
 								class="input input-bordered w-full"
 								:placeholder="t('auth.createAccount.passwordPlaceholder')"
+								:disabled="submitting"
+								@keydown.enter="next"
 							>
 							<p class="fieldset-label text-xs text-base-content/50">
 								{{ t("auth.createAccount.passwordHint") }}
@@ -98,20 +130,20 @@
 					</div>
 
 					<!-- Step 4: Captcha -->
-					<div v-if="stage === 'captcha'" class="space-y-3">
-						<p class="text-center text-sm text-base-content/70">
+					<div v-if="stage === 'captcha'" class="flex flex-1 flex-col items-center justify-center space-y-3">
+						<p class="text-sm text-base-content/70">
 							{{ t("auth.createAccount.captchaTitle") }}
 						</p>
 						<CaptchaWidget @verified="onCaptchaVerified" />
-						<p v-if="form.captchaToken" class="text-xs text-success text-center">
-							<IconCheckCircle class="w-3 h-3 inline mr-1" />
+						<p v-if="form.captchaToken" class="text-xs text-success">
+							<IconCheckCircle class="mr-1 inline h-3 w-3" />
 							{{ t("auth.createAccount.captchaSuccess") }}
 						</p>
 					</div>
 
 					<!-- Step 5: Terms -->
-					<div v-if="stage === 'terms'" class="space-y-4">
-						<div class="rounded-xl border border-base-300 bg-base-200/60 p-4 text-sm text-base-content/80">
+					<div v-if="stage === 'terms'" class="flex flex-1 flex-col space-y-4">
+						<div class="rounded-lg border border-base-300 bg-base-200/50 p-4 text-sm text-base-content/80">
 							<ul class="list-disc space-y-1 pl-5">
 								<li>{{ t("auth.createAccount.termsList1") }}</li>
 								<li>{{ t("auth.createAccount.termsList2") }}</li>
@@ -119,50 +151,53 @@
 							</ul>
 						</div>
 						<div class="flex items-center gap-2 text-sm text-base-content/70">
-							<IconShieldCheck class="w-4 h-4 text-success" />
+							<IconShieldCheck class="h-4 w-4 shrink-0 text-success" />
 							<span>{{ t("auth.createAccount.termsAgree") }}</span>
 						</div>
 					</div>
 
-					<!-- Navigation Buttons -->
-					<div class="mt-6 flex items-center justify-between">
+					<!-- Navigation -->
+					<div class="mt-auto grid grid-cols-2 gap-2 pt-6">
 						<NuxtLink
 							v-if="stage === 'username-nick'"
-							:to="redirectUrl ? `/auth/login?redirect=${encodeURIComponent(redirectUrl)}` : '/auth/login'"
-							class="btn btn-ghost btn-sm"
+							:to="loginHref"
+							class="btn btn-ghost"
 						>
 							{{ t("auth.createAccount.login") }}
 						</NuxtLink>
 						<button
 							v-else
-							class="btn btn-ghost btn-sm"
+							type="button"
+							class="btn btn-ghost"
 							:disabled="submitting"
 							@click="back"
 						>
-							<IconArrowLeft class="w-4 h-4" />
+							<IconArrowLeft class="h-4 w-4" />
 							{{ t("auth.back") }}
 						</button>
 
 						<button
 							v-if="stage !== 'terms'"
+							type="button"
 							class="btn btn-primary"
 							:disabled="!canProceed || submitting"
 							@click="next"
 						>
 							{{ t("auth.createAccount.next") }}
-							<IconArrowRight class="w-4 h-4" />
+							<IconArrowRight class="h-4 w-4" />
 						</button>
 						<button
 							v-else
+							type="button"
 							class="btn btn-primary"
 							:disabled="submitting"
 							@click="handleSubmit"
 						>
 							<IconLoader
 								v-if="submitting"
-								class="w-4 h-4 animate-spin"
+								class="h-4 w-4 animate-spin"
 							/>
-							<IconCheckCircle v-else class="w-4 h-4" />
+							<IconCheckCircle v-else class="h-4 w-4" />
 							{{ t("auth.createAccount.createAccount") }}
 						</button>
 					</div>
@@ -207,6 +242,12 @@ const stage = ref<Stage>('username-nick');
 const submitting = ref(false);
 const error = ref<string | null>(null);
 const redirectUrl = ref<string | null>(null);
+
+const loginHref = computed(() =>
+	redirectUrl.value
+		? `/auth/login?redirect=${encodeURIComponent(redirectUrl.value)}`
+		: '/auth/login',
+);
 
 const stepIndex = computed(() => {
 	const stages: Stage[] = ['username-nick', 'email', 'password', 'captcha', 'terms'];
